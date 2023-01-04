@@ -23,8 +23,8 @@ const MainSliderWrapper = styled(RowWrapper)`
 
 const MainSlider = () => {
   const width = useWidth();
-
   const dispatch = useDispatch();
+
   const { banners } = useSelector((state) => state.banner);
   const { me } = useSelector((state) => state.user);
 

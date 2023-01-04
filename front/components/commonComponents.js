@@ -155,7 +155,7 @@ export const Wrapper = styled.div`
 `;
 
 export const RsWrapper = styled.article`
-  width: 1350px;
+  width: 100%;
   height: ${(props) => props.height || `100%`};
   ${(props) => props.minHeight}
   color: ${(props) => props.color};
@@ -168,35 +168,20 @@ export const RsWrapper = styled.article`
   flex-wrap: ${(props) => props.wrap || `wrap`};
   backdrop-filter: ${(props) => props.filter};
   margin: ${(props) => props.margin};
-  padding: ${(props) => props.padding};
+  padding: ${(props) => props.padding || `0 70px`};
   overflow: ${(props) => props.overflow};
   border-bottom: ${(props) => props.borderBottom};
+  border-top: ${(props) => props.borderTop};
   border: ${(props) => props.border};
   font-size: ${(props) => props.fontSize};
   position: ${(props) => props.position};
 
-  @media (max-width: 1500px) {
-    width: 1350px;
-  }
-  @media (max-width: 1350px) {
-    width: 1280px;
-  }
   @media (max-width: 1280px) {
-    width: 1100px;
+    padding: ${(props) => props.padding || `0 50px`};
   }
-  @media (max-width: 1100px) {
-    width: 900px;
-  }
+
   @media (max-width: 900px) {
-    width: 800px;
-  }
-  @media (max-width: 800px) {
-    width: 700px;
-  }
-  @media (max-width: 700px) {
-    width: 100%;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding: ${(props) => props.padding || `0 15px`};
   }
 `;
 
@@ -206,15 +191,17 @@ export const CommonButton = styled(Button)`
   margin: ${(props) => props.margin};
   padding: ${(props) => props.padding};
   font-size: ${(props) => props.fontSize};
+  font-weight: ${(props) => props.fontWeight};
   color: ${(props) => props.color || props.theme.basicTheme_C};
-  border-radius: ${(props) => props.radius || `7px`};
+  border-radius: ${(props) => props.radius};
 
   ${(props) => !props.kindOf && `background : ${props.theme.white_C};`}
+
+  /* white - 배경 투명, 하얀글씨, 하얀선 */
+  ${(props) => props.kindOf === `white` && `background : transparent;`}
+  ${(props) => props.kindOf === `white` && `color : ${props.theme.white_C};`}
   ${(props) =>
-    props.kindOf === `white` && `background : ${props.theme.basicTheme_C};`}
-  ${(props) => props.kindOf === `white` && `color : ${props.theme.subTheme_C};`}
-  ${(props) =>
-    props.kindOf === `white` && `border : 1px solid ${props.theme.subTheme_C};`}
+    props.kindOf === `white` && `border : 1px solid ${props.theme.white_C};`}
   ${(props) =>
     props.kindOf === `black` && `background : ${props.theme.black_C};`}
   ${(props) => props.kindOf === `black` && `color : ${props.theme.white_C};`}
@@ -247,6 +234,8 @@ export const CommonButton = styled(Button)`
       !props.kindOf && `border :1px solid ${props.theme.basicTheme_C};`}
     ${(props) =>
       props.kindOf === `white` && `background ${props.theme.basicTheme_C};`}
+    ${(props) =>
+      props.kindOf === `white` && `border : 1px solid ${props.theme.white_C};`}
     ${(props) => props.kindOf === `white` && `color ${props.theme.white_C};`}
     ${(props) =>
       props.kindOf === `black` && `background : ${props.theme.white_C};`}
@@ -396,7 +385,7 @@ export const SpanText = styled.span`
 export const TextInput = styled.input`
   width: ${(props) => props.width};
   height: ${(props) => props.height || `40px`};
-  border: ${(props) => props.border || `1px solid ${props.theme.grey_C}`};
+  border: ${(props) => props.border || `1px solid ${props.theme.white_C}`};
   border-bottom: ${(props) => props.borderBottom};
   padding: ${(props) => props.padding || `10px`};
   transition: ${(props) => props.transition || props.theme.transition};
