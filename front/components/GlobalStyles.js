@@ -99,6 +99,11 @@ const GlobalStyles = createGlobalStyle`
     color: ${(props) => props.theme.black_C};
     border-color: ${(props) => props.theme.basicTheme_C};
   }
+
+  .styles_reactWaves__1M36F{
+    width: 100% !important;
+    padding: 0 !important;
+  }
   
   @media (max-width : 576px) {
     html { 

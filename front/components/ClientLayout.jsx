@@ -28,7 +28,7 @@ const ClientLayout = ({ children, width }) => {
           padding={`84px 0 0`}
         >
           <AppHeader />
-          <RsWrapper>{children}</RsWrapper>
+          <Wrapper>{children}</Wrapper>
           <AppFooter />
         </Wrapper>
       </WholeWrapper>

@@ -208,29 +208,40 @@ const AppHeader = () => {
             fontSize={`22px`}
             color={Theme.basicTheme_C}
           >
-            Account
+            C/S Center
           </Text>
         </Wrapper>
         <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 30px`}>
           <Image
             alt="icon"
-            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/login.png`}
+            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/notice.png`}
             width={`14px`}
             margin={`0 10px 0 0`}
           />
           <Text fontSize={`16px`} isHover color={Theme.grey_C}>
-            Login
+            Notice
           </Text>
         </Wrapper>
         <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 30px`}>
           <Image
             alt="icon"
-            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/join.png`}
+            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/faq.png`}
             width={`14px`}
             margin={`0 10px 0 0`}
           />
           <Text fontSize={`16px`} isHover color={Theme.grey_C}>
-            Join
+            FAQ
+          </Text>
+        </Wrapper>
+        <Wrapper dr={`row`} ju={`flex-start`}>
+          <Image
+            alt="icon"
+            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/contact.png`}
+            width={`14px`}
+            margin={`0 10px 0 0`}
+          />
+          <Text fontSize={`16px`} isHover color={Theme.grey_C}>
+            Contact Us
           </Text>
         </Wrapper>
       </Drawer>

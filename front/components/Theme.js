@@ -3,9 +3,8 @@ export default {
 
   subTheme_C: "#FCF5FC",
   subTheme2_C: "#F4F2F4",
-  subTheme3_C: "#2D53A3",
-  subTheme4_C: "#FFD321",
-  subTheme5_C: "#1E5AA9",
+  subTheme3_C: "#FFC107",
+  subTheme4_C: "#B3A9BE",
 
   kakao_C: "#FAE100",
   naver_C: "#00C73C",
