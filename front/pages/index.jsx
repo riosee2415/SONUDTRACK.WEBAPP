@@ -21,6 +21,7 @@ import Popup from "../components/popup/popup";
 import MainSlider2 from "../components/slide/MainSlider2";
 import dynamic from "next/dynamic";
 import { useCallback } from "react";
+import { Modal } from "antd";
 
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
@@ -69,6 +70,8 @@ const CommentWrapper = styled(Wrapper)`
 const Home = ({}) => {
   ////// GLOBAL STATE //////
   const [playing, setPlaying] = useState(false);
+  const [down, setDown] = useState(false);
+  const [cart, setCart] = useState(false);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -79,6 +82,14 @@ const Home = ({}) => {
   const playingToggle = useCallback(() => {
     setPlaying((prev) => !prev);
   }, [playing]);
+
+  const downToggle = useCallback(() => {
+    setDown((prev) => !prev);
+  }, [down]);
+
+  const cartToggle = useCallback(() => {
+    setCart((prev) => !prev);
+  }, [cart]);
   ////// HANDLER //////
   ////// DATAVIEW //////
 
@@ -274,7 +285,11 @@ const Home = ({}) => {
                         ju={`center`}
                         margin={`10px 0 0`}
                       >
-                        <Wrapper width={`50px`}>
+                        <Wrapper
+                          width={`50px`}
+                          onClick={downToggle}
+                          cursor={`pointer`}
+                        >
                           <Image
                             alt="icon"
                             width={`22px`}
@@ -284,7 +299,11 @@ const Home = ({}) => {
                             15,000
                           </Text>
                         </Wrapper>
-                        <Wrapper width={`50px`}>
+                        <Wrapper
+                          width={`50px`}
+                          onClick={cartToggle}
+                          cursor={`pointer`}
+                        >
                           <Image
                             alt="icon"
                             width={`22px`}
@@ -358,7 +377,11 @@ const Home = ({}) => {
                     al={`flex-start`}
                     ju={`center`}
                   >
-                    <Wrapper width={`60px`}>
+                    <Wrapper
+                      width={`60px`}
+                      onClick={downToggle}
+                      cursor={`pointer`}
+                    >
                       <Image
                         alt="icon"
                         width={`22px`}
@@ -368,7 +391,11 @@ const Home = ({}) => {
                         15,000
                       </Text>
                     </Wrapper>
-                    <Wrapper width={`60px`}>
+                    <Wrapper
+                      width={`50px`}
+                      onClick={cartToggle}
+                      cursor={`pointer`}
+                    >
                       <Image
                         alt="icon"
                         width={`22px`}
@@ -391,6 +418,83 @@ const Home = ({}) => {
             </Wrapper>
           </RsWrapper>
           <Popup />
+
+          <Modal onCancel={downToggle} visible={down} footer={null}>
+            <Wrapper padding={width < 900 ? `30px 0` : `30px 25px`}>
+              <Text
+                fontWeight={`bold`}
+                fontSize={`28px`}
+                color={Theme.basicTheme_C}
+                margin={`0 0 16px`}
+              >
+                다운로드 결제 안내
+              </Text>
+              <Text fontSize={`16px`}>바로 구매하시겠습니까?</Text>
+              <Text fontSize={`16px`}>
+                1회 다운로드 되며, 결제 내역에서 확인할 수 있습니다.
+              </Text>
+              <Text fontSize={`16px`}>파일 유실 시 메일로 문의 바랍니다.</Text>
+
+              <Wrapper dr={`row`} margin={`30px 0 0`}>
+                <CommonButton
+                  width={`150px`}
+                  height={`48px`}
+                  fontSize={`18px`}
+                  fontWeight={`bold`}
+                  kindOf={`subTheme`}
+                  margin={`0 4px 0 0`}
+                >
+                  장바구니 담기
+                </CommonButton>
+                <CommonButton
+                  width={`150px`}
+                  height={`48px`}
+                  fontSize={`18px`}
+                  fontWeight={`bold`}
+                  margin={`0 0 0 4px`}
+                >
+                  바로 구매하기
+                </CommonButton>
+              </Wrapper>
+            </Wrapper>
+          </Modal>
+          <Modal onCancel={cartToggle} visible={cart} footer={null}>
+            <Wrapper padding={width < 900 ? `30px 0` : `30px 25px`}>
+              <Text
+                fontWeight={`bold`}
+                fontSize={`28px`}
+                color={Theme.basicTheme_C}
+                margin={`0 0 16px`}
+              >
+                Cart
+              </Text>
+              <Text fontSize={`16px`}>장바구니에 추가되었습니다.</Text>
+              <Text fontSize={`16px`}>계속 둘러보시겠어요?</Text>
+
+              <Wrapper dr={`row`} margin={`30px 0 0`}>
+                <CommonButton
+                  width={`150px`}
+                  height={`48px`}
+                  fontSize={`18px`}
+                  fontWeight={`bold`}
+                  kindOf={`subTheme`}
+                  margin={`0 4px 0 0`}
+                >
+                  장바구니 이동
+                </CommonButton>
+                <CommonButton
+                  width={`150px`}
+                  height={`48px`}
+                  fontSize={`18px`}
+                  fontWeight={`bold`}
+                  margin={`0 0 0 4px`}
+                  onClick={cartToggle}
+                >
+                  계속 쇼핑하기
+                </CommonButton>
+              </Wrapper>
+            </Wrapper>
+          </Modal>
         </WholeWrapper>
       </ClientLayout>
     </>

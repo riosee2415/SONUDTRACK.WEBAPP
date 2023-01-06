@@ -193,10 +193,11 @@ export const CommonButton = styled(Button)`
   padding: ${(props) => props.padding};
   font-size: ${(props) => props.fontSize};
   font-weight: ${(props) => props.fontWeight};
-  color: ${(props) => props.color || props.theme.basicTheme_C};
+  color: ${(props) => props.color || props.theme.white_C};
   border-radius: ${(props) => props.radius};
+  border: 1px solid ${(props) => props.theme.basicTheme_C};
 
-  ${(props) => !props.kindOf && `background : ${props.theme.white_C};`}
+  ${(props) => !props.kindOf && `background : ${props.theme.basicTheme_C};`}
 
   /* white - 배경 투명, 하얀글씨, 하얀선 */
   ${(props) => props.kindOf === `white` && `background : transparent;`}
@@ -207,12 +208,14 @@ export const CommonButton = styled(Button)`
     props.kindOf === `black` && `background : ${props.theme.black_C};`}
   ${(props) => props.kindOf === `black` && `color : ${props.theme.white_C};`}
   
+  /* subTheme - 배경 투명, 베이직글씨, 베이직 선 */
   ${(props) =>
-    props.kindOf === `subTheme` && `background : ${props.theme.subTheme_C};`}
-  ${(props) => props.kindOf === `subTheme` && `color : ${props.theme.white_C};`}
+    props.kindOf === `subTheme` && `background : ${props.theme.white_C};`}
+  ${(props) =>
+    props.kindOf === `subTheme` && `color : ${props.theme.basicTheme_C};`}
   ${(props) =>
     props.kindOf === `subTheme` &&
-    `border : 1px solid ${props.theme.subTheme_C};`}
+    `border : 1px solid ${props.theme.basicTheme_C};`}
   ${(props) =>
     props.kindOf === `kakao` && `background : ${props.theme.kakao_C};`}
   ${(props) =>
@@ -243,10 +246,12 @@ export const CommonButton = styled(Button)`
     ${(props) => props.kindOf === `black` && `color : ${props.theme.black_C};`}
     ${(props) =>
       props.kindOf === `black` && `border : 1px solid ${props.theme.black_C};`}
+    ${(props) => props.kindOf === `subTheme` && `color ${props.theme.white_C};`}
     ${(props) =>
-      props.kindOf === `subTheme` && `color ${props.theme.subTheme_C};`}
+      props.kindOf === `subTheme` && `background ${props.theme.basicTheme_C};`}
     ${(props) =>
-      props.kindOf === `subTheme` && `background ${props.theme.white_C};`}
+      props.kindOf === `subTheme` &&
+      `border : 1px solid ${props.theme.basicTheme_C};`}
     ${(props) =>
       props.kindOf === `kakao` && `background : ${props.theme.kakao_C};`}
     ${(props) =>
