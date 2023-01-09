@@ -24,6 +24,10 @@ const questionhistory = require("./questionhistory");
 const noticeHistory = require("./noticeHistory");
 const galleryImage = require("./galleryImage");
 const adminUserRightHistory = require("./adminUserRightHistory");
+const productCategory = require("./productCategory");
+const productTag = require("./productTag");
+const productImage = require("./productImage");
+const product = require("./product");
 
 const env = process.env.NODE_ENV || "development";
 const config = require("../config/config")[env];
@@ -61,6 +65,10 @@ db.QuestionHistory = questionhistory;
 db.NoticeHistory = noticeHistory;
 db.GalleryImage = galleryImage;
 db.AdminUserRightHistory = adminUserRightHistory;
+db.ProductCategory = productCategory;
+db.ProductTag = productTag;
+db.ProductImage = productImage;
+db.Product = product;
 
 Object.keys(db).forEach((modelName) => {
   db[modelName].init(sequelize);

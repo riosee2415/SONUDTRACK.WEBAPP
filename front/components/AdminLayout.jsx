@@ -142,7 +142,18 @@ export const items = {
       useYn: true,
     },
   ],
-  서버관리: [],
+  음원관리: [
+    {
+      name: "카테고리관리",
+      link: "/admin/snd/category",
+      useYn: true,
+    },
+    {
+      name: "등록음원관리",
+      link: "/admin/snd/list",
+      useYn: true,
+    },
+  ],
 };
 
 const AdminLayout = ({ children }) => {
@@ -278,8 +289,8 @@ const AdminLayout = ({ children }) => {
           />
           <AdminMenuBox
             right={me && me.menuRight8}
-            title={`서버관리`}
-            menus={items["서버관리"]}
+            title={`음원관리`}
+            menus={items["음원관리"]}
           />
         </Wrapper>
       ) : (

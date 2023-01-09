@@ -1,4 +1,4 @@
-import { Row, Col, Button, Form, Input, Select, Pagination } from "antd";
+import { Row, Col, Button, Form, Input, Select, Pagination, Table } from "antd";
 import styled from "styled-components";
 import {
   HomeOutlined,
@@ -646,4 +646,33 @@ export const DelBtn = styled(RestOutlined)`
     transform: scale(1.3);
     color: ${(props) => props.theme.red_C};
   }
+`;
+export const CustomTable = styled(Table)`
+  font-size: 13px !important;
+  width: 100%;
+  & .ant-table-cell {
+    font-size: 12px !important;
+  }
+`;
+
+export const CustomForm = styled(Form)`
+  & .ant-form-item-label {
+    margin: 0px !important;
+  }
+  & .ant-form-item-no-colon {
+    margin: 0px !important;
+  }
+  & .ant-form-item {
+    margin: 0px !important;
+  }
+  width: 100%;
+`;
+
+export const ViewLabel = styled.div`
+  width: ${(props) => props.width || "200px"};
+  height: 24px;
+  background-color: ${(props) => props.theme.lightGrey4_C};
+  margin: 0px !important;
+  color: #fff;
+  padding: 0px 15px;
 `;
