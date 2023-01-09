@@ -144,12 +144,12 @@ export const items = {
   ],
   음원관리: [
     {
-      name: "카테고리관리",
+      name: "앨범카테고리관리",
       link: "/admin/snd/category",
       useYn: true,
     },
     {
-      name: "등록음원관리",
+      name: "등록앨범관리",
       link: "/admin/snd/list",
       useYn: true,
     },

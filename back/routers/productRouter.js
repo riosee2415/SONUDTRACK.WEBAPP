@@ -155,4 +155,126 @@ router.post("/ca/delete", async (req, res, next) => {
   }
 });
 
+////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////// PRODUCT ///////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * SUBJECT : 상품(앨범) 조회하기
+ * PARAMETERS : { CategoryId, isTop, isIng, title, username }
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : CTO 윤상호
+ * DEV DATE : 2023/01/09
+ */
+router.post("/pro/list", async (req, res, next) => {
+  const { CategoryId, isTop, isIng, title, username } = req.body;
+
+  const _CategoryId = CategoryId ? CategoryId : false;
+  const _isTop = isTop ? isTop : false;
+  const _isIng = isIng ? isIng : false;
+  const _title = title ? title : false;
+  const _username = username ? username : false;
+
+  const selectQ = `
+    SELECT	ROW_NUMBER() OVER(ORDER BY A.createdAt DESC) AS num,
+            A.id,
+            A.title,
+            A.subTitle,
+            A.content,
+            A.coverImage,
+            A.isIng,
+            A.downloadCnt,
+            A.isTop,
+            A.createdAt,
+            A.updatedAt,
+            DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
+            DATE_FORMAT(A.updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt,
+            A.ProductCategoryId,
+            B.value,
+            A.UserId,
+            C.username,
+            C.email,
+            C.nickname 
+     FROM	product			A
+    INNER
+     JOIN	productCategory B
+       ON	A.ProductCategoryId = B.id
+    INNER
+     JOIN	users			C
+       ON	A.UserId = C.id
+    WHERE   1 = 1
+    ${_CategoryId ? `AND  A.ProductCategoryId = ${_CategoryId}` : ``}
+    ${_isTop ? `AND  A.isTop = ${_isTop === -1 ? 0 : _isTop}` : ``}
+    ${_isIng ? `AND  A.isIng = ${_isIng === -1 ? 0 : _isIng}` : ``}
+    ${_title ? `AND  A.title LIKE "%${_title}%"` : ``}
+    ${_username ? `AND  C.username LIKE "%${_username}%"` : ``}
+    `;
+
+  try {
+    const list = await models.sequelize.query(selectQ);
+
+    return res.status(200).json(list[0]);
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("데이터를 조회할 수 없습니다.");
+  }
+});
+
+/**
+ * SUBJECT : 상품(앨범) 판매여부 변경
+ * PARAMETERS : { id, nextIng }
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : CTO 윤상호
+ * DEV DATE : 2023/01/09
+ */
+router.post("/pro/ing", async (req, res, next) => {
+  const { id, nextIng } = req.body;
+
+  const updateQ = `
+        UPDATE  product
+           SET  isIng = ${nextIng},
+                updatedAt = NOW()
+         WHERE  id = ${id}
+         `;
+
+  try {
+    await models.sequelize.query(updateQ);
+
+    return res.status(200).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("판매여부를 수정할 수 없습니다.");
+  }
+});
+
+/**
+ * SUBJECT : 상품(앨범) 판매여부 변경
+ * PARAMETERS : { id, nextIng }
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : CTO 윤상호
+ * DEV DATE : 2023/01/09
+ */
+router.post("/pro/top", async (req, res, next) => {
+  const { id, nextTop } = req.body;
+
+  const updateQ = `
+          UPDATE  product
+             SET  isTop = ${nextTop},
+                  updatedAt = NOW()
+           WHERE  id = ${id}
+           `;
+
+  try {
+    await models.sequelize.query(updateQ);
+
+    return res.status(200).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("상단고정여부를 수정할 수 없습니다.");
+  }
+});
+
 module.exports = router;

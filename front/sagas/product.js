@@ -16,6 +16,18 @@ import {
   CATEGORY_DEL_REQUEST,
   CATEGORY_DEL_SUCCESS,
   CATEGORY_DEL_FAILURE,
+  //
+  PRODUCT_LIST_REQUEST,
+  PRODUCT_LIST_SUCCESS,
+  PRODUCT_LIST_FAILURE,
+  //
+  PRODUCT_ING_REQUEST,
+  PRODUCT_ING_SUCCESS,
+  PRODUCT_ING_FAILURE,
+  //
+  PRODUCT_TOP_REQUEST,
+  PRODUCT_TOP_SUCCESS,
+  PRODUCT_TOP_FAILURE,
 } from "../reducers/product";
 
 // ******************************************************************************************************************
@@ -130,6 +142,90 @@ function* categoryDelete(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function productListAPI(data) {
+  return await axios.post("/api/product/pro/list", data);
+}
+
+function* productList(action) {
+  try {
+    const result = yield call(productListAPI, action.data);
+
+    yield put({
+      type: PRODUCT_LIST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: PRODUCT_LIST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function productIngAPI(data) {
+  return await axios.post("/api/product/pro/ing", data);
+}
+
+function* productIng(action) {
+  try {
+    const result = yield call(productIngAPI, action.data);
+
+    yield put({
+      type: PRODUCT_ING_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: PRODUCT_ING_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function productTopAPI(data) {
+  return await axios.post("/api/product/pro/top", data);
+}
+
+function* productTop(action) {
+  try {
+    const result = yield call(productTopAPI, action.data);
+
+    yield put({
+      type: PRODUCT_TOP_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: PRODUCT_TOP_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 function* watchCategoryList() {
   yield takeLatest(CATEGORY_LIST_REQUEST, categoryList);
@@ -143,6 +239,15 @@ function* watchCategoryModify() {
 function* watchCategoryDelete() {
   yield takeLatest(CATEGORY_DEL_REQUEST, categoryDelete);
 }
+function* watchProductList() {
+  yield takeLatest(PRODUCT_LIST_REQUEST, productList);
+}
+function* watchProductIng() {
+  yield takeLatest(PRODUCT_ING_REQUEST, productIng);
+}
+function* watchProductTop() {
+  yield takeLatest(PRODUCT_TOP_REQUEST, productTop);
+}
 
 //////////////////////////////////////////////////////////////
 export default function* productSaga() {
@@ -151,6 +256,9 @@ export default function* productSaga() {
     fork(watchCategoryNew),
     fork(watchCategoryModify),
     fork(watchCategoryDelete),
+    fork(watchProductList),
+    fork(watchProductIng),
+    fork(watchProductTop),
     //
   ]);
 }

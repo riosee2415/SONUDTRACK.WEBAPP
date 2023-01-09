@@ -38,7 +38,7 @@ module.exports = class Product extends Model {
           defaultValue: 0,
         },
         isTop: {
-          // 다운로드 수
+          // 상단고정
           type: DataTypes.BOOLEAN,
           allowNull: false,
           defaultValue: false,
@@ -55,5 +55,6 @@ module.exports = class Product extends Model {
   }
   static associate(db) {
     db.Product.belongsTo(db.ProductCategory);
+    db.Product.belongsTo(db.User);
   }
 };
