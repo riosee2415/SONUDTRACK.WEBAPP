@@ -11,6 +11,7 @@ import {
   Switch,
   message,
   Drawer,
+  Image,
 } from "antd";
 import { useRouter, withRouter } from "next/router";
 import wrapper from "../../../store/configureStore";
@@ -36,7 +37,27 @@ import {
   PRODUCT_LIST_REQUEST,
   PRODUCT_ING_REQUEST,
   PRODUCT_TOP_REQUEST,
+  PRODUCT_TAG_REQUEST,
+  PRODUCT_GEN_REQUEST,
 } from "../../../reducers/product";
+import M_Box from "../../../components/MBox";
+
+const TagBox = styled.span`
+  padding: 4px 12px;
+  border-radius: 13px;
+  background-color: ${(props) => props.theme.adminTheme_4};
+  color: #fff;
+  margin-right: 15px;
+
+  cursor: pointer;
+
+  transition: 0.4s;
+
+  &:hover {
+    color: ${(props) => props.theme.adminTheme_4};
+    background-color: #fff;
+  }
+`;
 
 const CateBox = styled.span`
   padding: 2px 9px;
@@ -50,6 +71,8 @@ const List = ({}) => {
   const {
     categorys, //
     products, //
+    targetTags, //
+    targetGens, //
     //
     // 판매여부 수정
     st_productIngLoading,
@@ -70,6 +93,9 @@ const List = ({}) => {
   const [level2, setLevel2] = useState("");
   const [sameDepth, setSameDepth] = useState([]);
   const [imageDr, setImageDr] = useState(false);
+  const [tagDr, setTagDr] = useState(false);
+  const [genDr, setGenDr] = useState(false);
+  const [musicDr, setMusicDr] = useState(false);
   const [cd, setCd] = useState(null);
 
   const [sForm] = Form.useForm();
@@ -186,6 +212,60 @@ const List = ({}) => {
   }, []);
 
   ////// HANDLER //////
+
+  const musicDrToggle = useCallback(
+    (data) => {
+      if (data) {
+        setCd(data);
+
+        // dispatch({
+        //   type: PRODUCT_TAG_REQUEST,
+        //   data: {
+        //     id: data.id,
+        //   },
+        // });
+      }
+
+      setMusicDr((p) => !p);
+    },
+    [musicDr]
+  );
+
+  const tagDrToggle = useCallback(
+    (data) => {
+      if (data) {
+        setCd(data);
+
+        dispatch({
+          type: PRODUCT_TAG_REQUEST,
+          data: {
+            id: data.id,
+          },
+        });
+      }
+
+      setTagDr((p) => !p);
+    },
+    [tagDr]
+  );
+
+  const genDrToggle = useCallback(
+    (data) => {
+      if (data) {
+        setCd(data);
+
+        dispatch({
+          type: PRODUCT_GEN_REQUEST,
+          data: {
+            id: data.id,
+          },
+        });
+      }
+
+      setGenDr((p) => !p);
+    },
+    [genDr]
+  );
 
   const imageDrToggle = useCallback(
     (data) => {
@@ -320,8 +400,22 @@ const List = ({}) => {
           size="small"
           type="primary"
           style={{ fontSize: "12px", height: "19px" }}
+          onClick={() => tagDrToggle(data)}
         >
           테그정보
+        </Button>
+      ),
+    },
+    {
+      title: "장르 정보",
+      render: (data) => (
+        <Button
+          size="small"
+          type="primary"
+          style={{ fontSize: "12px", height: "19px" }}
+          onClick={() => genDrToggle(data)}
+        >
+          장르정보
         </Button>
       ),
     },
@@ -332,6 +426,7 @@ const List = ({}) => {
           size="small"
           type="primary"
           style={{ fontSize: "12px", height: "19px" }}
+          onClick={() => musicDrToggle(data)}
         >
           음원리스트
         </Button>
@@ -476,7 +571,98 @@ const List = ({}) => {
         visible={imageDr}
         title={`[${cd && cd.title}] 이미지 정보`}
         onClose={() => imageDrToggle(null)}
-      ></Drawer>
+      >
+        <GuideUl>
+          <GuideLi>
+            음원(앨범)의 커버 이미지 입니다. 해당 앨범에 수록된 곡들에게 모두
+            부여되는 이미지 입니다.
+          </GuideLi>
+          <GuideLi>
+            이미지 사이즈 및 비율은 1:1 이며, 비율이 상이할 경우 화면에
+            정상적으로 보이지 않을 수 있습니다.
+          </GuideLi>
+          <GuideLi isImpo={true}>
+            이미지파일의 크기가 5MB 이상의 경우, 이미지가 업로드되지 않아 보이지
+            않을 수 있습니다.
+          </GuideLi>
+          <GuideLi isImpo={true}>
+            커버 이미지는 관리자 또는 운영자가 수정이 불가능합니다.
+          </GuideLi>
+        </GuideUl>
+
+        <Wrapper>
+          <Image
+            src={cd && cd.coverImage}
+            style={{ width: "400px", height: "400px", objectFit: "cover" }}
+          />
+        </Wrapper>
+      </Drawer>
+
+      <Drawer
+        width="100%"
+        visible={tagDr}
+        title={`[${cd && cd.title}] 테그 정보`}
+        onClose={() => tagDrToggle(null)}
+      >
+        <GuideUl>
+          <GuideLi>
+            음원(앨범)의 테그 입니다. 테그는 여러개 등록될 수 있습니다.
+          </GuideLi>
+          <GuideLi>
+            테그명은 대소문자가 구분되기 때문에 중복된 태그가 발생될 수
+            있습니다.
+          </GuideLi>
+          <GuideLi isImpo={true}>
+            테그는 관리자 또는 운영자가 수정이 불가능합니다.
+          </GuideLi>
+        </GuideUl>
+
+        <Wrapper dr="row" ju="flex-start" padding="10px">
+          {targetTags.length === 0 && <Text>등록된 테그가 없습니다.</Text>}
+
+          {targetTags.map((item) => {
+            return <TagBox key={item.id}>{item.value}</TagBox>;
+          })}
+        </Wrapper>
+      </Drawer>
+
+      <Drawer
+        width="100%"
+        visible={genDr}
+        title={`[${cd && cd.title}] 장르 정보`}
+        onClose={() => genDrToggle(null)}
+      >
+        <GuideUl>
+          <GuideLi>
+            음원(앨범)의 장르 입니다. 장르는 여러개 등록될 수 있습니다.
+          </GuideLi>
+          <GuideLi>
+            장르명은 대소문자가 구분되기 때문에 중복된 장르가 발생될 수
+            있습니다.
+          </GuideLi>
+          <GuideLi isImpo={true}>
+            장르는 관리자 또는 운영자가 수정이 불가능합니다.
+          </GuideLi>
+        </GuideUl>
+
+        <Wrapper dr="row" ju="flex-start" padding="10px">
+          {targetGens.length === 0 && <Text>등록된 장르가 없습니다.</Text>}
+
+          {targetGens.map((item) => {
+            return <TagBox key={item.id}>{item.value}</TagBox>;
+          })}
+        </Wrapper>
+      </Drawer>
+      <Drawer
+        width="100%"
+        visible={musicDr}
+        title={`[${cd && cd.title}] 음원 정보`}
+        onClose={() => musicDrToggle(null)}
+      >
+        <Wrapper padding="0px 20px">
+          <M_Box />
+        </Wrapper>
+      </Drawer>
     </AdminLayout>
   );
 };

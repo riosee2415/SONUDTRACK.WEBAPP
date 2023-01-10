@@ -277,4 +277,50 @@ router.post("/pro/top", async (req, res, next) => {
   }
 });
 
+////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////// TAG /////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+router.post("/tag/list", async (req, res, next) => {
+  const { id } = req.body;
+
+  const selectQ = `
+  SELECT	id,
+          value
+    FROM	productTag
+   WHERE	ProductId = ${id}
+  `;
+
+  try {
+    const list = await models.sequelize.query(selectQ);
+
+    return res.status(200).json(list[0]);
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("데이터를 조회할 수 없습니다.");
+  }
+});
+
+////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////// GEN /////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+router.post("/gen/list", async (req, res, next) => {
+  const { id } = req.body;
+
+  const selectQ = `
+  SELECT	id,
+          value
+    FROM	productGen
+   WHERE	ProductId = ${id}
+  `;
+
+  try {
+    const list = await models.sequelize.query(selectQ);
+
+    return res.status(200).json(list[0]);
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("데이터를 조회할 수 없습니다.");
+  }
+});
+
 module.exports = router;
