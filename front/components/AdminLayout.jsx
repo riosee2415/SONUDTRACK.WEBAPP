@@ -153,6 +153,11 @@ export const items = {
       link: "/admin/snd/list",
       useYn: true,
     },
+    {
+      name: "아티스트관리",
+      link: "/admin/snd/artist",
+      useYn: true,
+    },
   ],
 };
 
