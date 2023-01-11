@@ -4,9 +4,10 @@ import { Input, Image } from "antd";
 import { Wrapper, Text } from "./commonComponents";
 
 const MBox = styled.div`
-  width: 100%;
+  width: calc(50% - 10px);
   border-radius: 3px;
   margin-bottom: 10px;
+  margin-right: 10px;
   box-shadow: 2px 3px 7px #d7d7d7;
 
   display: flex;
@@ -22,8 +23,8 @@ const MBox = styled.div`
 `;
 
 const MImage = styled(Image)`
-  width: 130px;
-  height: 130px;
+  width: 150px;
+  height: 150px;
   object-fit: cover;
   border-radius: 3px;
   border: none;
@@ -31,7 +32,7 @@ const MImage = styled(Image)`
 
 const MBoxNumber = styled.div`
   width: 30px;
-  height: 130px;
+  height: 150px;
   border-radius: 3px;
   background-color: #484848;
   color: #fff;
@@ -43,44 +44,58 @@ const MBoxNumber = styled.div`
   align-items: center;
 `;
 
-const M_Box = ({ item }) => {
+const DownloadText = styled(Text)`
+  transition: 0.4s;
+
+  &:hover {
+    color: ${(props) => props.theme.subTheme3_C};
+  }
+`;
+
+const M_Box = ({ item, idx }) => {
   return (
     <MBox>
-      <MBoxNumber>1 </MBoxNumber>
+      <MBoxNumber>{idx} </MBoxNumber>
       <Wrapper width="calc(100% - 30px)" height="100%" dr="row" ju="flex-start">
         <MImage src="https://newsimg.sedaily.com/2021/01/17/22HAHIJ7OG_1.jpg" />
 
-        <Wrapper width="calc(100% - 130px)" height="130px">
+        <Wrapper width="calc(100% - 150px)" height="150px">
           <Wrapper height="25px" bgColor="#b9b9b9" ju="space-between" dr="row">
             <Text padding="0px 10px" color="#fff">
-              곡 제목 입니다.
+              {item.title}
             </Text>
 
             <Text padding="0px 10px" color="#fff">
-              <Text>다운로드</Text>
+              <DownloadText>음원 다운로드</DownloadText>
             </Text>
           </Wrapper>
           <Wrapper
-            height="105px"
+            height="125px"
             bgColor="#fff"
             al="flex-start"
             ju="flex-start"
             padding="5px 5px"
           >
-            <Text fontSize="11px" color="#484848">
-              제작자정보 -
+            <Text fontSize="12px" color="#484848">
+              제작자정보 : {item.author}
             </Text>
-            <Text fontSize="11px" color="#484848">
-              음원등록일 -
+            <Text fontSize="12px" color="#484848">
+              음원등록일 : {item.viewCreatedAt}
             </Text>
-            <Text fontSize="11px" color="#484848">
-              다운로드수 -
+            <Text fontSize="12px" color="#484848">
+              다운로드수 : {item.downloadCnt}
             </Text>
-            <Text fontSize="11px" color="#484848">
-              좋아요집계 -
+            <Text fontSize="12px" color="#484848">
+              좋아요집계 :
             </Text>
-            <Text fontSize="11px" color="#484848">
-              타이틀곡 -
+            <Text color={item.isTitle ? "red" : "#999"} fontSize="12px">
+              타이틀여부 : {item.isTitle ? "Y" : "N"}
+            </Text>
+            <Text fontSize="12px" color="#484848">
+              장르 :
+              {item.gens.map((data) => {
+                return <span> {data} | </span>;
+              })}
             </Text>
           </Wrapper>
         </Wrapper>

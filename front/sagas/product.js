@@ -36,6 +36,10 @@ import {
   PRODUCT_GEN_REQUEST,
   PRODUCT_GEN_SUCCESS,
   PRODUCT_GEN_FAILURE,
+  //
+  PRODUCT_TRACK_LIST_REQUEST,
+  PRODUCT_TRACK_LIST_SUCCESS,
+  PRODUCT_TRACK_LIST_FAILURE,
 } from "../reducers/product";
 
 // ******************************************************************************************************************
@@ -290,6 +294,34 @@ function* productGen(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function productTrackListAPI(data) {
+  return await axios.post("/api/product/track/list", data);
+}
+
+function* productTrackList(action) {
+  try {
+    const result = yield call(productTrackListAPI, action.data);
+
+    yield put({
+      type: PRODUCT_TRACK_LIST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: PRODUCT_TRACK_LIST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 function* watchCategoryList() {
   yield takeLatest(CATEGORY_LIST_REQUEST, categoryList);
@@ -318,6 +350,9 @@ function* watchProductTag() {
 function* watchProductGen() {
   yield takeLatest(PRODUCT_GEN_REQUEST, productGen);
 }
+function* watchProductTrackList() {
+  yield takeLatest(PRODUCT_TRACK_LIST_REQUEST, productTrackList);
+}
 
 //////////////////////////////////////////////////////////////
 export default function* productSaga() {
@@ -331,6 +366,7 @@ export default function* productSaga() {
     fork(watchProductTop),
     fork(watchProductTag),
     fork(watchProductGen),
+    fork(watchProductTrackList),
     //
   ]);
 }

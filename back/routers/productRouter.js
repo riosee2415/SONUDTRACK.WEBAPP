@@ -195,7 +195,9 @@ router.post("/pro/list", async (req, res, next) => {
             A.UserId,
             C.username,
             C.email,
-            C.nickname 
+            C.nickname,
+            A.bitRate,
+            A.sampleRate
      FROM	product			A
     INNER
      JOIN	productCategory B
@@ -317,6 +319,64 @@ router.post("/gen/list", async (req, res, next) => {
     const list = await models.sequelize.query(selectQ);
 
     return res.status(200).json(list[0]);
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("데이터를 조회할 수 없습니다.");
+  }
+});
+
+////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////// TRACK ////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+router.post("/track/list", async (req, res, next) => {
+  const { ProductId } = req.body;
+
+  const selectQ = `
+  SELECT	A.id,
+          A.title,
+          A.isTitle,
+          A.filename,
+          A.filepath,
+          A.author,
+          A.downloadCnt,
+          A.createdAt,
+          A.updatedAt,
+          A.ProductId,
+          DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
+          DATE_FORMAT(A.updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt
+    FROM	productTrack	A
+   WHERE  A.ProductId = ${ProductId}
+  `;
+
+  const selectQ2 = `
+  SELECT	A.id,
+          A.value,
+          A.createdAt,
+          A.updatedAt,
+          A.ProductTrackId,
+          DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
+          DATE_FORMAT(A.updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt
+    FROM	trackGen	A
+  `;
+
+  try {
+    const list = await models.sequelize.query(selectQ);
+    const gens = await models.sequelize.query(selectQ2);
+
+    const trackList = list[0];
+    const genList = gens[0];
+
+    trackList.map((item) => {
+      item["gens"] = [];
+
+      genList.map((innerItem) => {
+        if (item.id === innerItem.ProductTrackId) {
+          item.gens.push(innerItem.value);
+        }
+      });
+    });
+
+    return res.status(200).json(trackList);
   } catch (error) {
     console.error(error);
     return res.status(400).send("데이터를 조회할 수 없습니다.");

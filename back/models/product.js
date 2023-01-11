@@ -37,6 +37,14 @@ module.exports = class Product extends Model {
           allowNull: false,
           defaultValue: 0,
         },
+        bitRate: {
+          type: DataTypes.STRING(100),
+          allowNull: false,
+        },
+        sampleRate: {
+          type: DataTypes.STRING(100),
+          allowNull: false,
+        },
         isTop: {
           // 상단고정
           type: DataTypes.BOOLEAN,

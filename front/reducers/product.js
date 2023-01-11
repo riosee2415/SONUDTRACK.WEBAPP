@@ -5,6 +5,7 @@ export const initailState = {
   products: [],
   targetTags: [],
   targetGens: [],
+  trackList: [],
 
   st_categoryLoading: false,
   st_categoryDone: false,
@@ -42,6 +43,10 @@ export const initailState = {
   st_productGenDone: false,
   st_productGenError: null,
   //
+  st_productTrackListLoading: false,
+  st_productTrackListDone: false,
+  st_productTrackListError: null,
+  //
 };
 
 export const CATEGORY_LIST_REQUEST = "CATEGORY_LIST_REQUEST";
@@ -78,7 +83,11 @@ export const PRODUCT_TAG_FAILURE = "PRODUCT_TAG_FAILURE";
 
 export const PRODUCT_GEN_REQUEST = "PRODUCT_GEN_REQUEST";
 export const PRODUCT_GEN_SUCCESS = "PRODUCT_GEN_SUCCESS";
-export const PRODUCT_GEN_FAILURE = "PRODUCT_TAG_FAILURE";
+export const PRODUCT_GEN_FAILURE = "PRODUCT_GEN_FAILURE";
+
+export const PRODUCT_TRACK_LIST_REQUEST = "PRODUCT_TRACK_LIST_REQUEST";
+export const PRODUCT_TRACK_LIST_SUCCESS = "PRODUCT_TRACK_LIST_SUCCESS";
+export const PRODUCT_TRACK_LIST_FAILURE = "PRODUCT_TRACK_LIST_FAILURE";
 
 const reducer = (state = initailState, action) =>
   produce(state, (draft) => {
@@ -271,6 +280,28 @@ const reducer = (state = initailState, action) =>
         draft.st_productGenLoading = false;
         draft.st_productGenDone = false;
         draft.st_productGenError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////
+      case PRODUCT_TRACK_LIST_REQUEST: {
+        draft.st_productTrackListLoading = true;
+        draft.st_productTrackListDone = false;
+        draft.st_productTrackListError = null;
+        break;
+      }
+      case PRODUCT_TRACK_LIST_SUCCESS: {
+        draft.st_productTrackListLoading = false;
+        draft.st_productTrackListDone = true;
+        draft.st_productTrackListError = null;
+        draft.trackList = action.data;
+        break;
+      }
+      case PRODUCT_TRACK_LIST_FAILURE: {
+        draft.st_productTrackListLoading = false;
+        draft.st_productTrackListDone = false;
+        draft.st_productTrackListError = action.error;
         break;
       }
 

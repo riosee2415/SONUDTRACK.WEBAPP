@@ -39,6 +39,7 @@ import {
   PRODUCT_TOP_REQUEST,
   PRODUCT_TAG_REQUEST,
   PRODUCT_GEN_REQUEST,
+  PRODUCT_TRACK_LIST_REQUEST,
 } from "../../../reducers/product";
 import M_Box from "../../../components/MBox";
 
@@ -73,6 +74,7 @@ const List = ({}) => {
     products, //
     targetTags, //
     targetGens, //
+    trackList, //
     //
     // 판매여부 수정
     st_productIngLoading,
@@ -218,12 +220,12 @@ const List = ({}) => {
       if (data) {
         setCd(data);
 
-        // dispatch({
-        //   type: PRODUCT_TAG_REQUEST,
-        //   data: {
-        //     id: data.id,
-        //   },
-        // });
+        dispatch({
+          type: PRODUCT_TRACK_LIST_REQUEST,
+          data: {
+            ProductId: data.id,
+          },
+        });
       }
 
       setMusicDr((p) => !p);
@@ -369,6 +371,14 @@ const List = ({}) => {
     {
       title: "음원(앨범)등록일",
       dataIndex: "viewCreatedAt",
+    },
+    {
+      title: "비트주파수",
+      dataIndex: "bitRate",
+    },
+    {
+      title: "샘플링주파수",
+      dataIndex: "sampleRate",
     },
     {
       title: "상단고정여부",
@@ -659,8 +669,10 @@ const List = ({}) => {
         title={`[${cd && cd.title}] 음원 정보`}
         onClose={() => musicDrToggle(null)}
       >
-        <Wrapper padding="0px 20px">
-          <M_Box />
+        <Wrapper padding="0px 20px" dr="row" ju="flex-start">
+          {trackList.map((data, idx) => {
+            return <M_Box item={data} idx={idx + 1} key={data.id} />;
+          })}
         </Wrapper>
       </Drawer>
     </AdminLayout>
