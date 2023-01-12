@@ -4,6 +4,8 @@ import { useState } from "react";
 import {
   CaretLeftFilled,
   CaretRightFilled,
+  CaretRightOutlined,
+  PlusOutlined,
   StarFilled,
 } from "@ant-design/icons";
 import { useCallback } from "react";
@@ -28,11 +30,13 @@ const RightBox = styled.div`
   height: 100%;
   padding: 0 0 0 34px;
   position: relative;
+  display: flex;
+  flex-direction: column;
   justify-content: space-between;
 
   @media (max-width: 900px) {
     width: 100%;
-    height: auto;
+    padding: 0;
   }
 `;
 
@@ -45,6 +49,37 @@ const Btn = styled(Wrapper)`
     cursor: pointer;
     color: ${Theme.black_C};
   }
+`;
+
+const Circle = styled(Wrapper)`
+  width: 124px;
+  min-width: 124px;
+  height: 124px;
+  border-radius: 100%;
+  margin: 0 20px 0 0;
+  box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+
+  ${Wrapper} {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  &:hover ${Wrapper} {
+    cursor: pointer;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  @media (max-width: 900px) {
+    width: 80px;
+    min-width: 80px;
+    height: 80px;
+  }
+`;
+
+const Audio = styled.audio`
+  width: calc(100% - 150px);
 `;
 
 const MainSlider2 = ({
@@ -85,10 +120,20 @@ const MainSlider2 = ({
       title: "아티스트를 소개하는 한 마디를 적어주세요.",
       hash: ["Vocal", "Beat Maker", "Remixer", "Effect & Fx Sound Desingers"],
     },
+    {
+      leftImg:
+        "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/art-goods/assets/images/main-page/img_4s_left_prod.png",
+      rightImg:
+        "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/art-goods/assets/images/main-page/img_4s_right_prod.png",
+      name: "이차미",
+      title: "아티스트를 소개하는 한 마디를 적어주세요.",
+      hash: ["Vocal", "Beat Maker", "Remixer", "Effect & Fx Sound Desingers"],
+    },
   ],
 }) => {
   const width = useWidth();
   const [status, setStatus] = useState(0);
+  const [isMusic, setIsMusic] = useState(false);
 
   const statusChangeHandler = useCallback(
     (statement) => {
@@ -115,6 +160,10 @@ const MainSlider2 = ({
     [status, array]
   );
 
+  const musicToggle = useCallback(() => {
+    setIsMusic((prev) => !prev);
+  }, [isMusic]);
+
   return (
     <Wrapper dr={`row`} height={width < 900 ? `auto` : `476px`}>
       <LeftBox>
@@ -126,95 +175,94 @@ const MainSlider2 = ({
         />
       </LeftBox>
       <RightBox>
-        <Wrapper dr={`row`} ju={`flex-start`}>
-          <Image
-            alt="icon"
-            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/artisttem.png`}
-            width={`18px`}
-            margin={`0 6px 0 0`}
-          />
-          <Text fontWeight={`500`} fontSize={`30px`}>
-            Artisttem
+        <Wrapper al={`flex-start`}>
+          <Wrapper dr={`row`} ju={`flex-start`}>
+            <Image
+              alt="icon"
+              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/artisttem.png`}
+              width={`18px`}
+              margin={`0 6px 0 0`}
+            />
+            <Text fontWeight={`500`} fontSize={`30px`}>
+              Artisttem
+            </Text>
+          </Wrapper>
+          <Wrapper dr={`row`} ju={`flex-start`} margin={`30px 0 12px`}>
+            <Text
+              fontSize={width < 900 ? `14px` : `18px`}
+              fontWeight={`500`}
+              margin={`0 14px 0 0`}
+            >
+              {array[status].name}
+            </Text>
+            <Image
+              alt="icon"
+              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
+              width={`14px`}
+              margin={`0 4px 0 0`}
+            />
+            <Text color={Theme.darkGrey_C}>98</Text>
+            <Wrapper
+              dr={`row`}
+              width={`auto`}
+              color={Theme.subTheme4_C}
+              margin={`0 0 0 14px`}
+              fontSize={`16px`}
+            >
+              <StarFilled />
+              <StarFilled />
+              <StarFilled />
+              <StarFilled />
+              <StarFilled />
+            </Wrapper>
+          </Wrapper>
+          <Text fontSize={width < 900 ? `14px` : `16px`}>
+            {array[status].title}
           </Text>
-        </Wrapper>
-        <Wrapper dr={`row`} ju={`flex-start`} margin={`30px 0 12px`}>
-          <Text
-            fontSize={width < 900 ? `14px` : `18px`}
-            fontWeight={`500`}
-            margin={`0 14px 0 0`}
-          >
-            {array[status].name}
-          </Text>
-          <Image
-            alt="icon"
-            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
-            width={`14px`}
-            margin={`0 4px 0 0`}
-          />
-          <Text color={Theme.darkGrey_C}>98</Text>
-          <Wrapper
-            dr={`row`}
-            width={`auto`}
-            color={Theme.subTheme4_C}
-            margin={`0 0 0 14px`}
-            fontSize={`16px`}
-          >
-            <StarFilled />
-            <StarFilled />
-            <StarFilled />
-            <StarFilled />
-            <StarFilled />
+
+          <Wrapper dr={`row`} ju={`flex-start`} margin={`20px 0 0`}>
+            {array[status].hash.map((data) => {
+              return (
+                <Wrapper
+                  width={`auto`}
+                  border={`1px solid ${Theme.lightGrey_C}`}
+                  radius={`30px`}
+                  height={`27px`}
+                  padding={`0 15px`}
+                  margin={`0 4px 0 0`}
+                >
+                  {data}
+                </Wrapper>
+              );
+            })}
           </Wrapper>
         </Wrapper>
-        <Text fontSize={width < 900 ? `14px` : `16px`}>
-          {array[status].title}
-        </Text>
-
-        <Wrapper dr={`row`} ju={`flex-start`} margin={`20px 0 0`}>
-          {array[status].hash.map((data) => {
-            return (
-              <Wrapper
-                width={`auto`}
-                border={`1px solid ${Theme.lightGrey_C}`}
-                radius={`30px`}
-                height={`27px`}
-                padding={`0 15px`}
-                margin={`0 4px 0 0`}
-              >
-                {data}
-              </Wrapper>
-            );
-          })}
-        </Wrapper>
-
-        {width < 900 ? (
-          <>
-            <Wrapper
-              width={`auto`}
-              position={`absolute`}
-              left={`15px`}
-              top={`50%`}
-            >
-              <CaretLeftFilled onClick={() => statusChangeHandler(0)} />
-            </Wrapper>
-            <Wrapper
-              width={`auto`}
-              position={`absolute`}
-              right={`15px`}
-              top={`50%`}
-            >
-              <CaretRightFilled onClick={() => statusChangeHandler(1)} />
-            </Wrapper>
-          </>
-        ) : (
+        <Wrapper>
           <Wrapper
-            position={`absolute`}
+            className="scroll"
             dr={`row`}
-            ju={`flex-end`}
-            bottom={`0`}
-            right={`0`}
-            padding={`50px`}
+            margin={width < 900 ? `30px 0 15px` : `0 0 15px`}
+            ju={`flex-start`}
+            overflow={`auto`}
+            wrap={`nowrap`}
+            padding={`0 0 30px`}
           >
+            {array.map((data) => {
+              return (
+                <Circle bgImg={`url("${data.leftImg}")`} onClick={musicToggle}>
+                  <Wrapper bgColor={`rgba(0, 0, 0, 0.4)`} height={`100%`}>
+                    <Image
+                      alt="playicon"
+                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/play_white.png`}
+                      width={width < 900 ? `15px` : `32px`}
+                    />
+                  </Wrapper>
+                </Circle>
+              );
+            })}
+          </Wrapper>
+
+          <Wrapper dr={`row`} ju={`flex-end`}>
             <Btn margin={`0 26px 0 0`} onClick={() => statusChangeHandler(0)}>
               <CaretLeftFilled /> prev
             </Btn>
@@ -222,8 +270,88 @@ const MainSlider2 = ({
               next <CaretRightFilled />
             </Btn>
           </Wrapper>
-        )}
+        </Wrapper>
       </RightBox>
+
+      {isMusic && (
+        <Wrapper
+          position={`fixed`}
+          zIndex={`100`}
+          bottom={`0`}
+          left={`0`}
+          bgColor={Theme.lightGrey2_C}
+          padding={`15px 30px`}
+          dr={`row`}
+          ju={`space-between`}
+          shadow={`0 0 10px rgba(0, 0, 0, 0.1)`}
+        >
+          <Wrapper width={`270px`} dr={`row`} ju={`flex-start`}>
+            <Image
+              width={`61px`}
+              height={`61px`}
+              radius={`100%`}
+              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png`}
+            />
+            <Wrapper width={`auto`} al={`flex-start`} padding={`0 0 0 14px`}>
+              <Text fontSize={`20px`} fontWeight={`bold`}>
+                Star Night
+              </Text>
+              <Text>Pokerface</Text>
+            </Wrapper>
+          </Wrapper>
+          <Wrapper width={`calc(100% - 540px)`} dr={`row`}>
+            <Audio
+              controls
+              src="https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/mp3/mp3_sample.mp3"
+            ></Audio>
+            <Wrapper
+              width={`150px`}
+              dr={`row`}
+              al={`flex-start`}
+              ju={`center`}
+              margin={`10px 0 0`}
+            >
+              <Wrapper width={`50px`} cursor={`pointer`}>
+                <Image
+                  alt="icon"
+                  width={`22px`}
+                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
+                />
+                <Text fontSize={`12px`} color={Theme.grey_C}>
+                  15,000
+                </Text>
+              </Wrapper>
+              <Wrapper width={`50px`} cursor={`pointer`}>
+                <Image
+                  alt="icon"
+                  width={`22px`}
+                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/cart.png`}
+                />
+              </Wrapper>
+              <Wrapper width={`50px`}>
+                <Image
+                  alt="icon"
+                  width={`22px`}
+                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
+                />
+                <Text fontSize={`12px`} color={Theme.grey_C}>
+                  98
+                </Text>
+              </Wrapper>
+            </Wrapper>
+          </Wrapper>
+          <Wrapper
+            width={`270px`}
+            al={`flex-end`}
+            fontWeight={`bold`}
+            color={Theme.subTheme4_C}
+          >
+            <Text isHover>
+              MORE <PlusOutlined />
+            </Text>
+          </Wrapper>
+        </Wrapper>
+      )}
     </Wrapper>
   );
 };

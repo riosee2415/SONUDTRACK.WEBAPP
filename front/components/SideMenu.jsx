@@ -23,6 +23,16 @@ const Btn = styled(Wrapper)`
   border-radius: 20px;
   margin: 0 0 16px;
 
+  ${(props) =>
+    props.isActive &&
+    `
+   background: ${Theme.basicTheme_C};
+
+    & img {
+      filter: brightness(100);
+    }
+  `}
+
   &:hover {
     background: ${Theme.basicTheme_C};
     cursor: pointer;
@@ -58,6 +68,11 @@ const SideMenu = ({}) => {
   const menuOpenToggle = useCallback(() => {
     setMenuOpen((prev) => !prev);
   }, [menuOpen]);
+
+  const movelinkHandler = useCallback((link) => {
+    router.push(link);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
   ////////////// - USE EFFECT- //////////////
 
   useEffect(() => {
@@ -130,42 +145,60 @@ const SideMenu = ({}) => {
             margin={`20px 0 0`}
             padding={`20px 0 0`}
           >
-            <Btn>
+            <Btn
+              isActive={router.pathname === `/artisttem`}
+              onClick={() => movelinkHandler(`/artisttem`)}
+            >
               <Image
                 alt="icon"
                 src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/artisttem.png`}
                 width={`20px`}
               />
             </Btn>
-            <Btn>
+            <Btn
+              isActive={router.pathname === `/musictem`}
+              onClick={() => movelinkHandler(`/musictem`)}
+            >
               <Image
                 alt="icon"
                 src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/musictem.png`}
                 width={`20px`}
               />
             </Btn>
-            <Btn>
+            <Btn
+              isActive={router.pathname === `/artwork`}
+              onClick={() => movelinkHandler(`/artwork`)}
+            >
               <Image
                 alt="icon"
                 src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/artworks.png`}
                 width={`20px`}
               />
             </Btn>
-            <Btn>
+            <Btn
+              isActive={router.pathname === `/notice`}
+              onClick={() => movelinkHandler(`/notice`)}
+            >
               <Image
                 alt="icon"
                 src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/notice.png`}
                 width={`20px`}
               />
             </Btn>
-            <Btn>
+            <Btn
+              isActive={router.pathname === `/faq`}
+              onClick={() => movelinkHandler(`/faq`)}
+            >
               <Image
                 alt="icon"
                 src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/faq.png`}
                 width={`20px`}
               />
             </Btn>
-            <Btn>
+            <Btn
+              isActive={router.pathname === `/contact`}
+              onClick={() => movelinkHandler(`/contact`)}
+            >
               <Image
                 alt="icon"
                 src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/contact.png`}
@@ -215,25 +248,51 @@ const SideMenu = ({}) => {
               onClick={modalToggle1}
             />
           </Wrapper>
-          <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 30px`}>
+          <Wrapper
+            dr={`row`}
+            ju={`flex-start`}
+            margin={`0 0 30px`}
+            onClick={() => movelinkHandler(`/artisttem`)}
+          >
             <Image
               alt="icon"
               src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/artisttem.png`}
               width={`14px`}
               margin={`0 10px 0 0`}
             />
-            <Text fontSize={`16px`} isHover color={Theme.grey_C}>
+            <Text
+              fontSize={`16px`}
+              isHover
+              color={
+                router.pathname === `/artisttem`
+                  ? Theme.basicTheme_C
+                  : Theme.grey_C
+              }
+            >
               Artisttem
             </Text>
           </Wrapper>
-          <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 30px`}>
+          <Wrapper
+            dr={`row`}
+            ju={`flex-start`}
+            margin={`0 0 30px`}
+            onClick={() => movelinkHandler(`/musictem`)}
+          >
             <Image
               alt="icon"
               src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/musictem.png`}
               width={`14px`}
               margin={`0 10px 0 0`}
             />
-            <Text fontSize={`16px`} isHover color={Theme.grey_C}>
+            <Text
+              fontSize={`16px`}
+              isHover
+              color={
+                router.pathname === `/musictem`
+                  ? Theme.basicTheme_C
+                  : Theme.grey_C
+              }
+            >
               Musictem
             </Text>
           </Wrapper>
@@ -254,14 +313,27 @@ const SideMenu = ({}) => {
               cursor={`pointer`}
             />
           </Wrapper>
-          <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 30px`}>
+          <Wrapper
+            dr={`row`}
+            ju={`flex-start`}
+            margin={`0 0 30px`}
+            onClick={() => movelinkHandler(`/artwork`)}
+          >
             <Image
               alt="icon"
               src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/artworks.png`}
               width={`14px`}
               margin={`0 10px 0 0`}
             />
-            <Text fontSize={`16px`} isHover color={Theme.grey_C}>
+            <Text
+              fontSize={`16px`}
+              isHover
+              color={
+                router.pathname === `/artwork`
+                  ? Theme.basicTheme_C
+                  : Theme.grey_C
+              }
+            >
               Artworks Community
             </Text>
           </Wrapper>
@@ -274,36 +346,72 @@ const SideMenu = ({}) => {
               C/S Center
             </Text>
           </Wrapper>
-          <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 30px`}>
+          <Wrapper
+            dr={`row`}
+            ju={`flex-start`}
+            margin={`0 0 30px`}
+            onClick={() => movelinkHandler(`/notice`)}
+          >
             <Image
               alt="icon"
               src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/notice.png`}
               width={`14px`}
               margin={`0 10px 0 0`}
             />
-            <Text fontSize={`16px`} isHover color={Theme.grey_C}>
+            <Text
+              fontSize={`16px`}
+              isHover
+              color={
+                router.pathname === `/notice`
+                  ? Theme.basicTheme_C
+                  : Theme.grey_C
+              }
+            >
               Notice
             </Text>
           </Wrapper>
-          <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 30px`}>
+          <Wrapper
+            dr={`row`}
+            ju={`flex-start`}
+            margin={`0 0 30px`}
+            onClick={() => movelinkHandler(`/faq`)}
+          >
             <Image
               alt="icon"
               src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/faq.png`}
               width={`14px`}
               margin={`0 10px 0 0`}
             />
-            <Text fontSize={`16px`} isHover color={Theme.grey_C}>
+            <Text
+              fontSize={`16px`}
+              isHover
+              color={
+                router.pathname === `/faq` ? Theme.basicTheme_C : Theme.grey_C
+              }
+            >
               FAQ
             </Text>
           </Wrapper>
-          <Wrapper dr={`row`} ju={`flex-start`}>
+          <Wrapper
+            dr={`row`}
+            ju={`flex-start`}
+            onClick={() => movelinkHandler(`/contact`)}
+          >
             <Image
               alt="icon"
               src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/contact.png`}
               width={`14px`}
               margin={`0 10px 0 0`}
             />
-            <Text fontSize={`16px`} isHover color={Theme.grey_C}>
+            <Text
+              fontSize={`16px`}
+              isHover
+              color={
+                router.pathname === `/contact`
+                  ? Theme.basicTheme_C
+                  : Theme.grey_C
+              }
+            >
               Contact Us
             </Text>
           </Wrapper>
@@ -361,7 +469,12 @@ const SideMenu = ({}) => {
             onClick={modalToggle1}
           />
         </Wrapper>
-        <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 30px`}>
+        <Wrapper
+          dr={`row`}
+          ju={`flex-start`}
+          margin={`0 0 30px`}
+          onClick={() => movelinkHandler(`/artisttem`)}
+        >
           <Image
             alt="icon"
             src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/artisttem.png`}
@@ -372,7 +485,12 @@ const SideMenu = ({}) => {
             Artisttem
           </Text>
         </Wrapper>
-        <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 30px`}>
+        <Wrapper
+          dr={`row`}
+          ju={`flex-start`}
+          margin={`0 0 30px`}
+          onClick={() => movelinkHandler(`/musictem`)}
+        >
           <Image
             alt="icon"
             src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/musictem.png`}
@@ -400,7 +518,12 @@ const SideMenu = ({}) => {
             cursor={`pointer`}
           />
         </Wrapper>
-        <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 30px`}>
+        <Wrapper
+          dr={`row`}
+          ju={`flex-start`}
+          margin={`0 0 30px`}
+          onClick={() => movelinkHandler(`/artwork`)}
+        >
           <Image
             alt="icon"
             src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/artworks.png`}
@@ -420,7 +543,12 @@ const SideMenu = ({}) => {
             C/S Center
           </Text>
         </Wrapper>
-        <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 30px`}>
+        <Wrapper
+          dr={`row`}
+          ju={`flex-start`}
+          margin={`0 0 30px`}
+          onClick={() => movelinkHandler(`/notice`)}
+        >
           <Image
             alt="icon"
             src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/notice.png`}
@@ -431,7 +559,12 @@ const SideMenu = ({}) => {
             Notice
           </Text>
         </Wrapper>
-        <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 30px`}>
+        <Wrapper
+          dr={`row`}
+          ju={`flex-start`}
+          margin={`0 0 30px`}
+          onClick={() => movelinkHandler(`/faq`)}
+        >
           <Image
             alt="icon"
             src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/faq.png`}
@@ -442,7 +575,11 @@ const SideMenu = ({}) => {
             FAQ
           </Text>
         </Wrapper>
-        <Wrapper dr={`row`} ju={`flex-start`}>
+        <Wrapper
+          dr={`row`}
+          ju={`flex-start`}
+          onClick={() => movelinkHandler(`/contact`)}
+        >
           <Image
             alt="icon"
             src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/contact.png`}
