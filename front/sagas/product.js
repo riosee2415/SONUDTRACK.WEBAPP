@@ -40,6 +40,22 @@ import {
   PRODUCT_TRACK_LIST_REQUEST,
   PRODUCT_TRACK_LIST_SUCCESS,
   PRODUCT_TRACK_LIST_FAILURE,
+  //
+  COMMON_TAG_NEW_REQUEST,
+  COMMON_TAG_NEW_SUCCESS,
+  COMMON_TAG_NEW_FAILURE,
+  //
+  COMMON_TAG_LIST_REQUEST,
+  COMMON_TAG_LIST_SUCCESS,
+  COMMON_TAG_LIST_FAILURE,
+  //
+  COMMON_TAG_MODIFY_REQUEST,
+  COMMON_TAG_MODIFY_SUCCESS,
+  COMMON_TAG_MODIFY_FAILURE,
+  //
+  COMMON_TAG_DELETE_REQUEST,
+  COMMON_TAG_DELETE_SUCCESS,
+  COMMON_TAG_DELETE_FAILURE,
 } from "../reducers/product";
 
 // ******************************************************************************************************************
@@ -322,6 +338,113 @@ function* productTrackList(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function commonTagNewAPI(data) {
+  return await axios.post("/api/product/commontag/new", data);
+}
+
+function* commonTagNew(action) {
+  try {
+    const result = yield call(commonTagNewAPI, action.data);
+
+    yield put({
+      type: COMMON_TAG_NEW_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: COMMON_TAG_NEW_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function commonTagListAPI(data) {
+  return await axios.post("/api/product/commontag/list", data);
+}
+
+function* commonTagList(action) {
+  try {
+    const result = yield call(commonTagListAPI, action.data);
+
+    yield put({
+      type: COMMON_TAG_LIST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: COMMON_TAG_LIST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function commonTagModifyAPI(data) {
+  return await axios.post("/api/product/commontag/modify", data);
+}
+
+function* commonTagModify(action) {
+  try {
+    const result = yield call(commonTagModifyAPI, action.data);
+
+    yield put({
+      type: COMMON_TAG_MODIFY_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: COMMON_TAG_MODIFY_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function commonTagDeleteAPI(data) {
+  return await axios.post("/api/product/commontag/delete", data);
+}
+
+function* commonTagDelete(action) {
+  try {
+    const result = yield call(commonTagDeleteAPI, action.data);
+
+    yield put({
+      type: COMMON_TAG_DELETE_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: COMMON_TAG_DELETE_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 function* watchCategoryList() {
   yield takeLatest(CATEGORY_LIST_REQUEST, categoryList);
@@ -353,6 +476,18 @@ function* watchProductGen() {
 function* watchProductTrackList() {
   yield takeLatest(PRODUCT_TRACK_LIST_REQUEST, productTrackList);
 }
+function* watchCommonTagNew() {
+  yield takeLatest(COMMON_TAG_NEW_REQUEST, commonTagNew);
+}
+function* watchCommonTagList() {
+  yield takeLatest(COMMON_TAG_LIST_REQUEST, commonTagList);
+}
+function* watchCommonTagModify() {
+  yield takeLatest(COMMON_TAG_MODIFY_REQUEST, commonTagModify);
+}
+function* watchCommonTagDelete() {
+  yield takeLatest(COMMON_TAG_DELETE_REQUEST, commonTagDelete);
+}
 
 //////////////////////////////////////////////////////////////
 export default function* productSaga() {
@@ -367,6 +502,10 @@ export default function* productSaga() {
     fork(watchProductTag),
     fork(watchProductGen),
     fork(watchProductTrackList),
+    fork(watchCommonTagNew),
+    fork(watchCommonTagList),
+    fork(watchCommonTagModify),
+    fork(watchCommonTagDelete),
     //
   ]);
 }

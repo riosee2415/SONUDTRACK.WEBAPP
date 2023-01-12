@@ -119,9 +119,9 @@ const Artist = ({}) => {
       {/* GUIDE */}
       <Wrapper margin={`10px 0px 0px 0px`}>
         <GuideUl>
-          <GuideLi>화면 가이드안내 문구를 입력하세요.</GuideLi>
+          <GuideLi>뮤직탬, 아티스탬에 적용되는 공용 테그입니다.</GuideLi>
           <GuideLi isImpo={true}>
-            화면 가이드안내 문구를 입력하세요. (RED COLOR)
+            음원 또는 앨범에 등록된 테그는 삭제하더라도 남아있게 됩니다.
           </GuideLi>
         </GuideUl>
       </Wrapper>

@@ -144,6 +144,11 @@ export const items = {
   ],
   음원관리: [
     {
+      name: "공용테그관리",
+      link: "/admin/snd/tags",
+      useYn: true,
+    },
+    {
       name: "앨범카테고리관리",
       link: "/admin/snd/category",
       useYn: true,

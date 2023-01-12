@@ -31,6 +31,7 @@ const product = require("./product");
 const productGen = require("./productGen");
 const productTrack = require("./productTrack");
 const trackgen = require("./trackgen");
+const commonTag = require("./commonTag");
 
 const env = process.env.NODE_ENV || "development";
 const config = require("../config/config")[env];
@@ -75,6 +76,7 @@ db.Product = product;
 db.ProductGen = productGen;
 db.ProductTrack = productTrack;
 db.TrackGen = trackgen;
+db.CommonTag = commonTag;
 
 Object.keys(db).forEach((modelName) => {
   db[modelName].init(sequelize);

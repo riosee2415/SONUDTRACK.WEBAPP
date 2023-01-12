@@ -6,6 +6,7 @@ export const initailState = {
   targetTags: [],
   targetGens: [],
   trackList: [],
+  commonTags: [],
 
   st_categoryLoading: false,
   st_categoryDone: false,
@@ -47,6 +48,21 @@ export const initailState = {
   st_productTrackListDone: false,
   st_productTrackListError: null,
   //
+  st_commonTagNewLoading: false,
+  st_commonTagNewDone: false,
+  st_commonTagNewError: null,
+  //
+  st_commonTagListLoading: false,
+  st_commonTagListDone: false,
+  st_commonTagListError: null,
+  //
+  st_commonTagModifyLoading: false,
+  st_commonTagModifyDone: false,
+  st_commonTagModifyError: null,
+  //
+  st_commonTagDeleteLoading: false,
+  st_commonTagDeleteDone: false,
+  st_commonTagDeleteError: null,
 };
 
 export const CATEGORY_LIST_REQUEST = "CATEGORY_LIST_REQUEST";
@@ -88,6 +104,22 @@ export const PRODUCT_GEN_FAILURE = "PRODUCT_GEN_FAILURE";
 export const PRODUCT_TRACK_LIST_REQUEST = "PRODUCT_TRACK_LIST_REQUEST";
 export const PRODUCT_TRACK_LIST_SUCCESS = "PRODUCT_TRACK_LIST_SUCCESS";
 export const PRODUCT_TRACK_LIST_FAILURE = "PRODUCT_TRACK_LIST_FAILURE";
+
+export const COMMON_TAG_NEW_REQUEST = "COMMON_TAG_NEW_REQUEST";
+export const COMMON_TAG_NEW_SUCCESS = "COMMON_TAG_NEW_SUCCESS";
+export const COMMON_TAG_NEW_FAILURE = "COMMON_TAG_NEW_FAILURE";
+
+export const COMMON_TAG_LIST_REQUEST = "COMMON_TAG_LIST_REQUEST";
+export const COMMON_TAG_LIST_SUCCESS = "COMMON_TAG_LIST_SUCCESS";
+export const COMMON_TAG_LIST_FAILURE = "COMMON_TAG_LIST_FAILURE";
+
+export const COMMON_TAG_MODIFY_REQUEST = "COMMON_TAG_MODIFY_REQUEST";
+export const COMMON_TAG_MODIFY_SUCCESS = "COMMON_TAG_MODIFY_SUCCESS";
+export const COMMON_TAG_MODIFY_FAILURE = "COMMON_TAG_MODIFY_FAILURE";
+
+export const COMMON_TAG_DELETE_REQUEST = "COMMON_TAG_DELETE_REQUEST";
+export const COMMON_TAG_DELETE_SUCCESS = "COMMON_TAG_DELETE_SUCCESS";
+export const COMMON_TAG_DELETE_FAILURE = "COMMON_TAG_DELETE_FAILURE";
 
 const reducer = (state = initailState, action) =>
   produce(state, (draft) => {
@@ -302,6 +334,92 @@ const reducer = (state = initailState, action) =>
         draft.st_productTrackListLoading = false;
         draft.st_productTrackListDone = false;
         draft.st_productTrackListError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////
+      case COMMON_TAG_NEW_REQUEST: {
+        draft.st_commonTagNewLoading = true;
+        draft.st_commonTagNewDone = false;
+        draft.st_commonTagNewError = null;
+        break;
+      }
+      case COMMON_TAG_NEW_SUCCESS: {
+        draft.st_commonTagNewLoading = false;
+        draft.st_commonTagNewDone = true;
+        draft.st_commonTagNewError = null;
+
+        break;
+      }
+      case COMMON_TAG_NEW_FAILURE: {
+        draft.st_commonTagNewLoading = false;
+        draft.st_commonTagNewDone = false;
+        draft.st_commonTagNewError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////
+      case COMMON_TAG_LIST_REQUEST: {
+        draft.st_commonTagListLoading = true;
+        draft.st_commonTagListDone = false;
+        draft.st_commonTagListError = null;
+        break;
+      }
+      case COMMON_TAG_LIST_SUCCESS: {
+        draft.st_commonTagListLoading = false;
+        draft.st_commonTagListDone = true;
+        draft.st_commonTagListError = null;
+        draft.commonTags = action.data;
+        break;
+      }
+      case COMMON_TAG_LIST_FAILURE: {
+        draft.st_commonTagListLoading = false;
+        draft.st_commonTagListDone = false;
+        draft.st_commonTagListError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////
+      case COMMON_TAG_MODIFY_REQUEST: {
+        draft.st_commonTagModifyLoading = true;
+        draft.st_commonTagModifyDone = false;
+        draft.st_commonTagModifyError = null;
+        break;
+      }
+      case COMMON_TAG_MODIFY_SUCCESS: {
+        draft.st_commonTagModifyLoading = false;
+        draft.st_commonTagModifyDone = true;
+        draft.st_commonTagModifyError = null;
+        break;
+      }
+      case COMMON_TAG_MODIFY_FAILURE: {
+        draft.st_commonTagModifyLoading = false;
+        draft.st_commonTagModifyDone = false;
+        draft.st_commonTagModifyError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////
+      case COMMON_TAG_DELETE_REQUEST: {
+        draft.st_commonTagDeleteLoading = true;
+        draft.st_commonTagDeleteDone = false;
+        draft.st_commonTagDeleteError = null;
+        break;
+      }
+      case COMMON_TAG_DELETE_SUCCESS: {
+        draft.st_commonTagDeleteLoading = false;
+        draft.st_commonTagDeleteDone = true;
+        draft.st_commonTagDeleteError = null;
+        break;
+      }
+      case COMMON_TAG_DELETE_FAILURE: {
+        draft.st_commonTagDeleteLoading = false;
+        draft.st_commonTagDeleteDone = false;
+        draft.st_commonTagDeleteError = action.error;
         break;
       }
 
