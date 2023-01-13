@@ -80,7 +80,7 @@ const reducer = (state = initailState, action) =>
 
       ////////////////////////////////////////////////////
       ////////////////////////////////////////////////////
-      
+
       case FAQTYPE_ADD_REQUEST: {
         draft.st_faqTypeAddLoading = true;
         draft.st_faqTypeAddDone = false;

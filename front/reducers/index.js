@@ -12,6 +12,7 @@ import editor from "./editor";
 import logo from "./logo";
 import faq from "./faq";
 import product from "./product";
+import artist from "./artist";
 
 const rootReducer = (state, action) => {
   switch (action.type) {
@@ -32,6 +33,7 @@ const rootReducer = (state, action) => {
         logo,
         faq,
         product,
+        artist,
       });
       return combinedReducer(state, action);
     }
