@@ -22,6 +22,7 @@ import styled from "styled-components";
 import { SearchOutlined } from "@ant-design/icons";
 import dynamic from "next/dynamic";
 import { Checkbox, Modal, Radio, Slider } from "antd";
+import { useRouter } from "next/router";
 
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
@@ -123,6 +124,7 @@ const Index = () => {
   const [currentTab, setCurrentTab] = useState(0);
   ////// HOOKS //////
   const width = useWidth();
+  const router = useRouter();
   ////// REDUX //////
   ////// USEEFFECT //////
   ////// TOGGLE //////
@@ -143,6 +145,10 @@ const Index = () => {
   }, [isOrderModal]);
 
   ////// HANDLER //////
+  const movelinkHandler = useCallback((link) => {
+    router.push(link);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
   ////// DATAVIEW //////
 
   return (
@@ -337,6 +343,7 @@ const Index = () => {
                   <CommonButton
                     width={`66px`}
                     height={`24px`}
+                    fontSize={`14px`}
                     padding={`0`}
                     kindOf={`grey2`}
                     margin={`0 6px 0 0`}
@@ -346,6 +353,7 @@ const Index = () => {
                   <CommonButton
                     width={`66px`}
                     height={`24px`}
+                    fontSize={`14px`}
                     padding={`0`}
                     kindOf={`grey2`}
                   >
@@ -416,6 +424,7 @@ const Index = () => {
                   <CommonButton
                     width={`66px`}
                     height={`24px`}
+                    fontSize={`14px`}
                     padding={`0`}
                     kindOf={`grey2`}
                     margin={`0 6px 0 0`}
@@ -425,6 +434,7 @@ const Index = () => {
                   <CommonButton
                     width={`66px`}
                     height={`24px`}
+                    fontSize={`14px`}
                     padding={`0`}
                     kindOf={`grey2`}
                   >
@@ -478,6 +488,7 @@ const Index = () => {
                   <CommonButton
                     width={`66px`}
                     height={`24px`}
+                    fontSize={`14px`}
                     padding={`0`}
                     kindOf={`grey2`}
                     margin={`0 6px 0 0`}
@@ -487,6 +498,7 @@ const Index = () => {
                   <CommonButton
                     width={`66px`}
                     height={`24px`}
+                    fontSize={`14px`}
                     padding={`0`}
                     kindOf={`grey2`}
                   >
@@ -540,6 +552,7 @@ const Index = () => {
                   <CommonButton
                     width={`66px`}
                     height={`24px`}
+                    fontSize={`14px`}
                     padding={`0`}
                     kindOf={`grey2`}
                     margin={`0 6px 0 0`}
@@ -549,6 +562,7 @@ const Index = () => {
                   <CommonButton
                     width={`66px`}
                     height={`24px`}
+                    fontSize={`14px`}
                     padding={`0`}
                     kindOf={`grey2`}
                   >
@@ -600,6 +614,7 @@ const Index = () => {
 
             <Wrapper borderTop={`1px solid ${Theme.lightGrey_C}`}>
               <List
+                onClick={() => movelinkHandler(`/artwork/1`)}
                 borderBottom={`1px solid ${Theme.lightGrey_C}`}
                 dr={`row`}
                 ju={`space-between`}

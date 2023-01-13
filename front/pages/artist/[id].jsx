@@ -9,53 +9,18 @@ import useWidth from "../../hooks/useWidth";
 import {
   ArtWrapper,
   CommonButton,
-  CustomPage,
   Image,
   RsWrapper,
-  SpanText,
   SquareBox,
   Text,
   TextArea,
-  TextInput,
   WholeWrapper,
   Wrapper,
 } from "../../components/commonComponents";
 import Theme from "../../components/Theme";
-import { BellOutlined, SearchOutlined, StarFilled } from "@ant-design/icons";
+import { BellOutlined, StarFilled } from "@ant-design/icons";
 import styled from "styled-components";
 import { Modal, Popover, Rate, Select } from "antd";
-import MainSlider2 from "../../components/slide/MainSlider2";
-
-const CustomSelect = styled(Wrapper)`
-  width: 240px;
-  height: ${(props) => props.height || `54px`};
-  border-radius: 30px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-
-  .ant-select {
-    width: 100%;
-  }
-
-  .ant-select-single:not(.ant-select-customize-input) .ant-select-selector,
-  .ant-select-single:not(.ant-select-customize-input)
-    .ant-select-selector
-    .ant-select-selection-search-input {
-    width: 100%;
-    height: ${(props) => props.height || `54px`};
-    border-radius: 30px;
-    border: none;
-  }
-
-  .ant-select-single .ant-select-selector .ant-select-selection-item,
-  .ant-select-single .ant-select-selector .ant-select-selection-placeholder {
-    width: 100%;
-    line-height: ${(props) => props.height || `54px`};
-  }
-
-  @media (max-width: 700px) {
-    width: 160px;
-  }
-`;
 
 const Index = () => {
   ////// GLOBAL STATE //////
@@ -79,7 +44,7 @@ const Index = () => {
   return (
     <>
       <Head>
-        <title>NEW WAVE Sound | Artisttem</title>
+        <title>NEW WAVE Sound | Artist</title>
       </Head>
 
       <ClientLayout>
