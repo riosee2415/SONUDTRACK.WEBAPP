@@ -104,6 +104,29 @@ const GlobalStyles = createGlobalStyle`
     width: 100% !important;
     padding: 0 !important;
   }
+
+  .scroll::-webkit-scrollbar {
+    width: 10px;
+    height: 5px;
+  }
+
+  .scroll::-webkit-scrollbar-thumb {
+    background-color: ${(props) => props.theme.basicTheme_C};
+    border: 1px solid ${(props) => props.theme.basicTheme_C};
+    border-radius: 3px;
+  }
+
+  .scroll::-webkit-scrollbar-track {
+    background-color: ${(props) => props.theme.subTheme2_C};
+  }
+
+  .ant-slider-handle{
+    border: 2px solid ${(props) => props.theme.subTheme4_C} !important;
+  }
+
+  .ant-slider-track{
+    background: ${(props) => props.theme.subTheme4_C} !important;
+  }
   
   @media (max-width : 576px) {
     html { 

@@ -1,82 +1,71 @@
 import React, { useCallback, useState } from "react";
-import { LOAD_MY_INFO_REQUEST } from "../reducers/user";
-import ClientLayout from "../components/ClientLayout";
+import ClientLayout from "../../components/ClientLayout";
+import Head from "next/head";
+import wrapper from "../../store/configureStore";
+import { LOAD_MY_INFO_REQUEST } from "../../reducers/user";
 import axios from "axios";
-import wrapper from "../store/configureStore";
 import { END } from "redux-saga";
+import useWidth from "../../hooks/useWidth";
 import {
+  ArtWrapper,
   CommonButton,
+  CustomPage,
   Image,
   RsWrapper,
-  SpanText,
+  SquareBox,
   Text,
+  TextInput,
   WholeWrapper,
   Wrapper,
-} from "../components/commonComponents";
-import useWidth from "../hooks/useWidth";
-import Theme from "../components/Theme";
+} from "../../components/commonComponents";
+import Theme from "../../components/Theme";
+import { SearchOutlined, StarFilled } from "@ant-design/icons";
 import styled from "styled-components";
-import Head from "next/head";
-import Popup from "../components/popup/popup";
-import MainSlider2 from "../components/slide/MainSlider2";
 import dynamic from "next/dynamic";
-import { Modal } from "antd";
-import { useRouter } from "next/router";
+import { Modal, Select } from "antd";
 
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
 });
 
-const Comment = styled(Wrapper)`
-  position: absolute;
-  bottom: -62px;
-  width: auto;
-  height: 40px;
-  background: ${Theme.white_C};
-  color: ${Theme.grey_C};
-  padding: 0 16px;
-  cursor: pointer;
-  opacity: 0;
-  visibility: hidden;
+const CustomSelect = styled(Wrapper)`
+  width: 240px;
+  height: ${(props) => props.height || `54px`};
+  border-radius: 30px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 
-  &:hover {
-    color: ${Theme.basicTheme_C};
+  .ant-select {
+    width: 100%;
   }
 
-  &:before {
-    content: "";
-    position: absolute;
-    top: -14px;
-    width: 0px;
-    height: 0px;
-    border-bottom: 14px solid ${Theme.white_C};
-    border-left: 14px solid transparent;
-    border-right: 14px solid transparent;
+  .ant-select-single:not(.ant-select-customize-input) .ant-select-selector,
+  .ant-select-single:not(.ant-select-customize-input)
+    .ant-select-selector
+    .ant-select-selection-search-input {
+    width: 100%;
+    height: ${(props) => props.height || `54px`};
+    border-radius: 30px;
+    border: none;
   }
 
-  @media (max-width: 900px) {
-    font-size: 12px;
-    padding: 0 10px;
+  .ant-select-single .ant-select-selector .ant-select-selection-item,
+  .ant-select-single .ant-select-selector .ant-select-selection-placeholder {
+    width: 100%;
+    line-height: ${(props) => props.height || `54px`};
+  }
+
+  @media (max-width: 700px) {
+    width: 160px;
   }
 `;
 
-const CommentWrapper = styled(Wrapper)`
-  &:hover ${Comment} {
-    opacity: 1;
-    visibility: visible;
-  }
-`;
-
-const Home = ({}) => {
+const Index = () => {
   ////// GLOBAL STATE //////
   const [playing, setPlaying] = useState(false);
   const [down, setDown] = useState(false);
   const [cart, setCart] = useState(false);
-
   ////// HOOKS //////
   const width = useWidth();
-  const router = useRouter();
-
   ////// REDUX //////
   ////// USEEFFECT //////
   ////// TOGGLE //////
@@ -92,16 +81,12 @@ const Home = ({}) => {
     setCart((prev) => !prev);
   }, [cart]);
   ////// HANDLER //////
-  const movelinkHandler = useCallback((link) => {
-    router.push(link);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
   ////// DATAVIEW //////
 
   return (
     <>
       <Head>
-        <title>NEW WAVE Sound</title>
+        <title>NEW WAVE Sound | search</title>
       </Head>
 
       <ClientLayout>
@@ -109,11 +94,11 @@ const Home = ({}) => {
           <RsWrapper>
             <Wrapper
               height={width < 900 ? `300px` : `400px`}
-              bgImg={`url("https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/banner/main.png")`}
+              bgImg={`url("https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/banner/search.png")`}
               radius={`14px`}
               overflow={`hidden`}
               shadow={`3px 3px 15px rgba(0, 0, 0, 0.15)`}
-              margin={`0 0 60px`}
+              margin={`0 0 30px`}
             >
               <Wrapper
                 height={`100%`}
@@ -123,64 +108,170 @@ const Home = ({}) => {
                 <Text
                   fontSize={width < 900 ? `25px` : `32px`}
                   fontWeight={`500`}
-                  margin={`0 0 22px`}
+                  margin={`0 0 16px`}
                 >
-                  NEW WAVE SOUND
+                  Search
                 </Text>
                 <Text
                   fontSize={width < 900 ? `14px` : `16px`}
                   lineHeight={`26px`}
                   textAlign={`center`}
+                  margin={`0 0 28px`}
                 >
-                  {width < 900 ? (
-                    <>
-                      <Text>다양한 사람들의 음악의 파도를 타고</Text>
-                      <Text>당신의 음악을 완성하세요!</Text>
-                    </>
-                  ) : (
-                    `다양한 사람들의 음악의 파도를 타고 당신의 음악을 완성하세요!`
-                  )}
+                  다양한 뮤지션을 고용해서 멋진 음악을 완성하세요.
                 </Text>
-                <Text
-                  fontSize={width < 900 ? `14px` : `16px`}
-                  lineHeight={`26px`}
-                  textAlign={`center`}
-                >
-                  전 세계에 판매할 수 있는 글로벌 Aritist
-                </Text>
-                <Wrapper dr={`row`} margin={`20px 0 0`}>
-                  <CommentWrapper width={`auto`} position={`relative`}>
-                    <CommonButton
-                      width={width < 900 ? `150px` : `220px`}
-                      height={`54px`}
-                      kindOf={`white`}
-                      fontSize={`18px`}
-                      fontWeight={`500`}
-                      margin={width < 900 ? `0 5px` : `0 15px 0 0`}
-                      onClick={() => movelinkHandler(`/artisttem`)}
-                    >
-                      Artisttem
-                    </CommonButton>
-                    <Comment>내 음악을 완성할 Artist 찾기</Comment>
-                  </CommentWrapper>
-                  <CommonButton
-                    width={width < 900 ? `150px` : `220px`}
+                <Wrapper width={width < 700 ? `90%` : `500px`}>
+                  <Wrapper
+                    position={`relative`}
                     height={`54px`}
-                    kindOf={`white`}
-                    fontSize={`18px`}
-                    fontWeight={`500`}
-                    margin={width < 900 ? `0 5px` : `0 0 0 15px`}
-                    onClick={() => movelinkHandler(`/musictem`)}
+                    color={Theme.black_C}
                   >
-                    Musictem
-                  </CommonButton>
+                    <Wrapper
+                      position={`absolute`}
+                      top={`0`}
+                      left={`14px`}
+                      height={`100%`}
+                      width={`auto`}
+                      fontSize={`25px`}
+                      color={Theme.basicTheme_C}
+                    >
+                      <SearchOutlined />
+                    </Wrapper>
+                    <TextInput
+                      width={`100%`}
+                      height={`100%`}
+                      placeholder="검색어를 입력해주세요."
+                      radius={`30px`}
+                      padding={`0 10px 0 50px`}
+                    />
+                  </Wrapper>
+                  <Wrapper dr={`row`} ju={`flex-start`} margin={`15px 0 0`}>
+                    <Text margin={`0 15px 0 0`}>#상큼발랄</Text>
+                    <Text margin={`0 15px 0 0`}>#상큼발랄</Text>
+                    <Text margin={`0 15px 0 0`}>#상큼발랄</Text>
+                  </Wrapper>
                 </Wrapper>
               </Wrapper>
             </Wrapper>
 
-            <MainSlider2 />
+            <Wrapper dr={`row`} ju={`flex-start`}>
+              <Wrapper width={`auto`} al={`flex-start`} margin={`0 50px 0 0`}>
+                <Text
+                  fontSize={`20px`}
+                  fontWeight={`bold`}
+                  color={Theme.grey_C}
+                  margin={`0 0 16px`}
+                >
+                  Category
+                </Text>
+                <CustomSelect>
+                  <Select>
+                    <Select.Option>ALL</Select.Option>
+                  </Select>
+                </CustomSelect>
+              </Wrapper>
+              <Wrapper width={`auto`} al={`flex-start`}>
+                <Text
+                  fontSize={`20px`}
+                  fontWeight={`bold`}
+                  color={Theme.grey_C}
+                  margin={width < 700 ? `16px 0` : `0 0 16px`}
+                >
+                  Tag
+                </Text>
+                <Wrapper dr={`row`} width={`auto`}>
+                  <CustomSelect margin={`0 14px 0 0`}>
+                    <Select>
+                      <Select.Option>ALL</Select.Option>
+                    </Select>
+                  </CustomSelect>
+                  <CustomSelect>
+                    <Select>
+                      <Select.Option>ALL</Select.Option>
+                    </Select>
+                  </CustomSelect>
+                </Wrapper>
+              </Wrapper>
+            </Wrapper>
+            <Wrapper dr={`row`} ju={`flex-start`} margin={`70px 0 40px`}>
+              <Image
+                alt="icon"
+                src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/artisttem.png`}
+                width={`18px`}
+                margin={`0 6px 0 0`}
+              />
+              <Text fontWeight={`500`} fontSize={width < 900 ? `25px` : `30px`}>
+                Artisttem
+              </Text>
+            </Wrapper>
 
-            <Wrapper dr={`row`} ju={`space-between`} margin={`80px 0 40px`}>
+            <Wrapper dr={`row`} ju={`flex-start`} al={`flex-start`}>
+              <ArtWrapper>
+                <SquareBox>
+                  <Image
+                    src="https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png"
+                    alt="thumbnail"
+                  />
+                </SquareBox>
+                <Text
+                  fontSize={`18px`}
+                  fontWeight={`bold`}
+                  margin={`20px 0 7px`}
+                >
+                  이차미
+                </Text>
+                <Wrapper dr={`row`} ju={`flex-start`}>
+                  <Wrapper
+                    width={`auto`}
+                    border={`1px solid ${Theme.lightGrey_C}`}
+                    radius={`30px`}
+                    height={`27px`}
+                    padding={`0 15px`}
+                    margin={`0 7px 5px 0`}
+                  >
+                    Vocal
+                  </Wrapper>
+                  <Wrapper
+                    width={`auto`}
+                    border={`1px solid ${Theme.lightGrey_C}`}
+                    radius={`30px`}
+                    height={`27px`}
+                    padding={`0 15px`}
+                    margin={`0 7px 5px 0`}
+                  >
+                    Beat Maker
+                  </Wrapper>
+                </Wrapper>
+                <Wrapper dr={`row`} ju={`space-between`} margin={`12px 0 0`}>
+                  <Wrapper
+                    dr={`row`}
+                    width={`auto`}
+                    color={Theme.subTheme3_C}
+                    fontSize={`16px`}
+                  >
+                    <StarFilled />
+                    <StarFilled />
+                    <StarFilled />
+                    <StarFilled />
+                    <StarFilled />
+                  </Wrapper>
+                  <Wrapper width={`auto`} dr={`row`}>
+                    <Image
+                      alt="icon"
+                      width={`14px`}
+                      margin={`0 4px 0 0`}
+                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
+                    />
+                    <Text fontSize={`14px`} color={Theme.grey_C}>
+                      98
+                    </Text>
+                  </Wrapper>
+                </Wrapper>
+              </ArtWrapper>
+            </Wrapper>
+            <CustomPage />
+
+            <Wrapper al={`flex-start`} margin={`80px 0 40px`}>
               <Wrapper
                 dr={`row`}
                 width={`auto`}
@@ -194,21 +285,6 @@ const Home = ({}) => {
                   margin={`0 6px 0 0`}
                 />
                 Musictem
-              </Wrapper>
-              <Wrapper dr={`row`} width={`auto`} fontSize={`16px`}>
-                <Text color={Theme.grey_C} isHover>
-                  추천순
-                </Text>
-                <SpanText
-                  fontSize={`10px`}
-                  margin={`0 10px`}
-                  color={Theme.lightGrey_C}
-                >
-                  |
-                </SpanText>
-                <Text color={Theme.grey_C} isHover>
-                  최신순
-                </Text>
               </Wrapper>
             </Wrapper>
 
@@ -422,9 +498,9 @@ const Home = ({}) => {
                   </Wrapper>
                 )}
               </Wrapper>
+              <CustomPage />
             </Wrapper>
           </RsWrapper>
-          <Popup />
 
           <Modal onCancel={downToggle} visible={down} footer={null}>
             <Wrapper padding={width < 900 ? `30px 0` : `30px 25px`}>
@@ -529,4 +605,5 @@ export const getServerSideProps = wrapper.getServerSideProps(
     await context.store.sagaTask.toPromise();
   }
 );
-export default Home;
+
+export default Index;

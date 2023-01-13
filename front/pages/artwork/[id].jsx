@@ -1,9 +1,11 @@
 import React, { useCallback, useState } from "react";
-import { LOAD_MY_INFO_REQUEST } from "../reducers/user";
-import ClientLayout from "../components/ClientLayout";
+import ClientLayout from "../../components/ClientLayout";
+import Head from "next/head";
+import wrapper from "../../store/configureStore";
+import { LOAD_MY_INFO_REQUEST } from "../../reducers/user";
 import axios from "axios";
-import wrapper from "../store/configureStore";
 import { END } from "redux-saga";
+import useWidth from "../../hooks/useWidth";
 import {
   CommonButton,
   Image,
@@ -12,71 +14,24 @@ import {
   Text,
   WholeWrapper,
   Wrapper,
-} from "../components/commonComponents";
-import useWidth from "../hooks/useWidth";
-import Theme from "../components/Theme";
+} from "../../components/commonComponents";
+import Theme from "../../components/Theme";
+import { CustomerServiceFilled } from "@ant-design/icons";
 import styled from "styled-components";
-import Head from "next/head";
-import Popup from "../components/popup/popup";
-import MainSlider2 from "../components/slide/MainSlider2";
 import dynamic from "next/dynamic";
 import { Modal } from "antd";
-import { useRouter } from "next/router";
 
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
 });
 
-const Comment = styled(Wrapper)`
-  position: absolute;
-  bottom: -62px;
-  width: auto;
-  height: 40px;
-  background: ${Theme.white_C};
-  color: ${Theme.grey_C};
-  padding: 0 16px;
-  cursor: pointer;
-  opacity: 0;
-  visibility: hidden;
-
-  &:hover {
-    color: ${Theme.basicTheme_C};
-  }
-
-  &:before {
-    content: "";
-    position: absolute;
-    top: -14px;
-    width: 0px;
-    height: 0px;
-    border-bottom: 14px solid ${Theme.white_C};
-    border-left: 14px solid transparent;
-    border-right: 14px solid transparent;
-  }
-
-  @media (max-width: 900px) {
-    font-size: 12px;
-    padding: 0 10px;
-  }
-`;
-
-const CommentWrapper = styled(Wrapper)`
-  &:hover ${Comment} {
-    opacity: 1;
-    visibility: visible;
-  }
-`;
-
-const Home = ({}) => {
+const Index = () => {
   ////// GLOBAL STATE //////
   const [playing, setPlaying] = useState(false);
   const [down, setDown] = useState(false);
   const [cart, setCart] = useState(false);
-
   ////// HOOKS //////
   const width = useWidth();
-  const router = useRouter();
-
   ////// REDUX //////
   ////// USEEFFECT //////
   ////// TOGGLE //////
@@ -92,130 +47,213 @@ const Home = ({}) => {
     setCart((prev) => !prev);
   }, [cart]);
   ////// HANDLER //////
-  const movelinkHandler = useCallback((link) => {
-    router.push(link);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
   ////// DATAVIEW //////
 
   return (
     <>
       <Head>
-        <title>NEW WAVE Sound</title>
+        <title>NEW WAVE Sound | Artworks Community</title>
       </Head>
 
       <ClientLayout>
         <WholeWrapper>
-          <RsWrapper>
-            <Wrapper
-              height={width < 900 ? `300px` : `400px`}
-              bgImg={`url("https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/banner/main.png")`}
-              radius={`14px`}
-              overflow={`hidden`}
-              shadow={`3px 3px 15px rgba(0, 0, 0, 0.15)`}
-              margin={`0 0 60px`}
-            >
+          <Wrapper
+            margin={`-84px 0 0`}
+            padding={`100px 0`}
+            bgImg={`url("https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/banner/main.png")`}
+          >
+            <RsWrapper dr={`row`} ju={`space-between`}>
               <Wrapper
-                height={`100%`}
-                bgColor={`rgba(0, 0, 0, 0.4)`}
+                al={`flex-start`}
+                width={width < 800 ? `100%` : `30%`}
+                fontSize={`16px`}
                 color={Theme.white_C}
               >
+                <Wrapper dr={`row`} ju={`flex-start`}>
+                  <CustomerServiceFilled />
+                  <Text fontWeight={`500`} margin={`0 0 0 6px`}>
+                    Artworks Community
+                  </Text>
+                </Wrapper>
                 <Text
-                  fontSize={width < 900 ? `25px` : `32px`}
-                  fontWeight={`500`}
-                  margin={`0 0 22px`}
+                  fontSize={`32px`}
+                  fontWeight={`bold`}
+                  margin={`28px 0 10px`}
                 >
-                  NEW WAVE SOUND
+                  Star Night
                 </Text>
-                <Text
-                  fontSize={width < 900 ? `14px` : `16px`}
-                  lineHeight={`26px`}
-                  textAlign={`center`}
+                <Text fontSize={`18px`}>Pokerface</Text>
+                <CommonButton
+                  width={`148px`}
+                  height={`46px`}
+                  margin={`25px 0 4px`}
                 >
-                  {width < 900 ? (
-                    <>
-                      <Text>다양한 사람들의 음악의 파도를 타고</Text>
-                      <Text>당신의 음악을 완성하세요!</Text>
-                    </>
-                  ) : (
-                    `다양한 사람들의 음악의 파도를 타고 당신의 음악을 완성하세요!`
-                  )}
+                  구매하기
+                </CommonButton>
+                <Text fontSize={`12px`}>남은 다운로드(명) : 15,000</Text>
+              </Wrapper>
+              <Wrapper width={width < 800 ? `100%` : `70%`} dr={`row`}>
+                {playing ? (
+                  <Image
+                    alt="pause icon"
+                    src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/pause_white.png`}
+                    width={width < 700 ? `20px` : `24px`}
+                    margin={width < 700 ? `0 15px` : `0 30px`}
+                    onClick={playingToggle}
+                    cursor={`pointer`}
+                  />
+                ) : (
+                  <Image
+                    alt="play icon"
+                    src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/play_white.png`}
+                    width={width < 700 ? `20px` : `24px`}
+                    onClick={playingToggle}
+                    cursor={`pointer`}
+                  />
+                )}
+                <Wrapper width={width < 800 ? `70%` : `80%`} margin={`0 20px`}>
+                  <ReactWaves
+                    options={{
+                      barHeight: 1,
+                      cursorWidth: 0,
+                      height: 87,
+                      hideScrollbar: true,
+                      progressColor: Theme.basicTheme_C,
+                      responsive: true,
+                      waveColor: Theme.white_C,
+                    }}
+                    volume={1}
+                    zoom={2}
+                    playing={playing}
+                    audioFile={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/mp3/mp3_sample.mp3`}
+                  />
+                </Wrapper>
+                <Text fontSize={`16px`} color={Theme.white_C}>
+                  3:04
                 </Text>
-                <Text
-                  fontSize={width < 900 ? `14px` : `16px`}
-                  lineHeight={`26px`}
-                  textAlign={`center`}
+              </Wrapper>
+            </RsWrapper>
+          </Wrapper>
+          <Wrapper
+            padding={width < 900 ? `30px 10px` : `30px 70px`}
+            bgColor={Theme.lightGrey2_C}
+            dr={`row`}
+            ju={`flex-start`}
+          >
+            <Wrapper
+              width={`auto`}
+              al={`flex-start`}
+              margin={width < 800 ? `0 70px 10px 0` : `0 70px 0 0`}
+            >
+              <Text color={Theme.grey_C} fontWeight={`bold`}>
+                Genre
+              </Text>
+              <Wrapper dr={`row`} ju={`flex-start`} margin={`5px 0 0`}>
+                <Wrapper
+                  width={`auto`}
+                  border={`1px solid ${Theme.lightGrey_C}`}
+                  bgColor={Theme.white_C}
+                  radius={`30px`}
+                  height={`27px`}
+                  padding={`0 15px`}
+                  margin={`0 4px 0 0`}
                 >
-                  전 세계에 판매할 수 있는 글로벌 Aritist
-                </Text>
-                <Wrapper dr={`row`} margin={`20px 0 0`}>
-                  <CommentWrapper width={`auto`} position={`relative`}>
-                    <CommonButton
-                      width={width < 900 ? `150px` : `220px`}
-                      height={`54px`}
-                      kindOf={`white`}
-                      fontSize={`18px`}
-                      fontWeight={`500`}
-                      margin={width < 900 ? `0 5px` : `0 15px 0 0`}
-                      onClick={() => movelinkHandler(`/artisttem`)}
-                    >
-                      Artisttem
-                    </CommonButton>
-                    <Comment>내 음악을 완성할 Artist 찾기</Comment>
-                  </CommentWrapper>
-                  <CommonButton
-                    width={width < 900 ? `150px` : `220px`}
-                    height={`54px`}
-                    kindOf={`white`}
-                    fontSize={`18px`}
-                    fontWeight={`500`}
-                    margin={width < 900 ? `0 5px` : `0 0 0 15px`}
-                    onClick={() => movelinkHandler(`/musictem`)}
-                  >
-                    Musictem
-                  </CommonButton>
+                  Popular
+                </Wrapper>
+                <Wrapper
+                  width={`auto`}
+                  border={`1px solid ${Theme.lightGrey_C}`}
+                  bgColor={Theme.white_C}
+                  radius={`30px`}
+                  height={`27px`}
+                  padding={`0 15px`}
+                  margin={`0 4px 0 0`}
+                >
+                  Pop
                 </Wrapper>
               </Wrapper>
             </Wrapper>
-
-            <MainSlider2 />
-
-            <Wrapper dr={`row`} ju={`space-between`} margin={`80px 0 40px`}>
-              <Wrapper
-                dr={`row`}
-                width={`auto`}
-                fontSize={width < 900 ? `25px` : `30px`}
-                fontWeight={`bold`}
-              >
-                <Image
-                  alt="icon"
-                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/musictem.png`}
-                  width={`18px`}
-                  margin={`0 6px 0 0`}
-                />
-                Musictem
-              </Wrapper>
-              <Wrapper dr={`row`} width={`auto`} fontSize={`16px`}>
-                <Text color={Theme.grey_C} isHover>
-                  추천순
-                </Text>
-                <SpanText
-                  fontSize={`10px`}
-                  margin={`0 10px`}
-                  color={Theme.lightGrey_C}
+            <Wrapper
+              width={`auto`}
+              al={`flex-start`}
+              margin={width < 800 ? `0 70px 10px 0` : `0 70px 0 0`}
+            >
+              <Text color={Theme.grey_C} fontWeight={`bold`}>
+                BPM
+              </Text>
+              <Wrapper dr={`row`} ju={`flex-start`} margin={`5px 0 0`}>
+                <Wrapper
+                  width={`auto`}
+                  border={`1px solid ${Theme.lightGrey_C}`}
+                  bgColor={Theme.white_C}
+                  radius={`30px`}
+                  height={`27px`}
+                  padding={`0 15px`}
+                  margin={`0 4px 0 0`}
                 >
-                  |
-                </SpanText>
-                <Text color={Theme.grey_C} isHover>
-                  최신순
-                </Text>
+                  148
+                </Wrapper>
               </Wrapper>
             </Wrapper>
-
+            <Wrapper width={`auto`} al={`flex-start`} margin={`0 70px 0 0`}>
+              <Text color={Theme.grey_C} fontWeight={`bold`}>
+                Key
+              </Text>
+              <Wrapper dr={`row`} ju={`flex-start`} margin={`5px 0 0`}>
+                <Wrapper
+                  width={`auto`}
+                  border={`1px solid ${Theme.lightGrey_C}`}
+                  bgColor={Theme.white_C}
+                  radius={`30px`}
+                  height={`27px`}
+                  padding={`0 15px`}
+                  margin={`0 4px 0 0`}
+                >
+                  C min
+                </Wrapper>
+                <Wrapper
+                  width={`auto`}
+                  border={`1px solid ${Theme.lightGrey_C}`}
+                  bgColor={Theme.white_C}
+                  radius={`30px`}
+                  height={`27px`}
+                  padding={`0 15px`}
+                  margin={`0 4px 0 0`}
+                >
+                  C maj
+                </Wrapper>
+              </Wrapper>
+            </Wrapper>
+            <Wrapper width={`auto`} al={`flex-start`}>
+              <Text color={Theme.grey_C} fontWeight={`bold`}>
+                License
+              </Text>
+              <Wrapper dr={`row`} ju={`flex-start`} margin={`5px 0 0`}>
+                <Wrapper
+                  width={`auto`}
+                  border={`1px solid ${Theme.lightGrey_C}`}
+                  bgColor={Theme.white_C}
+                  radius={`30px`}
+                  height={`27px`}
+                  padding={`0 15px`}
+                  margin={`0 4px 0 0`}
+                >
+                  비독점
+                </Wrapper>
+              </Wrapper>
+            </Wrapper>
+          </Wrapper>
+          <RsWrapper>
             <Wrapper
-              borderTop={`1px solid ${Theme.lightGrey_C}`}
-              margin={`0 0 100px`}
+              al={`flex-start`}
+              fontSize={width < 900 ? `25px` : `32px`}
+              fontWeight={`bold`}
+              margin={`70px 0 30px`}
             >
+              제작자의 다른 트랙
+            </Wrapper>
+
+            <Wrapper borderTop={`1px solid ${Theme.lightGrey_C}`}>
               <Wrapper
                 borderBottom={`1px solid ${Theme.lightGrey_C}`}
                 dr={`row`}
@@ -423,8 +461,13 @@ const Home = ({}) => {
                 )}
               </Wrapper>
             </Wrapper>
+
+            <Wrapper margin={`60px 0`}>
+              <CommonButton kindOf={`grey`} width={`150px`} height={`48px`}>
+                더보기 +
+              </CommonButton>
+            </Wrapper>
           </RsWrapper>
-          <Popup />
 
           <Modal onCancel={downToggle} visible={down} footer={null}>
             <Wrapper padding={width < 900 ? `30px 0` : `30px 25px`}>
@@ -529,4 +572,5 @@ export const getServerSideProps = wrapper.getServerSideProps(
     await context.store.sagaTask.toPromise();
   }
 );
-export default Home;
+
+export default Index;

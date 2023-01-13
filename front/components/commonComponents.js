@@ -85,6 +85,7 @@ export const ColWrapper = styled(Col)`
 export const WholeWrapper = styled.section`
   width: ${(props) => props.width || `100%`};
   height: ${(props) => props.height};
+  min-height: ${(props) => props.minHeight};
   color: ${(props) => props.color};
   display: ${(props) => props.display || `flex`};
   background: ${(props) => props.bgColor};
@@ -113,6 +114,7 @@ export const Wrapper = styled.div`
   min-width: ${(props) => props.minWidth};
   height: ${(props) => props.height};
   min-height: ${(props) => props.minHeight};
+  max-height: ${(props) => props.maxHeight};
   display: ${(props) => props.display || `flex`};
   flex-direction: ${(props) => props.dr || `column`};
   align-items: ${(props) => props.al || `center`};
@@ -191,13 +193,12 @@ export const CommonButton = styled(Button)`
   height: ${(props) => props.height};
   margin: ${(props) => props.margin};
   padding: ${(props) => props.padding};
-  font-size: ${(props) => props.fontSize};
+  font-size: ${(props) => props.fontSize || `16px`};
   font-weight: ${(props) => props.fontWeight};
   color: ${(props) => props.color || props.theme.white_C};
   border-radius: ${(props) => props.radius};
   border: 1px solid ${(props) => props.theme.basicTheme_C};
-
-  ${(props) => !props.kindOf && `background : ${props.theme.basicTheme_C};`}
+  background: ${(props) => props.theme.basicTheme_C};
 
   /* white - 배경 투명, 하얀글씨, 하얀선 */
   ${(props) => props.kindOf === `white` && `background : transparent;`}
@@ -209,13 +210,38 @@ export const CommonButton = styled(Button)`
   ${(props) => props.kindOf === `black` && `color : ${props.theme.white_C};`}
   
   /* subTheme - 배경 투명, 베이직글씨, 베이직 선 */
-  ${(props) =>
-    props.kindOf === `subTheme` && `background : ${props.theme.white_C};`}
+  ${(props) => props.kindOf === `subTheme` && `background : transparent;`}
   ${(props) =>
     props.kindOf === `subTheme` && `color : ${props.theme.basicTheme_C};`}
   ${(props) =>
     props.kindOf === `subTheme` &&
     `border : 1px solid ${props.theme.basicTheme_C};`}
+
+  /* grey - 배경 투명, 회색 선 */
+  ${(props) =>
+    props.kindOf === `grey` && `background : ${props.theme.white_C};`}
+  ${(props) => props.kindOf === `grey` && `color : ${props.theme.grey_C};`}
+  ${(props) =>
+    props.kindOf === `grey` && `border : 1px solid ${props.theme.lightGrey_C};`}
+
+  /* grey2 - 배경 투명, 회색 선, 회색 배경 */
+  ${(props) =>
+    props.kindOf === `grey2` && `background : ${props.theme.lightGrey2_C};`}
+  ${(props) => props.kindOf === `grey2` && `color : ${props.theme.grey_C};`}
+  ${(props) =>
+    props.kindOf === `grey2` &&
+    `border : 1px solid ${props.theme.lightGrey_C};`}
+
+  /* subTheme2 - 베이직 선, subtheme 배경 */
+  ${(props) =>
+    props.kindOf === `subTheme2` && `background : ${props.theme.subTheme_C};`}
+  ${(props) =>
+    props.kindOf === `subTheme2` && `color : ${props.theme.black_C};`}
+  ${(props) =>
+    props.kindOf === `subTheme2` &&
+    `border : 1px solid ${props.theme.basicTheme_C};`}
+
+
   ${(props) =>
     props.kindOf === `kakao` && `background : ${props.theme.kakao_C};`}
   ${(props) =>
@@ -252,6 +278,33 @@ export const CommonButton = styled(Button)`
     ${(props) =>
       props.kindOf === `subTheme` &&
       `border : 1px solid ${props.theme.basicTheme_C};`}
+
+        /* grey - 배경 투명, 회색 선 */
+    ${(props) =>
+      props.kindOf === `grey` && `background : ${props.theme.lightGrey2_C};`}
+    ${(props) => props.kindOf === `grey` && `color : ${props.theme.grey_C};`}
+    ${(props) =>
+      props.kindOf === `grey` &&
+      `border : 1px solid ${props.theme.lightGrey_C};`}
+
+    /* subTheme2 - 베이직 선, subtheme 배경 */
+    ${(props) =>
+      props.kindOf === `subTheme2` &&
+      `background : ${props.theme.basicTheme_C};`}
+    ${(props) =>
+      props.kindOf === `subTheme2` && `color : ${props.theme.white_C};`}
+    ${(props) =>
+      props.kindOf === `subTheme2` &&
+      `border : 1px solid ${props.theme.basicTheme_C};`}
+
+    /* grey2 - 배경 투명, 회색 선, 회색 배경 */
+    ${(props) =>
+      props.kindOf === `grey2` && `background : ${props.theme.subTheme_C};`}
+    ${(props) => props.kindOf === `grey2` && `color : ${props.theme.grey_C};`}
+    ${(props) =>
+      props.kindOf === `grey2` &&
+      `border : 1px solid ${props.theme.lightGrey_C};`}
+
     ${(props) =>
       props.kindOf === `kakao` && `background : ${props.theme.kakao_C};`}
     ${(props) =>
@@ -270,6 +323,7 @@ export const CommonButton = styled(Button)`
 export const Text = styled.p`
   overflow: ${(props) => props.overflow};
   width: ${(props) => props.width};
+  max-width: ${(props) => props.maxWidth};
   height: ${(props) => props.height};
   min-height: ${(props) => props.minHeight};
   max-height: ${(props) => props.maxHeight};
@@ -285,6 +339,7 @@ export const Text = styled.p`
   padding: ${(props) => props.padding};
   background: ${(props) => props.bgColor};
   text-align: ${(props) => props.textAlign};
+  text-decoration: ${(props) => props.td};
   position: ${(props) => props.position};
   top: ${(props) => props.top};
   bottom: ${(props) => props.bottom};
@@ -401,11 +456,12 @@ export const TextInput = styled.input`
   font-size: ${(props) => props.fontSize};
   cursor: ${(props) => props.cursor};
   border-radius: ${(props) => props.radius};
+  box-shadow: ${(props) => props.shadow};
   transition: 0.3s;
 
   &:focus {
     outline: none;
-    border: 1px solid ${(props) => props.theme.subTheme_C};
+    border: 1px solid ${(props) => props.theme.basicTheme_C};
   }
 
   &:read-only {
@@ -420,7 +476,7 @@ export const TextInput = styled.input`
   &::placeholder {
     font-size: 14px;
     line-height: 1.6;
-    color: ${(props) => props.theme.lightGrey_C};
+    color: ${(props) => props.theme.grey2_C};
   }
 `;
 
@@ -428,13 +484,13 @@ export const TextArea = styled.textarea`
   width: ${(props) => props.width};
   height: ${(props) => props.height || `100px`};
   padding: ${(props) => props.padding || `10px`};
-  border: ${(props) => props.border || `1px solid ${props.theme.grey_C}`};
+  border: ${(props) => props.border || `1px solid ${props.theme.lightGrey_C}`};
   border-radius: ${(props) => props.theme.radius};
   background: ${(props) => props.bgColor};
   transition: ${(props) => props.transition || props.theme.transition};
   margin: ${(props) => props.margin};
   resize: none;
-  border-radius: ${(props) => props.radius || `10px`};
+  border-radius: ${(props) => props.radius};
 
   &:focus {
     outline: none;
@@ -444,7 +500,7 @@ export const TextArea = styled.textarea`
   &::placeholder {
     font-size: 14px;
     line-height: 1.6;
-    color: ${(props) => props.theme.lightGrey_C};
+    color: ${(props) => props.theme.grey2_C};
   }
 `;
 
@@ -509,6 +565,70 @@ export const CustomPage = styled(Pagination)`
       height: 25px;
       line-height: 25px;
     }
+  }
+`;
+
+export const ArtWrapper = styled(Wrapper)`
+  align-items: flex-start;
+  width: calc(100% / 5 - 24px);
+  margin: 0 30px 0 0;
+
+  &:nth-child(5n) {
+    margin: 0;
+  }
+
+  @media (max-width: 1100px) {
+    width: calc(100% / 3 - 20px);
+    margin: 0 30px 30px 0;
+
+    &:nth-child(5n) {
+      margin: 0 30px 30px 0;
+    }
+
+    &:nth-child(3n) {
+      margin: 0 0 30px;
+    }
+  }
+  @media (max-width: 900px) {
+    width: calc(100% / 2 - 5px);
+    margin: 0 10px 20px 0;
+
+    &:nth-child(5n) {
+      margin: 0 10px 20px 0;
+    }
+
+    &:nth-child(3n) {
+      margin: 0 10px 20px 0;
+    }
+
+    &:nth-child(2n) {
+      margin: 0 0 20px;
+    }
+  }
+`;
+
+export const SquareBox = styled(Wrapper)`
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  border-radius: 7px;
+
+  &:before {
+    content: "";
+    display: block;
+    padding-bottom: 100%;
+  }
+
+  & img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    transition: 0.5s;
+  }
+
+  &:hover img {
+    transform: scale(1.1);
   }
 `;
 

@@ -19,6 +19,7 @@ export default {
   grey2_C: "#B5B5B5",
   lightGrey_C: "#E4E4E4",
   lightGrey2_C: "#F9F9FB",
+  lightGrey3_C: "#F9FAFB",
   darkGrey_C: "#4B4B4B",
   //admin
   adminTheme_1: "#1e272e",

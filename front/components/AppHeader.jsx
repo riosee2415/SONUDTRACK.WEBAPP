@@ -1,4 +1,5 @@
 import { Drawer, Modal } from "antd";
+import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import useWidth from "../hooks/useWidth";
@@ -17,6 +18,7 @@ import Theme from "./Theme";
 const AppHeader = () => {
   ////////////// - USE STATE- ///////////////
   const width = useWidth();
+  const router = useRouter();
   const dispatch = useDispatch();
 
   const { logos } = useSelector((state) => state.logo);
@@ -44,6 +46,11 @@ const AppHeader = () => {
       type: LOGO_GET_REQUEST,
     });
   }, []);
+
+  const movelinkHandler = useCallback((link) => {
+    router.push(link);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
   ////////////// - USE EFFECT- //////////////
 
   return (
@@ -64,7 +71,12 @@ const AppHeader = () => {
             src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/menu.png`}
           />
           <Wrapper width={`auto`} dr={`row`}>
-            <Text isHover color={Theme.grey_C} margin={`0 20px 0 0`}>
+            <Text
+              onClick={() => movelinkHandler(`/user/signup`)}
+              isHover
+              color={Theme.grey_C}
+              margin={`0 20px 0 0`}
+            >
               회원가입
             </Text>
             <Wrapper
@@ -72,6 +84,8 @@ const AppHeader = () => {
               height={width < 900 ? `40px` : `48px`}
               bgColor={Theme.basicTheme_C}
               radius={`100%`}
+              cursor={`pointer`}
+              onClick={() => movelinkHandler(`/user/login`)}
             >
               <Image
                 alt="icon"
@@ -82,21 +96,46 @@ const AppHeader = () => {
           </Wrapper>
         </RsWrapper>
       ) : (
-        <RsWrapper dr={`row`} ju={`flex-end`}>
-          <Text isHover color={Theme.grey_C} margin={`0 20px 0 0`}>
-            회원가입
-          </Text>
+        <RsWrapper dr={`row`} ju={`space-between`}>
+          {router.pathname.includes(`/user`) && (
+            <ATag href="/" width={`197px`}>
+              {logos && logos.find((data) => data.typeOf === "H") && (
+                <Image
+                  width={`197px`}
+                  src={logos.find((data) => data.typeOf === "H").imageURL}
+                  alt="logo"
+                />
+              )}
+            </ATag>
+          )}
+
           <Wrapper
-            width={`48px`}
-            height={`48px`}
-            bgColor={Theme.basicTheme_C}
-            radius={`100%`}
+            width={router.pathname.includes(`/user`) ? `auto` : `100%`}
+            dr={`row`}
+            ju={`flex-end`}
           >
-            <Image
-              alt="icon"
-              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/account.png`}
-              width={`20px`}
-            />
+            <Text
+              onClick={() => movelinkHandler(`/user/signup`)}
+              isHover
+              color={Theme.grey_C}
+              margin={`0 20px 0 0`}
+            >
+              회원가입
+            </Text>
+            <Wrapper
+              width={`48px`}
+              height={`48px`}
+              bgColor={Theme.basicTheme_C}
+              radius={`100%`}
+              cursor={`pointer`}
+              onClick={() => movelinkHandler(`/user/login`)}
+            >
+              <Image
+                alt="icon"
+                src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/account.png`}
+                width={`20px`}
+              />
+            </Wrapper>
           </Wrapper>
         </RsWrapper>
       )}
@@ -152,7 +191,12 @@ const AppHeader = () => {
             onClick={modalToggle1}
           />
         </Wrapper>
-        <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 30px`}>
+        <Wrapper
+          dr={`row`}
+          ju={`flex-start`}
+          margin={`0 0 30px`}
+          onClick={() => movelinkHandler(`/artisttem`)}
+        >
           <Image
             alt="icon"
             src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/artisttem.png`}
@@ -163,7 +207,12 @@ const AppHeader = () => {
             Artisttem
           </Text>
         </Wrapper>
-        <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 30px`}>
+        <Wrapper
+          dr={`row`}
+          ju={`flex-start`}
+          margin={`0 0 30px`}
+          onClick={() => movelinkHandler(`/musictem`)}
+        >
           <Image
             alt="icon"
             src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/musictem.png`}
@@ -191,7 +240,12 @@ const AppHeader = () => {
             cursor={`pointer`}
           />
         </Wrapper>
-        <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 30px`}>
+        <Wrapper
+          dr={`row`}
+          ju={`flex-start`}
+          margin={`0 0 30px`}
+          onClick={() => movelinkHandler(`/artwork`)}
+        >
           <Image
             alt="icon"
             src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/artworks.png`}
@@ -211,7 +265,12 @@ const AppHeader = () => {
             C/S Center
           </Text>
         </Wrapper>
-        <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 30px`}>
+        <Wrapper
+          dr={`row`}
+          ju={`flex-start`}
+          margin={`0 0 30px`}
+          onClick={() => movelinkHandler(`/notice`)}
+        >
           <Image
             alt="icon"
             src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/notice.png`}
@@ -222,7 +281,12 @@ const AppHeader = () => {
             Notice
           </Text>
         </Wrapper>
-        <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 30px`}>
+        <Wrapper
+          dr={`row`}
+          ju={`flex-start`}
+          margin={`0 0 30px`}
+          onClick={() => movelinkHandler(`/faq`)}
+        >
           <Image
             alt="icon"
             src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/faq.png`}
@@ -233,7 +297,11 @@ const AppHeader = () => {
             FAQ
           </Text>
         </Wrapper>
-        <Wrapper dr={`row`} ju={`flex-start`}>
+        <Wrapper
+          dr={`row`}
+          ju={`flex-start`}
+          onClick={() => movelinkHandler(`/contact`)}
+        >
           <Image
             alt="icon"
             src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/contact.png`}
