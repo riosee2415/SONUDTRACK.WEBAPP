@@ -66,6 +66,7 @@ const Join = () => {
                 margin={`12px 0 30px`}
                 width={`100%`}
                 height={`50px`}
+                border={`1px solid ${Theme.lightGrey_C}`}
                 type="text"
                 placeholder="아이디를 입력해주세요."
               />
@@ -76,6 +77,7 @@ const Join = () => {
                 margin={`12px 0 30px`}
                 width={`100%`}
                 height={`50px`}
+                border={`1px solid ${Theme.lightGrey_C}`}
                 type="password"
                 placeholder="비밀번호를 입력해주세요."
               />
@@ -86,6 +88,7 @@ const Join = () => {
                 margin={`12px 0 30px`}
                 width={`100%`}
                 height={`50px`}
+                border={`1px solid ${Theme.lightGrey_C}`}
                 type="password"
                 placeholder="비밀번호를 재입력해주세요"
               />
@@ -96,6 +99,7 @@ const Join = () => {
                 margin={`12px 0 30px`}
                 width={`100%`}
                 height={`50px`}
+                border={`1px solid ${Theme.lightGrey_C}`}
                 type="text"
                 placeholder="이름을 입력해주세요."
               />
@@ -106,6 +110,7 @@ const Join = () => {
                 margin={`12px 0 30px`}
                 width={`100%`}
                 height={`50px`}
+                border={`1px solid ${Theme.lightGrey_C}`}
                 type="text"
                 placeholder="닉네임을 입력해주세요."
               />
@@ -116,6 +121,7 @@ const Join = () => {
                 margin={`12px 0 30px`}
                 width={`100%`}
                 height={`50px`}
+                border={`1px solid ${Theme.lightGrey_C}`}
                 type="text"
                 placeholder="이메일을 입력해주세요."
               />
@@ -127,6 +133,7 @@ const Join = () => {
                   width={`calc(100% - 110px)`}
                   height={`50px`}
                   type="number"
+                  border={`1px solid ${Theme.lightGrey_C}`}
                   placeholder="휴대폰 번호를 입력해주세요."
                 />
                 <CommonButton

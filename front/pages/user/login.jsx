@@ -94,6 +94,7 @@ const Login = () => {
                 margin={`12px 0 30px`}
                 width={`100%`}
                 height={`50px`}
+                border={`1px solid ${Theme.lightGrey_C}`}
                 type="text"
                 placeholder="아이디를 입력해주세요."
               />
@@ -104,6 +105,7 @@ const Login = () => {
                 margin={`12px 0 30px`}
                 width={`100%`}
                 height={`50px`}
+                border={`1px solid ${Theme.lightGrey_C}`}
                 type="password"
                 placeholder="비밀번호를 입력해주세요."
               />

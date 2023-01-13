@@ -21,6 +21,7 @@ import Popup from "../components/popup/popup";
 import MainSlider2 from "../components/slide/MainSlider2";
 import dynamic from "next/dynamic";
 import { Modal } from "antd";
+import { useRouter } from "next/router";
 
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
@@ -74,6 +75,7 @@ const Home = ({}) => {
 
   ////// HOOKS //////
   const width = useWidth();
+  const router = useRouter();
 
   ////// REDUX //////
   ////// USEEFFECT //////
@@ -90,6 +92,10 @@ const Home = ({}) => {
     setCart((prev) => !prev);
   }, [cart]);
   ////// HANDLER //////
+  const movelinkHandler = useCallback((link) => {
+    router.push(link);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
   ////// DATAVIEW //////
 
   return (
@@ -151,6 +157,7 @@ const Home = ({}) => {
                       fontSize={`18px`}
                       fontWeight={`500`}
                       margin={width < 900 ? `0 5px` : `0 15px 0 0`}
+                      onClick={() => movelinkHandler(`/artisttem`)}
                     >
                       Artisttem
                     </CommonButton>
@@ -163,6 +170,7 @@ const Home = ({}) => {
                     fontSize={`18px`}
                     fontWeight={`500`}
                     margin={width < 900 ? `0 5px` : `0 0 0 15px`}
+                    onClick={() => movelinkHandler(`/musictem`)}
                   >
                     Musictem
                   </CommonButton>

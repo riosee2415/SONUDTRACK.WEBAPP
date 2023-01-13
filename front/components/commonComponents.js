@@ -114,6 +114,7 @@ export const Wrapper = styled.div`
   min-width: ${(props) => props.minWidth};
   height: ${(props) => props.height};
   min-height: ${(props) => props.minHeight};
+  max-height: ${(props) => props.maxHeight};
   display: ${(props) => props.display || `flex`};
   flex-direction: ${(props) => props.dr || `column`};
   align-items: ${(props) => props.al || `center`};
@@ -192,7 +193,7 @@ export const CommonButton = styled(Button)`
   height: ${(props) => props.height};
   margin: ${(props) => props.margin};
   padding: ${(props) => props.padding};
-  font-size: ${(props) => props.fontSize};
+  font-size: ${(props) => props.fontSize || `16px`};
   font-weight: ${(props) => props.fontWeight};
   color: ${(props) => props.color || props.theme.white_C};
   border-radius: ${(props) => props.radius};
@@ -209,9 +210,9 @@ export const CommonButton = styled(Button)`
   ${(props) => props.kindOf === `black` && `color : ${props.theme.white_C};`}
   
   /* subTheme - 배경 투명, 베이직글씨, 베이직 선 */
+  ${(props) => props.kindOf === `subTheme` && `background : transparent;`}
   ${(props) =>
-    props.kindOf === `subTheme` && `background : ${props.theme.white_C};`}
-  ${(props) => props.kindOf === `subTheme` && `color : ${props.theme.ㅎ};`}
+    props.kindOf === `subTheme` && `color : ${props.theme.basicTheme_C};`}
   ${(props) =>
     props.kindOf === `subTheme` &&
     `border : 1px solid ${props.theme.basicTheme_C};`}
@@ -445,7 +446,7 @@ export const SpanText = styled.span`
 export const TextInput = styled.input`
   width: ${(props) => props.width};
   height: ${(props) => props.height || `40px`};
-  border: ${(props) => props.border || `1px solid ${props.theme.lightGrey_C}`};
+  border: ${(props) => props.border || `1px solid ${props.theme.white_C}`};
   border-bottom: ${(props) => props.borderBottom};
   padding: ${(props) => props.padding || `10px`};
   transition: ${(props) => props.transition || props.theme.transition};
