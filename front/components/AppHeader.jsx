@@ -71,7 +71,12 @@ const AppHeader = () => {
             src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/menu.png`}
           />
           <Wrapper width={`auto`} dr={`row`}>
-            <Text isHover color={Theme.grey_C} margin={`0 20px 0 0`}>
+            <Text
+              onClick={() => movelinkHandler(`/user/signup`)}
+              isHover
+              color={Theme.grey_C}
+              margin={`0 20px 0 0`}
+            >
               회원가입
             </Text>
             <Wrapper
@@ -79,6 +84,8 @@ const AppHeader = () => {
               height={width < 900 ? `40px` : `48px`}
               bgColor={Theme.basicTheme_C}
               radius={`100%`}
+              cursor={`pointer`}
+              onClick={() => movelinkHandler(`/user/login`)}
             >
               <Image
                 alt="icon"
@@ -89,21 +96,46 @@ const AppHeader = () => {
           </Wrapper>
         </RsWrapper>
       ) : (
-        <RsWrapper dr={`row`} ju={`flex-end`}>
-          <Text isHover color={Theme.grey_C} margin={`0 20px 0 0`}>
-            회원가입
-          </Text>
+        <RsWrapper dr={`row`} ju={`space-between`}>
+          {router.pathname.includes(`/user`) && (
+            <ATag href="/" width={`197px`}>
+              {logos && logos.find((data) => data.typeOf === "H") && (
+                <Image
+                  width={`197px`}
+                  src={logos.find((data) => data.typeOf === "H").imageURL}
+                  alt="logo"
+                />
+              )}
+            </ATag>
+          )}
+
           <Wrapper
-            width={`48px`}
-            height={`48px`}
-            bgColor={Theme.basicTheme_C}
-            radius={`100%`}
+            width={router.pathname.includes(`/user`) ? `auto` : `100%`}
+            dr={`row`}
+            ju={`flex-end`}
           >
-            <Image
-              alt="icon"
-              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/account.png`}
-              width={`20px`}
-            />
+            <Text
+              onClick={() => movelinkHandler(`/user/signup`)}
+              isHover
+              color={Theme.grey_C}
+              margin={`0 20px 0 0`}
+            >
+              회원가입
+            </Text>
+            <Wrapper
+              width={`48px`}
+              height={`48px`}
+              bgColor={Theme.basicTheme_C}
+              radius={`100%`}
+              cursor={`pointer`}
+              onClick={() => movelinkHandler(`/user/login`)}
+            >
+              <Image
+                alt="icon"
+                src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/account.png`}
+                width={`20px`}
+              />
+            </Wrapper>
           </Wrapper>
         </RsWrapper>
       )}

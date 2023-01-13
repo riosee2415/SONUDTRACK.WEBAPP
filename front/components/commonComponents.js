@@ -85,6 +85,7 @@ export const ColWrapper = styled(Col)`
 export const WholeWrapper = styled.section`
   width: ${(props) => props.width || `100%`};
   height: ${(props) => props.height};
+  min-height: ${(props) => props.minHeight};
   color: ${(props) => props.color};
   display: ${(props) => props.display || `flex`};
   background: ${(props) => props.bgColor};
@@ -196,8 +197,7 @@ export const CommonButton = styled(Button)`
   color: ${(props) => props.color || props.theme.white_C};
   border-radius: ${(props) => props.radius};
   border: 1px solid ${(props) => props.theme.basicTheme_C};
-
-  ${(props) => !props.kindOf && `background : ${props.theme.basicTheme_C};`}
+  background: ${(props) => props.theme.basicTheme_C};
 
   /* white - 배경 투명, 하얀글씨, 하얀선 */
   ${(props) => props.kindOf === `white` && `background : transparent;`}
@@ -338,6 +338,7 @@ export const Text = styled.p`
   padding: ${(props) => props.padding};
   background: ${(props) => props.bgColor};
   text-align: ${(props) => props.textAlign};
+  text-decoration: ${(props) => props.td};
   position: ${(props) => props.position};
   top: ${(props) => props.top};
   bottom: ${(props) => props.bottom};
@@ -444,7 +445,7 @@ export const SpanText = styled.span`
 export const TextInput = styled.input`
   width: ${(props) => props.width};
   height: ${(props) => props.height || `40px`};
-  border: ${(props) => props.border || `1px solid ${props.theme.white_C}`};
+  border: ${(props) => props.border || `1px solid ${props.theme.lightGrey_C}`};
   border-bottom: ${(props) => props.borderBottom};
   padding: ${(props) => props.padding || `10px`};
   transition: ${(props) => props.transition || props.theme.transition};
@@ -459,7 +460,7 @@ export const TextInput = styled.input`
 
   &:focus {
     outline: none;
-    border: 1px solid ${(props) => props.theme.subTheme_C};
+    border: 1px solid ${(props) => props.theme.basicTheme_C};
   }
 
   &:read-only {
@@ -482,7 +483,7 @@ export const TextArea = styled.textarea`
   width: ${(props) => props.width};
   height: ${(props) => props.height || `100px`};
   padding: ${(props) => props.padding || `10px`};
-  border: ${(props) => props.border || `1px solid ${props.theme.grey_C}`};
+  border: ${(props) => props.border || `1px solid ${props.theme.lightGrey_C}`};
   border-radius: ${(props) => props.theme.radius};
   background: ${(props) => props.bgColor};
   transition: ${(props) => props.transition || props.theme.transition};

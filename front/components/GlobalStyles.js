@@ -119,6 +119,14 @@ const GlobalStyles = createGlobalStyle`
   .scroll::-webkit-scrollbar-track {
     background-color: ${(props) => props.theme.subTheme2_C};
   }
+
+  .ant-slider-handle{
+    border: 2px solid ${(props) => props.theme.subTheme4_C} !important;
+  }
+
+  .ant-slider-track{
+    background: ${(props) => props.theme.subTheme4_C} !important;
+  }
   
   @media (max-width : 576px) {
     html { 

@@ -43,7 +43,7 @@ const Index = () => {
           <RsWrapper>
             <Wrapper
               height={`260px`}
-              bgImg={`url("https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/banner/search.png")`}
+              bgImg={`url("https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/banner/cs-center.png")`}
               radius={`14px`}
               overflow={`hidden`}
               shadow={`3px 3px 15px rgba(0, 0, 0, 0.15)`}
