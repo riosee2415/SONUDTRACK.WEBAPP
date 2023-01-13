@@ -20,6 +20,7 @@ import { CustomerServiceFilled } from "@ant-design/icons";
 import styled from "styled-components";
 import dynamic from "next/dynamic";
 import { Modal } from "antd";
+import Link from "next/dist/client/link";
 
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
@@ -83,13 +84,17 @@ const Index = () => {
                   Star Night
                 </Text>
                 <Text fontSize={`18px`}>Pokerface</Text>
-                <CommonButton
-                  width={`148px`}
-                  height={`46px`}
-                  margin={`25px 0 4px`}
-                >
-                  구매하기
-                </CommonButton>
+                <Link href={`/order`}>
+                  <a>
+                    <CommonButton
+                      width={`148px`}
+                      height={`46px`}
+                      margin={`25px 0 4px`}
+                    >
+                      구매하기
+                    </CommonButton>
+                  </a>
+                </Link>
                 <Text fontSize={`12px`}>남은 다운로드(명) : 15,000</Text>
               </Wrapper>
               <Wrapper width={width < 800 ? `100%` : `70%`} dr={`row`}>

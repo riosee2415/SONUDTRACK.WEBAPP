@@ -465,7 +465,8 @@ export const TextInput = styled.input`
   }
 
   &:read-only {
-    background-color: ${(props) => props.theme.lightGrey_C};
+    background-color: ${(props) => props.theme.lightGrey2_C};
+    border: 1px solid ${(props) => props.theme.lightGrey_C};
     cursor: auto;
   }
 
