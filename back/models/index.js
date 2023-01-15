@@ -1,6 +1,6 @@
 const Sequelize = require("sequelize");
 const user = require("./user");
-const userhistory = require("./userhistory");
+const userhistory = require("./user");
 const mainbanner = require("./mainbanner");
 const mainBannerHistory = require("./mainBannerHistory");
 const companyinfo = require("./companyinfo");
@@ -47,7 +47,7 @@ const sequelize = new Sequelize(
 );
 
 db.User = user;
-db.UserHistory = userhistory;
+db.UserHistory = userHistory;
 db.MainBanner = mainbanner;
 db.CompanyInfo = companyinfo;
 db.Popup = popup;
