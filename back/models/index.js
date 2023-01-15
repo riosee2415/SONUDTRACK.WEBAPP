@@ -1,6 +1,6 @@
 const Sequelize = require("sequelize");
 const user = require("./user");
-const userhistory = require("./user");
+const userHistory = require("./userHistory");
 const mainbanner = require("./mainbanner");
 const mainBannerHistory = require("./mainBannerHistory");
 const companyinfo = require("./companyinfo");
