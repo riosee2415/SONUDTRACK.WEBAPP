@@ -22,6 +22,7 @@ import { SearchOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 import { Modal, Select } from "antd";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/router";
 
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
@@ -67,6 +68,7 @@ const Index = () => {
 
   ////// HOOKS //////
   const width = useWidth();
+  const router = useRouter();
   ////// REDUX //////
   ////// USEEFFECT //////
   ////// TOGGLE //////
@@ -86,6 +88,11 @@ const Index = () => {
     setContact((prev) => !prev);
   }, [contact]);
   ////// HANDLER //////
+
+  const movelinkHandler = useCallback((link) => {
+    router.push(link);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
   ////// DATAVIEW //////
 
   return (
@@ -274,6 +281,8 @@ const Index = () => {
                       Star Night
                     </Text>
                     <Text
+                      onClick={() => movelinkHandler(`/musictem/artist/1`)}
+                      isHover
                       fontSize={width < 700 ? `14px` : `16px`}
                       color={Theme.subTheme4_C}
                     >
@@ -498,6 +507,8 @@ const Index = () => {
                       Star Night
                     </Text>
                     <Text
+                      onClick={() => movelinkHandler(`/musictem/artist/1`)}
+                      isHover
                       fontSize={width < 700 ? `14px` : `16px`}
                       color={Theme.subTheme4_C}
                     >
@@ -841,6 +852,8 @@ const Index = () => {
                       Star Night
                     </Text>
                     <Text
+                      onClick={() => movelinkHandler(`/musictem/artist/1`)}
+                      isHover
                       fontSize={width < 700 ? `14px` : `16px`}
                       color={Theme.subTheme4_C}
                     >
