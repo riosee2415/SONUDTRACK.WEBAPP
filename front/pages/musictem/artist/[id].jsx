@@ -241,14 +241,6 @@ const Index = () => {
                             src="https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/play_purple.png"
                             alt="play icon"
                           />
-                          {/* 프리미엄일때 나타나는 아이콘
-                      <Image
-                        width={`35px`}
-                        position={`absolute`}
-                        top={`10px`}
-                        right={`10px`}
-                        src="https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/premium.png"
-                      /> */}
                         </CdWrapper>
                         <Text
                           fontSize={`18px`}

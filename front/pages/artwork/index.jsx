@@ -120,6 +120,7 @@ const Index = () => {
   const [down, setDown] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [isModal, setIsModal] = useState(false);
+  const [isUpload, setIsUpload] = useState(false);
   const [isOrderModal, setIsOrderModal] = useState(false);
   const [currentTab, setCurrentTab] = useState(0);
   ////// HOOKS //////
@@ -139,6 +140,10 @@ const Index = () => {
   const modalToggle = useCallback(() => {
     setIsModal((prev) => !prev);
   }, [isModal]);
+
+  const uploadToggle = useCallback(() => {
+    setIsUpload((prev) => !prev);
+  }, [isUpload]);
 
   const orderModalToggle = useCallback(() => {
     setIsOrderModal((prev) => !prev);
@@ -232,6 +237,7 @@ const Index = () => {
                   radius={`50px`}
                   kindOf={`grey`}
                   width={`102px`}
+                  onClick={uploadToggle}
                 >
                   업로드
                 </CommonButton>
@@ -843,6 +849,49 @@ const Index = () => {
                 }}
               >
                 확인
+              </CommonButton>
+            </Wrapper>
+          </Modal>
+
+          {/* 업로드클릭시 */}
+          <Modal onCancel={uploadToggle} visible={isUpload} footer={null}>
+            <Wrapper
+              padding={width < 900 ? `30px 0` : `30px 25px`}
+              fontSize={`16px`}
+            >
+              {/* 판매자회원이 아닐때 
+              <Text
+                fontWeight={`bold`}
+                fontSize={`28px`}
+                color={Theme.basicTheme_C}
+                margin={`0 0 16px`}
+              >
+                판매자 회원이 아니시군요!
+              </Text>
+              <Text>지금 바로 판매자로 전환하시고</Text>
+              <Text>당신의 음악을 등록해보세요!</Text>*/}
+
+              {/* 판매자 정보 없을때 */}
+              <Text
+                fontWeight={`bold`}
+                fontSize={`28px`}
+                color={Theme.basicTheme_C}
+                margin={`0 0 16px`}
+              >
+                판매자 정보 필수 입력!
+              </Text>
+              <Text>마이페이지에서 판매자 정보를 입력한 계정만</Text>
+              <Text>접근이 가능합니다.</Text>
+
+              <CommonButton
+                width={`100%`}
+                height={`48px`}
+                fontSize={width < 900 ? `16px` : `18px`}
+                fontWeight={`bold`}
+                margin={`16px 0 0`}
+                onClick={() => movelinkHandler(`/mypage`)}
+              >
+                마이페이지 바로가기
               </CommonButton>
             </Wrapper>
           </Modal>
