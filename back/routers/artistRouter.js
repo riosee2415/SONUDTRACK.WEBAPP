@@ -32,7 +32,7 @@ const upload = multer({
 });
 
 ////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////// CATEGORY ///////////////////////////////////////
+///////////////////////////////////// SELLER ///////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
 /**
  * SUBJECT : 신청자 내역 가져오기 (미승인)
@@ -94,19 +94,103 @@ router.post("/permm/list", isAdminCheck, async (req, res, next) => {
      WHERE	A.isPermm = 0
     `;
 
+  const selectQ4 = `
+    SELECT	filename,
+            filepath,
+            ArtistId
+      FROM	artistRequestFile
+     WHERE	ArtistId IN (
+                        SELECT	id
+                          FROM 	artist
+                         WHERE	isPermm = 0
+                        )
+     ORDER	BY	filename ASC
+    `;
+
   try {
     const list1 = await models.sequelize.query(selectQ1);
     const list2 = await models.sequelize.query(selectQ2);
     const list3 = await models.sequelize.query(selectQ3);
+    const list4 = await models.sequelize.query(selectQ4);
+
+    const waitingList = list3[0];
+    const fileList = list4[0];
+
+    waitingList.map((data) => {
+      data["filelist"] = [];
+
+      fileList.map((fileItem) => {
+        if (data.id === fileItem.ArtistId) {
+          data.filelist.push({
+            filename: fileItem.filename,
+            filepath: fileItem.filepath,
+          });
+        }
+      });
+    });
 
     return res.status(200).json({
       count: list1[0],
       list: list2[0],
-      waitingList: list3[0],
+      waitingList: waitingList,
     });
   } catch (error) {
     console.error(error);
     return res.status(400).send("데이터를 조회할 수 없습니다.");
+  }
+});
+
+/**
+ * SUBJECT : 신청자 승인하기
+ * PARAMETERS : {id}
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : CTO 윤상호
+ * DEV DATE : 2023/01/11
+ */
+router.post("/permm/ok", isAdminCheck, async (req, res, next) => {
+  const { id } = req.body;
+
+  const updateQ = `
+  UPDATE	artist
+     SET	isPermm = 1,
+          permmAt = NOW()
+   WHERE	id = ${id}
+  `;
+
+  try {
+    await models.sequelize.query(updateQ);
+
+    return res.status(200).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("잠시 후 다시 시도해주세요.");
+  }
+});
+
+/**
+ * SUBJECT : 신청자 및 판매자 삭제
+ * PARAMETERS : {id}
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : CTO 윤상호
+ * DEV DATE : 2023/01/16
+ */
+router.post("/permm/del", isAdminCheck, async (req, res, next) => {
+  const { id } = req.body;
+
+  const deleteQ = `
+  DELETE  FROM	artist
+   WHERE	id = ${id}
+  `;
+
+  try {
+    await models.sequelize.query(deleteQ);
+
+    return res.status(200).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("잠시 후 다시 시도해주세요.");
   }
 });
 

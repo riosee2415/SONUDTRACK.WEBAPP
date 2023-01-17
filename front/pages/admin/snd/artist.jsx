@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import AdminLayout from "../../../components/AdminLayout";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Popover, Drawer } from "antd";
+import { Button, Popover, Drawer, Popconfirm, message, Modal } from "antd";
 import { useRouter, withRouter } from "next/router";
 import wrapper from "../../../store/configureStore";
 import { END } from "redux-saga";
@@ -18,7 +18,11 @@ import {
   CustomTable,
 } from "../../../components/commonComponents";
 import { LOAD_MY_INFO_REQUEST } from "../../../reducers/user";
-import { PERMM_WAITING_LIST_REQUEST } from "../../../reducers/artist";
+import {
+  PERMM_WAITING_LIST_REQUEST,
+  PERMM_WAITING_OK_REQUEST,
+  PERMM_WAITING_DEL_REQUEST,
+} from "../../../reducers/artist";
 import Theme from "../../../components/Theme";
 import { items } from "../../../components/AdminLayout";
 import { HomeOutlined, RightOutlined } from "@ant-design/icons";
@@ -32,6 +36,15 @@ const CustomBtn = styled(Button)`
   position: relative;
 `;
 
+const ContentView = styled(Text)`
+  width: 100%;
+  padding: 15px;
+
+  box-shadow: 3px 3px 10px #d6d6d6;
+  border-radius: 5px;
+  margin-top: 10px;
+`;
+
 const Count = styled.div`
   position: absolute;
   width: 20px;
@@ -43,15 +56,40 @@ const Count = styled.div`
   border-radius: 50%;
 `;
 
+const ViewTitle = styled.span`
+  display: inline-block;
+  font-size: 17px;
+
+  position: relative;
+
+  &:before {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    right: -15px;
+    width: 30px;
+    height: 15px;
+    background-color: #2b17c8;
+    border-radius: 6px;
+    opacity: 0.3;
+  }
+`;
+
 const Artist = ({}) => {
   const { st_loadMyInfoDone, me } = useSelector((state) => state.user);
-  const { permmCnt, permmWaiting, permmWaitingList } = useSelector(
-    (state) => state.artist
-  );
-
-  console.log(permmCnt);
-  // console.log(permmWaiting);
-  console.log(permmWaitingList);
+  const {
+    permmCnt,
+    artistList,
+    permmWaitingList,
+    //
+    // 신청자 승인 후 처리
+    st_permmWaitingOkDone,
+    st_permmWaitingOkError,
+    //
+    // 신청자 승인 후 처리
+    st_permmWaitingDelDone,
+    st_permmWaitingDelError,
+  } = useSelector((state) => state.artist);
 
   const router = useRouter();
   const dispatch = useDispatch();
@@ -61,6 +99,8 @@ const Artist = ({}) => {
   const [level2, setLevel2] = useState("");
   const [sameDepth, setSameDepth] = useState([]);
   const [waitingDr, setWaitingDr] = useState(false);
+  const [infoModal, setInfoModal] = useState(false);
+  const [cd, setCd] = useState(null);
 
   const moveLinkHandler = useCallback((link) => {
     router.push(link);
@@ -85,6 +125,32 @@ const Artist = ({}) => {
   ////// HOOKS //////
 
   ////// USEEFFECT //////
+
+  useEffect(() => {
+    if (st_permmWaitingDelDone) {
+      message.info("데이터가 변경되었습니다.");
+      dispatch({
+        type: PERMM_WAITING_LIST_REQUEST,
+      });
+    }
+
+    if (st_permmWaitingDelError) {
+      return message.error(st_permmWaitingDelError);
+    }
+  }, [st_permmWaitingDelDone, st_permmWaitingDelError]);
+
+  useEffect(() => {
+    if (st_permmWaitingOkDone) {
+      message.info("판매자 전환이 승인되었습니다.");
+      dispatch({
+        type: PERMM_WAITING_LIST_REQUEST,
+      });
+    }
+
+    if (st_permmWaitingOkError) {
+      return message.error(st_permmWaitingOkError);
+    }
+  }, [st_permmWaitingOkDone, st_permmWaitingOkError]);
 
   useEffect(() => {
     if (st_loadMyInfoDone) {
@@ -113,8 +179,34 @@ const Artist = ({}) => {
 
   ////// HANDLER //////
 
+  const infoModalToggle = useCallback((data) => {
+    if (data) {
+      setCd(data);
+    }
+
+    setInfoModal((p) => !p);
+  }, []);
+
   const waitingToggle = useCallback(() => {
     setWaitingDr((p) => !p);
+  }, []);
+
+  const okPermm = useCallback((data) => {
+    dispatch({
+      type: PERMM_WAITING_OK_REQUEST,
+      data: {
+        id: data.id,
+      },
+    });
+  }, []);
+
+  const delPermm = useCallback((data) => {
+    dispatch({
+      type: PERMM_WAITING_DEL_REQUEST,
+      data: {
+        id: data.id,
+      },
+    });
   }, []);
 
   ////// DATAVIEW //////
@@ -150,34 +242,18 @@ const Artist = ({}) => {
       render: (data) => {
         return (
           <Wrapper al="flex-start">
-            <Button
-              size="small"
-              type="default"
-              style={{ fontSize: "12px", height: "20px" }}
-            >
-              akdlfa
-            </Button>
-            <Button
-              size="small"
-              type="default"
-              style={{ fontSize: "12px", height: "20px" }}
-            >
-              akdlfa
-            </Button>
-            <Button
-              size="small"
-              type="default"
-              style={{ fontSize: "12px", height: "20px" }}
-            >
-              akdlfa
-            </Button>
-            <Button
-              size="small"
-              type="default"
-              style={{ fontSize: "12px", height: "20px" }}
-            >
-              akdlfa
-            </Button>
+            {data.filelist.map((item, idx) => {
+              return (
+                <Button
+                  key={idx}
+                  size="small"
+                  type="default"
+                  style={{ fontSize: "12px", height: "20px" }}
+                >
+                  {item.filename}
+                </Button>
+              );
+            })}
           </Wrapper>
         );
       },
@@ -191,23 +267,128 @@ const Artist = ({}) => {
       render: (data) => {
         return (
           <Wrapper dr="row" ju="flex-start">
-            <Button
-              size="small"
-              type="primary"
-              style={{ fontSize: "12px", height: "20px" }}
+            <Popconfirm
+              title="판매자로 승인하시겠습니까?"
+              okText="승인"
+              cancelText="취소"
+              onConfirm={() => okPermm(data)}
             >
-              승인
-            </Button>
-            <Button
-              size="small"
-              type="danger"
-              style={{ fontSize: "12px", height: "20px" }}
+              <Button
+                size="small"
+                type="primary"
+                style={{ fontSize: "12px", height: "20px" }}
+              >
+                승인
+              </Button>
+            </Popconfirm>
+
+            <Popconfirm
+              title="판매자 신청을 거절하시겠습니까?"
+              okText="거절"
+              cancelText="취소"
+              onConfirm={() => delPermm(data)}
             >
-              거절
-            </Button>
+              <Button
+                size="small"
+                type="danger"
+                style={{ fontSize: "12px", height: "20px" }}
+              >
+                거절
+              </Button>
+            </Popconfirm>
           </Wrapper>
         );
       },
+    },
+  ];
+
+  const columns2 = [
+    {
+      title: "번호",
+      dataIndex: "id",
+    },
+    {
+      title: "이름",
+      dataIndex: "username",
+    },
+    {
+      title: "닉네임",
+      dataIndex: "nickname",
+    },
+    {
+      title: "이메일",
+      dataIndex: "email",
+    },
+    {
+      title: "연락처",
+      dataIndex: "mobile",
+    },
+    {
+      title: "회원가입일",
+      dataIndex: "viewCreatedAt",
+    },
+    {
+      title: "판매자전환일",
+      dataIndex: "viewPermmAt",
+    },
+    {
+      title: "판매자정보",
+      render: (data) => (
+        <Button
+          size="small"
+          style={{ fontSize: "12px", height: "20px" }}
+          onClick={() => infoModalToggle(data)}
+        >
+          정보확인
+        </Button>
+      ),
+    },
+    {
+      title: "아티스탬",
+      render: () => (
+        <Button
+          size="small"
+          style={{ fontSize: "12px", height: "20px" }}
+          type="primary"
+        >
+          아티스탬
+        </Button>
+      ),
+    },
+    {
+      title: "결제현황",
+      dataIndex: "payStatus",
+    },
+    {
+      title: "결제내역",
+      render: () => (
+        <Button
+          size="small"
+          style={{ fontSize: "12px", height: "20px" }}
+          type="primary"
+        >
+          결제내역 조회
+        </Button>
+      ),
+    },
+    {
+      title: "판매자제거",
+      render: (data) => (
+        <Popconfirm
+          title="삭제된 판매자는 복구할 수 없습니다. 정말 삭제하시겠습니까?"
+          okText="삭제"
+          cancelText="취소"
+          onConfirm={() => delPermm(data)}
+        >
+          <Button
+            size="small"
+            style={{ fontSize: "12px", height: "20px" }}
+            type="danger"
+          >
+            판매자제거
+          </Button>
+        </Popconfirm>
+      ),
     },
   ];
 
@@ -254,15 +435,23 @@ const Artist = ({}) => {
       </Wrapper>
 
       <Wrapper dr="row" padding="0px 20px" margin="0px 0px 10px 0px">
-        <Wrapper width="50%" dr="row" ju="flex-start">
-          뚜뚜
-        </Wrapper>
+        <Wrapper width="50%" dr="row" ju="flex-start"></Wrapper>
         <Wrapper width="50%" dr="row" ju="flex-end">
           <CustomBtn type="primary" size="small" onClick={waitingToggle}>
             판매자전환 신청리스트
             <Count>{permmCnt}</Count>
           </CustomBtn>
         </Wrapper>
+      </Wrapper>
+
+      {/* CONTENT */}
+      <Wrapper padding="0px 20px">
+        <CustomTable
+          rowKey="id"
+          columns={columns2}
+          dataSource={artistList}
+          size="small"
+        />
       </Wrapper>
 
       <Drawer
@@ -284,6 +473,27 @@ const Artist = ({}) => {
           size="small"
         />
       </Drawer>
+
+      <Modal
+        visible={infoModal}
+        title={`${cd && cd.username}님의 판매자 정보`}
+        width="1000px"
+        footer={null}
+        onCancel={() => infoModalToggle(null)}
+      >
+        <ViewTitle>활동계획</ViewTitle>
+        <ContentView>
+          {cd ? cd.plan : "등록된 활동계획이 없습니다."}
+        </ContentView>
+
+        <br />
+        <br />
+
+        <ViewTitle>역할 및 장르</ViewTitle>
+        <ContentView>
+          {cd ? cd.gen : "등록된 역할 및 장르가 없습니다."}
+        </ContentView>
+      </Modal>
     </AdminLayout>
   );
 };
