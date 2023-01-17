@@ -70,14 +70,20 @@ const AppHeader = () => {
             alt="menu icon"
             cursor={`pointer`}
             onClick={menuOpenToggle}
-            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/menu.png`}
+            src={
+              router.pathname === `/license`
+                ? `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/menu_w.png`
+                : `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/menu.png`
+            }
           />
           {me ? (
             <Wrapper width={`auto`} dr={`row`} ju={`flex-end`}>
               <Text
                 onClick={() => movelinkHandler(`/mypage/cart`)}
                 isHover
-                color={Theme.grey_C}
+                color={
+                  router.pathname === `/license` ? Theme.white_C : Theme.grey_C
+                }
                 margin={`0 20px 0 0`}
               >
                 일반회원
@@ -102,7 +108,9 @@ const AppHeader = () => {
               <Text
                 onClick={() => movelinkHandler(`/user/signup`)}
                 isHover
-                color={Theme.grey_C}
+                color={
+                  router.pathname === `/license` ? Theme.white_C : Theme.grey_C
+                }
                 margin={`0 20px 0 0`}
               >
                 회원가입
@@ -147,7 +155,9 @@ const AppHeader = () => {
               <Text
                 onClick={() => movelinkHandler(`/mypage/cart`)}
                 isHover
-                color={Theme.grey_C}
+                color={
+                  router.pathname === `/license` ? Theme.white_C : Theme.grey_C
+                }
                 margin={`0 20px 0 0`}
               >
                 일반회원
@@ -176,7 +186,9 @@ const AppHeader = () => {
               <Text
                 onClick={() => movelinkHandler(`/user/signup`)}
                 isHover
-                color={Theme.grey_C}
+                color={
+                  router.pathname === `/license` ? Theme.white_C : Theme.grey_C
+                }
                 margin={`0 20px 0 0`}
               >
                 회원가입

@@ -63,7 +63,6 @@ const Index = () => {
   ////// GLOBAL STATE //////
   const [playing, setPlaying] = useState(false);
   const [down, setDown] = useState(false);
-  const [cart, setCart] = useState(false);
   const [contact, setContact] = useState(false);
 
   ////// HOOKS //////
@@ -79,10 +78,6 @@ const Index = () => {
   const downToggle = useCallback(() => {
     setDown((prev) => !prev);
   }, [down]);
-
-  const cartToggle = useCallback(() => {
-    setCart((prev) => !prev);
-  }, [cart]);
 
   const contactToggle = useCallback(() => {
     setContact((prev) => !prev);
@@ -323,7 +318,7 @@ const Index = () => {
                         </Wrapper>
                         <Wrapper
                           width={`50px`}
-                          onClick={cartToggle}
+                          onClick={() => movelinkHandler(`/license`)}
                           cursor={`pointer`}
                         >
                           <Image
@@ -415,7 +410,7 @@ const Index = () => {
                     </Wrapper>
                     <Wrapper
                       width={`50px`}
-                      onClick={cartToggle}
+                      onClick={() => movelinkHandler(`/license`)}
                       cursor={`pointer`}
                     >
                       <Image
@@ -549,7 +544,7 @@ const Index = () => {
                         </Wrapper>
                         <Wrapper
                           width={`50px`}
-                          onClick={cartToggle}
+                          onClick={() => movelinkHandler(`/license`)}
                           cursor={`pointer`}
                         >
                           <Image
@@ -641,7 +636,7 @@ const Index = () => {
                     </Wrapper>
                     <Wrapper
                       width={`50px`}
-                      onClick={cartToggle}
+                      onClick={() => movelinkHandler(`/license`)}
                       cursor={`pointer`}
                     >
                       <Image
@@ -894,7 +889,7 @@ const Index = () => {
                         </Wrapper>
                         <Wrapper
                           width={`50px`}
-                          onClick={cartToggle}
+                          onClick={() => movelinkHandler(`/license`)}
                           cursor={`pointer`}
                         >
                           <Image
@@ -986,7 +981,7 @@ const Index = () => {
                     </Wrapper>
                     <Wrapper
                       width={`50px`}
-                      onClick={cartToggle}
+                      onClick={() => movelinkHandler(`/license`)}
                       cursor={`pointer`}
                     >
                       <Image
@@ -1021,11 +1016,9 @@ const Index = () => {
                 color={Theme.basicTheme_C}
                 margin={`0 0 16px`}
               >
-                다운로드 결제 안내
+                다운로드 안내
               </Text>
-              <Text fontSize={width < 900 ? `14px` : `16px`}>
-                바로 구매하시겠습니까?
-              </Text>
+
               <Text fontSize={width < 900 ? `14px` : `16px`}>
                 1회 다운로드 되며, 결제 내역에서 확인할 수 있습니다.
               </Text>
@@ -1033,70 +1026,18 @@ const Index = () => {
                 파일 유실 시 메일로 문의 바랍니다.
               </Text>
 
-              <Wrapper dr={`row`} margin={`30px 0 0`}>
-                <CommonButton
-                  width={`150px`}
-                  height={`48px`}
-                  fontSize={`18px`}
-                  fontWeight={`bold`}
-                  kindOf={`subTheme`}
-                  margin={`0 4px 0 0`}
-                >
-                  장바구니 담기
-                </CommonButton>
-                <CommonButton
-                  width={`150px`}
-                  height={`48px`}
-                  fontSize={`18px`}
-                  fontWeight={`bold`}
-                  margin={`0 0 0 4px`}
-                >
-                  바로 구매하기
-                </CommonButton>
-              </Wrapper>
-            </Wrapper>
-          </Modal>
-          <Modal onCancel={cartToggle} visible={cart} footer={null}>
-            <Wrapper padding={width < 900 ? `30px 0` : `30px 25px`}>
-              <Text
+              <CommonButton
+                width={`150px`}
+                height={`48px`}
+                fontSize={`18px`}
                 fontWeight={`bold`}
-                fontSize={`28px`}
-                color={Theme.basicTheme_C}
-                margin={`0 0 16px`}
+                margin={`30px 0 0`}
               >
-                Cart
-              </Text>
-              <Text fontSize={width < 900 ? `14px` : `16px`}>
-                장바구니에 추가되었습니다.
-              </Text>
-              <Text fontSize={width < 900 ? `14px` : `16px`}>
-                계속 둘러보시겠어요?
-              </Text>
-
-              <Wrapper dr={`row`} margin={`30px 0 0`}>
-                <CommonButton
-                  width={`150px`}
-                  height={`48px`}
-                  fontSize={`18px`}
-                  fontWeight={`bold`}
-                  kindOf={`subTheme`}
-                  margin={`0 4px 0 0`}
-                >
-                  장바구니 이동
-                </CommonButton>
-                <CommonButton
-                  width={`150px`}
-                  height={`48px`}
-                  fontSize={`18px`}
-                  fontWeight={`bold`}
-                  margin={`0 0 0 4px`}
-                  onClick={cartToggle}
-                >
-                  계속 쇼핑하기
-                </CommonButton>
-              </Wrapper>
+                다운로드
+              </CommonButton>
             </Wrapper>
           </Modal>
+
           <Modal
             width={width < 700 ? `100%` : `680px`}
             onCancel={contactToggle}

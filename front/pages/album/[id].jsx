@@ -620,11 +620,9 @@ const Index = () => {
                 color={Theme.basicTheme_C}
                 margin={`0 0 16px`}
               >
-                다운로드 결제 안내
+                다운로드 안내
               </Text>
-              <Text fontSize={width < 900 ? `14px` : `16px`}>
-                바로 구매하시겠습니까?
-              </Text>
+
               <Text fontSize={width < 900 ? `14px` : `16px`}>
                 1회 다운로드 되며, 결제 내역에서 확인할 수 있습니다.
               </Text>
@@ -632,27 +630,15 @@ const Index = () => {
                 파일 유실 시 메일로 문의 바랍니다.
               </Text>
 
-              <Wrapper dr={`row`} margin={`30px 0 0`}>
-                <CommonButton
-                  width={`150px`}
-                  height={`48px`}
-                  fontSize={`18px`}
-                  fontWeight={`bold`}
-                  kindOf={`subTheme`}
-                  margin={`0 4px 0 0`}
-                >
-                  장바구니 담기
-                </CommonButton>
-                <CommonButton
-                  width={`150px`}
-                  height={`48px`}
-                  fontSize={`18px`}
-                  fontWeight={`bold`}
-                  margin={`0 0 0 4px`}
-                >
-                  바로 구매하기
-                </CommonButton>
-              </Wrapper>
+              <CommonButton
+                width={`150px`}
+                height={`48px`}
+                fontSize={`18px`}
+                fontWeight={`bold`}
+                margin={`30px 0 0`}
+              >
+                다운로드
+              </CommonButton>
             </Wrapper>
           </Modal>
 
