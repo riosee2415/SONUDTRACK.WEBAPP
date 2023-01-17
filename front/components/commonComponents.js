@@ -1,8 +1,6 @@
 import { Row, Col, Button, Form, Input, Select, Pagination, Table } from "antd";
 import styled from "styled-components";
 import {
-  HomeOutlined,
-  RightOutlined,
   UpSquareOutlined,
   DownSquareOutlined,
   SettingOutlined,
@@ -241,6 +239,15 @@ export const CommonButton = styled(Button)`
     props.kindOf === `subTheme2` &&
     `border : 1px solid ${props.theme.basicTheme_C};`}
 
+  /* subTheme3 - subTheme4_C 선, subTheme4_C 배경 */
+  ${(props) =>
+    props.kindOf === `subTheme3` && `background : ${props.theme.subTheme4_C};`}
+  ${(props) =>
+    props.kindOf === `subTheme3` && `color : ${props.theme.white_C};`}
+  ${(props) =>
+    props.kindOf === `subTheme3` &&
+    `border : 1px solid ${props.theme.subTheme4_C};`}
+
 
   ${(props) =>
     props.kindOf === `kakao` && `background : ${props.theme.kakao_C};`}
@@ -295,6 +302,16 @@ export const CommonButton = styled(Button)`
       props.kindOf === `subTheme2` && `color : ${props.theme.white_C};`}
     ${(props) =>
       props.kindOf === `subTheme2` &&
+      `border : 1px solid ${props.theme.basicTheme_C};`}
+
+        /* subTheme3 */
+    ${(props) =>
+      props.kindOf === `subTheme3` &&
+      `background : ${props.theme.basicTheme_C};`}
+    ${(props) =>
+      props.kindOf === `subTheme3` && `color : ${props.theme.white_C};`}
+    ${(props) =>
+      props.kindOf === `subTheme3` &&
       `border : 1px solid ${props.theme.basicTheme_C};`}
 
     /* grey2 - 배경 투명, 회색 선, 회색 배경 */

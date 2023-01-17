@@ -14,18 +14,20 @@ import {
   SquareBox,
   Text,
   TextArea,
+  TextInput,
   WholeWrapper,
   Wrapper,
 } from "../../components/commonComponents";
 import Theme from "../../components/Theme";
-import { BellOutlined, StarFilled } from "@ant-design/icons";
+import { BellOutlined, CloseOutlined, StarFilled } from "@ant-design/icons";
 import styled from "styled-components";
-import { Modal, Popover, Rate, Select } from "antd";
+import { Checkbox, DatePicker, Modal, Popover, Rate, Select } from "antd";
 
 const Index = () => {
   ////// GLOBAL STATE //////
   const [isModal, setIsModal] = useState(false);
   const [isDetail, setIsDetail] = useState(false);
+  const [isContact, setIsContact] = useState(false);
   ////// HOOKS //////
   const width = useWidth();
   ////// REDUX //////
@@ -38,6 +40,10 @@ const Index = () => {
   const detailToggle = useCallback(() => {
     setIsDetail((prev) => !prev);
   }, [isDetail]);
+
+  const contactToggle = useCallback(() => {
+    setIsContact((prev) => !prev);
+  }, [isContact]);
   ////// HANDLER //////
   ////// DATAVIEW //////
 
@@ -146,7 +152,11 @@ const Index = () => {
                   >
                     상세 프로필
                   </CommonButton>
-                  <CommonButton width={`146px`} height={`46px`}>
+                  <CommonButton
+                    width={`146px`}
+                    height={`46px`}
+                    onClick={contactToggle}
+                  >
                     Contact
                   </CommonButton>
                 </Wrapper>
@@ -469,6 +479,124 @@ const Index = () => {
                 <Text fontSize={`16px`} margin={`0 0 28px`}>
                   A. 주로 Pop을 하고 노래와 탑라인을 합니다.
                 </Text>
+              </Wrapper>
+            </Wrapper>
+          </Modal>
+          <Modal
+            onCancel={contactToggle}
+            visible={isContact}
+            footer={null}
+            width={`550px`}
+          >
+            <Wrapper padding={width < 900 ? `30px 0` : `30px 25px`}>
+              <Text fontSize={`32px`} fontWeight={`bold`} margin={`0 0 24px`}>
+                CONTACT
+              </Text>
+              <Wrapper al={`flex-start`}>
+                <Text fontSize={`16px`} color={Theme.grey_C}>
+                  제출 마감일
+                </Text>
+                <Wrapper
+                  dr={`row`}
+                  ju={`flex-start`}
+                  fontSize={`16px`}
+                  margin={`12px 0 30px`}
+                >
+                  <DatePicker style={{ width: 200, height: 50 }} />
+                  &nbsp;까지
+                </Wrapper>
+              </Wrapper>
+              <Wrapper al={`flex-start`}>
+                <Text fontSize={`16px`} color={Theme.grey_C}>
+                  금액
+                </Text>
+                <Wrapper
+                  dr={`row`}
+                  ju={`flex-start`}
+                  fontSize={`16px`}
+                  margin={`12px 0 30px`}
+                >
+                  <TextInput
+                    border={`1px solid ${Theme.lightGrey_C}`}
+                    placeholder="최소 20만원"
+                    width={`200px`}
+                    height={`50px`}
+                  />
+                  &nbsp;원
+                </Wrapper>
+              </Wrapper>
+              <Wrapper al={`flex-start`}>
+                <Text fontSize={`16px`} color={Theme.grey_C}>
+                  내용
+                </Text>
+                <TextArea
+                  width={`100%`}
+                  height={`75px`}
+                  margin={`12px 0 30px`}
+                  placeholder="내용을 입력해주세요."
+                />
+                <Text fontSize={`16px`} color={Theme.grey_C}>
+                  레퍼런스 음악을 첨부해 주세요.
+                </Text>
+                <Wrapper dr={`row`} ju={`space-between`} margin={`12px 0 10px`}>
+                  <TextInput
+                    border={`1px solid ${Theme.lightGrey_C}`}
+                    placeholder="최소 20만원"
+                    width={`calc(100% - 110px)`}
+                    height={`50px`}
+                  />
+                  <CommonButton
+                    kindOf={`subTheme2`}
+                    width={`100px`}
+                    height={`50px`}
+                  >
+                    파일등록
+                  </CommonButton>
+                </Wrapper>
+                <Wrapper
+                  dr={`row`}
+                  ju={`space-between`}
+                  padding={`16px 14px`}
+                  bgColor={Theme.lightGrey2_C}
+                >
+                  <Text fontSize={`16px`} color={Theme.grey_C}>
+                    <Image
+                      alt="icon"
+                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/music-file.png`}
+                      width={`14px`}
+                      margin={`0 5px 0 0`}
+                    />
+                    K-Pop.WAV
+                  </Text>
+                  <CloseOutlined />
+                </Wrapper>
+                <Text color={Theme.grey_C} margin={`20px 0`}>
+                  제작할 음악의 용도를 반드시 미리 고지해야 하며, 작업 완료 후
+                  정식 앨범 출판 및 정식 앨범 출판 및 상업적 사용을 할 때에
+                  안전한 저작궈느 크레딧 협의를 위해 반드시 New Wave Sound를
+                  통하여 전문가, 의뢰인 협의 후 진행하실 수
+                  있습니다.(nws0901@nwsound1.com)
+                </Text>
+                <Checkbox>네, 동의합니다.</Checkbox>
+              </Wrapper>
+              <Wrapper dr={`row`} margin={`34px 0 0`}>
+                <CommonButton
+                  width={width < 900 ? `150px` : `180px`}
+                  height={`50px`}
+                  fontSize={`18px`}
+                  kindOf={`subTheme`}
+                  margin={`0 8px 0 0`}
+                  onClick={contactToggle}
+                >
+                  이전으로
+                </CommonButton>
+                <CommonButton
+                  width={width < 900 ? `150px` : `180px`}
+                  height={`50px`}
+                  fontSize={`18px`}
+                >
+                  문의하기
+                </CommonButton>
               </Wrapper>
             </Wrapper>
           </Modal>

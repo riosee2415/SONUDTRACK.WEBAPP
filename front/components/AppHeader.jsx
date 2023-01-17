@@ -13,6 +13,7 @@ import {
   ATag,
   TextInput,
 } from "./commonComponents";
+import MypageMenu from "./MypageMenu";
 import Theme from "./Theme";
 
 const AppHeader = () => {
@@ -22,6 +23,7 @@ const AppHeader = () => {
   const dispatch = useDispatch();
 
   const { logos } = useSelector((state) => state.logo);
+  const { me } = useSelector((state) => state.user);
 
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -68,32 +70,67 @@ const AppHeader = () => {
             alt="menu icon"
             cursor={`pointer`}
             onClick={menuOpenToggle}
-            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/menu.png`}
+            src={
+              router.pathname === `/license`
+                ? `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/menu_w.png`
+                : `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/menu.png`
+            }
           />
-          <Wrapper width={`auto`} dr={`row`}>
-            <Text
-              onClick={() => movelinkHandler(`/user/signup`)}
-              isHover
-              color={Theme.grey_C}
-              margin={`0 20px 0 0`}
-            >
-              회원가입
-            </Text>
-            <Wrapper
-              width={width < 900 ? `40px` : `48px`}
-              height={width < 900 ? `40px` : `48px`}
-              bgColor={Theme.basicTheme_C}
-              radius={`100%`}
-              cursor={`pointer`}
-              onClick={() => movelinkHandler(`/user/login`)}
-            >
-              <Image
-                alt="icon"
-                src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/account.png`}
-                width={`20px`}
-              />
+          {me ? (
+            <Wrapper width={`auto`} dr={`row`} ju={`flex-end`}>
+              <Text
+                onClick={() => movelinkHandler(`/mypage/cart`)}
+                isHover
+                color={
+                  router.pathname === `/license` ? Theme.white_C : Theme.grey_C
+                }
+                margin={`0 20px 0 0`}
+              >
+                일반회원
+              </Text>
+              <Wrapper
+                width={`48px`}
+                height={`48px`}
+                radius={`100%`}
+                cursor={`pointer`}
+                onClick={() => movelinkHandler(`/mypage/cart`)}
+              >
+                <Image
+                  height={`100%`}
+                  radius={`100%`}
+                  alt="profile"
+                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/art-goods/assets/images/main-page/img_4s_right_prod.png`}
+                />
+              </Wrapper>
             </Wrapper>
-          </Wrapper>
+          ) : (
+            <Wrapper width={`auto`} dr={`row`}>
+              <Text
+                onClick={() => movelinkHandler(`/user/signup`)}
+                isHover
+                color={
+                  router.pathname === `/license` ? Theme.white_C : Theme.grey_C
+                }
+                margin={`0 20px 0 0`}
+              >
+                회원가입
+              </Text>
+              <Wrapper
+                width={width < 900 ? `40px` : `48px`}
+                height={width < 900 ? `40px` : `48px`}
+                bgColor={Theme.basicTheme_C}
+                radius={`100%`}
+                cursor={`pointer`}
+                onClick={() => movelinkHandler(`/user/login`)}
+              >
+                <Image
+                  alt="icon"
+                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/account.png`}
+                  width={`20px`}
+                />
+              </Wrapper>
+            </Wrapper>
+          )}
         </RsWrapper>
       ) : (
         <RsWrapper dr={`row`} ju={`space-between`}>
@@ -109,34 +146,69 @@ const AppHeader = () => {
             </ATag>
           )}
 
-          <Wrapper
-            width={router.pathname.includes(`/user`) ? `auto` : `100%`}
-            dr={`row`}
-            ju={`flex-end`}
-          >
-            <Text
-              onClick={() => movelinkHandler(`/user/signup`)}
-              isHover
-              color={Theme.grey_C}
-              margin={`0 20px 0 0`}
-            >
-              회원가입
-            </Text>
+          {me ? (
             <Wrapper
-              width={`48px`}
-              height={`48px`}
-              bgColor={Theme.basicTheme_C}
-              radius={`100%`}
-              cursor={`pointer`}
-              onClick={() => movelinkHandler(`/user/login`)}
+              width={router.pathname.includes(`/user`) ? `auto` : `100%`}
+              dr={`row`}
+              ju={`flex-end`}
             >
-              <Image
-                alt="icon"
-                src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/account.png`}
-                width={`20px`}
-              />
+              <Text
+                onClick={() => movelinkHandler(`/mypage/cart`)}
+                isHover
+                color={
+                  router.pathname === `/license` ? Theme.white_C : Theme.grey_C
+                }
+                margin={`0 20px 0 0`}
+              >
+                일반회원
+              </Text>
+              <Wrapper
+                width={`48px`}
+                height={`48px`}
+                radius={`100%`}
+                cursor={`pointer`}
+                onClick={() => movelinkHandler(`/mypage/cart`)}
+              >
+                <Image
+                  height={`100%`}
+                  radius={`100%`}
+                  alt="profile"
+                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/art-goods/assets/images/main-page/img_4s_right_prod.png`}
+                />
+              </Wrapper>
             </Wrapper>
-          </Wrapper>
+          ) : (
+            <Wrapper
+              width={router.pathname.includes(`/user`) ? `auto` : `100%`}
+              dr={`row`}
+              ju={`flex-end`}
+            >
+              <Text
+                onClick={() => movelinkHandler(`/user/signup`)}
+                isHover
+                color={
+                  router.pathname === `/license` ? Theme.white_C : Theme.grey_C
+                }
+                margin={`0 20px 0 0`}
+              >
+                회원가입
+              </Text>
+              <Wrapper
+                width={`48px`}
+                height={`48px`}
+                bgColor={Theme.basicTheme_C}
+                radius={`100%`}
+                cursor={`pointer`}
+                onClick={() => movelinkHandler(`/user/login`)}
+              >
+                <Image
+                  alt="icon"
+                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/account.png`}
+                  width={`20px`}
+                />
+              </Wrapper>
+            </Wrapper>
+          )}
         </RsWrapper>
       )}
 
@@ -174,144 +246,150 @@ const AppHeader = () => {
             right={`14px`}
           />
         </Wrapper>
-        <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 30px`}>
-          <Text
-            fontWeight={`bold`}
-            fontSize={`22px`}
-            color={Theme.basicTheme_C}
-          >
-            Item
-          </Text>
-          <Image
-            alt="icon"
-            cursor={`pointer`}
-            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/question-mark.png`}
-            width={`18px`}
-            margin={`0 0 0 4px`}
-            onClick={modalToggle1}
-          />
-        </Wrapper>
-        <Wrapper
-          dr={`row`}
-          ju={`flex-start`}
-          margin={`0 0 30px`}
-          onClick={() => movelinkHandler(`/artisttem`)}
-        >
-          <Image
-            alt="icon"
-            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/artisttem.png`}
-            width={`14px`}
-            margin={`0 10px 0 0`}
-          />
-          <Text fontSize={`16px`} isHover color={Theme.grey_C}>
-            Artisttem
-          </Text>
-        </Wrapper>
-        <Wrapper
-          dr={`row`}
-          ju={`flex-start`}
-          margin={`0 0 30px`}
-          onClick={() => movelinkHandler(`/musictem`)}
-        >
-          <Image
-            alt="icon"
-            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/musictem.png`}
-            width={`14px`}
-            margin={`0 10px 0 0`}
-          />
-          <Text fontSize={`16px`} isHover color={Theme.grey_C}>
-            Musictem
-          </Text>
-        </Wrapper>
-        <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 30px`}>
-          <Text
-            fontWeight={`bold`}
-            fontSize={`22px`}
-            color={Theme.basicTheme_C}
-          >
-            Artworks
-          </Text>
-          <Image
-            alt="icon"
-            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/question-mark.png`}
-            width={`18px`}
-            margin={`0 0 0 4px`}
-            onClick={modalToggle2}
-            cursor={`pointer`}
-          />
-        </Wrapper>
-        <Wrapper
-          dr={`row`}
-          ju={`flex-start`}
-          margin={`0 0 30px`}
-          onClick={() => movelinkHandler(`/artwork`)}
-        >
-          <Image
-            alt="icon"
-            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/artworks.png`}
-            width={`14px`}
-            margin={`0 10px 0 0`}
-          />
-          <Text fontSize={`16px`} isHover color={Theme.grey_C}>
-            Artworks Community
-          </Text>
-        </Wrapper>
-        <Wrapper al={`flex-start`} margin={`0 0 30px`}>
-          <Text
-            fontWeight={`bold`}
-            fontSize={`22px`}
-            color={Theme.basicTheme_C}
-          >
-            C/S Center
-          </Text>
-        </Wrapper>
-        <Wrapper
-          dr={`row`}
-          ju={`flex-start`}
-          margin={`0 0 30px`}
-          onClick={() => movelinkHandler(`/notice`)}
-        >
-          <Image
-            alt="icon"
-            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/notice.png`}
-            width={`14px`}
-            margin={`0 10px 0 0`}
-          />
-          <Text fontSize={`16px`} isHover color={Theme.grey_C}>
-            Notice
-          </Text>
-        </Wrapper>
-        <Wrapper
-          dr={`row`}
-          ju={`flex-start`}
-          margin={`0 0 30px`}
-          onClick={() => movelinkHandler(`/faq`)}
-        >
-          <Image
-            alt="icon"
-            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/faq.png`}
-            width={`14px`}
-            margin={`0 10px 0 0`}
-          />
-          <Text fontSize={`16px`} isHover color={Theme.grey_C}>
-            FAQ
-          </Text>
-        </Wrapper>
-        <Wrapper
-          dr={`row`}
-          ju={`flex-start`}
-          onClick={() => movelinkHandler(`/contact`)}
-        >
-          <Image
-            alt="icon"
-            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/contact.png`}
-            width={`14px`}
-            margin={`0 10px 0 0`}
-          />
-          <Text fontSize={`16px`} isHover color={Theme.grey_C}>
-            Contact Us
-          </Text>
-        </Wrapper>
+        {router.pathname.includes(`/mypage`) ? (
+          <MypageMenu />
+        ) : (
+          <>
+            <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 30px`}>
+              <Text
+                fontWeight={`bold`}
+                fontSize={`22px`}
+                color={Theme.basicTheme_C}
+              >
+                Item
+              </Text>
+              <Image
+                alt="icon"
+                cursor={`pointer`}
+                src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/question-mark.png`}
+                width={`18px`}
+                margin={`0 0 0 4px`}
+                onClick={modalToggle1}
+              />
+            </Wrapper>
+            <Wrapper
+              dr={`row`}
+              ju={`flex-start`}
+              margin={`0 0 30px`}
+              onClick={() => movelinkHandler(`/artisttem`)}
+            >
+              <Image
+                alt="icon"
+                src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/artisttem.png`}
+                width={`14px`}
+                margin={`0 10px 0 0`}
+              />
+              <Text fontSize={`16px`} isHover color={Theme.grey_C}>
+                Artisttem
+              </Text>
+            </Wrapper>
+            <Wrapper
+              dr={`row`}
+              ju={`flex-start`}
+              margin={`0 0 30px`}
+              onClick={() => movelinkHandler(`/musictem`)}
+            >
+              <Image
+                alt="icon"
+                src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/musictem.png`}
+                width={`14px`}
+                margin={`0 10px 0 0`}
+              />
+              <Text fontSize={`16px`} isHover color={Theme.grey_C}>
+                Musictem
+              </Text>
+            </Wrapper>
+            <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 30px`}>
+              <Text
+                fontWeight={`bold`}
+                fontSize={`22px`}
+                color={Theme.basicTheme_C}
+              >
+                Artworks
+              </Text>
+              <Image
+                alt="icon"
+                src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/question-mark.png`}
+                width={`18px`}
+                margin={`0 0 0 4px`}
+                onClick={modalToggle2}
+                cursor={`pointer`}
+              />
+            </Wrapper>
+            <Wrapper
+              dr={`row`}
+              ju={`flex-start`}
+              margin={`0 0 30px`}
+              onClick={() => movelinkHandler(`/artwork`)}
+            >
+              <Image
+                alt="icon"
+                src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/artworks.png`}
+                width={`14px`}
+                margin={`0 10px 0 0`}
+              />
+              <Text fontSize={`16px`} isHover color={Theme.grey_C}>
+                Artworks Community
+              </Text>
+            </Wrapper>
+            <Wrapper al={`flex-start`} margin={`0 0 30px`}>
+              <Text
+                fontWeight={`bold`}
+                fontSize={`22px`}
+                color={Theme.basicTheme_C}
+              >
+                C/S Center
+              </Text>
+            </Wrapper>
+            <Wrapper
+              dr={`row`}
+              ju={`flex-start`}
+              margin={`0 0 30px`}
+              onClick={() => movelinkHandler(`/notice`)}
+            >
+              <Image
+                alt="icon"
+                src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/notice.png`}
+                width={`14px`}
+                margin={`0 10px 0 0`}
+              />
+              <Text fontSize={`16px`} isHover color={Theme.grey_C}>
+                Notice
+              </Text>
+            </Wrapper>
+            <Wrapper
+              dr={`row`}
+              ju={`flex-start`}
+              margin={`0 0 30px`}
+              onClick={() => movelinkHandler(`/faq`)}
+            >
+              <Image
+                alt="icon"
+                src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/faq.png`}
+                width={`14px`}
+                margin={`0 10px 0 0`}
+              />
+              <Text fontSize={`16px`} isHover color={Theme.grey_C}>
+                FAQ
+              </Text>
+            </Wrapper>
+            <Wrapper
+              dr={`row`}
+              ju={`flex-start`}
+              onClick={() => movelinkHandler(`/contact`)}
+            >
+              <Image
+                alt="icon"
+                src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/contact.png`}
+                width={`14px`}
+                margin={`0 10px 0 0`}
+              />
+              <Text fontSize={`16px`} isHover color={Theme.grey_C}>
+                Contact Us
+              </Text>
+            </Wrapper>
+          </>
+        )}
       </Drawer>
 
       <Modal
