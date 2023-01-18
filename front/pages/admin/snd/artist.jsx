@@ -27,6 +27,13 @@ import Theme from "../../../components/Theme";
 import { items } from "../../../components/AdminLayout";
 import { HomeOutlined, RightOutlined } from "@ant-design/icons";
 
+const CateBox = styled.span`
+  padding: 2px 9px;
+  border-radius: 10px;
+  background-color: ${(props) => props.theme.subTheme3_C};
+  color: #fff;
+`;
+
 const CustomBtn = styled(Button)`
   font-size: 12px;
   height: 25px;
@@ -101,6 +108,8 @@ const Artist = ({}) => {
   const [waitingDr, setWaitingDr] = useState(false);
   const [infoModal, setInfoModal] = useState(false);
   const [cd, setCd] = useState(null);
+
+  const [artistemDr, setArtistemDr] = useState(false);
 
   const moveLinkHandler = useCallback((link) => {
     router.push(link);
@@ -178,6 +187,14 @@ const Artist = ({}) => {
   }, []);
 
   ////// HANDLER //////
+
+  const artistemToggle = useCallback((data) => {
+    if (data) {
+      setCd(data);
+    }
+
+    setArtistemDr((p) => !p);
+  }, []);
 
   const infoModalToggle = useCallback((data) => {
     if (data) {
@@ -345,29 +362,14 @@ const Artist = ({}) => {
     },
     {
       title: "아티스탬",
-      render: () => (
+      render: (data) => (
         <Button
           size="small"
           style={{ fontSize: "12px", height: "20px" }}
           type="primary"
+          onClick={() => artistemToggle(data)}
         >
           아티스탬
-        </Button>
-      ),
-    },
-    {
-      title: "결제현황",
-      dataIndex: "payStatus",
-    },
-    {
-      title: "결제내역",
-      render: () => (
-        <Button
-          size="small"
-          style={{ fontSize: "12px", height: "20px" }}
-          type="primary"
-        >
-          결제내역 조회
         </Button>
       ),
     },
@@ -388,6 +390,121 @@ const Artist = ({}) => {
             판매자제거
           </Button>
         </Popconfirm>
+      ),
+    },
+  ];
+
+  const columns3 = [
+    {
+      title: "번호",
+      dataIndex: "num",
+    },
+    {
+      title: "음원(앨범)명",
+      render: (data) => (
+        <Text fontSize="12px" color="#000" fontWeight="bold">
+          {data.title}
+        </Text>
+      ),
+    },
+    {
+      title: "카테고리",
+      render: (data) => <CateBox>{data.value}</CateBox>,
+    },
+    {
+      title: "부제",
+      render: (data) => (
+        <Text fontSize="10px" color="#999">
+          aaaa
+        </Text>
+      ),
+    },
+    {
+      title: "판매여부",
+      render: (data) => (
+        <Switch
+        // checked={!data.isIng}
+        // onChange={() => ingHandler(data)}
+        // loading={st_productIngLoading}
+        />
+      ),
+    },
+    {
+      title: "판매중인 사용자",
+      dataIndex: "username",
+    },
+    {
+      title: "음원(앨범)등록일",
+      dataIndex: "viewCreatedAt",
+    },
+    {
+      title: "비트주파수",
+      dataIndex: "bitRate",
+    },
+    {
+      title: "샘플링주파수",
+      dataIndex: "sampleRate",
+    },
+    {
+      title: "상단고정여부",
+      render: (data) => (
+        <Switch
+        // checked={data.isTop}
+        // onClick={() => topHandler(data)}
+        // loading={st_productTopLoading}
+        />
+      ),
+    },
+    {
+      title: "이미지 정보",
+      render: (data) => (
+        <Button
+        // size="small"
+        // type="primary"
+        // style={{ fontSize: "12px", height: "19px" }}
+        // onClick={() => imageDrToggle(data)}
+        >
+          이미지정보
+        </Button>
+      ),
+    },
+    {
+      title: "테그 정보",
+      render: (data) => (
+        <Button
+        // size="small"
+        // type="primary"
+        // style={{ fontSize: "12px", height: "19px" }}
+        // onClick={() => tagDrToggle(data)}
+        >
+          테그정보
+        </Button>
+      ),
+    },
+    {
+      title: "장르 정보",
+      render: (data) => (
+        <Button
+        // size="small"
+        // type="primary"
+        // style={{ fontSize: "12px", height: "19px" }}
+        // onClick={() => genDrToggle(data)}
+        >
+          장르정보
+        </Button>
+      ),
+    },
+    {
+      title: "음원리스트",
+      render: (data) => (
+        <Button
+        // size="small"
+        // type="primary"
+        // style={{ fontSize: "12px", height: "19px" }}
+        // onClick={() => musicDrToggle(data)}
+        >
+          음원리스트
+        </Button>
       ),
     },
   ];
@@ -494,6 +611,20 @@ const Artist = ({}) => {
           {cd ? cd.gen : "등록된 역할 및 장르가 없습니다."}
         </ContentView>
       </Modal>
+
+      <Drawer
+        visible={artistemDr}
+        title={`${cd && cd.username} 의 Artistem List`}
+        width="100%"
+        onClose={() => artistemToggle(null)}
+      >
+        <CustomTable
+          rowKey="id"
+          columns={columns3}
+          dataSource={[]}
+          size="small"
+        />
+      </Drawer>
     </AdminLayout>
   );
 };

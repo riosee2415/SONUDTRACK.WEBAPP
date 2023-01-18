@@ -34,6 +34,7 @@ const trackgen = require("./trackgen");
 const commonTag = require("./commonTag");
 const artist = require("./artist");
 const artistRequestFile = require("./artistRequestFile");
+const Artistem = require("./artistem");
 
 const env = process.env.NODE_ENV || "development";
 const config = require("../config/config")[env];
@@ -81,6 +82,7 @@ db.TrackGen = trackgen;
 db.CommonTag = commonTag;
 db.Artist = artist;
 db.ArtistRequestFile = artistRequestFile;
+db.Artistem = Artistem;
 
 Object.keys(db).forEach((modelName) => {
   db[modelName].init(sequelize);
