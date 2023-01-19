@@ -51,6 +51,24 @@ module.exports = class Artistem extends Model {
           allowNull: false,
           defaultValue: false,
         },
+        sPrice: {
+          // 다운로드 수
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          defaultValue: 0,
+        },
+        dPrice: {
+          // 다운로드 수
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          defaultValue: 0,
+        },
+        pPrice: {
+          // 다운로드 수
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          defaultValue: 0,
+        },
       },
       {
         modelName: "Artistem",
@@ -62,6 +80,7 @@ module.exports = class Artistem extends Model {
     );
   }
   static associate(db) {
+    db.Artistem.belongsTo(db.ProductCategory);
     db.Artistem.belongsTo(db.Artist);
   }
 };

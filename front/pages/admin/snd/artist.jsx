@@ -10,6 +10,7 @@ import {
   Popconfirm,
   message,
   Modal,
+  Image,
 } from "antd";
 import { useRouter, withRouter } from "next/router";
 import wrapper from "../../../store/configureStore";
@@ -31,10 +32,21 @@ import {
   PERMM_WAITING_OK_REQUEST,
   PERMM_WAITING_DEL_REQUEST,
   ARTISTEM_LIST_REQUEST,
+  ARTISTEM_ING_UP_REQUEST,
 } from "../../../reducers/artist";
 import Theme from "../../../components/Theme";
 import { items } from "../../../components/AdminLayout";
 import { HomeOutlined, RightOutlined } from "@ant-design/icons";
+
+const InfoTab = styled.span`
+  padding: 1px 3px;
+  border-radius: 7px;
+
+  background-color: ${(props) =>
+    props.tag ? props.theme.subTheme3_C : props.theme.adminTheme_4};
+  color: #fff;
+  margin-right: 5px;
+`;
 
 const CateBox = styled.span`
   padding: 2px 9px;
@@ -106,6 +118,11 @@ const Artist = ({}) => {
     // 신청자 승인 후 처리
     st_permmWaitingDelDone,
     st_permmWaitingDelError,
+    //
+    // 판매여부 수정 후 처리
+    st_artistemIngUpLoading,
+    st_artistemIngUpDone,
+    st_artistemIngUpError,
   } = useSelector((state) => state.artist);
 
   const router = useRouter();
@@ -144,6 +161,24 @@ const Artist = ({}) => {
   ////// HOOKS //////
 
   ////// USEEFFECT //////
+
+  // 판매여부 수정 후 처리
+  useEffect(() => {
+    if (st_artistemIngUpDone) {
+      message.info("판매여부가 수정되었습니다.");
+
+      dispatch({
+        type: ARTISTEM_LIST_REQUEST,
+        data: {
+          ArtistId: cd.id,
+        },
+      });
+    }
+
+    if (st_artistemIngUpError) {
+      return message.error(st_artistemIngUpError);
+    }
+  }, [st_artistemIngUpDone, st_artistemIngUpError, cd]);
 
   useEffect(() => {
     if (st_permmWaitingDelDone) {
@@ -197,6 +232,18 @@ const Artist = ({}) => {
   }, []);
 
   ////// HANDLER //////
+
+  const ingHandler = useCallback((data) => {
+    const nextFlag = !data.isIng ? 1 : 0;
+
+    dispatch({
+      type: ARTISTEM_ING_UP_REQUEST,
+      data: {
+        id: data.id,
+        nextFlag,
+      },
+    });
+  }, []);
 
   const artistemToggle = useCallback((data) => {
     if (data) {
@@ -426,13 +473,13 @@ const Artist = ({}) => {
     },
     {
       title: "카테고리",
-      render: (data) => <CateBox>{data.value}</CateBox>,
+      render: (data) => <CateBox>{data.caValue}</CateBox>,
     },
     {
       title: "부제",
       render: (data) => (
         <Text fontSize="10px" color="#999">
-          aaaa
+          {data.subTitle}
         </Text>
       ),
     },
@@ -440,9 +487,9 @@ const Artist = ({}) => {
       title: "판매여부",
       render: (data) => (
         <Switch
-        // checked={!data.isIng}
-        // onChange={() => ingHandler(data)}
-        // loading={st_productIngLoading}
+          checked={!data.isIng}
+          onChange={() => ingHandler(data)}
+          loading={st_artistemIngUpLoading}
         />
       ),
     },
@@ -462,50 +509,34 @@ const Artist = ({}) => {
       title: "상단고정여부",
       render: (data) => (
         <Switch
-        // checked={data.isTop}
-        // onClick={() => topHandler(data)}
-        // loading={st_productTopLoading}
+          checked={data.isTop}
+          // onClick={() => topHandler(data)}
+          // loading={st_productTopLoading}
         />
       ),
     },
     {
-      title: "이미지 정보",
+      title: "커버이미지",
       render: (data) => (
-        <Button
-          size="small"
-          type="primary"
-          style={{ fontSize: "12px", height: "19px" }}
-          // onClick={() => imageDrToggle(data)}
-        >
-          이미지정보
-        </Button>
+        <Image
+          src={data.coverImage}
+          style={{ width: "40px", height: "40px" }}
+        />
       ),
     },
     {
       title: "테그 정보",
-      render: (data) => (
-        <Button
-          size="small"
-          type="primary"
-          style={{ fontSize: "12px", height: "19px" }}
-          // onClick={() => tagDrToggle(data)}
-        >
-          테그정보
-        </Button>
-      ),
+      render: (data) =>
+        data.tags.map((data) => {
+          return <InfoTab tag={true}>{data}</InfoTab>;
+        }),
     },
     {
       title: "장르 정보",
-      render: (data) => (
-        <Button
-          size="small"
-          type="primary"
-          style={{ fontSize: "12px", height: "19px" }}
-          // onClick={() => genDrToggle(data)}
-        >
-          장르정보
-        </Button>
-      ),
+      render: (data) =>
+        data.gens.map((data) => {
+          return <InfoTab>{data}</InfoTab>;
+        }),
     },
   ];
 

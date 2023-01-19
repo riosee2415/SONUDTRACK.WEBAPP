@@ -214,9 +214,13 @@ router.post("/target/list", async (req, res, next) => {
           A.createdAt,
           A.updatedAt,
           DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
-          DATE_FORMAT(A.updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt
+          DATE_FORMAT(A.updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt,
+          B.value AS caValue
     FROM	artistem	A
-   WHERE  A.ArtistId = ${ArtistId};
+   INNER
+    JOIN  productCategory B
+      ON  A.ProductCategoryId = B.id
+   WHERE  A.ArtistId = ${ArtistId}
   `;
 
   const selectQ2 = `
@@ -262,6 +266,36 @@ router.post("/target/list", async (req, res, next) => {
     return res
       .status(400)
       .send("아티스템을 조회할 수 없습니다. 다시 시도해주세요.");
+  }
+});
+
+/**
+ * SUBJECT : 아티스탬 판매여부 제어
+ * PARAMETERS : { id  , nextFlag }
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : CTO 윤상호
+ * DEV DATE : 2023/01/19
+ */
+router.post("/artistem/isIng", isAdminCheck, async (req, res, next) => {
+  const { id, nextFlag } = req.body;
+
+  console.log(id, nextFlag);
+
+  const updateQ = `
+  UPDATE	artistem
+     SET	isIng = ${nextFlag},
+          updatedAt = NOW()
+   WHERE	id = ${id}
+  `;
+
+  try {
+    await models.sequelize.query(updateQ);
+
+    return res.status(200).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("잠시 후 다시 시도해주세요.");
   }
 });
 
