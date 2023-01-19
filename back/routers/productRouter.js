@@ -343,7 +343,13 @@ router.post("/track/list", async (req, res, next) => {
           A.updatedAt,
           A.ProductId,
           DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
-          DATE_FORMAT(A.updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt
+          DATE_FORMAT(A.updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt,
+          A.sPrice,
+          A.dPrice,
+          A.pPrice,
+          FORMAT(A.sPrice , 0)   as viewsPrice,
+          FORMAT(A.dPrice , 0)   as viewdPrice,
+          FORMAT(A.pPrice , 0)   as viewpPrice
     FROM	productTrack	A
    WHERE  A.ProductId = ${ProductId}
   `;

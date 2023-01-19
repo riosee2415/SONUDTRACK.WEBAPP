@@ -33,6 +33,24 @@ module.exports = class ProductTrack extends Model {
           allowNull: false,
           defaultValue: 0,
         },
+        sPrice: {
+          // 다운로드 수
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          defaultValue: 0,
+        },
+        dPrice: {
+          // 다운로드 수
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          defaultValue: 0,
+        },
+        pPrice: {
+          // 다운로드 수
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          defaultValue: 0,
+        },
       },
       {
         modelName: "ProductTrack",

@@ -184,7 +184,7 @@ const Artist = ({}) => {
     if (st_artistemUpUpError) {
       return message.error(st_artistemUpUpError);
     }
-  }, [st_artistemUpUpDone, st_artistemUpUpError, cd]);
+  }, [st_artistemUpUpDone, st_artistemUpUpError]);
 
   // 판매여부 수정 후 처리
   useEffect(() => {
@@ -202,7 +202,7 @@ const Artist = ({}) => {
     if (st_artistemIngUpError) {
       return message.error(st_artistemIngUpError);
     }
-  }, [st_artistemIngUpDone, st_artistemIngUpError, cd]);
+  }, [st_artistemIngUpDone, st_artistemIngUpError]);
 
   useEffect(() => {
     if (st_permmWaitingDelDone) {
@@ -528,6 +528,18 @@ const Artist = ({}) => {
           loading={st_artistemIngUpLoading}
         />
       ),
+    },
+    {
+      title: "스텐다드 금액",
+      dataIndex: "viewsPrice",
+    },
+    {
+      title: "디럭스 금액",
+      dataIndex: "viewdPrice",
+    },
+    {
+      title: "플레티넘 금액",
+      dataIndex: "viewpPrice",
     },
     {
       title: "음원등록일",

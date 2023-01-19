@@ -215,7 +215,13 @@ router.post("/target/list", async (req, res, next) => {
           A.updatedAt,
           DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
           DATE_FORMAT(A.updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt,
-          B.value AS caValue
+          B.value AS caValue,
+          A.sPrice,
+          A.dPrice,
+          A.pPrice,
+          FORMAT(A.sPrice , 0)   as viewsPrice,
+          FORMAT(A.dPrice , 0)   as viewdPrice,
+          FORMAT(A.pPrice , 0)   as viewpPrice
     FROM	artistem	A
    INNER
     JOIN  productCategory B
