@@ -299,4 +299,34 @@ router.post("/artistem/isIng", isAdminCheck, async (req, res, next) => {
   }
 });
 
+/**
+ * SUBJECT : 아티스탬 상단고정여부 제어
+ * PARAMETERS : { id  , nextFlag }
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : CTO 윤상호
+ * DEV DATE : 2023/01/19
+ */
+router.post("/artistem/top", isAdminCheck, async (req, res, next) => {
+  const { id, nextFlag } = req.body;
+
+  console.log(id, nextFlag);
+
+  const updateQ = `
+  UPDATE	artistem
+     SET	isTop = ${nextFlag},
+          updatedAt = NOW()
+   WHERE	id = ${id}
+  `;
+
+  try {
+    await models.sequelize.query(updateQ);
+
+    return res.status(200).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("잠시 후 다시 시도해주세요.");
+  }
+});
+
 module.exports = router;

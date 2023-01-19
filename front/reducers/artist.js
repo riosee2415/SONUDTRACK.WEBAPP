@@ -26,6 +26,10 @@ export const initailState = {
   st_artistemIngUpLoading: false,
   st_artistemIngUpDone: false,
   st_artistemIngUpError: null,
+  //
+  st_artistemUpUpLoading: false,
+  st_artistemUpUpDone: false,
+  st_artistemUpUpError: null,
 };
 
 export const PERMM_WAITING_LIST_REQUEST = "PERMM_WAITING_LIST_REQUEST";
@@ -47,6 +51,10 @@ export const ARTISTEM_LIST_FAILURE = "ARTISTEM_LIST_FAILURE";
 export const ARTISTEM_ING_UP_REQUEST = "ARTISTEM_ING_UP_REQUEST";
 export const ARTISTEM_ING_UP_SUCCESS = "ARTISTEM_ING_UP_SUCCESS";
 export const ARTISTEM_ING_UP_FAILURE = "ARTISTEM_ING_UP_FAILURE";
+
+export const ARTISTEM_TOP_UP_REQUEST = "ARTISTEM_TOP_UP_REQUEST";
+export const ARTISTEM_TOP_UP_SUCCESS = "ARTISTEM_TOP_UP_SUCCESS";
+export const ARTISTEM_TOP_UP_FAILURE = "ARTISTEM_TOP_UP_FAILURE";
 
 const reducer = (state = initailState, action) =>
   produce(state, (draft) => {
@@ -165,6 +173,29 @@ const reducer = (state = initailState, action) =>
         draft.st_artistemIngUpLoading = false;
         draft.st_artistemIngUpDone = false;
         draft.st_artistemIngUpError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////
+      case ARTISTEM_TOP_UP_REQUEST: {
+        draft.st_artistemUpUpLoading = true;
+        draft.st_artistemUpUpDone = false;
+        draft.st_artistemUpUpError = null;
+        break;
+      }
+
+      case ARTISTEM_TOP_UP_SUCCESS: {
+        draft.st_artistemUpUpLoading = false;
+        draft.st_artistemUpUpDone = true;
+        draft.st_artistemUpUpError = null;
+        break;
+      }
+
+      case ARTISTEM_TOP_UP_FAILURE: {
+        draft.st_artistemUpUpLoading = false;
+        draft.st_artistemUpUpDone = false;
+        draft.st_artistemUpUpError = action.error;
         break;
       }
 

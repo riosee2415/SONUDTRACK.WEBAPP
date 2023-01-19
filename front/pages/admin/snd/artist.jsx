@@ -33,6 +33,7 @@ import {
   PERMM_WAITING_DEL_REQUEST,
   ARTISTEM_LIST_REQUEST,
   ARTISTEM_ING_UP_REQUEST,
+  ARTISTEM_TOP_UP_REQUEST,
 } from "../../../reducers/artist";
 import Theme from "../../../components/Theme";
 import { items } from "../../../components/AdminLayout";
@@ -123,6 +124,11 @@ const Artist = ({}) => {
     st_artistemIngUpLoading,
     st_artistemIngUpDone,
     st_artistemIngUpError,
+    //
+    // 상단고정 수정 후 처리
+    st_artistemUpUpLoading,
+    st_artistemUpUpDone,
+    st_artistemUpUpError,
   } = useSelector((state) => state.artist);
 
   const router = useRouter();
@@ -161,6 +167,24 @@ const Artist = ({}) => {
   ////// HOOKS //////
 
   ////// USEEFFECT //////
+
+  // 상단고정 수정 후 처리
+  useEffect(() => {
+    if (st_artistemUpUpDone) {
+      message.info("상단고정 여부가 수정되었습니다.");
+
+      dispatch({
+        type: ARTISTEM_LIST_REQUEST,
+        data: {
+          ArtistId: cd.id,
+        },
+      });
+    }
+
+    if (st_artistemUpUpError) {
+      return message.error(st_artistemUpUpError);
+    }
+  }, [st_artistemUpUpDone, st_artistemUpUpError, cd]);
 
   // 판매여부 수정 후 처리
   useEffect(() => {
@@ -232,6 +256,18 @@ const Artist = ({}) => {
   }, []);
 
   ////// HANDLER //////
+
+  const topHandler = useCallback((data) => {
+    const nextFlag = data.isTop === 1 ? 0 : 1;
+
+    dispatch({
+      type: ARTISTEM_TOP_UP_REQUEST,
+      data: {
+        id: data.id,
+        nextFlag,
+      },
+    });
+  }, []);
 
   const ingHandler = useCallback((data) => {
     const nextFlag = !data.isIng ? 1 : 0;
@@ -510,8 +546,8 @@ const Artist = ({}) => {
       render: (data) => (
         <Switch
           checked={data.isTop}
-          // onClick={() => topHandler(data)}
-          // loading={st_productTopLoading}
+          onChange={() => topHandler(data)}
+          loading={st_artistemUpUpLoading}
         />
       ),
     },
@@ -527,15 +563,19 @@ const Artist = ({}) => {
     {
       title: "테그 정보",
       render: (data) =>
-        data.tags.map((data) => {
-          return <InfoTab tag={true}>{data}</InfoTab>;
+        data.tags.map((data, idx) => {
+          return (
+            <InfoTab key={idx} tag={true}>
+              {data}
+            </InfoTab>
+          );
         }),
     },
     {
       title: "장르 정보",
       render: (data) =>
-        data.gens.map((data) => {
-          return <InfoTab>{data}</InfoTab>;
+        data.gens.map((data, idx) => {
+          return <InfoTab key={idx}>{data}</InfoTab>;
         }),
     },
   ];
