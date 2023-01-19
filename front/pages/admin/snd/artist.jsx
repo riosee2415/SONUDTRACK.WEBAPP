@@ -2,7 +2,15 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import AdminLayout from "../../../components/AdminLayout";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Popover, Drawer, Popconfirm, message, Modal } from "antd";
+import {
+  Button,
+  Popover,
+  Drawer,
+  Switch,
+  Popconfirm,
+  message,
+  Modal,
+} from "antd";
 import { useRouter, withRouter } from "next/router";
 import wrapper from "../../../store/configureStore";
 import { END } from "redux-saga";
@@ -22,6 +30,7 @@ import {
   PERMM_WAITING_LIST_REQUEST,
   PERMM_WAITING_OK_REQUEST,
   PERMM_WAITING_DEL_REQUEST,
+  ARTISTEM_LIST_REQUEST,
 } from "../../../reducers/artist";
 import Theme from "../../../components/Theme";
 import { items } from "../../../components/AdminLayout";
@@ -88,6 +97,7 @@ const Artist = ({}) => {
     permmCnt,
     artistList,
     permmWaitingList,
+    artistems,
     //
     // 신청자 승인 후 처리
     st_permmWaitingOkDone,
@@ -190,6 +200,13 @@ const Artist = ({}) => {
 
   const artistemToggle = useCallback((data) => {
     if (data) {
+      dispatch({
+        type: ARTISTEM_LIST_REQUEST,
+        data: {
+          ArtistId: data.id,
+        },
+      });
+
       setCd(data);
     }
 
@@ -400,7 +417,7 @@ const Artist = ({}) => {
       dataIndex: "num",
     },
     {
-      title: "음원(앨범)명",
+      title: "음원명",
       render: (data) => (
         <Text fontSize="12px" color="#000" fontWeight="bold">
           {data.title}
@@ -430,11 +447,7 @@ const Artist = ({}) => {
       ),
     },
     {
-      title: "판매중인 사용자",
-      dataIndex: "username",
-    },
-    {
-      title: "음원(앨범)등록일",
+      title: "음원등록일",
       dataIndex: "viewCreatedAt",
     },
     {
@@ -459,10 +472,10 @@ const Artist = ({}) => {
       title: "이미지 정보",
       render: (data) => (
         <Button
-        // size="small"
-        // type="primary"
-        // style={{ fontSize: "12px", height: "19px" }}
-        // onClick={() => imageDrToggle(data)}
+          size="small"
+          type="primary"
+          style={{ fontSize: "12px", height: "19px" }}
+          // onClick={() => imageDrToggle(data)}
         >
           이미지정보
         </Button>
@@ -472,10 +485,10 @@ const Artist = ({}) => {
       title: "테그 정보",
       render: (data) => (
         <Button
-        // size="small"
-        // type="primary"
-        // style={{ fontSize: "12px", height: "19px" }}
-        // onClick={() => tagDrToggle(data)}
+          size="small"
+          type="primary"
+          style={{ fontSize: "12px", height: "19px" }}
+          // onClick={() => tagDrToggle(data)}
         >
           테그정보
         </Button>
@@ -485,25 +498,12 @@ const Artist = ({}) => {
       title: "장르 정보",
       render: (data) => (
         <Button
-        // size="small"
-        // type="primary"
-        // style={{ fontSize: "12px", height: "19px" }}
-        // onClick={() => genDrToggle(data)}
+          size="small"
+          type="primary"
+          style={{ fontSize: "12px", height: "19px" }}
+          // onClick={() => genDrToggle(data)}
         >
           장르정보
-        </Button>
-      ),
-    },
-    {
-      title: "음원리스트",
-      render: (data) => (
-        <Button
-        // size="small"
-        // type="primary"
-        // style={{ fontSize: "12px", height: "19px" }}
-        // onClick={() => musicDrToggle(data)}
-        >
-          음원리스트
         </Button>
       ),
     },
@@ -621,7 +621,7 @@ const Artist = ({}) => {
         <CustomTable
           rowKey="id"
           columns={columns3}
-          dataSource={[]}
+          dataSource={artistems}
           size="small"
         />
       </Drawer>

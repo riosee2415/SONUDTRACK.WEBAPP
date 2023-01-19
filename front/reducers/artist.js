@@ -4,6 +4,7 @@ export const initailState = {
   permmCnt: 0,
   artistList: [],
   permmWaitingList: [],
+  artistems: [],
 
   //
   st_permmWaitingLoading: false,
@@ -17,6 +18,10 @@ export const initailState = {
   st_permmWaitingDelLoading: false,
   st_permmWaitingDelDone: false,
   st_permmWaitingDelError: null,
+  //
+  st_artistemListLoading: false,
+  st_artistemListDone: false,
+  st_artistemListError: null,
 };
 
 export const PERMM_WAITING_LIST_REQUEST = "PERMM_WAITING_LIST_REQUEST";
@@ -30,6 +35,10 @@ export const PERMM_WAITING_OK_FAILURE = "PERMM_WAITING_OK_FAILURE";
 export const PERMM_WAITING_DEL_REQUEST = "PERMM_WAITING_DEL_REQUEST";
 export const PERMM_WAITING_DEL_SUCCESS = "PERMM_WAITING_DEL_SUCCESS";
 export const PERMM_WAITING_DEL_FAILURE = "PERMM_WAITING_DEL_FAILURE";
+
+export const ARTISTEM_LIST_REQUEST = "ARTISTEM_LIST_REQUEST";
+export const ARTISTEM_LIST_SUCCESS = "ARTISTEM_LIST_SUCCESS";
+export const ARTISTEM_LIST_FAILURE = "ARTISTEM_LIST_FAILURE";
 
 const reducer = (state = initailState, action) =>
   produce(state, (draft) => {
@@ -101,6 +110,30 @@ const reducer = (state = initailState, action) =>
         draft.st_permmWaitingDelLoading = false;
         draft.st_permmWaitingDelDone = false;
         draft.st_permmWaitingDelError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////
+      case ARTISTEM_LIST_REQUEST: {
+        draft.st_artistemListLoading = true;
+        draft.st_artistemListDone = false;
+        draft.st_artistemListError = null;
+        break;
+      }
+
+      case ARTISTEM_LIST_SUCCESS: {
+        draft.st_artistemListLoading = false;
+        draft.st_artistemListDone = true;
+        draft.st_artistemListError = null;
+        draft.artistems = action.data.artistemList;
+        break;
+      }
+
+      case ARTISTEM_LIST_FAILURE: {
+        draft.st_artistemListLoading = false;
+        draft.st_artistemListDone = false;
+        draft.st_artistemListError = action.error;
         break;
       }
 

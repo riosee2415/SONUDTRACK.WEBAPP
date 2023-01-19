@@ -194,4 +194,75 @@ router.post("/permm/del", isAdminCheck, async (req, res, next) => {
   }
 });
 
+////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////// ARTISTEM //////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+router.post("/target/list", async (req, res, next) => {
+  const { ArtistId } = req.body;
+
+  const selectQ = `
+  SELECT	ROW_NUMBER() OVER(ORDER BY A.title ASC) 	AS num,
+          A.id,
+          A.title,
+          A.subTitle,
+          A.content,
+          A.coverImage,
+          A.isIng,
+          A.isTop,
+          A.sampleRate,
+          A.bitRate,
+          A.createdAt,
+          A.updatedAt,
+          DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
+          DATE_FORMAT(A.updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt
+    FROM	artistem	A
+   WHERE  A.ArtistId = ${ArtistId};
+  `;
+
+  const selectQ2 = `
+  SELECT	value,
+          ArtistemId
+    FROM	artistTemTag
+    `;
+
+  const selectQ3 = `
+  SELECT	value,
+          ArtistemId
+    FROM	artistTemGen
+  `;
+
+  try {
+    const list = await models.sequelize.query(selectQ);
+    const tags = await models.sequelize.query(selectQ2);
+    const gens = await models.sequelize.query(selectQ3);
+
+    const tems = list[0];
+
+    tems.map((data) => {
+      data["tags"] = [];
+      data["gens"] = [];
+
+      tags[0].map((tag) => {
+        if (data.id === tag.ArtistemId) {
+          data["tags"].push(tag.value);
+        }
+      });
+      gens[0].map((gen) => {
+        if (data.id === gen.ArtistemId) {
+          data["gens"].push(gen.value);
+        }
+      });
+    });
+
+    return res.status(200).json({
+      artistemList: tems,
+    });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(400)
+      .send("아티스템을 조회할 수 없습니다. 다시 시도해주세요.");
+  }
+});
+
 module.exports = router;

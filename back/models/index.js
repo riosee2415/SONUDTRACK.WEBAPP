@@ -35,6 +35,8 @@ const commonTag = require("./commonTag");
 const artist = require("./artist");
 const artistRequestFile = require("./artistRequestFile");
 const Artistem = require("./artistem");
+const artistTemTag = require("./artisttemTag");
+const artistTemGen = require("./artisttemGen");
 
 const env = process.env.NODE_ENV || "development";
 const config = require("../config/config")[env];
@@ -83,6 +85,8 @@ db.CommonTag = commonTag;
 db.Artist = artist;
 db.ArtistRequestFile = artistRequestFile;
 db.Artistem = Artistem;
+db.ArtistTemTag = artistTemTag;
+db.ArtistTemGen = artistTemGen;
 
 Object.keys(db).forEach((modelName) => {
   db[modelName].init(sequelize);

@@ -12,6 +12,10 @@ import {
   PERMM_WAITING_DEL_REQUEST,
   PERMM_WAITING_DEL_SUCCESS,
   PERMM_WAITING_DEL_FAILURE,
+  //
+  ARTISTEM_LIST_REQUEST,
+  ARTISTEM_LIST_SUCCESS,
+  ARTISTEM_LIST_FAILURE,
 } from "../reducers/artist";
 
 // ******************************************************************************************************************
@@ -97,6 +101,34 @@ function* permmWaitingDel(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function artistemListAPI(data) {
+  return await axios.post("/api/artist/target/list", data);
+}
+
+function* artistemList(action) {
+  try {
+    const result = yield call(artistemListAPI, action.data);
+
+    yield put({
+      type: ARTISTEM_LIST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: ARTISTEM_LIST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 function* watchFaqTypeList() {
   yield takeLatest(PERMM_WAITING_LIST_REQUEST, permmWaitingList);
@@ -107,6 +139,9 @@ function* watchFaqTypeOk() {
 function* watchFaqTypeDel() {
   yield takeLatest(PERMM_WAITING_DEL_REQUEST, permmWaitingDel);
 }
+function* watchArtistemList() {
+  yield takeLatest(ARTISTEM_LIST_REQUEST, artistemList);
+}
 
 //////////////////////////////////////////////////////////////
 export default function* artistSaga() {
@@ -114,6 +149,7 @@ export default function* artistSaga() {
     fork(watchFaqTypeList),
     fork(watchFaqTypeOk),
     fork(watchFaqTypeDel),
+    fork(watchArtistemList),
     //
   ]);
 }
