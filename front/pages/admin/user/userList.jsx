@@ -289,12 +289,18 @@ const UserList = ({}) => {
       dataIndex: "num",
     },
     {
-      width: "15%",
+      align: "center",
+      width: "10%",
+      title: "유형",
+      dataIndex: "isArtist",
+    },
+    {
+      width: "10%",
       title: "회원이름",
       dataIndex: "username",
     },
     {
-      width: "15%",
+      width: "10%",
       title: "닉네임",
       dataIndex: "nickname",
     },

@@ -46,7 +46,17 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
           A.exitedAt,
           DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")		AS viewCreatedAt,
 		      DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")		AS viewUpdatedAt,
-		      DATE_FORMAT(A.exitedAt, "%Y년 %m월 %d일")		AS viewExitedAt
+		      DATE_FORMAT(A.exitedAt, "%Y년 %m월 %d일")		AS viewExitedAt,
+          CASE
+            WHEN  (
+                   SELECT  COUNT(B.id)
+                     FROM  artist		B
+                    WHERE  B.isPermm = 1	 
+                      AND  B.UserId = A.id
+                  ) > 0
+            THEN  "아티스트"
+            ELSE  "일반"
+          END                    AS  isArtist
     FROM	users     A
    WHERE	CONCAT(A.username, A.email) LIKE '%${_searchData}%'
           ${
