@@ -19,6 +19,9 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
 
   const _searchExit = searchExit ? searchExit : false;
 
+  // 아티스트 조회
+  // 1번 : 전체 조회
+  // 2번 : 아티스트 조회
   const _searchType = searchType ? searchType : 1;
 
   const selectQuery = `
@@ -68,7 +71,7 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
                             FROM  artist		B
                            WHERE  B.isPermm = 1	 
                              AND  B.UserId = A.id
-                       )`
+                         )`
           }
    ORDER	BY num DESC
   `;

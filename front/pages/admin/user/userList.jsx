@@ -288,27 +288,27 @@ const UserList = ({}) => {
     },
     {
       title: "회원이름",
-      render: (data) => <div>{data.username}</div>,
+      dataIndex: "username",
     },
     {
       title: "닉네임",
-      render: (data) => <div>{data.nickname}</div>,
+      dataIndex: "nickname",
     },
     {
       title: "이메일",
-      render: (data) => <div>{data.email}</div>,
+      dataIndex: "email",
     },
     {
       title: "전화번호",
-      render: (data) => <div>{data.mobile}</div>,
+      dataIndex: "mobile",
     },
     {
       title: "가입일",
-      render: (data) => <div>{data.viewCreatedAt}</div>,
+      dataIndex: "viewCreatedAt",
     },
     {
       title: "권한",
-      render: (data) => <div>{data.viewLevel}</div>,
+      dataIndex: "viewLevel",
     },
     {
       title: "권한수정",
