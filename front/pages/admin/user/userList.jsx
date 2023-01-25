@@ -283,34 +283,45 @@ const UserList = ({}) => {
 
   const columns = [
     {
+      align: "center",
+      width: "5%",
       title: "번호",
       dataIndex: "num",
     },
     {
+      width: "15%",
       title: "회원이름",
       dataIndex: "username",
     },
     {
+      width: "15%",
       title: "닉네임",
       dataIndex: "nickname",
     },
     {
+      width: "15%",
       title: "이메일",
       dataIndex: "email",
     },
     {
+      width: "15%",
       title: "전화번호",
       dataIndex: "mobile",
     },
     {
+      width: "15%",
       title: "가입일",
       dataIndex: "viewCreatedAt",
     },
     {
+      align: "center",
+      width: "10%",
       title: "권한",
       dataIndex: "viewLevel",
     },
     {
+      align: "center",
+      width: "10%",
       title: "권한수정",
       render: (data) => (
         <SettingBtn
