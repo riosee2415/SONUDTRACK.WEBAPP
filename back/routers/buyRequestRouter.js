@@ -98,12 +98,13 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
  * DEV DATE : 2023/01/25
  */
 router.post("/create", isLoggedIn, async (req, res, next) => {
-  const { sendMessage, sendUserId, receptionUserId } = req.body;
+  const { sendMessage, totalPrice, sendUserId, receptionUserId } = req.body;
 
   const insertQ = `
   INSERT INTO buyRequest
       (
       	sendMessage,
+        totalPrice,
  	      rejectMessage,
  	      sendUserId,
  	      receptionUserId,
@@ -113,6 +114,7 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
       VALUES 
       (
       	"${sendMessage}",
+        ${totalPrice},
       	NULL,
       	${sendUserId},
       	${receptionUserId},
@@ -139,7 +141,7 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
  * DEVELOPMENT : 주니어 개발자 홍민기
  * DEV DATE : 2023/01/25
  */
-router.post("/isOk", isLoggedIn, async (req, res, next) => {
+router.post("/isOk", isAdminCheck, async (req, res, next) => {
   const { id, isOk } = req.body;
 
   const updateQ = `
@@ -148,8 +150,28 @@ router.post("/isOk", isLoggedIn, async (req, res, next) => {
    WHERE  id = ${id};
     `;
 
+  const historyQ = `
+  INSERT  INTO  buyRequestHistory
+     (
+      content,
+      buyRequestId,
+      updator,
+      createdAt,
+      updatedAt
+     )
+     VALUES
+     (
+      "구매요청 승인",
+      ${id},
+      ${req.user.id},
+      NOW(),
+      NOW()
+     )
+  `;
+
   try {
     await models.sequelize.query(updateQ);
+    await models.sequelize.query(historyQ);
 
     return res.status(200).json({ result: true });
   } catch (e) {
@@ -166,7 +188,7 @@ router.post("/isOk", isLoggedIn, async (req, res, next) => {
  * DEVELOPMENT : 주니어 개발자 홍민기
  * DEV DATE : 2023/01/25
  */
-router.post("/isReject", isLoggedIn, async (req, res, next) => {
+router.post("/isReject", isAdminCheck, async (req, res, next) => {
   const { id, isReject, rejectMessage } = req.body;
 
   const updateQ = `
@@ -176,8 +198,28 @@ router.post("/isReject", isLoggedIn, async (req, res, next) => {
    WHERE  id = ${id};
     `;
 
+  const historyQ = `
+    INSERT  INTO  buyRequestHistory
+       (
+        content,
+        buyRequestId,
+        updator,
+        createdAt,
+        updatedAt
+       )
+       VALUES
+       (
+        "구매요청 거절",
+        ${id},
+        ${req.user.id},
+        NOW(),
+        NOW()
+       )
+    `;
+
   try {
     await models.sequelize.query(updateQ);
+    await models.sequelize.query(historyQ);
 
     return res.status(200).json({ result: true });
   } catch (e) {

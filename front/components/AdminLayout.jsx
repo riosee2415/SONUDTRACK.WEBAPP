@@ -95,6 +95,11 @@ export const items = {
   ],
   고객지원관리: [
     {
+      name: "구매요청관리",
+      link: "/admin/supports/buyRequest",
+      useYn: true,
+    },
+    {
       name: "자주묻는질문관리",
       link: "/admin/supports/faq",
       useYn: true,

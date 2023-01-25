@@ -11,6 +11,12 @@ module.exports = class BuyRequest extends Model {
           allowNull: false, // 필수
         },
 
+        // 상품 총 금액
+        totalPrice: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+        },
+
         // 승인
         isOk: {
           type: DataTypes.BOOLEAN,
