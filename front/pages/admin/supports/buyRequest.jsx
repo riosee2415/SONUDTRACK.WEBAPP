@@ -356,6 +356,7 @@ const BuyRequest = () => {
         <GuideUl>
           <GuideLi>구매요청된 데이터를 관리할 수 있습니다.</GuideLi>
           <GuideLi>발신자 이름과 수신자이름으로 검색할 수 있습니다.</GuideLi>
+          <GuideLi>승인 또는 거절된 데이터는 복구 불가능합니다.</GuideLi>
           <GuideLi isImpo={true}>
             해당 페이지의 데이터는 화면에 즉시 적용되오니, 신중한 처리가
             필요합니다.
