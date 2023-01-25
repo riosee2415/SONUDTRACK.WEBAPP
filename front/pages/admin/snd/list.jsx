@@ -41,7 +41,6 @@ import {
   PRODUCT_GEN_REQUEST,
   PRODUCT_TRACK_LIST_REQUEST,
 } from "../../../reducers/product";
-import M_Box from "../../../components/MBox";
 
 const TagBox = styled.span`
   padding: 4px 12px;
@@ -65,6 +64,7 @@ const CateBox = styled.span`
   border-radius: 10px;
   background-color: ${(props) => props.theme.subTheme3_C};
   color: #fff;
+  margin-right: 2px;
 `;
 
 const List = ({}) => {
@@ -444,6 +444,64 @@ const List = ({}) => {
     },
   ];
 
+  const columns2 = [
+    {
+      title: "번호",
+      dataIndex: "id",
+    },
+    {
+      title: "음원명",
+      dataIndex: "title",
+    },
+    {
+      title: "제작자",
+      dataIndex: "author",
+    },
+    {
+      title: "타이틀곡",
+      render: (data) => <Switch size="small" checked={data.isTitle} />,
+    },
+    {
+      title: "스텐다드 금액",
+      dataIndex: "viewsPrice",
+    },
+    {
+      title: "디럭스 금액",
+      dataIndex: "viewdPrice",
+    },
+    {
+      title: "플레티넘 금액",
+      dataIndex: "viewpPrice",
+    },
+    {
+      title: "음원등록일",
+      dataIndex: "viewCreatedAt",
+    },
+    {
+      title: "장르",
+      render: (data) =>
+        data.gens.map((v) => {
+          return <CateBox key={v}>{v}</CateBox>;
+        }),
+    },
+    {
+      title: "다운로드",
+      render: (data) => (
+        <Button
+          size="small"
+          type="primary"
+          style={{ height: "20px", fontSize: "11px" }}
+        >
+          내려받기
+        </Button>
+      ),
+    },
+    {
+      title: "다운로드 수",
+      dataIndex: "downloadCnt",
+    },
+  ];
+
   return (
     <AdminLayout>
       {/* MENU TAB */}
@@ -669,11 +727,18 @@ const List = ({}) => {
         title={`[${cd && cd.title}] 음원 정보`}
         onClose={() => musicDrToggle(null)}
       >
-        <Wrapper padding="0px 20px" dr="row" ju="flex-start">
+        {/* <Wrapper padding="0px 20px" dr="row" ju="flex-start">
           {trackList.map((data, idx) => {
             return <M_Box item={data} idx={idx + 1} key={data.id} />;
           })}
-        </Wrapper>
+        </Wrapper> */}
+
+        <CustomTable
+          rowKey="id"
+          columns={columns2}
+          dataSource={trackList}
+          size="small"
+        />
       </Drawer>
     </AdminLayout>
   );

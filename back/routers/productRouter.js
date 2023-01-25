@@ -376,11 +376,13 @@ router.post("/track/list", async (req, res, next) => {
       item["gens"] = [];
 
       genList.map((innerItem) => {
-        if (item.id === innerItem.ProductTrackId) {
+        if (parseInt(item.id) === parseInt(innerItem.ProductTrackId)) {
           item.gens.push(innerItem.value);
         }
       });
     });
+
+    console.log(trackList);
 
     return res.status(200).json(trackList);
   } catch (error) {
