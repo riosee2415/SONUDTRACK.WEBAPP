@@ -19,6 +19,7 @@ import {
   notification,
   Input,
   Form,
+  Switch,
 } from "antd";
 import {
   HomeText,
@@ -110,6 +111,8 @@ const UserList = ({}) => {
 
   const [currentTab, setCurrentTab] = useState(0);
 
+  const [searchType, setSearchType] = useState(1);
+
   const [level1, setLevel1] = useState("회원관리");
   const [level2, setLevel2] = useState("");
 
@@ -160,11 +163,12 @@ const UserList = ({}) => {
     dispatch({
       type: USERLIST_REQUEST,
       data: {
+        searchType: searchType,
         searchData: sData,
         searchLevel: currentTab,
       },
     });
-  }, [currentTab, sData]);
+  }, [currentTab, sData, searchType]);
 
   ////// TOGGLE //////
   const updateModalOpen = useCallback(
@@ -237,6 +241,14 @@ const UserList = ({}) => {
         );
       })}
     </PopWrapper>
+  );
+
+  // 검색 타입 변경
+  const searchTypeChangeHandler = useCallback(
+    (type) => {
+      setSearchType(type);
+    },
+    [searchType]
   );
 
   ////// DATAVIEW //////
@@ -405,6 +417,19 @@ const UserList = ({}) => {
             {data.name}
           </TypeButton>
         ))}
+      </Wrapper>
+
+      <Wrapper
+        padding="0px 20px"
+        dr="row"
+        ju="flex-start"
+        margin="0px 0px 5px 0px"
+      >
+        <Text>아티스트 조회 : </Text>
+        <Switch
+          size="small"
+          onChange={() => searchTypeChangeHandler(searchType === 1 ? 2 : 1)}
+        />
       </Wrapper>
 
       <Wrapper padding={`0px 20px`}>
