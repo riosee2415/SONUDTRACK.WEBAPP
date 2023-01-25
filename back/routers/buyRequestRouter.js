@@ -22,10 +22,10 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
   // 2번 : 거절
   // 3번 : 전체
   const _searchStatus = searchStatus ? searchStatus : 3;
-  const _searchSendUsername = searchSendUsername ? searchSendUsername : 3;
+  const _searchSendUsername = searchSendUsername ? searchSendUsername : false;
   const _searchReceptionUsername = searchReceptionUsername
     ? searchReceptionUsername
-    : 3;
+    : false;
 
   const selectQ = `
     SELECT  ROW_NUMBER() OVER(ORDER BY A.createdAt ASC) AS num,
@@ -34,20 +34,22 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
             A.isOk,
             A.isReject,
             A.rejectMessage,
-            B.id										AS sendUserId,
-            B.username									AS sendUsername,
-            B.nickname									AS sendNickname,
-            B.mobile									AS sendMobile,
-            B.email									    AS sendEmail,
-            C.id										AS receptionUserId,
-            C.username									AS receptionUsername,
-            C.nickname									AS receptionNickname,
-            C.mobile									AS receptionMobile,
-            C.email									    AS receptionEmail,
+            A.totalPrice,
+            CONCAT(FORMAT(A.totalPrice, ','), "원")     AS viewTotalPrice,
+            B.id										                    AS sendUserId,
+            B.username									                AS sendUsername,
+            B.nickname									                AS sendNickname,
+            B.mobile									                  AS sendMobile,
+            B.email									                    AS sendEmail,
+            C.id										                    AS receptionUserId,
+            C.username									                AS receptionUsername,
+            C.nickname									                AS receptionNickname,
+            C.mobile									                  AS receptionMobile,
+            C.email									                    AS receptionEmail,
             A.createdAt,
-            DATE_FORMAT(A.createdAt, '%Y년 %m월 %d')     AS viewCreatedAt, 
+            DATE_FORMAT(A.createdAt, '%Y년 %m월 %d일')     AS viewCreatedAt, 
            A.updatedAt,
-            DATE_FORMAT(A.updatedAt, '%Y년 %m월 %d')     AS viewUpdatedAt
+            DATE_FORMAT(A.updatedAt, '%Y년 %m월 %d일')     AS viewUpdatedAt
       FROM  buyRequest		A
      INNER
       JOIN  users			B
@@ -194,7 +196,7 @@ router.post("/isReject", isAdminCheck, async (req, res, next) => {
   const updateQ = `
   UPDATE  buyRequest 
      SET  isReject = ${isReject},
-          rejectMessage = ${rejectMessage}
+          rejectMessage = "${rejectMessage}"
    WHERE  id = ${id};
     `;
 

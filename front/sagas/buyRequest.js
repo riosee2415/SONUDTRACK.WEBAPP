@@ -22,7 +22,7 @@ import {
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
 async function buyRequestListAPI(data) {
-  return await axios.post("/api/faq/type/list", data);
+  return await axios.post("/api/buyRequest/list", data);
 }
 
 function* buyRequestList(action) {
@@ -50,7 +50,7 @@ function* buyRequestList(action) {
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
 async function buyRequestCreateAPI(data) {
-  return await axios.post("/api/faq/type/list", data);
+  return await axios.post("/api/buyRequest/create", data);
 }
 
 function* buyRequestCreate(action) {
@@ -78,7 +78,7 @@ function* buyRequestCreate(action) {
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
 async function buyRequestIsOkAPI(data) {
-  return await axios.post("/api/faq/type/list", data);
+  return await axios.post("/api/buyRequest/isOk", data);
 }
 
 function* buyRequestIsOk(action) {
@@ -106,7 +106,7 @@ function* buyRequestIsOk(action) {
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
 async function buyRequestIsRejectAPI(data) {
-  return await axios.post("/api/faq/type/list", data);
+  return await axios.post("/api/buyRequest/isReject", data);
 }
 
 function* buyRequestIsReject(action) {
