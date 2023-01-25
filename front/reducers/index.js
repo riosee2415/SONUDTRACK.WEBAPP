@@ -13,6 +13,7 @@ import logo from "./logo";
 import faq from "./faq";
 import product from "./product";
 import artist from "./artist";
+import buyRequest from "./buyRequest";
 
 const rootReducer = (state, action) => {
   switch (action.type) {
@@ -34,6 +35,7 @@ const rootReducer = (state, action) => {
         faq,
         product,
         artist,
+        buyRequest,
       });
       return combinedReducer(state, action);
     }
