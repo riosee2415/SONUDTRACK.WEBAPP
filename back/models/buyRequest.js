@@ -26,7 +26,7 @@ module.exports = class BuyRequest extends Model {
         // 거절 사유
         rejectMessage: {
           type: DataTypes.STRING(3000),
-          allowNull: false, // 필수
+          allowNull: true,
         },
       },
       {
@@ -39,7 +39,9 @@ module.exports = class BuyRequest extends Model {
     );
   }
   static associate(db) {
-    db.BuyRequest.belongsTo(db.User, { as: "sendUserId" });
-    db.BuyRequest.belongsTo(db.User, { as: "receptionUserId" });
+    // 발신자
+    db.BuyRequest.belongsTo(db.User, { as: "sendUser" });
+    // 수신저
+    db.BuyRequest.belongsTo(db.User, { as: "receptionUser" });
   }
 };

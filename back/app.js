@@ -26,6 +26,7 @@ const snsRouter = require("./routers/snsRouter");
 const faqRouter = require("./routers/faqRouter");
 const productRouter = require("./routers/productRouter");
 const artistRouter = require("./routers/artistRouter");
+const buyRequestRouter = require("./routers/buyRequestRouter");
 
 // Config Settings
 db.sequelize
@@ -107,6 +108,7 @@ app.use("/api/sns", snsRouter);
 app.use("/api/faq", faqRouter);
 app.use("/api/product", productRouter);
 app.use("/api/artist", artistRouter);
+app.use("/api/buyRequest", buyRequestRouter);
 
 // second minute hour day-of-month month day-of-week
 const task = cron.schedule(
