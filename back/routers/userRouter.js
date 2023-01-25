@@ -11,7 +11,7 @@ const sendSecretMail = require("../utils/mailSender");
 const router = express.Router();
 
 router.post("/list", isAdminCheck, async (req, res, next) => {
-  const { searchData, searchLevel, searchExit } = req.body;
+  const { searchData, searchLevel, searchExit, searchType } = req.body;
 
   const _searchData = searchData ? searchData : ``;
 
@@ -19,45 +19,60 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
 
   const _searchExit = searchExit ? searchExit : false;
 
+  // 아티스트 조회
+  // 1번 : 전체 조회
+  // 2번 : 아티스트 조회
+  const _searchType = searchType ? searchType : 1;
+
   const selectQuery = `
-  SELECT	ROW_NUMBER() OVER(ORDER	BY createdAt)		AS num,
-          id,
-          email,
-          username,
-          nickname,
-          mobile,
-          level,
-          isExit,
+  SELECT	ROW_NUMBER() OVER(ORDER	BY A.createdAt)		AS num,
+          A.id,
+          A.email,
+          A.username,
+          A.nickname,
+          A.mobile,
+          A.level,
+          A.isExit,
           CASE
-            WHEN	level = 1	THEN "일반회원"
-            WHEN	level = 2	THEN "비어있음"
-            WHEN	level = 3	THEN "운영자"
-            WHEN	level = 4	THEN "최고관리자"
-            WHEN	level = 5	THEN "개발사"
+            WHEN	A.level = 1	THEN "일반회원"
+            WHEN	A.level = 2	THEN "비어있음"
+            WHEN	A.level = 3	THEN "운영자"
+            WHEN	A.level = 4	THEN "최고관리자"
+            WHEN	A.level = 5	THEN "개발사"
           END											AS viewLevel,
-          terms,
-          createdAt,
-          updatedAt,
-          exitedAt,
-          DATE_FORMAT(createdAt, "%Y년 %m월 %d일")		AS viewCreatedAt,
-		      DATE_FORMAT(updatedAt, "%Y년 %m월 %d일")		AS viewUpdatedAt,
-		      DATE_FORMAT(exitedAt, "%Y년 %m월 %d일")		AS viewExitedAt
-    FROM	users
-   WHERE	CONCAT(username, email) LIKE '%${_searchData}%'
+          A.terms,
+          A.createdAt,
+          A.updatedAt,
+          A.exitedAt,
+          DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")		AS viewCreatedAt,
+		      DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")		AS viewUpdatedAt,
+		      DATE_FORMAT(A.exitedAt, "%Y년 %m월 %d일")		AS viewExitedAt
+    FROM	users     A
+   WHERE	CONCAT(A.username, A.email) LIKE '%${_searchData}%'
           ${
             _searchLevel === parseInt(0)
               ? ``
               : _searchLevel === 1
-              ? `AND level = 1`
+              ? `AND A.level = 1`
               : _searchLevel === 3
-              ? `AND level = 3`
+              ? `AND A.level = 3`
               : _searchLevel === 4
-              ? `AND level = 4`
+              ? `AND A.level = 4`
               : _searchLevel === 5
-              ? `AND level = 5`
+              ? `AND A.level = 5`
               : ``
           } 
-          AND	isExit = ${_searchExit}
+          AND	A.isExit = ${_searchExit}
+          ${
+            _searchType === 1
+              ? ``
+              : `AND 0 < (
+                          SELECT  COUNT(B.id)
+                            FROM  artist		B
+                           WHERE  B.isPermm = 1	 
+                             AND  B.UserId = A.id
+                         )`
+          }
    ORDER	BY num DESC
   `;
 
