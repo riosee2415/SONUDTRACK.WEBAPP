@@ -17,6 +17,7 @@ import {
 import Theme from "../../components/Theme";
 import styled from "styled-components";
 import { Modal } from "antd";
+import router from "next/router";
 
 const Index = () => {
   ////// GLOBAL STATE //////
@@ -35,6 +36,35 @@ const Index = () => {
     setContact((prev) => !prev);
   }, [contact]);
   ////// HANDLER //////
+
+  const selHandler = useCallback((type) => {
+    if (type === 1) {
+      sessionStorage.setItem(
+        "ORDER",
+        JSON.stringify({
+          title: "standard",
+          price: 15000,
+        })
+      );
+    } else if ((type = 2)) {
+      sessionStorage.setItem(
+        "ORDER",
+        JSON.stringify({
+          title: "Deluxe",
+          price: 15000,
+        })
+      );
+    } else if ((type = 3)) {
+      sessionStorage.setItem(
+        "ORDER",
+        JSON.stringify({
+          title: "Platinum",
+          price: 15000,
+        })
+      );
+    }
+    router.push("/order");
+  }, []);
   ////// DATAVIEW //////
 
   return (
@@ -194,6 +224,7 @@ const Index = () => {
                 height={`48px`}
                 fontSize={width < 800 ? `15px` : `18px`}
                 margin={`20px 0 8px`}
+                onClick={() => selHandler(1)}
               >
                 구매하기
               </CommonButton>
@@ -277,6 +308,7 @@ const Index = () => {
                 height={`48px`}
                 fontSize={width < 800 ? `15px` : `18px`}
                 margin={`20px 0 8px`}
+                onClick={() => selHandler(2)}
               >
                 구매하기
               </CommonButton>
@@ -364,6 +396,7 @@ const Index = () => {
                   height={`48px`}
                   fontSize={width < 800 ? `15px` : `18px`}
                   margin={`20px 0 8px`}
+                  onClick={() => selHandler(3)}
                 >
                   구매하기
                 </CommonButton>

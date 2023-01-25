@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import ClientLayout from "../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../store/configureStore";
@@ -17,16 +17,99 @@ import {
   Wrapper,
 } from "../../components/commonComponents";
 import Theme from "../../components/Theme";
-import { Checkbox, Radio } from "antd";
+import { Checkbox, message, Radio } from "antd";
 
 const Intro = () => {
   ////// GLOBAL STATE //////
   ////// HOOKS //////
   const width = useWidth();
+  const [payType, setPayType] = useState("card");
+  // card
+  // paypal
+  // phone
   ////// REDUX //////
   ////// USEEFFECT //////
   ////// TOGGLE //////
   ////// HANDLER //////
+  const payTypeChangeHandler = useCallback(
+    (type) => {
+      setPayType(type);
+    },
+    [payType]
+  );
+
+  const buyHandler = useCallback(() => {
+    const d = new Date();
+
+    let year = d.getFullYear() + "";
+    let month = d.getMonth() + 1 + "";
+    let date = d.getDate() + "";
+    let hour = d.getHours() + "";
+    let min = d.getMinutes() + "";
+    let sec = d.getSeconds() + "";
+    let mSec = d.getMilliseconds() + "";
+
+    month = month < 10 ? "0" + month : month;
+    date = date < 10 ? "0" + date : date;
+    hour = hour < 10 ? "0" + hour : hour;
+    min = min < 10 ? "0" + min : min;
+    sec = sec < 10 ? "0" + sec : sec;
+    mSec = mSec < 10 ? "0" + mSec : mSec;
+
+    let orderPK = "ORD" + year + month + date + hour + min + sec + mSec;
+
+    const IMP = window.IMP;
+
+    if (payType === "paypal") {
+      IMP.request_pay(
+        {
+          pg: "paypal",
+          pay_method: "card",
+          merchant_uid: orderPK,
+          name: "Star Night",
+          amount: 145000,
+          buyer_name: "test",
+          buyer_tel: "01000000000",
+          buyer_email: "test@test.com",
+          m_redirect_url: "http://localhost:3000",
+        },
+        async (rsp) => {
+          if (rsp.success) {
+            return message.success("결제 완료");
+          } else {
+            console.log(rsp);
+            return console.log("결제실패");
+          }
+        }
+      );
+    } else {
+      IMP.request_pay(
+        {
+          pg:
+            payType === "phone"
+              ? "danal"
+              : payType === "card"
+              ? "danal_tpay"
+              : "paypal",
+          pay_method: payType,
+          merchant_uid: orderPK,
+          name: "Star Night",
+          amount: 145000,
+          buyer_name: "test",
+          buyer_tel: "01000000000",
+          buyer_email: "test@test.com",
+        },
+        async (rsp) => {
+          if (rsp.success) {
+            return message.success("결제 완료");
+          } else {
+            console.log(rsp);
+            return console.log("결제실패");
+          }
+        }
+      );
+    }
+  }, [payType]);
   ////// DATAVIEW //////
 
   return (
@@ -102,7 +185,7 @@ const Intro = () => {
                     Album by Pokerface
                   </Text>
                   <Text fontSize={`18px`} fontWeight={`500`}>
-                    [비독점] 350,000원
+                    [비독점] 145,000원
                     <SpanText color={Theme.grey_C} margin={`0 0 0 8px`}>
                       Semi-Pro
                     </SpanText>
@@ -130,6 +213,7 @@ const Intro = () => {
                     height={`50px`}
                     readOnly
                     placeholder="이름"
+                    value="test"
                   />
                 </Wrapper>
                 <Wrapper dr={`row`} height={`80px`} ju={`flex-start`}>
@@ -140,6 +224,7 @@ const Intro = () => {
                     height={`50px`}
                     readOnly
                     placeholder="연락처"
+                    value="01000000000"
                   />
                 </Wrapper>
                 <Wrapper dr={`row`} height={`80px`} ju={`flex-start`}>
@@ -150,6 +235,7 @@ const Intro = () => {
                     height={`50px`}
                     readOnly
                     placeholder="이메일"
+                    value="test@test.com"
                   />
                 </Wrapper>
               </Wrapper>
@@ -244,9 +330,24 @@ const Intro = () => {
                 fontSize={`16px`}
               >
                 <Wrapper dr={`row`} height={`80px`} ju={`flex-start`}>
-                  <Radio>신용카드</Radio>
-                  <Radio>paypal</Radio>
-                  <Radio>휴대폰</Radio>
+                  <Radio
+                    checked={payType === "card"}
+                    onClick={() => payTypeChangeHandler("card")}
+                  >
+                    신용카드
+                  </Radio>
+                  <Radio
+                    checked={payType === "paypal"}
+                    onClick={() => payTypeChangeHandler("paypal")}
+                  >
+                    paypal
+                  </Radio>
+                  <Radio
+                    checked={payType === "phone"}
+                    onClick={() => payTypeChangeHandler("phone")}
+                  >
+                    휴대폰
+                  </Radio>
                 </Wrapper>
               </Wrapper>
             </Wrapper>
@@ -284,7 +385,7 @@ const Intro = () => {
                     color={Theme.darkGrey_C}
                     fontWeight={`bold`}
                   >
-                    130,000원
+                    145,000원
                   </Text>
                 </Wrapper>
                 <Wrapper dr={`row`} ju={`space-between`} margin={`20px 0`}>
@@ -296,7 +397,7 @@ const Intro = () => {
                     color={Theme.darkGrey_C}
                     fontWeight={`bold`}
                   >
-                    10,000원
+                    0원
                   </Text>
                 </Wrapper>
                 <Wrapper dr={`row`} ju={`space-between`}>
@@ -330,7 +431,7 @@ const Intro = () => {
                     color={Theme.basicTheme_C}
                     fontWeight={`bold`}
                   >
-                    120,000원
+                    145,000원
                   </Text>
                 </Wrapper>
               </Wrapper>
@@ -348,7 +449,12 @@ const Intro = () => {
                   (필수) 전자지급 결제대행 서비스 이용약관 동의
                 </Checkbox>
               </Wrapper>
-              <CommonButton width={`100%`} height={`48px`} fontSize={`18px`}>
+              <CommonButton
+                width={`100%`}
+                height={`48px`}
+                fontSize={`18px`}
+                onClick={buyHandler}
+              >
                 결제하기
               </CommonButton>
             </Wrapper>

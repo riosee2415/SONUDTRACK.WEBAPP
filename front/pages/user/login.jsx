@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import ClientLayout from "../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../store/configureStore";
-import { LOAD_MY_INFO_REQUEST } from "../../reducers/user";
+import { LOAD_MY_INFO_REQUEST, LOGIN_REQUEST } from "../../reducers/user";
 import axios from "axios";
 import { END } from "redux-saga";
 import {
@@ -19,6 +19,15 @@ import {
 import Theme from "../../components/Theme";
 import styled from "styled-components";
 import useWidth from "../../hooks/useWidth";
+import { Form, message } from "antd";
+
+const CustomForm = styled(Form)`
+  width: 100%;
+
+  & .ant-form-item {
+    width: 100%;
+  }
+`;
 
 const Btn = styled(Wrapper)`
   width: 60px;
@@ -48,6 +57,10 @@ const Btn = styled(Wrapper)`
 const Login = () => {
   ////// GLOBAL STATE //////
 
+  const { st_loginLoading, st_loginDone, st_loginError } = useSelector(
+    (state) => state.user
+  );
+
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
@@ -56,11 +69,34 @@ const Login = () => {
 
   ////// USEEFFECT //////
 
+  // 로그인 후 처리
+  useEffect(() => {
+    if (st_loginDone) {
+      router.push("/");
+      return message.success("로그인되었습니다.");
+    }
+
+    if (st_loginError) {
+      return message.error(st_loginError);
+    }
+  }, [st_loginDone, st_loginError]);
+
   ////// TOGGLE //////
   ////// HANDLER //////
   const movelinkHandler = useCallback((link) => {
     router.push(link);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  // 로그인
+  const loginFinish = useCallback((data) => {
+    dispatch({
+      type: LOGIN_REQUEST,
+      data: {
+        email: data.email,
+        password: data.password,
+      },
+    });
   }, []);
   ////// DATAVIEW //////
 
@@ -87,31 +123,51 @@ const Login = () => {
               로그인
             </Text>
             <Wrapper al={`flex-start`}>
-              <Text fontSize={`16px`} color={Theme.grey_C}>
-                아이디
-              </Text>
-              <TextInput
-                margin={`12px 0 30px`}
-                width={`100%`}
-                height={`50px`}
-                border={`1px solid ${Theme.lightGrey_C}`}
-                type="text"
-                placeholder="아이디를 입력해주세요."
-              />
-              <Text fontSize={`16px`} color={Theme.grey_C}>
-                비밀번호
-              </Text>
-              <TextInput
-                margin={`12px 0 30px`}
-                width={`100%`}
-                height={`50px`}
-                border={`1px solid ${Theme.lightGrey_C}`}
-                type="password"
-                placeholder="비밀번호를 입력해주세요."
-              />
-              <CommonButton width={`100%`} height={`50px`} fontSize={`18px`}>
-                로그인
-              </CommonButton>
+              <CustomForm onFinish={loginFinish}>
+                <Text fontSize={`16px`} color={Theme.grey_C}>
+                  아이디
+                </Text>
+                <Form.Item
+                  name="email"
+                  rules={[{ required: true, message: "아이디는 필수입니다." }]}
+                >
+                  <TextInput
+                    margin={`12px 0 5px`}
+                    width={`100%`}
+                    height={`50px`}
+                    border={`1px solid ${Theme.lightGrey_C}`}
+                    type="text"
+                    placeholder="아이디를 입력해주세요."
+                  />
+                </Form.Item>
+                <Text fontSize={`16px`} color={Theme.grey_C}>
+                  비밀번호
+                </Text>
+                <Form.Item
+                  name="password"
+                  rules={[
+                    { required: true, message: "비밀번호는 필수입니다." },
+                  ]}
+                >
+                  <TextInput
+                    margin={`12px 0 5px`}
+                    width={`100%`}
+                    height={`50px`}
+                    border={`1px solid ${Theme.lightGrey_C}`}
+                    type="password"
+                    placeholder="비밀번호를 입력해주세요."
+                  />
+                </Form.Item>
+                <CommonButton
+                  width={`100%`}
+                  height={`50px`}
+                  fontSize={`18px`}
+                  htmlType="submit"
+                  loading={st_loginLoading}
+                >
+                  로그인
+                </CommonButton>
+              </CustomForm>
 
               <Wrapper dr={`row`} fontSize={`16px`} margin={`34px 0 40px`}>
                 <Text
