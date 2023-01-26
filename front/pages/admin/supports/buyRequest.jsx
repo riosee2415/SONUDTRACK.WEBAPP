@@ -42,15 +42,21 @@ import {
   AlertOutlined,
   CheckOutlined,
 } from "@ant-design/icons";
-import {
-  BUYREQUEST_ISOK_REQUEST,
-  BUYREQUEST_ISREJECT_REQUEST,
-  BUYREQUEST_LIST_REQUEST,
-} from "../../../reducers/buyRequest";
+import { BUYREQUEST_LIST_REQUEST } from "../../../reducers/buyRequest";
 import styled from "styled-components";
 
-const TypeButton = styled(Button)``;
-
+const TypeView = styled.span`
+  padding: 2px 5px;
+  background: ${(props) =>
+    props.type === 1
+      ? props.theme.subTheme3_C
+      : props.type === 2
+      ? props.theme.red_C
+      : props.theme.adminTheme_4};
+  color: #fff;
+  border-radius: 7px;
+  font-size: 13px;
+`;
 const InfoTitle = styled.div`
   font-size: 19px;
   margin: 15px 0px 5px 0px;
@@ -73,17 +79,7 @@ const ViewStatusIcon = styled(EyeOutlined)`
 
 const BuyRequest = () => {
   const { st_loadMyInfoDone, me } = useSelector((state) => state.user);
-  const {
-    buyRequests,
-    //
-    st_buyRequestIsOkLoading,
-    st_buyRequestIsOkDone,
-    st_buyRequestIsOkError,
-    //
-    st_buyRequestIsRejectLoading,
-    st_buyRequestIsRejectDone,
-    st_buyRequestIsRejectError,
-  } = useSelector((state) => state.buyRequest);
+  const { buyRequests } = useSelector((state) => state.buyRequest);
 
   const router = useRouter();
   const dispatch = useDispatch();
@@ -116,11 +112,7 @@ const BuyRequest = () => {
 
   ////// HOOKS //////
   const [infoForm] = Form.useForm();
-  const [rForm] = Form.useForm();
   const [sForm] = Form.useForm();
-
-  // 거절 모달
-  const [rModal, setRModal] = useState(false);
 
   // 검색
   const [sData, setSData] = useState(null);
@@ -166,50 +158,7 @@ const BuyRequest = () => {
     });
   }, [sData, sStatus]);
 
-  // 승인 후 처리
-  useEffect(() => {
-    if (st_buyRequestIsOkDone) {
-      dispatch({
-        type: BUYREQUEST_LIST_REQUEST,
-      });
-
-      setCurrentData(null);
-
-      return message.success("승인되었습니다.");
-    }
-
-    if (st_buyRequestIsOkError) {
-      return message.error(st_buyRequestIsOkError);
-    }
-  }, [st_buyRequestIsOkDone || st_buyRequestIsOkError]);
-
-  // 거절 후 처리
-  useEffect(() => {
-    if (st_buyRequestIsRejectDone) {
-      dispatch({
-        type: BUYREQUEST_LIST_REQUEST,
-      });
-
-      setCurrentData(null);
-
-      rModalToggle();
-
-      return message.success("거절되었습니다.");
-    }
-
-    if (st_buyRequestIsRejectError) {
-      return message.error(st_buyRequestIsRejectError);
-    }
-  }, [st_buyRequestIsRejectDone || st_buyRequestIsRejectError]);
-
   ////// TOGGLE //////
-  const rModalToggle = useCallback(() => {
-    if (rModal) {
-      rForm.resetFields();
-    }
-
-    setRModal((prev) => !prev);
-  }, [rModal]);
 
   ////// HANDLER //////
 
@@ -236,6 +185,7 @@ const BuyRequest = () => {
       } else {
         setCurrentData(data);
         infoForm.setFieldsValue({
+          type: data.viewType,
           sendNickname: data.sendNickname,
           sendName: data.sendUsername,
           sendMobile: data.sendMobile,
@@ -253,64 +203,43 @@ const BuyRequest = () => {
     [currentData]
   );
 
-  // 승인
-  const okHandler = useCallback(() => {
-    if (!currentData) {
-      return message.error("잠시 후 다시 시용해주세요.");
-    }
-    dispatch({
-      type: BUYREQUEST_ISOK_REQUEST,
-      data: {
-        id: currentData.id,
-        isOk: 1,
-      },
-    });
-  }, [currentData]);
-
-  // 거절
-  const rejectFinish = useCallback(
-    (data) => {
-      if (!currentData) {
-        return message.error("잠시 후 다시 시용해주세요.");
-      }
-      dispatch({
-        type: BUYREQUEST_ISREJECT_REQUEST,
-        data: {
-          id: currentData.id,
-          isReject: 1,
-          rejectMessage: data.rejectMessage,
-        },
-      });
-    },
-    [currentData]
-  );
-
   ////// DATAVIEW /////
 
   const col = [
     {
+      width: `6%`,
       align: "center",
       title: "번호",
       dataIndex: "num",
     },
     {
+      width: `10%`,
+      align: "center",
+      title: "상태",
+      render: (data) => <TypeView type={data.type}>{data.viewType}</TypeView>,
+    },
+    {
+      width: `20%`,
       title: "발신자이름",
       dataIndex: "sendUsername",
     },
     {
+      width: `20%`,
       title: "수신자이름",
       dataIndex: "receptionUsername",
     },
     {
-      align: "end",
-      title: "구매금액",
+      width: `14%`,
+      title: "요청금액",
       dataIndex: "viewTotalPrice",
     },
     {
+      width: `20%`,
       title: "구매요청일",
       dataIndex: "viewCreatedAt",
     },
     {
+      width: `10%`,
       title: "상태창",
       render: (data) => (
         <>
@@ -356,13 +285,8 @@ const BuyRequest = () => {
       {/* GUIDE */}
       <Wrapper margin={`10px 0px 0px 0px`}>
         <GuideUl>
-          <GuideLi>구매요청된 데이터를 관리할 수 있습니다.</GuideLi>
+          <GuideLi>구매요청된 데이터를 확인할 수 있습니다.</GuideLi>
           <GuideLi>발신자 이름과 수신자이름으로 검색할 수 있습니다.</GuideLi>
-          <GuideLi>승인 또는 거절된 데이터는 복구 불가능합니다.</GuideLi>
-          <GuideLi isImpo={true}>
-            해당 페이지의 데이터는 화면에 즉시 적용되오니, 신중한 처리가
-            필요합니다.
-          </GuideLi>
         </GuideUl>
       </Wrapper>
 
@@ -386,7 +310,7 @@ const BuyRequest = () => {
               >
                 <Input
                   size="small"
-                  style={{ width: "185px" }}
+                  style={{ width: "220px" }}
                   placeholder={`발신자이름을 입력해주세요.`}
                 />
               </SearchFormItem>
@@ -396,7 +320,7 @@ const BuyRequest = () => {
               >
                 <Input
                   size="small"
-                  style={{ width: "185px" }}
+                  style={{ width: "220px" }}
                   placeholder={`수신자이름을 입력해주세요.`}
                 />
               </SearchFormItem>
@@ -415,27 +339,27 @@ const BuyRequest = () => {
           </Wrapper>
 
           <Wrapper dr="row" ju="flex-start" margin="0px 0px 5px 0px">
-            <TypeButton
+            <Button
               type={sStatus === 3 ? "primary" : "default"}
               size="small"
               onClick={() => sStatusChangeHandler(3)}
             >
-              전체
-            </TypeButton>
-            <TypeButton
+              미처리
+            </Button>
+            <Button
               type={sStatus === 1 ? "primary" : "default"}
               size="small"
               onClick={() => sStatusChangeHandler(1)}
             >
               승인
-            </TypeButton>
-            <TypeButton
+            </Button>
+            <Button
               type={sStatus === 2 ? "danger" : "default"}
               size="small"
               onClick={() => sStatusChangeHandler(2)}
             >
               거절
-            </TypeButton>
+            </Button>
           </Wrapper>
           <CustomTable
             style={{ width: "100%" }}
@@ -471,6 +395,23 @@ const BuyRequest = () => {
                 style={{ width: "100%", paddingRight: "20px" }}
                 colon={false}
               >
+                <Form.Item label="요청상태" name="type">
+                  <Input
+                    size="small"
+                    readOnly
+                    style={{
+                      background: currentData
+                        ? currentData.type === 1
+                          ? Theme.subTheme3_C
+                          : currentData.type === 2
+                          ? Theme.red_C
+                          : Theme.adminTheme_4
+                        : "#ebebeb",
+                      color: Theme.white_C,
+                    }}
+                  />
+                </Form.Item>
+
                 {/* 발신자 정보 */}
 
                 <Form.Item label="발신자 닉네임" name="sendNickname">
@@ -539,7 +480,7 @@ const BuyRequest = () => {
                   />
                 </Form.Item>
 
-                <Form.Item label="요청내용" name="sendMessage">
+                <Form.Item label="요청금액" name="totalPrice">
                   <Input
                     size="small"
                     readOnly
@@ -547,11 +488,15 @@ const BuyRequest = () => {
                   />
                 </Form.Item>
 
-                <Form.Item label="구매금액" name="totalPrice">
-                  <Input
+                <Form.Item label="요청내용" name="sendMessage">
+                  <Input.TextArea
+                    autoSize={{
+                      minRows: 5,
+                      maxRows: 10,
+                    }}
                     size="small"
                     readOnly
-                    style={{ background: "#ebebeb" }}
+                    style={{ background: "#ebebeb", margin: `5px 0` }}
                   />
                 </Form.Item>
 
@@ -560,51 +505,15 @@ const BuyRequest = () => {
                     <Input.TextArea
                       size="small"
                       readOnly
-                      style={{ background: "#ebebeb" }}
+                      style={{ background: "#ebebeb", margin: `5px 0` }}
                       autoSize={{
                         minRows: 5,
-                        maxRows: 8,
+                        maxRows: 10,
                       }}
                     />
                   </Form.Item>
                 ) : (
                   ""
-                )}
-
-                {currentData && (currentData.isOk || currentData.isReject) ? (
-                  ""
-                ) : (
-                  <Wrapper dr={`row`} ju={`flex-end`}>
-                    <ModalBtn
-                      size="small"
-                      type="danger"
-                      onClick={rModalToggle}
-                      loading={
-                        st_buyRequestIsOkLoading || st_buyRequestIsRejectLoading
-                      }
-                    >
-                      거절
-                    </ModalBtn>
-                    <Popconfirm
-                      title="승인하시겠습니까?"
-                      onConfirm={okHandler}
-                      okText="승인"
-                      cancelText="취소"
-                      placement="topLeft"
-                    >
-                      <ModalBtn
-                        size="small"
-                        type="primary"
-                        htmlType="submit"
-                        loading={
-                          st_buyRequestIsOkLoading ||
-                          st_buyRequestIsRejectLoading
-                        }
-                      >
-                        승인
-                      </ModalBtn>
-                    </Popconfirm>
-                  </Wrapper>
                 )}
               </CustomForm>
 
@@ -624,44 +533,6 @@ const BuyRequest = () => {
           )}
         </Wrapper>
       </Wrapper>
-
-      <Modal
-        width={`700px`}
-        title="구매요청 거절"
-        visible={rModal}
-        onCancel={rModalToggle}
-        footer={null}
-      >
-        <Form form={rForm} onFinish={rejectFinish}>
-          <Form.Item
-            name="rejectMessage"
-            label="거절 사유"
-            rules={[{ required: true, message: "거절사유는 필수입니다." }]}
-          >
-            <Input.TextArea
-              placeholder="거절사유를 입력해주세요."
-              autoSize={{
-                minRows: 5,
-                maxRows: 8,
-              }}
-            />
-          </Form.Item>
-
-          <Wrapper dr={`row`} ju={`flex-end`}>
-            <ModalBtn size="small" onClick={rModalToggle}>
-              취소
-            </ModalBtn>
-            <ModalBtn
-              size="small"
-              type="primary"
-              htmlType="submit"
-              loading={st_buyRequestIsOkLoading || st_buyRequestIsRejectLoading}
-            >
-              거절
-            </ModalBtn>
-          </Wrapper>
-        </Form>
-      </Modal>
     </AdminLayout>
   );
 };

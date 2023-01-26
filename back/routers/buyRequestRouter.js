@@ -36,6 +36,16 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
             A.rejectMessage,
             A.totalPrice,
             CONCAT(FORMAT(A.totalPrice, ','), "원")     AS viewTotalPrice,
+            CASE
+              WHEN  A.isOk = 1 AND A.isReject = 0  THEN  '승인'
+              WHEN  A.isOk = 0 AND A.isReject = 1  THEN  '거절'
+              WHEN  A.isOk = 0 AND A.isReject = 0  THEN  '미처리'
+            END                                         AS viewType,
+            CASE
+              WHEN  A.isOk = 1 AND A.isReject = 0  THEN  1
+              WHEN  A.isOk = 0 AND A.isReject = 1  THEN  2
+              WHEN  A.isOk = 0 AND A.isReject = 0  THEN  3
+            END                                         AS type,
             B.id										                    AS sendUserId,
             B.username									                AS sendUsername,
             B.nickname									                AS sendNickname,
@@ -47,9 +57,9 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
             C.mobile									                  AS receptionMobile,
             C.email									                    AS receptionEmail,
             A.createdAt,
-            DATE_FORMAT(A.createdAt, '%Y년 %m월 %d일')     AS viewCreatedAt, 
-           A.updatedAt,
-            DATE_FORMAT(A.updatedAt, '%Y년 %m월 %d일')     AS viewUpdatedAt
+            DATE_FORMAT(A.createdAt, '%Y년 %m월 %d일')    AS viewCreatedAt, 
+            A.updatedAt,
+            DATE_FORMAT(A.updatedAt, '%Y년 %m월 %d일')    AS viewUpdatedAt
       FROM  buyRequest		A
      INNER
       JOIN  users			B
@@ -65,7 +75,8 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
                 : _searchStatus === 2
                 ? `AND  A.isOk = 0
                    AND  A.isReject = 1`
-                : ``
+                : `AND  A.isOk = 0
+                   AND  A.isReject = 0`
             }
             ${
               _searchSendUsername
@@ -143,8 +154,15 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
  * DEVELOPMENT : 주니어 개발자 홍민기
  * DEV DATE : 2023/01/25
  */
-router.post("/isOk", isAdminCheck, async (req, res, next) => {
+router.post("/isOk", isLoggedIn, async (req, res, next) => {
   const { id, isOk } = req.body;
+
+  const selectQ = `
+  SELECT  id
+    FROM  buyRequest
+   WHERE  id = ${id}
+     AND  receptionUserId = ${req.user.id}
+  `;
 
   const updateQ = `
   UPDATE  buyRequest 
@@ -172,6 +190,12 @@ router.post("/isOk", isAdminCheck, async (req, res, next) => {
   `;
 
   try {
+    const checkList = await models.sequelize.query(selectQ);
+
+    if (checkList[0].length === 0) {
+      return res.status(401).send("해당 구매요청의 판매자가 아닙니다.");
+    }
+
     await models.sequelize.query(updateQ);
     await models.sequelize.query(historyQ);
 
@@ -190,8 +214,15 @@ router.post("/isOk", isAdminCheck, async (req, res, next) => {
  * DEVELOPMENT : 주니어 개발자 홍민기
  * DEV DATE : 2023/01/25
  */
-router.post("/isReject", isAdminCheck, async (req, res, next) => {
+router.post("/isReject", isLoggedIn, async (req, res, next) => {
   const { id, isReject, rejectMessage } = req.body;
+
+  const selectQ = `
+  SELECT  id
+    FROM  buyRequest
+   WHERE  id = ${id}
+     AND  receptionUserId = ${req.user.id}
+  `;
 
   const updateQ = `
   UPDATE  buyRequest 
@@ -220,6 +251,12 @@ router.post("/isReject", isAdminCheck, async (req, res, next) => {
     `;
 
   try {
+    const checkList = await models.sequelize.query(selectQ);
+
+    if (checkList[0].length === 0) {
+      return res.status(401).send("해당 구매요청의 판매자가 아닙니다.");
+    }
+
     await models.sequelize.query(updateQ);
     await models.sequelize.query(historyQ);
 
