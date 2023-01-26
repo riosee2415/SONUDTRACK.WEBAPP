@@ -41,6 +41,15 @@ import {
   PRODUCT_GEN_REQUEST,
   PRODUCT_TRACK_LIST_REQUEST,
 } from "../../../reducers/product";
+import { saveAs } from "file-saver";
+
+const PriceText = styled(Text)`
+  font-weight: bold;
+  color: ${Theme.basicTheme_C};
+  padding: 4px 12px;
+  border-radius: 13px;
+  background-color: ${(props) => props.theme.subTheme_C};
+`;
 
 const TagBox = styled.span`
   padding: 4px 12px;
@@ -325,6 +334,22 @@ const List = ({}) => {
     });
   }, []);
 
+  // 파일 다운로드
+  const fileDownloadHandler = useCallback(async (fileName, filePath) => {
+    let blob = await fetch(filePath).then((r) => r.blob());
+
+    const file = new Blob([blob]);
+
+    const ext = filePath.substring(
+      filePath.lastIndexOf(".") + 1,
+      filePath.length
+    );
+
+    const originName = `${fileName}.${ext}`;
+
+    saveAs(file, originName);
+  }, []);
+
   ////// DATAVIEW //////
 
   ////// DATA COLUMNS //////
@@ -462,16 +487,19 @@ const List = ({}) => {
       render: (data) => <Switch size="small" checked={data.isTitle} />,
     },
     {
+      align: "end",
       title: "스텐다드 금액",
-      dataIndex: "viewsPrice",
+      render: (data) => <PriceText>{data.viewsPrice}</PriceText>,
     },
     {
+      align: "end",
       title: "디럭스 금액",
-      dataIndex: "viewdPrice",
+      render: (data) => <PriceText>{data.viewdPrice}</PriceText>,
     },
     {
+      align: "end",
       title: "플레티넘 금액",
-      dataIndex: "viewpPrice",
+      render: (data) => <PriceText>{data.viewpPrice}</PriceText>,
     },
     {
       title: "음원등록일",
@@ -491,6 +519,7 @@ const List = ({}) => {
           size="small"
           type="primary"
           style={{ height: "20px", fontSize: "11px" }}
+          onClick={() => fileDownloadHandler(data.filename, data.filepath)}
         >
           내려받기
         </Button>
@@ -732,7 +761,6 @@ const List = ({}) => {
             return <M_Box item={data} idx={idx + 1} key={data.id} />;
           })}
         </Wrapper> */}
-
         <CustomTable
           rowKey="id"
           columns={columns2}
