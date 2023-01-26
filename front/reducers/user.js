@@ -7,6 +7,7 @@ export const initailState = {
   updateModal: false,
   userHistory: [],
   adminUserRightHistory: [],
+  buyStatus: [],
   //
   st_loginLoading: false,
   st_loginDone: false,
@@ -55,6 +56,10 @@ export const initailState = {
   st_adminUserExitFalseLoading: false, // 재가입
   st_adminUserExitFalseDone: false,
   st_adminUserExitFalseError: null,
+  //
+  st_buyStatusLoading: false, // 회원 별 음원 구매 현황
+  st_buyStatusDone: false,
+  st_buyStatusError: null,
 };
 
 export const LOGIN_REQUEST = "LOGIN_REQUEST";
@@ -108,6 +113,10 @@ export const ADMINUSER_EXITTRUE_FAILURE = "ADMINUSER_EXITTRUE_FAILURE";
 export const ADMINUSER_EXITFALSE_REQUEST = "ADMINUSER_EXITFALSE_REQUEST";
 export const ADMINUSER_EXITFALSE_SUCCESS = "ADMINUSER_EXITFALSE_SUCCESS";
 export const ADMINUSER_EXITFALSE_FAILURE = "ADMINUSER_EXITFALSE_FAILURE";
+//
+export const USER_BUYSTATUS_REQUEST = "USER_BUYSTATUS_REQUEST";
+export const USER_BUYSTATUS_SUCCESS = "USER_BUYSTATUS_SUCCESS";
+export const USER_BUYSTATUS_FAILURE = "USER_BUYSTATUS_FAILURE";
 
 export const UPDATE_MODAL_OPEN_REQUEST = "UPDATE_MODAL_OPEN_REQUEST";
 export const UPDATE_MODAL_CLOSE_REQUEST = "UPDATE_MODAL_CLOSE_REQUEST";
@@ -388,6 +397,29 @@ const reducer = (state = initailState, action) =>
         break;
       }
       //////////////////////////////////////////////
+      ///////////////////////////////////////////////////////
+
+      case USER_BUYSTATUS_REQUEST: {
+        draft.st_buyStatusLoading = true;
+        draft.st_buyStatusDone = false;
+        draft.st_buyStatusError = null;
+        break;
+      }
+      case USER_BUYSTATUS_SUCCESS: {
+        draft.st_buyStatusLoading = false;
+        draft.st_buyStatusDone = true;
+        draft.st_buyStatusError = null;
+        draft.buyStatus = action.data;
+        break;
+      }
+      case USER_BUYSTATUS_FAILURE: {
+        draft.st_buyStatusLoading = false;
+        draft.st_buyStatusDone = false;
+        draft.st_buyStatusError = action.error;
+        break;
+      }
+      //////////////////////////////////////////////
+      ///////////////////////////////////////////////////////
 
       case CURRENT_ADMINMENU_STATUS: {
         const exist = draft.currentAdminMenu.filter(

@@ -52,6 +52,10 @@ import {
   ADMINUSER_EXITFALSE_REQUEST,
   ADMINUSER_EXITFALSE_SUCCESS,
   ADMINUSER_EXITFALSE_FAILURE,
+  /////////////////////////////
+  USER_BUYSTATUS_REQUEST,
+  USER_BUYSTATUS_SUCCESS,
+  USER_BUYSTATUS_FAILURE,
 } from "../reducers/user";
 
 // SAGA AREA ********************************************************************************************************
@@ -400,6 +404,33 @@ function* adminUserExitFalse(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function userBuyStatusListAPI(data) {
+  return await axios.post(`/api/status/list`, data);
+}
+
+function* userBuyStatusList(action) {
+  try {
+    const result = yield call(userBuyStatusListAPI, action.data);
+
+    yield put({
+      type: USER_BUYSTATUS_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: USER_BUYSTATUS_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 
 function* watchLoadMyInfo() {
@@ -454,6 +485,10 @@ function* watchAdminUserExitFalse() {
   yield takeLatest(ADMINUSER_EXITFALSE_REQUEST, adminUserExitFalse);
 }
 
+function* watchUserBuyStatusList() {
+  yield takeLatest(USER_BUYSTATUS_REQUEST, userBuyStatusList);
+}
+
 //////////////////////////////////////////////////////////////
 export default function* userSaga() {
   yield all([
@@ -470,6 +505,7 @@ export default function* userSaga() {
     fork(watchAdminUserRightHistoryList),
     fork(watchAdminUserExitTrue),
     fork(watchAdminUserExitFalse),
+    fork(watchUserBuyStatusList),
     //
   ]);
 }
