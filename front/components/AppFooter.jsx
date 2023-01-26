@@ -85,32 +85,26 @@ const AppFooter = () => {
             </Wrapper>
           </Wrapper>
           <Wrapper al={`flex-start`} color={Theme.grey2_C}>
-            {companys && (
-              <Wrapper ju={`flex-start`} dr={`row`} margin={`0 0 10px`}>
-                {companys[0] && (
-                  <Text>{`${companys[0].name} ${companys[0].value}`}</Text>
-                )}
-                <SpanText
-                  margin={width < 900 ? `0 10px` : `0 16px`}
-                  fontSize={`10px`}
-                >
-                  |
-                </SpanText>
+            <Wrapper ju={`flex-start`} dr={`row`} margin={`0 0 10px`}>
+              {companys &&
+                companys.length > 0 &&
+                companys.map((data, idx) => {
+                  return (
+                    <>
+                      <Text>{`${data.name} ${data.value}`}</Text>
 
-                {companys[1] && (
-                  <Text>{`${companys[1].name} ${companys[1].value}`}</Text>
-                )}
-                <SpanText
-                  margin={width < 900 ? `0 10px` : `0 16px`}
-                  fontSize={`10px`}
-                >
-                  |
-                </SpanText>
-                {companys[2] && (
-                  <Text>{`${companys[2].name} ${companys[2].value}`}</Text>
-                )}
-              </Wrapper>
-            )}
+                      {idx + 1 !== companys.length && (
+                        <SpanText
+                          margin={width < 900 ? `0 10px` : `0 16px`}
+                          fontSize={`10px`}
+                        >
+                          |
+                        </SpanText>
+                      )}
+                    </>
+                  );
+                })}
+            </Wrapper>
             <Text>Copylight ⓒ Newwavesound rights reserved.</Text>
           </Wrapper>
         </Wrapper>
