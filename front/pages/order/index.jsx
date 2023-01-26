@@ -436,7 +436,7 @@ const Intro = () => {
                 </Wrapper>
               </Wrapper>
               <Wrapper al={`flex-start`} margin={`24px 0 10px`}>
-                <Checkbox>(필수) 개인정보 수집·이용 및 처리 동</Checkbox>
+                <Checkbox>(필수) 개인정보 수집·이용 및 처리 동의</Checkbox>
               </Wrapper>
               <Wrapper al={`flex-start`} margin={`0 0 10px`}>
                 <Checkbox>(필수) 개인정보 제3자 제공 동의</Checkbox>
