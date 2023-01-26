@@ -219,6 +219,8 @@ router.post("/target/list", async (req, res, next) => {
           A.sPrice,
           A.dPrice,
           A.pPrice,
+          A.filename,
+          A.filepath,
           FORMAT(A.sPrice , 0)   as viewsPrice,
           FORMAT(A.dPrice , 0)   as viewdPrice,
           FORMAT(A.pPrice , 0)   as viewpPrice

@@ -69,6 +69,16 @@ module.exports = class Artistem extends Model {
           allowNull: false,
           defaultValue: 0,
         },
+        filename: {
+          // 장르명
+          type: DataTypes.STRING(100),
+          allowNull: false,
+        },
+        filepath: {
+          // 장르명
+          type: DataTypes.STRING(3000),
+          allowNull: false,
+        },
       },
       {
         modelName: "Artistem",
