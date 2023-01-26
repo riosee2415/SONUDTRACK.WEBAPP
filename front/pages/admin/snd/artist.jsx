@@ -590,6 +590,10 @@ const Artist = ({}) => {
           return <InfoTab key={idx}>{data}</InfoTab>;
         }),
     },
+    {
+      title: "다운로드",
+      render: (data) => "ddd",
+    },
   ];
 
   return (

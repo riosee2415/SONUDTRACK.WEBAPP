@@ -43,9 +43,16 @@ import {
 import Theme from "../../../components/Theme";
 import { HomeOutlined, RightOutlined } from "@ant-design/icons";
 
-const TypeButton = styled(Button)`
-  margin-right: 5px;
+const TypeView = styled.span`
+  padding: 2px 5px;
+  background: ${(props) =>
+    props.isArtist ? props.theme.subTheme3_C : props.theme.adminTheme_4};
+  color: #fff;
+  border-radius: 7px;
+  font-size: 13px;
 `;
+
+const TypeButton = styled(Button)``;
 
 const GuideDiv = styled.div`
   width: 100%;
@@ -292,7 +299,11 @@ const UserList = ({}) => {
       align: "center",
       width: "10%",
       title: "유형",
-      dataIndex: "isArtist",
+      render: (data) => (
+        <TypeView isArtist={data.isArtist === "아티스트" ? 1 : 0}>
+          {data.isArtist}
+        </TypeView>
+      ),
     },
     {
       width: "10%",

@@ -95,14 +95,14 @@ const HeadButton = styled.div`
 
   transition: 0.6s;
 
-  background-color: ${(props) => props.isChecked && props.theme.subTheme_C};
+  background-color: ${(props) => props.isChecked && props.theme.adminTheme_4};
   color: ${(props) => props.isChecked && props.theme.white_C};
 
   ${(props) =>
     props.isChecked &&
     `
     & ${BoxIcon} {
-      color: ${Theme.subTheme_C};
+      color: ${Theme.adminTheme_4};
       background: ${Theme.white_C};
     }
 
@@ -139,7 +139,7 @@ const PointText = styled.div`
 
 const NameView = styled.div`
   font-weight: 700;
-  color: ${(props) => props.theme.subTheme5_C};
+  color: ${(props) => props.theme.adminTheme_1};
 
   cursor: pointer;
   transition: 0.4s;

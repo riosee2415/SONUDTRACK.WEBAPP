@@ -1,6 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 import AdminLayout from "../../../components/AdminLayout";
-import { ModalBtn } from "../../../components/commonComponents";
+import {
+  CustomForm,
+  CustomTable,
+  ModalBtn,
+} from "../../../components/commonComponents";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Popover,
@@ -45,9 +49,7 @@ import {
 } from "../../../reducers/buyRequest";
 import styled from "styled-components";
 
-const TypeButton = styled(Button)`
-  margin-right: 5px;
-`;
+const TypeButton = styled(Button)``;
 
 const InfoTitle = styled.div`
   font-size: 19px;
@@ -332,7 +334,7 @@ const BuyRequest = () => {
         al={`center`}
         padding={`0px 15px`}
         color={Theme.grey_C}
-        shadow={`2px 2px 6px  ${Theme.adminTheme_2}`}
+        // shadow={`2px 2px 6px  ${Theme.adminTheme_2}`}
       >
         <HomeText
           margin={`3px 20px 0px 20px`}
@@ -370,7 +372,7 @@ const BuyRequest = () => {
           padding="0px 10px"
           shadow={`3px 3px 6px ${Theme.lightGrey_C}`}
         >
-          <Wrapper padding="0px 20px">
+          <Wrapper>
             {/* SEARCH FORM */}
             <SearchForm
               layout="inline"
@@ -400,19 +402,19 @@ const BuyRequest = () => {
               </SearchFormItem>
 
               <SearchFormItem>
-                <Button size="small" type="primary" htmlType="submit">
+                <Button
+                  size="small"
+                  type="primary"
+                  htmlType="submit"
+                  style={{ margin: `0px 0px 0px 5px` }}
+                >
                   검색
                 </Button>
               </SearchFormItem>
             </SearchForm>
           </Wrapper>
 
-          <Wrapper
-            padding="0px 20px"
-            dr="row"
-            ju="flex-start"
-            margin="0px 0px 5px 0px"
-          >
+          <Wrapper dr="row" ju="flex-start" margin="0px 0px 5px 0px">
             <TypeButton
               type={sStatus === 3 ? "primary" : "default"}
               size="small"
@@ -428,14 +430,14 @@ const BuyRequest = () => {
               승인
             </TypeButton>
             <TypeButton
-              type={sStatus === 2 ? "primary" : "default"}
+              type={sStatus === 2 ? "danger" : "default"}
               size="small"
               onClick={() => sStatusChangeHandler(2)}
             >
               거절
             </TypeButton>
           </Wrapper>
-          <Table
+          <CustomTable
             style={{ width: "100%" }}
             rowKey="id"
             columns={col}
@@ -462,54 +464,95 @@ const BuyRequest = () => {
                 </InfoTitle>
               </Wrapper>
 
-              <Form
+              <CustomForm
                 form={infoForm}
                 labelCol={{ span: 3 }}
                 wrapperCol={{ span: 21 }}
                 style={{ width: "100%", paddingRight: "20px" }}
+                colon={false}
               >
                 {/* 발신자 정보 */}
 
                 <Form.Item label="발신자 닉네임" name="sendNickname">
-                  <Input size="small" readOnly />
+                  <Input
+                    size="small"
+                    readOnly
+                    style={{ background: "#ebebeb" }}
+                  />
                 </Form.Item>
 
                 <Form.Item label="발신자 이름" name="sendName">
-                  <Input size="small" readOnly />
+                  <Input
+                    size="small"
+                    readOnly
+                    style={{ background: "#ebebeb" }}
+                  />
                 </Form.Item>
 
                 <Form.Item label="발신자 연락처" name="sendMobile">
-                  <Input size="small" readOnly />
+                  <Input
+                    size="small"
+                    readOnly
+                    style={{ background: "#ebebeb" }}
+                  />
                 </Form.Item>
 
                 <Form.Item label="발신자 이메일" name="sendEmail">
-                  <Input size="small" readOnly />
+                  <Input
+                    size="small"
+                    readOnly
+                    style={{ background: "#ebebeb" }}
+                  />
                 </Form.Item>
 
                 {/* 수신자 정보 */}
 
                 <Form.Item label="수신자 닉네임" name="receptionNickname">
-                  <Input size="small" readOnly />
+                  <Input
+                    size="small"
+                    readOnly
+                    style={{ background: "#ebebeb" }}
+                  />
                 </Form.Item>
 
                 <Form.Item label="수신자 이름" name="receptionName">
-                  <Input size="small" readOnly />
+                  <Input
+                    size="small"
+                    readOnly
+                    style={{ background: "#ebebeb" }}
+                  />
                 </Form.Item>
 
                 <Form.Item label="수신자 연락처" name="receptionMobile">
-                  <Input size="small" readOnly />
+                  <Input
+                    size="small"
+                    readOnly
+                    style={{ background: "#ebebeb" }}
+                  />
                 </Form.Item>
 
                 <Form.Item label="수신자 이메일" name="receptionEmail">
-                  <Input size="small" readOnly />
+                  <Input
+                    size="small"
+                    readOnly
+                    style={{ background: "#ebebeb" }}
+                  />
                 </Form.Item>
 
                 <Form.Item label="요청내용" name="sendMessage">
-                  <Input size="small" readOnly />
+                  <Input
+                    size="small"
+                    readOnly
+                    style={{ background: "#ebebeb" }}
+                  />
                 </Form.Item>
 
                 <Form.Item label="구매금액" name="totalPrice">
-                  <Input size="small" readOnly />
+                  <Input
+                    size="small"
+                    readOnly
+                    style={{ background: "#ebebeb" }}
+                  />
                 </Form.Item>
 
                 {currentData && currentData.isReject ? (
@@ -517,6 +560,7 @@ const BuyRequest = () => {
                     <Input.TextArea
                       size="small"
                       readOnly
+                      style={{ background: "#ebebeb" }}
                       autoSize={{
                         minRows: 5,
                         maxRows: 8,
@@ -562,14 +606,9 @@ const BuyRequest = () => {
                     </Popconfirm>
                   </Wrapper>
                 )}
-              </Form>
+              </CustomForm>
 
-              <Wrapper
-                width="100%"
-                height="1px"
-                bgColor={Theme.lightGrey_C}
-                margin={`30px 0px`}
-              ></Wrapper>
+              <Wrapper width="100%" height="1px" margin={`30px 0px`}></Wrapper>
             </>
           ) : (
             <Wrapper padding={`50px 0px`} dr="row">
