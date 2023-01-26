@@ -92,6 +92,11 @@ export const items = {
       link: "/admin/user/userExitList",
       useYn: true,
     },
+    {
+      name: "회원별 음원구매 현황",
+      link: "/admin/user/buyStatus",
+      useYn: true,
+    },
   ],
   고객지원관리: [
     {
