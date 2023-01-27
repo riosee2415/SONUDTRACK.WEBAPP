@@ -27,6 +27,7 @@ import {
 import Theme from "../../../components/Theme";
 import { items } from "../../../components/AdminLayout";
 import { HomeOutlined, RightOutlined, EyeOutlined } from "@ant-design/icons";
+import { ARTISTEM_DETAIL_REQUEST } from "../../../reducers/artist";
 
 const PriceText = styled(Text)`
   font-weight: bold;
@@ -55,6 +56,10 @@ const BuyStatus = ({}) => {
   const { users, st_loadMyInfoDone, me, buyStatus, st_userListError } =
     useSelector((state) => state.user);
 
+  const { artistemDetail, st_artistemDetailError } = useSelector(
+    (state) => state.artist
+  );
+
   const router = useRouter();
   const dispatch = useDispatch();
 
@@ -63,6 +68,7 @@ const BuyStatus = ({}) => {
   const [level2, setLevel2] = useState("");
   const [sameDepth, setSameDepth] = useState([]);
   const [sData, setSData] = useState("");
+  const [artistemDModal, setArtistemDModal] = useState(false);
 
   const [currentData, setCurrentData] = useState(null);
 
@@ -130,6 +136,13 @@ const BuyStatus = ({}) => {
     });
   }, [sData]);
 
+  // 아티스탬 상세 조회 에러처리
+  useEffect(() => {
+    if (st_artistemDetailError) {
+      return message.error(st_artistemDetailError);
+    }
+  }, [st_artistemDetailError]);
+
   // 사용자 리스트 조회 에러처리
   useEffect(() => {
     if (st_userListError) {
@@ -163,6 +176,24 @@ const BuyStatus = ({}) => {
       setStatusDr((p) => !p);
     },
     [statusDr]
+  );
+
+  const artistemDToggle = useCallback(
+    (data) => {
+      if (data && data.buyType === "artisTem") {
+        console.log(data);
+
+        dispatch({
+          type: ARTISTEM_DETAIL_REQUEST,
+          data: {
+            id: data.ArtistemId,
+          },
+        });
+
+        setArtistemDModal((p) => !p);
+      }
+    },
+    [artistemDModal]
   );
 
   ////// DATAVIEW //////
@@ -292,9 +323,7 @@ const BuyStatus = ({}) => {
               ? () => {
                   console.log(data);
                 }
-              : () => {
-                  console.log(data);
-                }
+              : () => artistemDToggle(data)
           }
         >
           상세보기

@@ -289,8 +289,7 @@ router.post("/target/detail", async (req, res, next) => {
   const { id } = req.body;
 
   const selectQ = `
-  SELECT	ROW_NUMBER() OVER(ORDER BY A.title ASC) 	AS num,
-          A.id,
+  SELECT	A.id,
           A.title,
           A.subTitle,
           A.content,
@@ -337,6 +336,10 @@ router.post("/target/detail", async (req, res, next) => {
     const list = await models.sequelize.query(selectQ);
     const tags = await models.sequelize.query(selectQ2);
     const gens = await models.sequelize.query(selectQ3);
+
+    if (list[0].length === 0) {
+      return res.status(401).send("존재하지 않는 아티스탬 정보입니다.");
+    }
 
     const tems = list[0];
 
