@@ -24,6 +24,10 @@ import {
   ARTISTEM_TOP_UP_REQUEST,
   ARTISTEM_TOP_UP_SUCCESS,
   ARTISTEM_TOP_UP_FAILURE,
+  //
+  ARTISTEM_DETAIL_REQUEST,
+  ARTISTEM_DETAIL_SUCCESS,
+  ARTISTEM_DETAIL_FAILURE,
 } from "../reducers/artist";
 
 // ******************************************************************************************************************
@@ -193,6 +197,34 @@ function* artistemTopUp(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function artistemDetailAPI(data) {
+  return await axios.post("/api/artist/target/detail", data);
+}
+
+function* artistemDetail(action) {
+  try {
+    const result = yield call(artistemDetailAPI, action.data);
+
+    yield put({
+      type: ARTISTEM_DETAIL_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: ARTISTEM_DETAIL_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 function* watchFaqTypeList() {
   yield takeLatest(PERMM_WAITING_LIST_REQUEST, permmWaitingList);
@@ -212,6 +244,9 @@ function* watchArtistemIngUp() {
 function* watchArtistemTopUp() {
   yield takeLatest(ARTISTEM_TOP_UP_REQUEST, artistemTopUp);
 }
+function* watchArtistemDetail() {
+  yield takeLatest(ARTISTEM_DETAIL_REQUEST, artistemDetail);
+}
 
 //////////////////////////////////////////////////////////////
 export default function* artistSaga() {
@@ -222,6 +257,7 @@ export default function* artistSaga() {
     fork(watchArtistemList),
     fork(watchArtistemIngUp),
     fork(watchArtistemTopUp),
+    fork(watchArtistemDetail),
     //
   ]);
 }

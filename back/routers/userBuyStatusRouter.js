@@ -15,6 +15,21 @@ const router = express.Router();
 router.post("/list", isAdminCheck, async (req, res, next) => {
   const { UserId } = req.body;
 
+  // (
+  //     SELECT  CASE
+  //                 WHEN  (
+  //                     SELECT  COUNT(B.id)
+  //                         FROM  artist		B
+  //                         WHERE  B.isPermm = 1
+  //                         AND  B.UserId = A.id
+  //                     ) > 0
+  //                 THEN  "아티스트"
+  //                 ELSE  "일반"
+  //             END                    AS  isArtist
+  //       FROM  artist
+  //      WHERE
+  // )
+
   const temQuery = `
       SELECT	ROW_NUMBER()    OVER(ORDER BY A.createdAt)      AS num,
                 A.ArtistemId,
@@ -24,24 +39,27 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
       			DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")		  AS viewStatusCreatedAt,
       			CASE
       					WHEN	B.id  IS NULL THEN	"musicTem"
-      					WHEN 	C.id  IS NULL THEN	"artistem"
+      					WHEN 	C.id  IS NULL THEN	"artisTem"
       			END												AS buyType,
-      			B.title											AS artistemTitle,
-      			B.subTitle										AS artistemSubTitle,
-      			B.content										AS artistemContent,
-      			B.coverImage									AS artistemCoverImage,
-      			B.isIng											AS artistemIsIng,
-      			B.downloadCnt									AS artistemDownloadCnt,
-      			B.bitRate										AS artistemBitRate,
-      			B.sampleRate									AS artistemSampleRate,
-      			B.isTop											AS artistemIsTop,
-      			B.sPrice										AS artistemSPrice,
-      			B.dPrice										AS artistemDPrice,
-      			B.pPrice										AS artistemPPrice,
-      			B.ProductCategoryId								AS artistemCategoryId,
-      			B.ArtistId										AS artistemArtistId,
-      			B.filename										AS artistemFilename,
-      			B.filepath										AS artistemFilepath,
+      			B.title											AS artisTemTitle,
+      			B.subTitle										AS artisTemSubTitle,
+      			B.content										AS artisTemContent,
+      			B.coverImage									AS artisTemCoverImage,
+      			B.isIng											AS artisTemIsIng,
+      			B.downloadCnt									AS artisTemDownloadCnt,
+      			B.bitRate										AS artisTemBitRate,
+      			B.sampleRate									AS artisTemSampleRate,
+      			B.isTop											AS artisTemIsTop,
+      			B.sPrice										AS artisTemSPrice,
+      			B.dPrice										AS artisTemDPrice,
+      			B.pPrice										AS artisTemPPrice,
+                FORMAT(B.sPrice, 0)                             AS artisTemViewsPrice,
+                FORMAT(B.dPrice, 0)                             AS artisTemViewdPrice,
+                FORMAT(B.pPrice, 0)                             AS artisTemViewpPrice,
+      			B.ProductCategoryId								AS artisTemCategoryId,
+      			B.ArtistId										AS artisTemArtistId,
+      			B.filename										AS artisTemFilename,
+      			B.filepath										AS artisTemFilepath,
       			C.title 										AS musicTemTitle,
       			C.isTitle 										AS musicTemIsTitle,
       			C.filename 										AS musicTemFilename,
@@ -51,7 +69,10 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
       			C.ProductId 									AS musicTemProductId,
       			C.sPrice										AS musicTemSPrice,
       			C.dPrice 										AS musicTemDPrice,
-      			C.pPrice 										AS musicTemPPrice
+      			C.pPrice 										AS musicTemPPrice,
+                FORMAT(C.sPrice, 0)                             AS musicTemViewsPrice,
+                FORMAT(C.dPrice, 0)                             AS musicTemViewdPrice,
+                FORMAT(C.pPrice, 0)                             AS musicTemViewpPrice
         FROM	userBuyStatus		A
         LEFT
        OUTER

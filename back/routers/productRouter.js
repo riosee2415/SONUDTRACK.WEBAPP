@@ -391,6 +391,80 @@ router.post("/track/list", async (req, res, next) => {
   }
 });
 
+/**
+ * SUBJECT : 트랙 상세보기
+ * PARAMETERS : id
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/01/27
+ */
+router.post("/track/detail", async (req, res, next) => {
+  const { id } = req.body;
+
+  const selectQ = `
+  SELECT	A.id,
+          A.title,
+          A.isTitle,
+          A.filename,
+          A.filepath,
+          A.author,
+          A.downloadCnt,
+          A.createdAt,
+          A.updatedAt,
+          A.ProductId,
+          DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
+          DATE_FORMAT(A.updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt,
+          A.sPrice,
+          A.dPrice,
+          A.pPrice,
+          FORMAT(A.sPrice , 0)   as viewsPrice,
+          FORMAT(A.dPrice , 0)   as viewdPrice,
+          FORMAT(A.pPrice , 0)   as viewpPrice
+    FROM	productTrack	A
+   WHERE  A.id = ${id}
+  `;
+
+  const selectQ2 = `
+  SELECT	A.id,
+          A.value,
+          A.createdAt,
+          A.updatedAt,
+          A.ProductTrackId,
+          DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
+          DATE_FORMAT(A.updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt
+    FROM	trackGen	A
+   WHERE  A.ProductTrackId = ${id}
+  `;
+
+  try {
+    const list = await models.sequelize.query(selectQ);
+    const gens = await models.sequelize.query(selectQ2);
+
+    if (list[0].length === 0) {
+      return res.status(401).send("존재하지 않는 데이터 입니다.");
+    }
+
+    const trackList = list[0];
+    const genList = gens[0];
+
+    trackList.map((item) => {
+      item["gens"] = [];
+
+      genList.map((innerItem) => {
+        if (parseInt(item.id) === parseInt(innerItem.ProductTrackId)) {
+          item.gens.push(innerItem.value);
+        }
+      });
+    });
+
+    return res.status(200).json(trackList[0]);
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("데이터를 조회할 수 없습니다.");
+  }
+});
+
 ////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////COMMON TAG ///////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////

@@ -278,6 +278,106 @@ router.post("/target/list", async (req, res, next) => {
 });
 
 /**
+ * SUBJECT : 아티스탬 상세 조회
+ * PARAMETERS : id
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/01/27
+ */
+router.post("/target/detail", async (req, res, next) => {
+  const { id } = req.body;
+
+  const selectQ = `
+  SELECT	A.id,
+          A.title,
+          A.subTitle,
+          (
+          SELECT  US.username
+            FROM  artist      AR
+           INNER
+            JOIN  users       US
+              ON  AR.UserId = US.id
+           WHERE  A.ArtistId = AR.id
+             AND  AR.isPermm = 1
+          )                                            AS artistName,
+          A.content,
+          A.coverImage,
+          A.isIng,
+          A.isTop,
+          A.sampleRate,
+          A.bitRate,
+          A.createdAt,
+          A.updatedAt,
+          DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
+          DATE_FORMAT(A.updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt,
+          B.value AS caValue,
+          A.sPrice,
+          A.dPrice,
+          A.pPrice,
+          A.filename,
+          A.filepath,
+          FORMAT(A.sPrice , 0)   as viewsPrice,
+          FORMAT(A.dPrice , 0)   as viewdPrice,
+          FORMAT(A.pPrice , 0)   as viewpPrice
+    FROM	artistem	A
+   INNER
+    JOIN  productCategory B
+      ON  A.ProductCategoryId = B.id
+   WHERE  A.id = ${id}
+  `;
+
+  const selectQ2 = `
+  SELECT	value,
+          ArtistemId
+    FROM	artistTemTag
+   WHERE  ArtistemId = ${id}
+    `;
+
+  const selectQ3 = `
+  SELECT	value,
+          ArtistemId
+    FROM	artistTemGen
+   WHERE  ArtistemId = ${id}
+  `;
+
+  try {
+    const list = await models.sequelize.query(selectQ);
+    const tags = await models.sequelize.query(selectQ2);
+    const gens = await models.sequelize.query(selectQ3);
+
+    if (list[0].length === 0) {
+      return res.status(401).send("존재하지 않는 아티스탬 정보입니다.");
+    }
+
+    const tems = list[0];
+
+    tems.map((data) => {
+      data["tags"] = [];
+      data["gens"] = [];
+
+      tags[0].map((tag) => {
+        if (data.id === tag.ArtistemId) {
+          data["tags"].push(tag.value);
+        }
+      });
+      gens[0].map((gen) => {
+        if (data.id === gen.ArtistemId) {
+          data["gens"].push(gen.value);
+        }
+      });
+    });
+
+    return res.status(200).json(tems[0]);
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(400)
+      .send("아티스템을 조회할 수 없습니다. 다시 시도해주세요.");
+  }
+});
+
+/**
  * SUBJECT : 아티스탬 판매여부 제어
  * PARAMETERS : { id  , nextFlag }
  * ORDER BY : -

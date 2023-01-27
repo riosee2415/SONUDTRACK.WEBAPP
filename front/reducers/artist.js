@@ -5,7 +5,7 @@ export const initailState = {
   artistList: [],
   permmWaitingList: [],
   artistems: [],
-
+  artistemDetail: null,
   //
   st_permmWaitingLoading: false,
   st_permmWaitingDone: false,
@@ -30,6 +30,10 @@ export const initailState = {
   st_artistemUpUpLoading: false,
   st_artistemUpUpDone: false,
   st_artistemUpUpError: null,
+  //
+  st_artistemDetailLoading: false,
+  st_artistemDetailDone: false,
+  st_artistemDetailError: null,
 };
 
 export const PERMM_WAITING_LIST_REQUEST = "PERMM_WAITING_LIST_REQUEST";
@@ -55,6 +59,10 @@ export const ARTISTEM_ING_UP_FAILURE = "ARTISTEM_ING_UP_FAILURE";
 export const ARTISTEM_TOP_UP_REQUEST = "ARTISTEM_TOP_UP_REQUEST";
 export const ARTISTEM_TOP_UP_SUCCESS = "ARTISTEM_TOP_UP_SUCCESS";
 export const ARTISTEM_TOP_UP_FAILURE = "ARTISTEM_TOP_UP_FAILURE";
+
+export const ARTISTEM_DETAIL_REQUEST = "ARTISTEM_DETAIL_REQUEST";
+export const ARTISTEM_DETAIL_SUCCESS = "ARTISTEM_DETAIL_SUCCESS";
+export const ARTISTEM_DETAIL_FAILURE = "ARTISTEM_DETAIL_FAILURE";
 
 const reducer = (state = initailState, action) =>
   produce(state, (draft) => {
@@ -196,6 +204,30 @@ const reducer = (state = initailState, action) =>
         draft.st_artistemUpUpLoading = false;
         draft.st_artistemUpUpDone = false;
         draft.st_artistemUpUpError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////
+      case ARTISTEM_DETAIL_REQUEST: {
+        draft.st_artistemDetailLoading = true;
+        draft.st_artistemDetailDone = false;
+        draft.st_artistemDetailError = null;
+        break;
+      }
+
+      case ARTISTEM_DETAIL_SUCCESS: {
+        draft.st_artistemDetailLoading = false;
+        draft.st_artistemDetailDone = true;
+        draft.st_artistemDetailError = null;
+        draft.artistemDetail = action.data;
+        break;
+      }
+
+      case ARTISTEM_DETAIL_FAILURE: {
+        draft.st_artistemDetailLoading = false;
+        draft.st_artistemDetailDone = false;
+        draft.st_artistemDetailError = action.error;
         break;
       }
 

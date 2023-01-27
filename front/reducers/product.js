@@ -7,6 +7,7 @@ export const initailState = {
   targetGens: [],
   trackList: [],
   commonTags: [],
+  trackDetail: null,
 
   st_categoryLoading: false,
   st_categoryDone: false,
@@ -63,6 +64,10 @@ export const initailState = {
   st_commonTagDeleteLoading: false,
   st_commonTagDeleteDone: false,
   st_commonTagDeleteError: null,
+  //
+  st_productTrackDetailLoading: false,
+  st_productTrackDetailDone: false,
+  st_productTrackDetailError: null,
 };
 
 export const CATEGORY_LIST_REQUEST = "CATEGORY_LIST_REQUEST";
@@ -120,6 +125,10 @@ export const COMMON_TAG_MODIFY_FAILURE = "COMMON_TAG_MODIFY_FAILURE";
 export const COMMON_TAG_DELETE_REQUEST = "COMMON_TAG_DELETE_REQUEST";
 export const COMMON_TAG_DELETE_SUCCESS = "COMMON_TAG_DELETE_SUCCESS";
 export const COMMON_TAG_DELETE_FAILURE = "COMMON_TAG_DELETE_FAILURE";
+
+export const PRODUCT_TRACK_DETAIL_REQUEST = "PRODUCT_TRACK_DETAIL_REQUEST";
+export const PRODUCT_TRACK_DETAIL_SUCCESS = "PRODUCT_TRACK_DETAIL_SUCCESS";
+export const PRODUCT_TRACK_DETAIL_FAILURE = "PRODUCT_TRACK_DETAIL_FAILURE";
 
 const reducer = (state = initailState, action) =>
   produce(state, (draft) => {
@@ -420,6 +429,28 @@ const reducer = (state = initailState, action) =>
         draft.st_commonTagDeleteLoading = false;
         draft.st_commonTagDeleteDone = false;
         draft.st_commonTagDeleteError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////
+      case PRODUCT_TRACK_DETAIL_REQUEST: {
+        draft.st_productTrackDetailLoading = true;
+        draft.st_productTrackDetailDone = false;
+        draft.st_productTrackDetailError = null;
+        break;
+      }
+      case PRODUCT_TRACK_DETAIL_SUCCESS: {
+        draft.st_productTrackDetailLoading = false;
+        draft.st_productTrackDetailDone = true;
+        draft.st_productTrackDetailError = null;
+        draft.trackDetail = action.data;
+        break;
+      }
+      case PRODUCT_TRACK_DETAIL_FAILURE: {
+        draft.st_productTrackDetailLoading = false;
+        draft.st_productTrackDetailDone = false;
+        draft.st_productTrackDetailError = action.error;
         break;
       }
 
