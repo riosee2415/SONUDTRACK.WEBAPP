@@ -28,6 +28,7 @@ import Theme from "../../../components/Theme";
 import { items } from "../../../components/AdminLayout";
 import { HomeOutlined, RightOutlined, EyeOutlined } from "@ant-design/icons";
 import { ARTISTEM_DETAIL_REQUEST } from "../../../reducers/artist";
+import { PRODUCT_TRACK_DETAIL_REQUEST } from "../../../reducers/product";
 
 const PriceText = styled(Text)`
   font-weight: bold;
@@ -60,6 +61,10 @@ const BuyStatus = ({}) => {
     (state) => state.artist
   );
 
+  const { trackDetail, st_productTrackDetailError } = useSelector(
+    (state) => state.product
+  );
+
   const router = useRouter();
   const dispatch = useDispatch();
 
@@ -69,6 +74,7 @@ const BuyStatus = ({}) => {
   const [sameDepth, setSameDepth] = useState([]);
   const [sData, setSData] = useState("");
   const [artistemDModal, setArtistemDModal] = useState(false);
+  const [musicTemDModal, setMusicTemDModal] = useState(false);
 
   const [currentData, setCurrentData] = useState(null);
 
@@ -136,6 +142,12 @@ const BuyStatus = ({}) => {
     });
   }, [sData]);
 
+  // 뮤직탬 상세 조회 에러처리
+  useEffect(() => {
+    if (st_productTrackDetailError) {
+      return message.error(st_productTrackDetailError);
+    }
+  }, [st_productTrackDetailError]);
   // 아티스탬 상세 조회 에러처리
   useEffect(() => {
     if (st_artistemDetailError) {
@@ -181,8 +193,6 @@ const BuyStatus = ({}) => {
   const artistemDToggle = useCallback(
     (data) => {
       if (data && data.buyType === "artisTem") {
-        console.log(data);
-
         dispatch({
           type: ARTISTEM_DETAIL_REQUEST,
           data: {
@@ -194,6 +204,22 @@ const BuyStatus = ({}) => {
       }
     },
     [artistemDModal]
+  );
+
+  const musicTemDToggle = useCallback(
+    (data) => {
+      if (data && data.buyType === "musicTem") {
+        dispatch({
+          type: PRODUCT_TRACK_DETAIL_REQUEST,
+          data: {
+            id: data.ProductTrackId,
+          },
+        });
+
+        setMusicTemDModal((p) => !p);
+      }
+    },
+    [musicTemDModal]
   );
 
   ////// DATAVIEW //////
@@ -320,9 +346,7 @@ const BuyStatus = ({}) => {
           style={{ height: "20px", fontSize: "11px" }}
           onClick={
             data.buyType === "musicTem"
-              ? () => {
-                  console.log(data);
-                }
+              ? () => musicTemDToggle(data)
               : () => artistemDToggle(data)
           }
         >

@@ -56,6 +56,10 @@ import {
   COMMON_TAG_DELETE_REQUEST,
   COMMON_TAG_DELETE_SUCCESS,
   COMMON_TAG_DELETE_FAILURE,
+  //
+  PRODUCT_TRACK_DETAIL_REQUEST,
+  PRODUCT_TRACK_DETAIL_SUCCESS,
+  PRODUCT_TRACK_DETAIL_FAILURE,
 } from "../reducers/product";
 
 // ******************************************************************************************************************
@@ -445,6 +449,33 @@ function* commonTagDelete(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function productTrackDetailAPI(data) {
+  return await axios.post("/api/product/track/detail", data);
+}
+
+function* productTrackDetail(action) {
+  try {
+    const result = yield call(productTrackDetailAPI, action.data);
+
+    yield put({
+      type: PRODUCT_TRACK_DETAIL_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: PRODUCT_TRACK_DETAIL_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 function* watchCategoryList() {
   yield takeLatest(CATEGORY_LIST_REQUEST, categoryList);
@@ -488,6 +519,9 @@ function* watchCommonTagModify() {
 function* watchCommonTagDelete() {
   yield takeLatest(COMMON_TAG_DELETE_REQUEST, commonTagDelete);
 }
+function* watchProductTrackDetail() {
+  yield takeLatest(PRODUCT_TRACK_DETAIL_REQUEST, productTrackDetail);
+}
 
 //////////////////////////////////////////////////////////////
 export default function* productSaga() {
@@ -506,6 +540,7 @@ export default function* productSaga() {
     fork(watchCommonTagList),
     fork(watchCommonTagModify),
     fork(watchCommonTagDelete),
+    fork(watchProductTrackDetail),
     //
   ]);
 }
