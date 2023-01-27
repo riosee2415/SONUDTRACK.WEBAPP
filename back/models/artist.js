@@ -24,6 +24,11 @@ module.exports = class Artist extends Model {
           type: DataTypes.DATE,
           allowNull: true,
         },
+        imagePath: {
+          type: DataTypes.STRING(3000),
+          allowNull: false,
+          default: "",
+        },
       },
       {
         modelName: "Artist",

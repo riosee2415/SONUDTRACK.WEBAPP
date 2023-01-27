@@ -46,7 +46,7 @@ module.exports = class Artistem extends Model {
           allowNull: false,
         },
         isTop: {
-          // 상단고정
+          // 메인여부
           type: DataTypes.BOOLEAN,
           allowNull: false,
           defaultValue: false,

@@ -51,6 +51,12 @@ module.exports = class ProductTrack extends Model {
           allowNull: false,
           defaultValue: 0,
         },
+        isTop: {
+          // 메인 리스트 여부
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
       },
       {
         modelName: "ProductTrack",
