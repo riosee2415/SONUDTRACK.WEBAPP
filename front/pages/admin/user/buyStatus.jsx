@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import AdminLayout from "../../../components/AdminLayout";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { message, Popover, Table } from "antd";
+import { message, Popover, Form, Input, Button, Drawer } from "antd";
 import { useRouter, withRouter } from "next/router";
 import wrapper from "../../../store/configureStore";
 import { END } from "redux-saga";
@@ -16,6 +16,8 @@ import {
   GuideUl,
   GuideLi,
   CustomTable,
+  SearchForm,
+  SearchFormItem,
 } from "../../../components/commonComponents";
 import {
   LOAD_MY_INFO_REQUEST,
@@ -25,6 +27,14 @@ import {
 import Theme from "../../../components/Theme";
 import { items } from "../../../components/AdminLayout";
 import { HomeOutlined, RightOutlined, EyeOutlined } from "@ant-design/icons";
+
+const PriceText = styled(Text)`
+  font-weight: bold;
+  color: ${Theme.basicTheme_C};
+  padding: 4px 12px;
+  border-radius: 13px;
+  background-color: ${(props) => props.theme.subTheme_C};
+`;
 
 const TypeView = styled.span`
   padding: 2px 5px;
@@ -52,6 +62,13 @@ const BuyStatus = ({}) => {
   const [level1, setLevel1] = useState("회원관리");
   const [level2, setLevel2] = useState("");
   const [sameDepth, setSameDepth] = useState([]);
+  const [sData, setSData] = useState("");
+
+  const [currentData, setCurrentData] = useState(null);
+
+  const [statusDr, setStatusDr] = useState(false);
+
+  const [sForm] = Form.useForm();
 
   const [selectUserId, setSelectUserId] = useState(0);
 
@@ -104,6 +121,15 @@ const BuyStatus = ({}) => {
     });
   }, []);
 
+  useEffect(() => {
+    dispatch({
+      type: USERLIST_REQUEST,
+      data: {
+        searchData: sData,
+      },
+    });
+  }, [sData]);
+
   // 사용자 리스트 조회 에러처리
   useEffect(() => {
     if (st_userListError) {
@@ -112,14 +138,33 @@ const BuyStatus = ({}) => {
   }, [st_userListError]);
 
   ////// HANDLER //////
-  const selectUserHandler = useCallback(
+
+  const searchHandler = useCallback(
     (data) => {
-      setSelectUserId(data.id);
+      setSData(data.sData);
     },
-    [selectUserId]
+    [sForm, sData]
   );
 
-  console.log(selectUserId);
+  const statusDrToggle = useCallback(
+    (data) => {
+      if (data) {
+        setCurrentData(data);
+        setSelectUserId(data.id);
+
+        dispatch({
+          type: USER_BUYSTATUS_REQUEST,
+          data: {
+            UserId: data.id,
+          },
+        });
+      }
+
+      setStatusDr((p) => !p);
+    },
+    [statusDr]
+  );
+
   ////// DATAVIEW //////
 
   ////// DATA COLUMNS //////
@@ -174,6 +219,90 @@ const BuyStatus = ({}) => {
     },
   ];
 
+  const columns2 = [
+    {
+      align: "center",
+      title: "번호",
+      dataIndex: "num",
+    },
+    {
+      align: "end",
+      title: "음원 유형",
+      width: "10%",
+      render: (data) => (
+        <Text fontWeight={`800`}>
+          {data.buyType === "musicTem" ? "뮤직탬" : "아티스탬"}
+        </Text>
+      ),
+    },
+    {
+      align: "end",
+      title: "음원명",
+      render: (data) => (
+        <Text fontWeight={`600`}>
+          {data.buyType === "musicTem"
+            ? data.musicTemTitle
+            : data.artisTemTitle}
+        </Text>
+      ),
+    },
+    {
+      align: "end",
+      title: "스텐다드 금액",
+      render: (data) => (
+        <PriceText>
+          {data.buyType === "musicTem"
+            ? data.musicTemViewsPrice
+            : data.artisTemViewsPrice}
+        </PriceText>
+      ),
+    },
+    {
+      align: "end",
+      title: "디럭스 금액",
+      render: (data) => (
+        <PriceText>
+          {data.buyType === "musicTem"
+            ? data.musicTemViewdPrice
+            : data.artisTemViewdPrice}
+        </PriceText>
+      ),
+    },
+    {
+      align: "end",
+      title: "플레티넘 금액",
+      render: (data) => (
+        <PriceText>
+          {data.buyType === "musicTem"
+            ? data.musicTemViewpPrice
+            : data.artisTemViewpPrice}
+        </PriceText>
+      ),
+    },
+    {
+      align: "end",
+      title: "상세정보",
+      render: (data) => (
+        <Button
+          size="small"
+          type="primary"
+          style={{ height: "20px", fontSize: "11px" }}
+          onClick={
+            data.buyType === "musicTem"
+              ? () => {
+                  console.log(data);
+                }
+              : () => {
+                  console.log(data);
+                }
+          }
+        >
+          상세보기
+        </Button>
+      ),
+    },
+  ];
+
   return (
     <AdminLayout>
       {/* MENU TAB */}
@@ -214,6 +343,30 @@ const BuyStatus = ({}) => {
         </GuideUl>
       </Wrapper>
 
+      <Wrapper padding="0px 20px">
+        {/* SEARCH FORM */}
+        <SearchForm
+          layout="inline"
+          style={{ width: "100%" }}
+          form={sForm}
+          onFinish={searchHandler}
+        >
+          <SearchFormItem name="sData" style={{ margin: `0px 0px 0px 5px` }}>
+            <Input
+              size="small"
+              style={{ width: "320px" }}
+              placeholder={`회원을 검색할 정보를 입력해주세요.`}
+            />
+          </SearchFormItem>
+
+          <SearchFormItem>
+            <Button size="small" type="primary" htmlType="submit">
+              검색
+            </Button>
+          </SearchFormItem>
+        </SearchForm>
+      </Wrapper>
+
       <Wrapper padding={`0px 20px`}>
         <CustomTable
           style={{ width: "100%" }}
@@ -223,21 +376,25 @@ const BuyStatus = ({}) => {
           size="small"
           onRow={(record, index) => {
             return {
-              onClick: (e) => selectUserHandler(record),
+              onClick: (e) => statusDrToggle(record),
             };
           }}
         />
       </Wrapper>
 
-      {/* <Wrapper padding={`0px 20px`}>
+      <Drawer
+        width="100%"
+        visible={statusDr}
+        title={`[${currentData && currentData.nickname}] 의 음원 구매 현황`}
+        onClose={() => statusDrToggle(null)}
+      >
         <CustomTable
-          style={{ width: "100%" }}
-          rowKey="id"
-          columns={columns}
-          dataSource={[]}
+          rowKey="num"
+          columns={columns2}
+          dataSource={buyStatus}
           size="small"
         />
-      </Wrapper> */}
+      </Drawer>
     </AdminLayout>
   );
 };
