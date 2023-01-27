@@ -15,6 +15,21 @@ const router = express.Router();
 router.post("/list", isAdminCheck, async (req, res, next) => {
   const { UserId } = req.body;
 
+  // (
+  //     SELECT  CASE
+  //                 WHEN  (
+  //                     SELECT  COUNT(B.id)
+  //                         FROM  artist		B
+  //                         WHERE  B.isPermm = 1
+  //                         AND  B.UserId = A.id
+  //                     ) > 0
+  //                 THEN  "아티스트"
+  //                 ELSE  "일반"
+  //             END                    AS  isArtist
+  //       FROM  artist
+  //      WHERE
+  // )
+
   const temQuery = `
       SELECT	ROW_NUMBER()    OVER(ORDER BY A.createdAt)      AS num,
                 A.ArtistemId,

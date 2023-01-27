@@ -292,6 +292,15 @@ router.post("/target/detail", async (req, res, next) => {
   SELECT	A.id,
           A.title,
           A.subTitle,
+          (
+          SELECT  US.username
+            FROM  artist      AR
+           INNER
+            JOIN  users       US
+              ON  AR.UserId = US.id
+           WHERE  A.ArtistId = AR.id
+             AND  AR.isPermm = 1
+          )                                            AS artistName,
           A.content,
           A.coverImage,
           A.isIng,

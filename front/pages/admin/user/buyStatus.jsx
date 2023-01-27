@@ -2,7 +2,16 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import AdminLayout from "../../../components/AdminLayout";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { message, Popover, Form, Input, Button, Drawer } from "antd";
+import {
+  message,
+  Popover,
+  Form,
+  Input,
+  Button,
+  Drawer,
+  Modal,
+  Image,
+} from "antd";
 import { useRouter, withRouter } from "next/router";
 import wrapper from "../../../store/configureStore";
 import { END } from "redux-saga";
@@ -29,6 +38,45 @@ import { items } from "../../../components/AdminLayout";
 import { HomeOutlined, RightOutlined, EyeOutlined } from "@ant-design/icons";
 import { ARTISTEM_DETAIL_REQUEST } from "../../../reducers/artist";
 import { PRODUCT_TRACK_DETAIL_REQUEST } from "../../../reducers/product";
+import { saveAs } from "file-saver";
+
+const InfoTab = styled.span`
+  padding: 1px 3px;
+  border-radius: 7px;
+
+  background-color: ${(props) =>
+    props.tag ? props.theme.subTheme3_C : props.theme.adminTheme_4};
+  color: #fff;
+  margin-right: 5px;
+`;
+
+const ViewTitle = styled.span`
+  display: inline-block;
+  font-size: 17px;
+
+  position: relative;
+
+  &:before {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    right: -15px;
+    width: 30px;
+    height: 15px;
+    background-color: #2b17c8;
+    border-radius: 6px;
+    opacity: 0.3;
+  }
+`;
+
+const ContentView = styled(Text)`
+  width: 100%;
+  padding: 15px;
+
+  box-shadow: 3px 3px 10px #d6d6d6;
+  border-radius: 5px;
+  margin-top: 10px;
+`;
 
 const PriceText = styled(Text)`
   font-weight: bold;
@@ -199,9 +247,9 @@ const BuyStatus = ({}) => {
             id: data.ArtistemId,
           },
         });
-
-        setArtistemDModal((p) => !p);
       }
+
+      setArtistemDModal((p) => !p);
     },
     [artistemDModal]
   );
@@ -215,12 +263,28 @@ const BuyStatus = ({}) => {
             id: data.ProductTrackId,
           },
         });
-
-        setMusicTemDModal((p) => !p);
       }
+
+      setMusicTemDModal((p) => !p);
     },
     [musicTemDModal]
   );
+
+  // 파일 다운로드
+  const fileDownloadHandler = useCallback(async (fileName, filePath) => {
+    let blob = await fetch(filePath).then((r) => r.blob());
+
+    const file = new Blob([blob]);
+
+    const ext = filePath.substring(
+      filePath.lastIndexOf(".") + 1,
+      filePath.length
+    );
+
+    const originName = `${fileName}.${ext}`;
+
+    saveAs(file, originName);
+  }, []);
 
   ////// DATAVIEW //////
 
@@ -354,6 +418,32 @@ const BuyStatus = ({}) => {
         </Button>
       ),
     },
+    {
+      align: "end",
+      title: "다운로드",
+      render: (data) => (
+        <Button
+          size="small"
+          type="dashed"
+          style={{ height: "20px", fontSize: "11px" }}
+          onClick={
+            data.buyType === "musicTem"
+              ? () =>
+                  fileDownloadHandler(
+                    data.musicTemFilename,
+                    data.musicTemFilepath
+                  )
+              : () =>
+                  fileDownloadHandler(
+                    data.artisTemFilename,
+                    data.artisTemFilepath
+                  )
+          }
+        >
+          내려받기
+        </Button>
+      ),
+    },
   ];
 
   return (
@@ -448,6 +538,133 @@ const BuyStatus = ({}) => {
           size="small"
         />
       </Drawer>
+
+      <Modal
+        onCancel={() => artistemDToggle(null)}
+        visible={artistemDModal}
+        title={`${artistemDetail && artistemDetail.title} 상세정보`}
+        footer={null}
+        width={`1000px`}
+      >
+        <ViewTitle>커버이미지</ViewTitle>
+        <Wrapper>
+          <Image
+            src={artistemDetail && artistemDetail.coverImage}
+            alt={`coverImage`}
+          />
+        </Wrapper>
+        <ViewTitle>제목</ViewTitle>
+        <ContentView>{artistemDetail && artistemDetail.title}</ContentView>
+        <br />
+
+        <ViewTitle>부제</ViewTitle>
+        <ContentView>{artistemDetail && artistemDetail.subTitle}</ContentView>
+        <br />
+
+        <ViewTitle>아티스트명</ViewTitle>
+        <ContentView>{artistemDetail && artistemDetail.artistName}</ContentView>
+        <br />
+
+        <ViewTitle>한줄설명</ViewTitle>
+        <ContentView>{artistemDetail && artistemDetail.content}</ContentView>
+        <br />
+
+        <ViewTitle>장르</ViewTitle>
+        <ContentView>
+          {artistemDetail &&
+            artistemDetail.gens &&
+            (artistemDetail.gens.length === 0 ? (
+              <Text>장르 정보가 존재하지 않습니다.</Text>
+            ) : (
+              artistemDetail.gens.map((data, idx) => {
+                return <InfoTab key={idx}>{data}</InfoTab>;
+              })
+            ))}
+        </ContentView>
+        <br />
+
+        <ViewTitle>태그</ViewTitle>
+        <ContentView>
+          {artistemDetail &&
+            artistemDetail.tags &&
+            (artistemDetail.tags.length === 0 ? (
+              <Text>태그 정보가 존재하지 않습니다.</Text>
+            ) : (
+              artistemDetail.tags.map((data, idx) => {
+                return <InfoTab key={idx}>{data}</InfoTab>;
+              })
+            ))}
+        </ContentView>
+        <br />
+
+        <ViewTitle>스탠다드 금액</ViewTitle>
+        <ContentView>
+          {artistemDetail && artistemDetail.viewsPrice}원
+        </ContentView>
+        <br />
+
+        <ViewTitle>디럭스 금액</ViewTitle>
+        <ContentView>
+          {artistemDetail && artistemDetail.viewdPrice}원
+        </ContentView>
+        <br />
+
+        <ViewTitle>플레티넘 금액</ViewTitle>
+        <ContentView>
+          {artistemDetail && artistemDetail.viewpPrice}원
+        </ContentView>
+        <br />
+
+        <ViewTitle>음원 등록일</ViewTitle>
+        <ContentView>
+          {artistemDetail && artistemDetail.viewCreatedAt}
+        </ContentView>
+      </Modal>
+
+      <Modal
+        onCancel={() => musicTemDToggle(null)}
+        visible={musicTemDModal}
+        title={`${trackDetail && trackDetail.title} 상세정보`}
+        footer={null}
+        width={`1000px`}
+      >
+        <ViewTitle>음원명</ViewTitle>
+        <ContentView>{trackDetail && trackDetail.title}</ContentView>
+        <br />
+
+        <ViewTitle>제작자</ViewTitle>
+        <ContentView>{trackDetail && trackDetail.author}</ContentView>
+        <br />
+
+        <ViewTitle>장르</ViewTitle>
+        <ContentView>
+          {trackDetail &&
+            trackDetail.gens &&
+            (trackDetail.gens.length === 0 ? (
+              <Text>장르 정보가 존재하지 않습니다.</Text>
+            ) : (
+              trackDetail.gens.map((data, idx) => {
+                return <InfoTab key={idx}>{data}</InfoTab>;
+              })
+            ))}
+        </ContentView>
+        <br />
+
+        <ViewTitle>스탠다드 금액</ViewTitle>
+        <ContentView>{trackDetail && trackDetail.viewsPrice}원</ContentView>
+        <br />
+
+        <ViewTitle>디럭스 금액</ViewTitle>
+        <ContentView>{trackDetail && trackDetail.viewdPrice}원</ContentView>
+        <br />
+
+        <ViewTitle>플레티넘 금액</ViewTitle>
+        <ContentView>{trackDetail && trackDetail.viewpPrice}원</ContentView>
+        <br />
+
+        <ViewTitle>음원 등록일</ViewTitle>
+        <ContentView>{trackDetail && trackDetail.viewCreatedAt}</ContentView>
+      </Modal>
     </AdminLayout>
   );
 };

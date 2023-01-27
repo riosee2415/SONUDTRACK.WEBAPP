@@ -458,9 +458,7 @@ router.post("/track/detail", async (req, res, next) => {
       });
     });
 
-    console.log(trackList);
-
-    return res.status(200).json(trackList);
+    return res.status(200).json(trackList[0]);
   } catch (error) {
     console.error(error);
     return res.status(400).send("데이터를 조회할 수 없습니다.");
