@@ -146,6 +146,7 @@ router.post("/adminList", async (req, res, next) => {
 // SNS로그인
 router.post("/snsLogin", (req, res, next) => {
   passport.authenticate("local", async (err, user, info) => {
+    const { email, mobile, username, nickname, userId, password } = req.body;
     if (user) {
       if (err) {
         console.error(err);
@@ -163,17 +164,146 @@ router.post("/snsLogin", (req, res, next) => {
           return next(loginErr);
         }
 
-        const fullUserWithoutPassword = await User.findOne({
-          where: { id: user.id },
-          attributes: {
-            exclude: ["password", "secret"],
-          },
-        });
+        const findUserQuery = `
+      SELECT	id,
+              username,
+              email,
+              level,
+              mobile,
+              DATE_FORMAT(createdAt, "%Y년 %m월 %d일") AS viewCreatedAt,
+              DATE_FORMAT(updatedAt, "%Y년 %m월 %d일") AS updatedAt,
+              DATE_FORMAT(exitedAt, "%Y년 %m월 %d일") AS viewExitedAt,
+              menuRight1,
+              menuRight2,
+              menuRight3,
+              menuRight4,
+              menuRight5,
+              menuRight6,
+              menuRight7,
+              menuRight8,
+              menuRight9,
+              menuRight10,
+              menuRight11,
+              menuRight12
+        FROM	users   A
+       WHERE  A.id = ${user.id}
+`;
 
-        return res.status(200).json(fullUserWithoutPassword);
+        const fullUserWithoutPassword = await models.sequelize.query(
+          findUserQuery
+        );
+
+        return res.status(200).json(fullUserWithoutPassword[0][0]);
       });
     } else {
-      return res.status(401).send("일치하는 정보가 없습니다.");
+      const findUserIdQuery = `
+      SELECT  id
+        FROM  users
+       WHERE  userId = "${userId}"
+      `;
+
+      const findEmailQuery = `
+      SELECT  id
+        FROM  users
+       WHERE  email = "${email}"
+      `;
+
+      const findMobileQuery = `
+      SELECT  id
+        FROM  users
+       WHERE  mobile = "${mobile}"
+      `;
+
+      const findResult = await models.sequelize.query(findUserIdQuery);
+
+      const findEmailResult = await models.sequelize.query(findEmailQuery);
+
+      if (findResult[0].length !== 0) {
+        return res.status(401).send("이미 사용중인 아이디 입니다.");
+      }
+
+      if (findEmailResult[0].length !== 0) {
+        return res.status(401).send("이미 사용중인 이메일 입니다.");
+      }
+
+      if (findMobileQuery[0].length !== 0) {
+        return res.status(401).send("이미 사용중인 핸드폰번호 입니다.");
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 12);
+
+      const insertQuery = `
+    INSERT  INTO  users
+    (
+      email,
+      username,
+      nickname,
+      mobile,
+      userId,
+      password,
+      level,
+      terms,
+      terms2,
+      terms3,
+      terms4,
+      terms5,
+      terms6
+    )
+    VALUES
+    (
+      ${email},
+      ${username},
+      ${nickname},
+      ${mobile},
+      ${userId},
+      ${hashedPassword},
+      1,
+      terms,
+      terms2,
+      terms3,
+      terms4,
+      terms5,
+      terms6
+    )
+    `;
+
+      const insertResult = await models.sequelize.query(insertQuery);
+
+      const findUserQuery = `
+      SELECT	id,
+              username,
+              email,
+              level,
+              mobile,
+              DATE_FORMAT(createdAt, "%Y년 %m월 %d일") AS viewCreatedAt,
+              DATE_FORMAT(updatedAt, "%Y년 %m월 %d일") AS updatedAt,
+              DATE_FORMAT(exitedAt, "%Y년 %m월 %d일") AS viewExitedAt,
+              menuRight1,
+              menuRight2,
+              menuRight3,
+              menuRight4,
+              menuRight5,
+              menuRight6,
+              menuRight7,
+              menuRight8,
+              menuRight9,
+              menuRight10,
+              menuRight11,
+              menuRight12
+        FROM	users   A
+       WHERE  A.id = ${insertResult[0].insertId}
+`;
+
+      const findUser = await models.sequelize.query(findUserQuery);
+
+      return req.login(findUser[0][0], async (loginErr) => {
+        if (loginErr) {
+          console.error(loginErr);
+          return next(loginErr);
+        }
+
+        return res.status(200).json(findUser[0][0]);
+      });
     }
   })(req, res, next);
 });
