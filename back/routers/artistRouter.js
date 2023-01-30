@@ -195,6 +195,37 @@ router.post("/permm/del", isAdminCheck, async (req, res, next) => {
 });
 
 ////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////// ARTISTS ///////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+
+router.post("/sevenDayList", async (req, res, next) => {
+  const selectQuery = `
+  SELECT  A.username,
+          A.userId,
+          (
+            SELECT  DATE_ADD(DATE_FORMAT(permmAt, "%Y-%m-%d"), INTERVAL 7 DAY) <= DATE_FORMAT(NOW(), "%Y-%m%d")
+              FROM  artist
+             WHERE  UserId = A.id
+               AND  isPermm = 1
+          )                           AS permitDate
+    FROM  users   A
+   WHERE  (
+            SELECT  COUNT(id)
+              FROM  artist
+             WHERE  UserId = A.id
+               AND  isPermm = 1
+          ) > 0
+   ORDER  BY 
+  `;
+
+  try {
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("아티스트 목록을 불러올 수 없습니다.");
+  }
+});
+
+////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// ARTISTEM //////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
 router.post("/target/list", async (req, res, next) => {
