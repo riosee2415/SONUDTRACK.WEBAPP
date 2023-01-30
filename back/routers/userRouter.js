@@ -247,23 +247,27 @@ router.post("/snsLogin", (req, res, next) => {
       terms3,
       terms4,
       terms5,
-      terms6
+      terms6,
+      createdAt,
+      updatedAt
     )
     VALUES
     (
-      ${email},
-      ${username},
-      ${nickname},
-      ${mobile},
-      ${userId},
-      ${hashedPassword},
+      "${email}",
+      "${username}",
+      "${nickname}",
+      "1",
+      "${userId}",
+      "$2b$12$txYfpQZTSLnLom/71VwTP.kKU1kqGEoft8LnwvcVuJqM2OAjzJDtO",
       1,
       1,
       1,
       1,
       1,
       1,
-      1
+      1,
+      NOW(),
+      NOW()
     )
     `;
 
