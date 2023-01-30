@@ -143,6 +143,41 @@ router.post("/adminList", async (req, res, next) => {
   }
 });
 
+// SNS로그인
+router.post("/snsLogin", (req, res, next) => {
+  passport.authenticate("local", async (err, user, info) => {
+    if (user) {
+      if (err) {
+        console.error(err);
+        return next(err);
+      }
+
+      if (info) {
+        console.log(`❌ LOGIN FAILED : ${info.reason}`);
+        return res.status(401).send(info.reason);
+      }
+
+      return req.login(user, async (loginErr) => {
+        if (loginErr) {
+          console.error(loginErr);
+          return next(loginErr);
+        }
+
+        const fullUserWithoutPassword = await User.findOne({
+          where: { id: user.id },
+          attributes: {
+            exclude: ["password", "secret"],
+          },
+        });
+
+        return res.status(200).json(fullUserWithoutPassword);
+      });
+    } else {
+      return res.status(401).send("일치하는 정보가 없습니다.");
+    }
+  })(req, res, next);
+});
+
 // 관리자 메뉴 권한 제어
 router.post("/update/menuRight", async (req, res, next) => {
   const { userId, type, status } = req.body;
@@ -340,6 +375,7 @@ router.get("/signin", async (req, res, next) => {
         where: { id: req.user.id },
         attributes: [
           "id",
+          "userId",
           "nickname",
           "email",
           "level",
@@ -394,6 +430,7 @@ router.post("/signin", (req, res, next) => {
         attributes: [
           "id",
           "nickname",
+          "userId",
           "email",
           "level",
           "username",
@@ -445,6 +482,7 @@ router.post("/signin/admin", (req, res, next) => {
         attributes: [
           "id",
           "nickname",
+          "userId",
           "email",
           "level",
           "username",
@@ -469,7 +507,8 @@ router.post("/signin/admin", (req, res, next) => {
 });
 
 router.post("/signup", async (req, res, next) => {
-  const { email, username, nickname, mobile, password, terms } = req.body;
+  const { email, userId, username, nickname, mobile, password, terms } =
+    req.body;
 
   if (!terms) {
     return res.status(401).send("이용약관에 동의해주세요.");
@@ -477,7 +516,7 @@ router.post("/signup", async (req, res, next) => {
 
   try {
     const exUser = await User.findOne({
-      where: { email: email },
+      where: { userId: userId },
     });
 
     if (exUser) {
@@ -487,6 +526,7 @@ router.post("/signup", async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     const result = await User.create({
+      userId,
       email,
       username,
       nickname,

@@ -24,6 +24,10 @@ module.exports = class User extends Model {
           type: DataTypes.STRING(30),
           allowNull: false, // 필수
         },
+        userId: {
+          type: DataTypes.STRING(20),
+          allowNull: false, // 필수
+        },
         password: {
           type: DataTypes.STRING(100),
           allowNull: false, // 필수
@@ -38,6 +42,36 @@ module.exports = class User extends Model {
           type: DataTypes.STRING(10),
           allowNull: true,
           defaultValue: null,
+        },
+        terms: {
+          // 이용약관동의
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+        },
+        terms2: {
+          // 이용약관동의
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+        },
+        terms3: {
+          // 이용약관동의
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+        },
+        terms4: {
+          // 이용약관동의
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+        },
+        terms5: {
+          // 이용약관동의
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+        },
+        terms6: {
+          // 이용약관동의
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
         },
         terms: {
           // 이용약관동의
