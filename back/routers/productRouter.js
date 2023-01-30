@@ -368,6 +368,14 @@ router.post("/track/newList", async (req, res, next) => {
   }
 });
 
+/**
+ * SUBJECT : 최신음원트랙 5개불러오기
+ * PARAMETERS : -
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 팀장 송재홍
+ * DEV DATE : 2023/01/30
+ */
 router.post("/track/recentList", async (req, res, next) => {
   const selectQ = `
  SELECT  A.id,
@@ -387,6 +395,40 @@ router.post("/track/recentList", async (req, res, next) => {
    JOIN  users			C 
      ON  B.UserId = C.id
   ORDER  BY A.createdAt DESC LIMIT 5
+  `;
+
+  try {
+    const list = await models.sequelize.query(selectQ);
+
+    return res.status(200).json(list[0]);
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("데이터를 조회할 수 없습니다.");
+  }
+});
+
+router.post("/track/allList", async (req, res, next) => {
+  const selectQ = `
+  SELECT	ROW_NUMBER() OVER(ORDER	BY A.createdAt)		AS num,
+          A.id,
+          A.title,
+          A.isTitle,
+          A.filename,
+          A.filepath,
+          A.author,
+          A.downloadCnt,
+          A.createdAt,
+          A.updatedAt,
+          A.ProductId,
+          DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
+          DATE_FORMAT(A.updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt,
+          A.sPrice,
+          A.dPrice,
+          A.pPrice,
+          FORMAT(A.sPrice , 0)   as viewsPrice,
+          FORMAT(A.dPrice , 0)   as viewdPrice,
+          FORMAT(A.pPrice , 0)   as viewpPrice
+    FROM	productTrack	A
   `;
 
   try {
