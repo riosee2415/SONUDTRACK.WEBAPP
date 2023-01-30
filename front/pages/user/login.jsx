@@ -85,6 +85,10 @@ const Login = () => {
         data: {
           userId: session.user.email,
           password: session.user.email,
+          nickname: session.user.email,
+          email: session.user.email,
+          usename: session.user.email,
+          mobile: "",
         },
       });
     }
@@ -217,7 +221,7 @@ const Login = () => {
                   margin={`0 20px 0 0`}
                 >
                   <KakaoLogin
-                    token={"4e975050984ead9abff80bcf8bb1b3fa"}
+                    token={"94eedd94982737c1f4ac8eaaaee6fa14"}
                     onSuccess={(data) => {
                       // setSnsData(data.profile.kakao_account);
                       dispatch({
@@ -225,6 +229,10 @@ const Login = () => {
                         data: {
                           userId: data.profile.kakao_account.email,
                           password: data.profile.kakao_account.email,
+                          nickname: data.profile.kakao_account.email,
+                          mobile: "1",
+                          email: data.profile.kakao_account.email,
+                          username: data.profile.kakao_account.email,
                         },
                       });
                     }}
