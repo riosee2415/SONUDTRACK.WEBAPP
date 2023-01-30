@@ -4,7 +4,11 @@ import { useDispatch, useSelector } from "react-redux";
 import ClientLayout from "../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../store/configureStore";
-import { LOAD_MY_INFO_REQUEST, LOGIN_REQUEST } from "../../reducers/user";
+import {
+  LOAD_MY_INFO_REQUEST,
+  LOGIN_REQUEST,
+  SNS_LOGIN_REQUEST,
+} from "../../reducers/user";
 import axios from "axios";
 import { END } from "redux-saga";
 import {
@@ -72,15 +76,6 @@ const Login = () => {
   ////// REDUX //////
 
   ////// USEEFFECT //////
-
-  // 구글로그인
-  useEffect(() => {
-    if (st_snsLoginError) {
-      message.error(st_snsLoginError);
-      router.push("/join");
-      signOut();
-    }
-  }, [st_snsLoginError]);
 
   // 구글로그인
   useEffect(() => {
@@ -222,7 +217,7 @@ const Login = () => {
                   margin={`0 20px 0 0`}
                 >
                   <KakaoLogin
-                    token={"3c2e3f72e74bebf73ba8fbde6580415a"}
+                    token={"4e975050984ead9abff80bcf8bb1b3fa"}
                     onSuccess={(data) => {
                       // setSnsData(data.profile.kakao_account);
                       dispatch({
@@ -230,10 +225,6 @@ const Login = () => {
                         data: {
                           userId: data.profile.kakao_account.email,
                           password: data.profile.kakao_account.email,
-                          username: data.profile.nickname,
-                          nickname:
-                            data.profile.nickname +
-                            data.profile.kakao_account.email,
                         },
                       });
                     }}
