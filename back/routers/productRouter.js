@@ -369,10 +369,24 @@ router.post("/track/newList", async (req, res, next) => {
 });
 
 router.post("/track/recentList", async (req, res, next) => {
-  const { id } = req.body;
-
   const selectQ = `
-  
+ SELECT  A.id,
+         A.title,
+         A.author,
+         A.thumbnail,
+         A.filename,
+         A.filepath,
+         A.downloadCnt,
+         A.hit,
+         A.createdAt 
+   FROM  productTrack	A 
+   INNER
+   JOIN  product			B 
+     ON  A.ProductId = B.id
+  INNER
+   JOIN  users			C 
+     ON  B.UserId = C.id
+  ORDER  BY A.createdAt DESC LIMIT 5
   `;
 
   try {
