@@ -60,6 +60,10 @@ export const initailState = {
   st_buyStatusLoading: false, // 회원 별 음원 구매 현황
   st_buyStatusDone: false,
   st_buyStatusError: null,
+  //
+  st_snsLoginLoading: false, // snsLogin
+  st_snsLoginDone: false,
+  st_snsLoginError: null,
 };
 
 export const LOGIN_REQUEST = "LOGIN_REQUEST";
@@ -117,6 +121,10 @@ export const ADMINUSER_EXITFALSE_FAILURE = "ADMINUSER_EXITFALSE_FAILURE";
 export const USER_BUYSTATUS_REQUEST = "USER_BUYSTATUS_REQUEST";
 export const USER_BUYSTATUS_SUCCESS = "USER_BUYSTATUS_SUCCESS";
 export const USER_BUYSTATUS_FAILURE = "USER_BUYSTATUS_FAILURE";
+//
+export const SNS_LOGIN_REQUEST = "SNS_LOGIN_REQUEST";
+export const SNS_LOGIN_SUCCESS = "SNS_LOGIN_SUCCESS";
+export const SNS_LOGIN_FAILURE = "SNS_LOGIN_FAILURE";
 
 export const UPDATE_MODAL_OPEN_REQUEST = "UPDATE_MODAL_OPEN_REQUEST";
 export const UPDATE_MODAL_CLOSE_REQUEST = "UPDATE_MODAL_CLOSE_REQUEST";
@@ -417,6 +425,26 @@ const reducer = (state = initailState, action) =>
         draft.st_buyStatusLoading = false;
         draft.st_buyStatusDone = false;
         draft.st_buyStatusError = action.error;
+        break;
+      }
+      ///////////////////////////////////////////////////////
+
+      case SNS_LOGIN_REQUEST: {
+        draft.st_snsLoginLoading = true;
+        draft.st_snsLoginDone = false;
+        draft.st_snsLoginError = null;
+        break;
+      }
+      case SNS_LOGIN_SUCCESS: {
+        draft.st_snsLoginLoading = false;
+        draft.st_snsLoginDone = true;
+        draft.st_snsLoginError = null;
+        break;
+      }
+      case SNS_LOGIN_FAILURE: {
+        draft.st_snsLoginLoading = false;
+        draft.st_snsLoginDone = false;
+        draft.st_snsLoginError = action.error;
         break;
       }
       //////////////////////////////////////////////

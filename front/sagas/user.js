@@ -56,6 +56,10 @@ import {
   USER_BUYSTATUS_REQUEST,
   USER_BUYSTATUS_SUCCESS,
   USER_BUYSTATUS_FAILURE,
+  /////////////////////////////
+  SNS_LOGIN_REQUEST,
+  SNS_LOGIN_SUCCESS,
+  SNS_LOGIN_FAILURE,
 } from "../reducers/user";
 
 // SAGA AREA ********************************************************************************************************
@@ -431,6 +435,33 @@ function* userBuyStatusList(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function snsLoginAPI(data) {
+  return await axios.post(`/api/user/snsLogin`, data);
+}
+
+function* snsLogin(action) {
+  try {
+    const result = yield call(snsLoginAPI, action.data);
+
+    yield put({
+      type: SNS_LOGIN_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: SNS_LOGIN_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 
 function* watchLoadMyInfo() {
@@ -489,6 +520,10 @@ function* watchUserBuyStatusList() {
   yield takeLatest(USER_BUYSTATUS_REQUEST, userBuyStatusList);
 }
 
+function* watchSnsLogin() {
+  yield takeLatest(SNS_LOGIN_REQUEST, snsLogin);
+}
+
 //////////////////////////////////////////////////////////////
 export default function* userSaga() {
   yield all([
@@ -506,6 +541,7 @@ export default function* userSaga() {
     fork(watchAdminUserExitTrue),
     fork(watchAdminUserExitFalse),
     fork(watchUserBuyStatusList),
+    fork(watchSnsLogin),
     //
   ]);
 }
