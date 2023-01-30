@@ -507,8 +507,19 @@ router.post("/signin/admin", (req, res, next) => {
 });
 
 router.post("/signup", async (req, res, next) => {
-  const { email, userId, username, nickname, mobile, password, terms } =
-    req.body;
+  const {
+    email,
+    userId,
+    username,
+    nickname,
+    mobile,
+    password,
+    terms,
+    terms2,
+    terms3,
+    terms4,
+    terms5,
+  } = req.body;
 
   if (!terms) {
     return res.status(401).send("이용약관에 동의해주세요.");
@@ -532,6 +543,10 @@ router.post("/signup", async (req, res, next) => {
       nickname,
       mobile,
       terms,
+      terms2,
+      terms3,
+      terms4,
+      terms5,
       password: hashedPassword,
     });
 

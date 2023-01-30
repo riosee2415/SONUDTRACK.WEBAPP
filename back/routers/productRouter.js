@@ -328,6 +328,23 @@ router.post("/gen/list", async (req, res, next) => {
 ////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////// TRACK ////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
+router.post("/track/newList", async (req, res, next) => {
+  const { id } = req.body;
+
+  const selectQ = `
+  
+  `;
+
+  try {
+    const list = await models.sequelize.query(selectQ);
+
+    return res.status(200).json(list[0]);
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("데이터를 조회할 수 없습니다.");
+  }
+});
+
 router.post("/track/list", async (req, res, next) => {
   const { ProductId } = req.body;
 
