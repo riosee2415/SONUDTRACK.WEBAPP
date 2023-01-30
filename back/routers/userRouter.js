@@ -522,7 +522,7 @@ router.post("/signup", async (req, res, next) => {
     terms6,
   } = req.body;
 
-  if (!terms) {
+  if (!terms2 && !terms3 && !terms4 && (!terms5 || !terms6)) {
     return res.status(401).send("이용약관에 동의해주세요.");
   }
 

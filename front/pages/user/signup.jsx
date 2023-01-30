@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import Router from "next/router";
+import Router, { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
 import ClientLayout from "../../components/ClientLayout";
 import Head from "next/head";
@@ -24,10 +24,12 @@ import useInput from "../../hooks/useInput";
 
 const Join = () => {
   ////// GLOBAL STATE //////
+  const { st_signUpError, st_signUpDone } = useSelector((state) => state.user);
 
   ////// HOOKS //////
   const dispatch = useDispatch();
   const width = useWidth();
+  const router = useRouter();
 
   const [terms1, setTerms1] = useState(false); // 프로모션/혜택 등
   const [terms2, setTerms2] = useState(false); // SMS
@@ -47,6 +49,19 @@ const Join = () => {
   ////// REDUX //////
 
   ////// USEEFFECT //////
+  useEffect(() => {
+    if (st_signUpDone) {
+      router.push(`/user/login`);
+
+      return message.success("회원가입이 되었습니다.");
+    }
+  }, [st_signUpDone]);
+
+  useEffect(() => {
+    if (st_signUpError) {
+      return message.error(st_signUpError);
+    }
+  }, [st_signUpError]);
 
   ////// TOGGLE //////
   ////// HANDLER //////
@@ -81,12 +96,23 @@ const Join = () => {
       return message.error("정보 수신 동의를 확인해주세요.");
     }
 
-    // dispatch({
-    //   type : SIGNUP_REQUEST,
-    //   data : {
-
-    //   }
-    // })
+    dispatch({
+      type: SIGNUP_REQUEST,
+      data: {
+        email: emailInput.value,
+        userId: idInput.value,
+        username: nameInput.value,
+        nickname: nicknameInput.value,
+        mobile: mobileInput.value,
+        password: pwInput.value,
+        terms: terms1,
+        terms2: terms2,
+        terms3: terms3,
+        terms4: terms4,
+        terms5: terms5,
+        terms6: terms6,
+      },
+    });
   }, [
     terms1,
     terms2,
@@ -252,7 +278,12 @@ const Join = () => {
                 </Checkbox>
               </Wrapper>
               <Wrapper margin={`50px 0 0`}>
-                <CommonButton width={`180px`} height={`50px`} fontSize={`18px`}>
+                <CommonButton
+                  width={`180px`}
+                  height={`50px`}
+                  fontSize={`18px`}
+                  onClick={signUpHandler}
+                >
                   회원가입
                 </CommonButton>
               </Wrapper>
