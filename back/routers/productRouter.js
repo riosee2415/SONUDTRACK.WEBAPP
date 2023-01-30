@@ -408,30 +408,31 @@ router.post("/track/recentList", async (req, res, next) => {
 });
 
 router.post("/track/allList", async (req, res, next) => {
-  const selectQ = `
-  SELECT	ROW_NUMBER() OVER(ORDER	BY A.createdAt)		AS num,
-          A.id,
-          A.title,
-          A.isTitle,
-          A.filename,
-          A.filepath,
-          A.author,
-          A.downloadCnt,
-          A.createdAt,
-          A.updatedAt,
-          A.ProductId,
-          DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
-          DATE_FORMAT(A.updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt,
-          A.sPrice,
-          A.dPrice,
-          A.pPrice,
-          FORMAT(A.sPrice , 0)   as viewsPrice,
-          FORMAT(A.dPrice , 0)   as viewdPrice,
-          FORMAT(A.pPrice , 0)   as viewpPrice
-    FROM	productTrack	A
-  `;
-
   try {
+    const selectQ = `
+    SELECT	ROW_NUMBER() OVER(ORDER	BY A.createdAt)		AS num,
+            A.id,
+            A.title,
+            A.isTitle,
+            A.filename,
+            A.filepath,
+            A.author,
+            A.downloadCnt,
+            A.createdAt,
+            A.updatedAt,
+            A.ProductId,
+            DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
+            DATE_FORMAT(A.updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt,
+            A.sPrice,
+            A.dPrice,
+            A.pPrice,
+            FORMAT(A.sPrice , 0)   as viewsPrice,
+            FORMAT(A.dPrice , 0)   as viewdPrice,
+            FORMAT(A.pPrice , 0)   as viewpPrice
+      FROM	productTrack	A
+      LIMIT  ${LIMIT}
+      OFFSET  ${OFFSET}
+  `;
     const list = await models.sequelize.query(selectQ);
 
     return res.status(200).json(list[0]);
