@@ -64,6 +64,10 @@ export const initailState = {
   st_snsLoginLoading: false, // snsLogin
   st_snsLoginDone: false,
   st_snsLoginError: null,
+  //
+  st_modifyPassLoading: false, // 비밀번호 수정
+  st_modifyPassDone: false,
+  st_modifyPassError: null,
 };
 
 export const LOGIN_REQUEST = "LOGIN_REQUEST";
@@ -125,6 +129,10 @@ export const USER_BUYSTATUS_FAILURE = "USER_BUYSTATUS_FAILURE";
 export const SNS_LOGIN_REQUEST = "SNS_LOGIN_REQUEST";
 export const SNS_LOGIN_SUCCESS = "SNS_LOGIN_SUCCESS";
 export const SNS_LOGIN_FAILURE = "SNS_LOGIN_FAILURE";
+//
+export const MODIFY_PASS_REQUEST = "MODIFY_PASS_REQUEST";
+export const MODIFY_PASS_SUCCESS = "MODIFY_PASS_SUCCESS";
+export const MODIFY_PASS_FAILURE = "MODIFY_PASS_FAILURE";
 
 export const UPDATE_MODAL_OPEN_REQUEST = "UPDATE_MODAL_OPEN_REQUEST";
 export const UPDATE_MODAL_CLOSE_REQUEST = "UPDATE_MODAL_CLOSE_REQUEST";
@@ -445,6 +453,26 @@ const reducer = (state = initailState, action) =>
         draft.st_snsLoginLoading = false;
         draft.st_snsLoginDone = false;
         draft.st_snsLoginError = action.error;
+        break;
+      }
+      ///////////////////////////////////////////////////////
+
+      case MODIFY_PASS_REQUEST: {
+        draft.st_modifyPassLoading = true;
+        draft.st_modifyPassDone = false;
+        draft.st_modifyPassError = null;
+        break;
+      }
+      case MODIFY_PASS_SUCCESS: {
+        draft.st_modifyPassLoading = false;
+        draft.st_modifyPassDone = true;
+        draft.st_modifyPassError = null;
+        break;
+      }
+      case MODIFY_PASS_FAILURE: {
+        draft.st_modifyPassLoading = false;
+        draft.st_modifyPassDone = false;
+        draft.st_modifyPassError = action.error;
         break;
       }
       //////////////////////////////////////////////

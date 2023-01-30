@@ -60,6 +60,10 @@ import {
   SNS_LOGIN_REQUEST,
   SNS_LOGIN_SUCCESS,
   SNS_LOGIN_FAILURE,
+  /////////////////////////////
+  MODIFY_PASS_REQUEST,
+  MODIFY_PASS_SUCCESS,
+  MODIFY_PASS_FAILURE,
 } from "../reducers/user";
 
 // SAGA AREA ********************************************************************************************************
@@ -462,6 +466,33 @@ function* snsLogin(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function modifypassAPI(data) {
+  return await axios.post(`/api/user/modifypass`, data);
+}
+
+function* modifypass(action) {
+  try {
+    const result = yield call(modifypassAPI, action.data);
+
+    yield put({
+      type: MODIFY_PASS_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: MODIFY_PASS_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 
 function* watchLoadMyInfo() {
@@ -524,6 +555,10 @@ function* watchSnsLogin() {
   yield takeLatest(SNS_LOGIN_REQUEST, snsLogin);
 }
 
+function* watchModifyPass() {
+  yield takeLatest(MODIFY_PASS_REQUEST, modifypass);
+}
+
 //////////////////////////////////////////////////////////////
 export default function* userSaga() {
   yield all([
@@ -542,6 +577,7 @@ export default function* userSaga() {
     fork(watchAdminUserExitFalse),
     fork(watchUserBuyStatusList),
     fork(watchSnsLogin),
+    fork(watchModifyPass),
     //
   ]);
 }

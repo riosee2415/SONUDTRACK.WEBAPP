@@ -66,12 +66,12 @@ module.exports = class User extends Model {
         terms5: {
           // 이용약관동의
           type: DataTypes.BOOLEAN,
-          allowNull: false,
+          allowNull: true,
         },
         terms6: {
           // 이용약관동의
           type: DataTypes.BOOLEAN,
-          allowNull: false,
+          allowNull: true,
         },
 
         // 관리자 메뉴 권환 제어
