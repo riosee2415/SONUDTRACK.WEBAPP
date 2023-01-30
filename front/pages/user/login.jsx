@@ -209,7 +209,7 @@ const Login = () => {
                 >
                   |
                 </SpanText>
-                <Text color={Theme.grey_C} isHover>
+                <Text color={Theme.grey_C} isHover={true}>
                   아이디/비밀번호 찾기
                 </Text>
               </Wrapper>
