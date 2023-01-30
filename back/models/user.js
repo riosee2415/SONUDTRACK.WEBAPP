@@ -46,7 +46,7 @@ module.exports = class User extends Model {
         terms: {
           // 이용약관동의
           type: DataTypes.BOOLEAN,
-          allowNull: false,
+          allowNull: true,
         },
         terms2: {
           // 이용약관동의
