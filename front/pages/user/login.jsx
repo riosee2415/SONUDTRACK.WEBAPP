@@ -114,7 +114,7 @@ const Login = () => {
     dispatch({
       type: LOGIN_REQUEST,
       data: {
-        email: data.email,
+        userId: data.userId,
         password: data.password,
       },
     });
@@ -149,7 +149,7 @@ const Login = () => {
                   아이디
                 </Text>
                 <Form.Item
-                  name="email"
+                  name="userId"
                   rules={[{ required: true, message: "아이디는 필수입니다." }]}
                 >
                   <TextInput
