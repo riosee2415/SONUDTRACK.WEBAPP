@@ -530,9 +530,21 @@ router.post("/signup", async (req, res, next) => {
     const exUser = await User.findOne({
       where: { userId: userId },
     });
+    const exUser2 = await User.findOne({
+      where: { nickname: nickname },
+    });
+    const exUser3 = await User.findOne({
+      where: { email: email },
+    });
 
     if (exUser) {
-      return res.status(401).send("이미 가입된 이메일 입니다.");
+      return res.status(401).send("중복되거나 가입된 아이디 입니다.");
+    }
+    if (exUser2) {
+      return res.status(401).send("중복되거나 가입된 닉네임 입니다.");
+    }
+    if (exUser3) {
+      return res.status(401).send("중복되거나 가입된 이메일 입니다.");
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
