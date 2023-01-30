@@ -258,12 +258,12 @@ router.post("/snsLogin", (req, res, next) => {
       ${userId},
       ${hashedPassword},
       1,
-      terms,
-      terms2,
-      terms3,
-      terms4,
-      terms5,
-      terms6
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
     )
     `;
 
