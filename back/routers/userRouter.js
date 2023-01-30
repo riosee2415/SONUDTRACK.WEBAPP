@@ -519,6 +519,7 @@ router.post("/signup", async (req, res, next) => {
     terms3,
     terms4,
     terms5,
+    terms6,
   } = req.body;
 
   if (!terms) {
@@ -547,6 +548,7 @@ router.post("/signup", async (req, res, next) => {
       terms3,
       terms4,
       terms5,
+      terms6,
       password: hashedPassword,
     });
 

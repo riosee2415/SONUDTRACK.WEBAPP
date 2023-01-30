@@ -73,11 +73,7 @@ module.exports = class User extends Model {
           type: DataTypes.BOOLEAN,
           allowNull: false,
         },
-        terms: {
-          // 이용약관동의
-          type: DataTypes.BOOLEAN,
-          allowNull: false,
-        },
+
         // 관리자 메뉴 권환 제어
         menuRight1: {
           type: DataTypes.BOOLEAN,
