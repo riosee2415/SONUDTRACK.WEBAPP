@@ -10,8 +10,9 @@ import { useRouter } from "next/router";
 import { useDispatch } from "react-redux";
 import { ACCEPT_LOG_CREATE_REQUEST } from "../reducers/accept";
 import wrapper from "../store/configureStore";
+import { SessionProvider } from "next-auth/react";
 
-const Fourleaf = ({ Component }) => {
+const Fourleaf = ({ Component, pageProps: { session, ...pageProps } }) => {
   const router = useRouter();
 
   const dispatch = useDispatch();
@@ -46,47 +47,49 @@ const Fourleaf = ({ Component }) => {
   }, []);
 
   return (
-    <ThemeProvider theme={Theme}>
-      <GlobalStyles />
-      <Head>
-        <title>[[**4LEAF GEAR SAMPLE**]] | administrator</title>
+    <SessionProvider session={session}>
+      <ThemeProvider theme={Theme}>
+        <GlobalStyles />
+        <Head>
+          <title>[[**4LEAF GEAR SAMPLE**]] | administrator</title>
 
-        <meta name="author" content="4LEAF SOFTWARE <4leaf.ysh@gmail.com>" />
-        {/* <!-- OG tag  --> */}
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://www.sample.com/" />
-        <meta property="og:image:width" content="800" />
-        <meta property="og:image:height" content="400" />
-        <meta property="og:image" content="./og_img.png" />
-        <link rel="shortcut icon" href="/favicon.ico" />
-        <link rel="canonical" href="https://www.sample.com" />
+          <meta name="author" content="4LEAF SOFTWARE <4leaf.ysh@gmail.com>" />
+          {/* <!-- OG tag  --> */}
+          <meta property="og:type" content="website" />
+          <meta property="og:url" content="https://www.sample.com/" />
+          <meta property="og:image:width" content="800" />
+          <meta property="og:image:height" content="400" />
+          <meta property="og:image" content="./og_img.png" />
+          <link rel="shortcut icon" href="/favicon.ico" />
+          <link rel="canonical" href="https://www.sample.com" />
 
-        <meta name="keywords" content="[[**4LEAF GEAR SAMPLE**]]" />
-        <meta property="og:keywords" content="[[**4LEAF GEAR SAMPLE**]]" />
+          <meta name="keywords" content="[[**4LEAF GEAR SAMPLE**]]" />
+          <meta property="og:keywords" content="[[**4LEAF GEAR SAMPLE**]]" />
 
-        <meta property="og:description" content="[[**4LEAF GEAR SAMPLE**]]" />
-        <meta name="description" content="[[**4LEAF GEAR SAMPLE**]]" />
+          <meta property="og:description" content="[[**4LEAF GEAR SAMPLE**]]" />
+          <meta name="description" content="[[**4LEAF GEAR SAMPLE**]]" />
 
-        {/* 프리텐다드 폰트 */}
-        <link
-          href="https://webfontworld.github.io/pretendard/Pretendard.css"
-          rel="stylesheet"
-        />
+          {/* 프리텐다드 폰트 */}
+          <link
+            href="https://webfontworld.github.io/pretendard/Pretendard.css"
+            rel="stylesheet"
+          />
 
-        <script
-          type="text/javascript"
-          src="https://code.jquery.com/jquery-1.12.4.min.js"
-        ></script>
+          <script
+            type="text/javascript"
+            src="https://code.jquery.com/jquery-1.12.4.min.js"
+          ></script>
 
-        <script
-          type="text/javascript"
-          src="https://cdn.iamport.kr/js/iamport.payment-1.1.5.js"
-        ></script>
+          <script
+            type="text/javascript"
+            src="https://cdn.iamport.kr/js/iamport.payment-1.1.5.js"
+          ></script>
 
-        <script type="text/javascript" src="../customScript.js"></script>
-      </Head>
-      <Component />
-    </ThemeProvider>
+          <script type="text/javascript" src="../customScript.js"></script>
+        </Head>
+        <Component />
+      </ThemeProvider>
+    </SessionProvider>
   );
 };
 Fourleaf.propTypes = {

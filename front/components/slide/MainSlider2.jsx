@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import styled, { keyframes } from "styled-components";
 import { useState } from "react";
 import {
@@ -12,6 +12,7 @@ import { useCallback } from "react";
 import { Image, Text, Wrapper } from "../commonComponents";
 import Theme from "../Theme";
 import useWidth from "../../hooks/useWidth";
+import moment from "moment";
 
 const LeftBox = styled(Wrapper)`
   width: 50%;
@@ -134,6 +135,11 @@ const MainSlider2 = ({
   const width = useWidth();
   const [status, setStatus] = useState(0);
   const [isMusic, setIsMusic] = useState(false);
+
+  const aRef = useRef();
+
+  // 오디오 시간조회
+  // aRef && aRef.current && moment(aRef.current.duration * 1000).format("mm:ss")
 
   const statusChangeHandler = useCallback(
     (statement) => {
@@ -301,6 +307,7 @@ const MainSlider2 = ({
           </Wrapper>
           <Wrapper width={`calc(100% - 540px)`} dr={`row`}>
             <Audio
+              ref={aRef}
               controls
               src="https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/mp3/mp3_sample.mp3"
             ></Audio>

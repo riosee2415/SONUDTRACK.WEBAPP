@@ -20,6 +20,8 @@ import Theme from "../../components/Theme";
 import styled from "styled-components";
 import useWidth from "../../hooks/useWidth";
 import { Form, message } from "antd";
+import KakaoLogin from "react-kakao-login";
+import { useSession, signIn, signOut } from "next-auth/react";
 
 const CustomForm = styled(Form)`
   width: 100%;
@@ -57,17 +59,41 @@ const Btn = styled(Wrapper)`
 const Login = () => {
   ////// GLOBAL STATE //////
 
-  const { st_loginLoading, st_loginDone, st_loginError } = useSelector(
-    (state) => state.user
-  );
+  const { st_loginLoading, st_loginDone, st_loginError, st_snsLoginError } =
+    useSelector((state) => state.user);
 
   ////// HOOKS //////
+  // 구글 로그인
+  const { data: session } = useSession();
+
   const width = useWidth();
   const router = useRouter();
   const dispatch = useDispatch();
   ////// REDUX //////
 
   ////// USEEFFECT //////
+
+  // 구글로그인
+  useEffect(() => {
+    if (st_snsLoginError) {
+      message.error(st_snsLoginError);
+      router.push("/join");
+      signOut();
+    }
+  }, [st_snsLoginError]);
+
+  // 구글로그인
+  useEffect(() => {
+    if (session) {
+      dispatch({
+        type: SNS_LOGIN_REQUEST,
+        data: {
+          userId: session.user.email,
+          password: session.user.email,
+        },
+      });
+    }
+  }, [session]);
 
   // 로그인 후 처리
   useEffect(() => {
@@ -195,23 +221,57 @@ const Login = () => {
                   width={`auto`}
                   margin={`0 20px 0 0`}
                 >
-                  <Btn>
-                    <Image
-                      alt="icon"
-                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/login-icon/kakao.png`}
-                    />
-                    <Image
-                      className="hoverimg"
-                      alt="icon"
-                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/login-icon/kakao_h.png`}
-                    />
-                  </Btn>
-                  <Text margin={`10px 0 0`} color={Theme.grey_C}>
-                    카카오
-                  </Text>
+                  <KakaoLogin
+                    token={"3c2e3f72e74bebf73ba8fbde6580415a"}
+                    onSuccess={(data) => {
+                      // setSnsData(data.profile.kakao_account);
+                      dispatch({
+                        type: SNS_LOGIN_REQUEST,
+                        data: {
+                          userId: data.profile.kakao_account.email,
+                          password: data.profile.kakao_account.email,
+                          username: data.profile.nickname,
+                          nickname:
+                            data.profile.nickname +
+                            data.profile.kakao_account.email,
+                        },
+                      });
+                    }}
+                    onFailure={(data) => {
+                      console.log(data);
+                    }}
+                    className="KakaoLogin"
+                    getProfile="true"
+                    render={({ onClick }) => {
+                      return (
+                        <>
+                          <Btn
+                            onClick={(e) => {
+                              e.preventDefault();
+                              onClick();
+                            }}
+                          >
+                            <Image
+                              alt="icon"
+                              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/login-icon/kakao.png`}
+                            />
+                            <Image
+                              className="hoverimg"
+                              alt="icon"
+                              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/login-icon/kakao_h.png`}
+                            />
+                          </Btn>
+                          <Text margin={`10px 0 0`} color={Theme.grey_C}>
+                            카카오
+                          </Text>
+                        </>
+                      );
+                    }}
+                  ></KakaoLogin>
                 </Wrapper>
+
                 <Wrapper cursor={`pointer`} width={`auto`}>
-                  <Btn>
+                  <Btn onClick={() => signIn("google")}>
                     <Image
                       alt="icon"
                       src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/login-icon/google.png`}
