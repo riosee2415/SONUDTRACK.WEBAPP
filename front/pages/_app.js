@@ -86,6 +86,17 @@ const Fourleaf = ({ Component, pageProps: { session, ...pageProps } }) => {
           ></script>
 
           <script type="text/javascript" src="../customScript.js"></script>
+
+          {/* 카카오 */}
+          <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+  Kakao.init('4e975050984ead9abff80bcf8bb1b3fa');
+  `,
+            }}
+          />
         </Head>
         <Component />
       </ThemeProvider>
