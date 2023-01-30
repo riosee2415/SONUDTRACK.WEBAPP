@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import ClientLayout from "../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../store/configureStore";
@@ -24,6 +24,8 @@ import { SearchOutlined, StarFilled } from "@ant-design/icons";
 import styled from "styled-components";
 import { Modal, Select } from "antd";
 import MainSlider2 from "../../components/slide/MainSlider2";
+import { useDispatch } from "react-redux";
+import { useRouter } from "next/router";
 
 const CustomSelect = styled(Wrapper)`
   width: 240px;
@@ -61,11 +63,26 @@ const Index = () => {
 
   ////// HOOKS //////
   const width = useWidth();
-  ////// REDUX //////
+  const router = useRouter();
+  const dispatch = useDispatch();
+
+  const [orderType, setOrderType] = useState(1); // 더보기 정렬 1.추천 2.최신
+
   ////// USEEFFECT //////
+
+  useEffect(() => {}, [orderType]);
+
   ////// TOGGLE //////
 
   ////// HANDLER //////
+
+  const orderTypeHandler = useCallback(
+    (data) => {
+      setOrderType(data);
+    },
+    [orderType]
+  );
+
   ////// DATAVIEW //////
 
   return (
@@ -390,7 +407,11 @@ const Index = () => {
                 더보기
               </Text>
               <Wrapper dr={`row`} width={`auto`} fontSize={`16px`}>
-                <Text color={Theme.grey_C} isHover>
+                <Text
+                  color={orderType === 1 ? Theme.basicTheme_C : Theme.grey_C}
+                  isHover
+                  onClick={() => orderTypeHandler(1)}
+                >
                   추천순
                 </Text>
                 <SpanText
@@ -400,7 +421,11 @@ const Index = () => {
                 >
                   |
                 </SpanText>
-                <Text color={Theme.grey_C} isHover>
+                <Text
+                  color={orderType === 2 ? Theme.basicTheme_C : Theme.grey_C}
+                  isHover
+                  onClick={() => orderTypeHandler(2)}
+                >
                   최신순
                 </Text>
               </Wrapper>
