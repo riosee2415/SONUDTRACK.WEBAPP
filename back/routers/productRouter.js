@@ -328,11 +328,34 @@ router.post("/gen/list", async (req, res, next) => {
 ////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////// TRACK ////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
+/**
+ * SUBJECT : 새로운 음원 불러오기
+ * PARAMETERS : -
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 시니어 홍민기
+ * DEV DATE : 2023/01/30
+ */
 router.post("/track/newList", async (req, res, next) => {
-  const { id } = req.body;
-
   const selectQ = `
-  
+  SELECT  A.id,
+          A.title,
+          A.author,
+          A.thumbnail,
+          A.filename,
+          A.filepath,
+          A.downloadCnt,
+          A.hit,
+          A.createdAt 
+    FROM  productTrack	A 
+   INNER
+    JOIN  product			B 
+      ON  A.ProductId = B.id
+   INNER
+    JOIN  users			C 
+      ON  B.UserId = C.id
+   WHERE  A.createdAt > DATE_SUB(NOW(), INTERVAL 7 DAY)
+   ORDER  BY A.createdAt DESC
   `;
 
   try {
