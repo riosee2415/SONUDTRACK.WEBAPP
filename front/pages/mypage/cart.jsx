@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ClientLayout from "../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../store/configureStore";
@@ -15,16 +15,28 @@ import {
   WholeWrapper,
   Wrapper,
 } from "../../components/commonComponents";
-import { Checkbox } from "antd";
+import { Checkbox, message } from "antd";
 import Theme from "../../components/Theme";
 import { DownloadOutlined } from "@ant-design/icons";
+import { useSelector } from "react-redux";
+import { useRouter } from "next/router";
 
 const Index = () => {
   ////// GLOBAL STATE //////
+  const { me } = useSelector((state) => state.user);
   ////// HOOKS //////
   const width = useWidth();
+  const router = useRouter();
   ////// REDUX //////
   ////// USEEFFECT //////
+  useEffect(() => {
+    if (!me) {
+      router.push(`/user/login`);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      return message.error(`로그인이 필요한 페이지입니다.`);
+    }
+  }, [me]);
   ////// TOGGLE //////
   ////// HANDLER //////
   ////// DATAVIEW //////

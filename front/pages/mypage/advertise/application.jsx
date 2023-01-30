@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Head from "next/head";
 import ClientLayout from "../../../components/ClientLayout";
 import wrapper from "../../../store/configureStore";
@@ -8,9 +8,7 @@ import { END } from "redux-saga";
 import useWidth from "../../../hooks/useWidth";
 import {
   CommonButton,
-  Image,
   RsWrapper,
-  SpanText,
   Text,
   WholeWrapper,
   Wrapper,
@@ -18,7 +16,9 @@ import {
 import Theme from "../../../components/Theme";
 import styled from "styled-components";
 import { ClockCircleOutlined } from "@ant-design/icons";
-import { Checkbox } from "antd";
+import { Checkbox, message } from "antd";
+import { useSelector } from "react-redux";
+import { useRouter } from "next/router";
 
 const Cicle = styled.div`
   width: 6px;
@@ -31,10 +31,20 @@ const Cicle = styled.div`
 
 const Index = () => {
   ////// GLOBAL STATE //////
+  const { me } = useSelector((state) => state.user);
   ////// HOOKS //////
   const width = useWidth();
+  const router = useRouter();
   ////// REDUX //////
   ////// USEEFFECT //////
+  useEffect(() => {
+    if (!me) {
+      router.push(`/user/login`);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      return message.error(`로그인이 필요한 페이지입니다.`);
+    }
+  }, [me]);
   ////// TOGGLE //////
   ////// HANDLER //////
   ////// DATAVIEW //////
@@ -102,6 +112,7 @@ const Index = () => {
                     ju={`flex-start`}
                     wrap={`nowrap`}
                     margin={`0 0 12px`}
+                    fontSize={`16px`}
                   >
                     <Cicle />
                     <Text>BASIC 다음순으로 노출</Text>
@@ -111,6 +122,7 @@ const Index = () => {
                     ju={`flex-start`}
                     wrap={`nowrap`}
                     al={`flex-start`}
+                    fontSize={`16px`}
                     margin={`0 0 12px`}
                   >
                     <Text margin={`10px 0 0`}>
@@ -126,6 +138,7 @@ const Index = () => {
                     ju={`flex-start`}
                     wrap={`nowrap`}
                     margin={`0 0 12px`}
+                    fontSize={`16px`}
                   >
                     <Cicle />
                     <Text>STARTER 광고 간 노출 순서 랜덤</Text>
@@ -135,6 +148,7 @@ const Index = () => {
                     ju={`flex-start`}
                     wrap={`nowrap`}
                     al={`flex-start`}
+                    fontSize={`16px`}
                   >
                     <Text margin={`10px 0 0`}>
                       <Cicle />
@@ -209,6 +223,7 @@ const Index = () => {
                     ju={`flex-start`}
                     wrap={`nowrap`}
                     margin={`0 0 12px`}
+                    fontSize={`16px`}
                   >
                     <Cicle />
                     <Text>PRO 광고 다음순으로 노출</Text>
@@ -218,6 +233,7 @@ const Index = () => {
                     ju={`flex-start`}
                     wrap={`nowrap`}
                     al={`flex-start`}
+                    fontSize={`16px`}
                     margin={`0 0 12px`}
                   >
                     <Text margin={`10px 0 0`}>
@@ -230,6 +246,7 @@ const Index = () => {
                     ju={`flex-start`}
                     wrap={`nowrap`}
                     margin={`0 0 12px`}
+                    fontSize={`16px`}
                   >
                     <Cicle />
                     <Text>MASTER 광고 간 노출 순서 랜덤</Text>
@@ -239,6 +256,7 @@ const Index = () => {
                     ju={`flex-start`}
                     wrap={`nowrap`}
                     al={`flex-start`}
+                    fontSize={`16px`}
                   >
                     <Text margin={`10px 0 0`}>
                       <Cicle />
@@ -311,6 +329,7 @@ const Index = () => {
                     ju={`flex-start`}
                     wrap={`nowrap`}
                     margin={`0 0 12px`}
+                    fontSize={`16px`}
                   >
                     <Cicle />
                     <Text>1Page 최상단에 고정 노출</Text>
@@ -320,6 +339,7 @@ const Index = () => {
                     ju={`flex-start`}
                     wrap={`nowrap`}
                     al={`flex-start`}
+                    fontSize={`16px`}
                     margin={`0 0 12px`}
                   >
                     <Text margin={`10px 0 0`}>
@@ -333,6 +353,7 @@ const Index = () => {
                     ju={`flex-start`}
                     wrap={`nowrap`}
                     al={`flex-start`}
+                    fontSize={`16px`}
                   >
                     <Text margin={`10px 0 0`}>
                       <Cicle />
@@ -383,6 +404,9 @@ const Index = () => {
                 ju={`flex-start`}
                 wrap={`nowrap`}
                 al={`flex-start`}
+                fontSize={`16px`}
+                margin={`0 0 12px`}
+                color={Theme.grey_C}
               >
                 <Text margin={`10px 0 0`}>
                   <Cicle />
@@ -394,6 +418,9 @@ const Index = () => {
                 ju={`flex-start`}
                 wrap={`nowrap`}
                 al={`flex-start`}
+                fontSize={`16px`}
+                margin={`0 0 12px`}
+                color={Theme.grey_C}
               >
                 <Text margin={`10px 0 0`}>
                   <Cicle />
@@ -408,6 +435,9 @@ const Index = () => {
                 ju={`flex-start`}
                 wrap={`nowrap`}
                 al={`flex-start`}
+                fontSize={`16px`}
+                margin={`0 0 12px`}
+                color={Theme.grey_C}
               >
                 <Text margin={`10px 0 0`}>
                   <Cicle />
@@ -422,6 +452,8 @@ const Index = () => {
                 ju={`flex-start`}
                 wrap={`nowrap`}
                 al={`flex-start`}
+                fontSize={`16px`}
+                color={Theme.grey_C}
               >
                 <Text margin={`10px 0 0`}>
                   <Cicle />

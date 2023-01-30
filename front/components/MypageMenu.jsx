@@ -275,7 +275,8 @@ const MypageMenu = ({}) => {
             <Text
               fontSize={`16px`}
               fontWeight={`bold`}
-              color={router.pathname === `/` ? Theme.black_C : Theme.grey2_C}
+              onClick={() => movelinkHandler(`/mypage/advertise/history`)}
+              color={router.pathname === `/mypage/advertise/history` ? Theme.black_C : Theme.grey2_C}
               isHover
             >
               신청 내역

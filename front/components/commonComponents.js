@@ -222,13 +222,21 @@ export const CommonButton = styled(Button)`
   ${(props) =>
     props.kindOf === `grey` && `border : 1px solid ${props.theme.lightGrey_C};`}
 
-  /* grey2 - 배경 투명, 회색 선, 회색 배경 */
+  /* grey2 - 회색 선, 회색 배경 */
   ${(props) =>
     props.kindOf === `grey2` && `background : ${props.theme.lightGrey2_C};`}
   ${(props) => props.kindOf === `grey2` && `color : ${props.theme.grey_C};`}
   ${(props) =>
     props.kindOf === `grey2` &&
     `border : 1px solid ${props.theme.lightGrey_C};`}
+
+  /* grey3 - 회색 선, 회색 배경 */
+  ${(props) =>
+    props.kindOf === `grey3` && `background : ${props.theme.lightGrey2_C};`}
+  ${(props) => props.kindOf === `grey3` && `color : ${props.theme.grey_C};`}
+  ${(props) =>
+    props.kindOf === `grey3` &&
+    `border : 1px solid ${props.theme.lightGrey2_C};`}
 
   /* subTheme2 - 베이직 선, subtheme 배경 */
   ${(props) =>
@@ -321,6 +329,13 @@ export const CommonButton = styled(Button)`
     ${(props) =>
       props.kindOf === `grey2` &&
       `border : 1px solid ${props.theme.lightGrey_C};`}
+
+       /* grey3 - 회색 선, 회색 배경 */
+    ${(props) =>
+      props.kindOf === `grey3` && `background : ${props.theme.white_C};`}
+    ${(props) => props.kindOf === `grey3` && `color : ${props.theme.grey_C};`}
+    ${(props) =>
+      props.kindOf === `grey3` && `border : 1px solid ${props.theme.grey_C};`}
 
     ${(props) =>
       props.kindOf === `kakao` && `background : ${props.theme.kakao_C};`}

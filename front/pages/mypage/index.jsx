@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ClientLayout from "../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../store/configureStore";
@@ -18,6 +18,9 @@ import {
 import Theme from "../../components/Theme";
 import styled from "styled-components";
 import { DownloadOutlined } from "@ant-design/icons";
+import { useSelector } from "react-redux";
+import { useRouter } from "next/router";
+import { message } from "antd";
 
 const Box = styled(Wrapper)`
   width: calc(100% / 6 - 37px);
@@ -101,10 +104,20 @@ const CdWrapper = styled(Wrapper)`
 
 const Index = () => {
   ////// GLOBAL STATE //////
+  const { me } = useSelector((state) => state.user);
   ////// HOOKS //////
   const width = useWidth();
+  const router = useRouter();
   ////// REDUX //////
   ////// USEEFFECT //////
+  useEffect(() => {
+    if (!me) {
+      router.push(`/user/login`);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      return message.error(`로그인이 필요한 페이지입니다.`);
+    }
+  }, [me]);
   ////// TOGGLE //////
   ////// HANDLER //////
   ////// DATAVIEW //////

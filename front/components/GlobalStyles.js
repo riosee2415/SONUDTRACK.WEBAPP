@@ -19,6 +19,10 @@ const GlobalStyles = createGlobalStyle`
     font-family: "pretendard", sans-serif;
   }
 
+  p{
+    margin-bottom: 0;
+  }
+
   .whole__admin__wrapper {
     font-family: "GmarketSansMedium", sans-serif !important;
   }
