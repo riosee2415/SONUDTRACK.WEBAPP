@@ -16,6 +16,11 @@ module.exports = class ProductTrack extends Model {
           allowNull: false,
           defaultValue: false,
         },
+        thumbnail: {
+          // 썸네일
+          type: DataTypes.STRING(3000),
+          allowNull: false,
+        },
         filename: {
           type: DataTypes.STRING(300),
           allowNull: false,
@@ -56,6 +61,12 @@ module.exports = class ProductTrack extends Model {
           type: DataTypes.BOOLEAN,
           allowNull: false,
           defaultValue: false,
+        },
+        hit: {
+          // 좋아요
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          defaultValue: 0,
         },
       },
       {
