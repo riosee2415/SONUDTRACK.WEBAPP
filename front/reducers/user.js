@@ -189,13 +189,14 @@ const reducer = (state = initailState, action) =>
 
       case SIGNUP_REQUEST: {
         draft.st_signUpLoading = true;
-        draft.st_signUpDone = null;
-        draft.st_signUpError = false;
+        draft.st_signUpDone = false;
+        draft.st_signUpError = null;
         break;
       }
       case SIGNUP_SUCCESS: {
         draft.st_signUpLoading = false;
         draft.st_signUpDone = true;
+        draft.st_signUpError = null;
         break;
       }
       case SIGNUP_FAILURE: {
