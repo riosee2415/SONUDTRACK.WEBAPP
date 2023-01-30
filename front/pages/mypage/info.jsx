@@ -15,10 +15,11 @@ import {
   WholeWrapper,
   Wrapper,
 } from "../../components/commonComponents";
-import { Checkbox, Modal } from "antd";
+import { Checkbox, message, Modal } from "antd";
 import Theme from "../../components/Theme";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 const Index = () => {
   ////// GLOBAL STATE //////
@@ -38,6 +39,14 @@ const Index = () => {
   const email = useInput(me && me.email);
   ////// REDUX //////
   ////// USEEFFECT //////
+  useEffect(() => {
+    if (!me) {
+      router.push(`/user/login`);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      return message.error(`로그인이 필요한 페이지입니다.`);
+    }
+  }, [me]);
   ////// TOGGLE //////
   const modalOpenToggle = useCallback(() => {
     setIsModal((prev) => !prev);
@@ -86,7 +95,7 @@ const Index = () => {
                 border={`1px solid ${Theme.lightGrey_C}`}
                 type="text"
                 readOnly
-                value={me && me.id}
+                value={me && me.userId}
               />
               <Text fontSize={`16px`} color={Theme.grey_C}>
                 비밀번호
@@ -125,6 +134,7 @@ const Index = () => {
                   padding={`0 7px`}
                   kindOf={`grey2`}
                   onClick={modalOpenToggle}
+                  fontSize={`14px`}
                 >
                   개명하셨다면?
                 </CommonButton>
