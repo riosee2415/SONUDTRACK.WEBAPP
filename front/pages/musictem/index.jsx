@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import ClientLayout from "../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../store/configureStore";
@@ -68,6 +68,7 @@ const Index = () => {
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
+
   ////// REDUX //////
   ////// USEEFFECT //////
   ////// TOGGLE //////
