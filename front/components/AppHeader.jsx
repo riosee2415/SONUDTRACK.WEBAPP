@@ -79,7 +79,7 @@ const AppHeader = () => {
           {me ? (
             <Wrapper width={`auto`} dr={`row`} ju={`flex-end`}>
               <Text
-                onClick={() => movelinkHandler(`/mypage/cart`)}
+                onClick={() => movelinkHandler(`/mypage`)}
                 isHover
                 color={
                   router.pathname === `/license` ? Theme.white_C : Theme.grey_C
@@ -93,7 +93,7 @@ const AppHeader = () => {
                 height={`48px`}
                 radius={`100%`}
                 cursor={`pointer`}
-                onClick={() => movelinkHandler(`/mypage/cart`)}
+                onClick={() => movelinkHandler(`/mypage`)}
               >
                 <Image
                   height={`100%`}
@@ -153,7 +153,7 @@ const AppHeader = () => {
               ju={`flex-end`}
             >
               <Text
-                onClick={() => movelinkHandler(`/mypage/cart`)}
+                onClick={() => movelinkHandler(`/mypage`)}
                 isHover
                 color={
                   router.pathname === `/license` ? Theme.white_C : Theme.grey_C
@@ -167,7 +167,7 @@ const AppHeader = () => {
                 height={`48px`}
                 radius={`100%`}
                 cursor={`pointer`}
-                onClick={() => movelinkHandler(`/mypage/cart`)}
+                onClick={() => movelinkHandler(`/mypage`)}
               >
                 <Image
                   height={`100%`}
