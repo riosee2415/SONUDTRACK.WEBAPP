@@ -208,11 +208,11 @@ router.post("/snsLogin", (req, res, next) => {
        WHERE  email = "${email}"
       `;
 
-      const findMobileQuery = `
-      SELECT  id
-        FROM  users
-       WHERE  mobile = "${mobile}"
-      `;
+      // const findMobileQuery = `
+      // SELECT  id
+      //   FROM  users
+      //  WHERE  mobile = "${mobile}"
+      // `;
 
       const findResult = await models.sequelize.query(findUserIdQuery);
 
@@ -226,9 +226,9 @@ router.post("/snsLogin", (req, res, next) => {
         return res.status(401).send("이미 사용중인 이메일 입니다.");
       }
 
-      if (findMobileQuery[0].length !== 0) {
-        return res.status(401).send("이미 사용중인 핸드폰번호 입니다.");
-      }
+      // if (findMobileQuery[0].length !== 0) {
+      //   return res.status(401).send("이미 사용중인 핸드폰번호 입니다.");
+      // }
 
       const hashedPassword = await bcrypt.hash(password, 12);
 
