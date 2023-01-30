@@ -265,10 +265,10 @@ const MypageMenu = ({}) => {
             <Text
               fontSize={`16px`}
               fontWeight={`bold`}
-              color={router.pathname === `/` ? Theme.black_C : Theme.grey2_C}
+              color={router.pathname === `/mypage/advertise/application` ? Theme.black_C : Theme.grey2_C}
               isHover
               margin={`0 0 22px`}
-              onClick={() => movelinkHandler(`/`)}
+              onClick={() => movelinkHandler(`/mypage/advertise/application`)}
             >
               광고 신청
             </Text>
