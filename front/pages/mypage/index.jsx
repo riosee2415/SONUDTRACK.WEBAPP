@@ -1,0 +1,278 @@
+import React from "react";
+import ClientLayout from "../../components/ClientLayout";
+import Head from "next/head";
+import wrapper from "../../store/configureStore";
+import { LOAD_MY_INFO_REQUEST } from "../../reducers/user";
+import axios from "axios";
+import { END } from "redux-saga";
+import useWidth from "../../hooks/useWidth";
+import {
+  CommonButton,
+  Image,
+  RsWrapper,
+  SpanText,
+  Text,
+  WholeWrapper,
+  Wrapper,
+} from "../../components/commonComponents";
+import Theme from "../../components/Theme";
+import styled from "styled-components";
+import { DownloadOutlined } from "@ant-design/icons";
+
+const Box = styled(Wrapper)`
+  width: calc(100% / 6 - 37px);
+  margin: 0 44px 40px 0;
+
+  &:nth-child(6n) {
+    margin: 0 0 40px;
+  }
+
+  @media (max-width: 1400px) {
+    width: calc(100% / 5 - 24px);
+    margin: 0 30px 40px 0;
+
+    &:nth-child(6n) {
+      margin: 0 30px 40px 0;
+    }
+
+    &:nth-child(5n) {
+      margin: 0 0 40px;
+    }
+  }
+
+  @media (max-width: 700px) {
+    width: calc(100% / 2 - 8px);
+    margin: 0 10px 40px 0;
+
+    &:nth-child(6n) {
+      margin: 0 5px 40px 0;
+    }
+
+    &:nth-child(5n) {
+      margin: 0 5px 40px 0;
+    }
+
+    &:nth-child(2n) {
+      margin: 0 5px 40px 0;
+    }
+  }
+`;
+
+const CdWrapper = styled(Wrapper)`
+  width: 100%;
+  border-radius: 100%;
+  position: relative;
+  cursor: pointer;
+
+  &:before {
+    content: "";
+    display: block;
+    padding-bottom: 100%;
+  }
+
+  &:after {
+    content: "";
+    width: 54px;
+    height: 54px;
+    background: ${Theme.white_C};
+    border-radius: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .playicon {
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.3s;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 2;
+    transform: translate(-50%, -50%);
+  }
+
+  &:hover .playicon {
+    opacity: 1;
+    visibility: visible;
+  }
+`;
+
+const Index = () => {
+  ////// GLOBAL STATE //////
+  ////// HOOKS //////
+  const width = useWidth();
+  ////// REDUX //////
+  ////// USEEFFECT //////
+  ////// TOGGLE //////
+  ////// HANDLER //////
+  ////// DATAVIEW //////
+
+  const albums = [
+    {
+      img: "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png",
+      name: "이차미",
+      likeCnt: "90",
+    },
+    {
+      img: "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png",
+      name: "이차미",
+      likeCnt: "90",
+    },
+    {
+      img: "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png",
+      name: "이차미",
+      likeCnt: "90",
+    },
+    {
+      img: "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png",
+      name: "이차미",
+      likeCnt: "90",
+    },
+    {
+      img: "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png",
+      name: "이차미",
+      likeCnt: "90",
+    },
+    {
+      img: "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png",
+      name: "이차미",
+      likeCnt: "90",
+    },
+  ];
+
+  return (
+    <>
+      <Head>
+        <title>NEW WAVE Sound | 마이페이지</title>
+      </Head>
+
+      <ClientLayout>
+        <WholeWrapper>
+          <RsWrapper>
+            <Wrapper
+              height={`260px`}
+              bgImg={`url("https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/banner/my-page.png")`}
+              radius={`14px`}
+              overflow={`hidden`}
+              position={`relative`}
+              shadow={`3px 3px 15px rgba(0, 0, 0, 0.15)`}
+              color={Theme.white_C}
+            >
+              <Wrapper height={`100%`} bgColor={`rgba(0, 0, 0, 0.4)`}>
+                <Text
+                  fontSize={width < 900 ? `25px` : `32px`}
+                  fontWeight={`500`}
+                  margin={`0 0 16px`}
+                >
+                  MY PAGE
+                </Text>
+                <Text
+                  fontSize={width < 900 ? `14px` : `16px`}
+                  lineHeight={`26px`}
+                  textAlign={`center`}
+                  margin={`0 0 28px`}
+                >
+                  뉴웨이브사운드에 오신 걸 환영합니다.
+                </Text>
+              </Wrapper>
+            </Wrapper>
+
+            <Wrapper
+              al={`flex-start`}
+              fontSize={width < 900 ? `20px` : `30px`}
+              fontWeight={`bold`}
+              margin={`50px 0 30px`}
+            >
+              최근 구매 내역
+            </Wrapper>
+
+            <Wrapper dr={`row`} al={`flex-start`} ju={`flex-start`}>
+              {albums.map((data) => {
+                return (
+                  <Box key={data.id}>
+                    <CdWrapper>
+                      <Image
+                        position={`absolute`}
+                        top={`0`}
+                        left={`0`}
+                        height={`100%`}
+                        radius={`100%`}
+                        src={data.img}
+                        alt="thumbnail"
+                      />
+                      <Image
+                        className="playicon"
+                        width={`21px`}
+                        src="https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/play_purple.png"
+                        alt="play icon"
+                      />
+
+                      <Wrapper
+                        position={`absolute`}
+                        bottom={`0`}
+                        right={`0`}
+                        width={`40px`}
+                        height={`40px`}
+                        radius={`100%`}
+                        bgColor={`rgba(0, 0, 0, 0.6)`}
+                        color={Theme.white_C}
+                        fontSize={`20px`}
+                        zIndex={`10`}
+                      >
+                        <DownloadOutlined />
+                      </Wrapper>
+                    </CdWrapper>
+                    <Text
+                      fontSize={`18px`}
+                      color={Theme.darkGrey_C}
+                      margin={`20px 0 8px`}
+                    >
+                      {data.name}
+                    </Text>
+                    <Wrapper dr={`row`}>
+                      <Image
+                        alt="icon"
+                        width={`18px`}
+                        margin={`0 6px 0 0`}
+                        src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
+                      />
+                      <Text fontSize={`12px`} color={Theme.grey_C}>
+                        {data.likeCnt}
+                      </Text>
+                    </Wrapper>
+                  </Box>
+                );
+              })}
+            </Wrapper>
+          </RsWrapper>
+        </WholeWrapper>
+      </ClientLayout>
+    </>
+  );
+};
+
+export const getServerSideProps = wrapper.getServerSideProps(
+  async (context) => {
+    // SSR Cookie Settings For Data Load/////////////////////////////////////
+    const cookie = context.req ? context.req.headers.cookie : "";
+    axios.defaults.headers.Cookie = "";
+    if (context.req && cookie) {
+      axios.defaults.headers.Cookie = cookie;
+    }
+    ////////////////////////////////////////////////////////////////////////
+    // 구현부
+
+    context.store.dispatch({
+      type: LOAD_MY_INFO_REQUEST,
+    });
+
+    // 구현부 종료
+    context.store.dispatch(END);
+    console.log("🍀 SERVER SIDE PROPS END");
+    await context.store.sagaTask.toPromise();
+  }
+);
+
+export default Index;

@@ -234,10 +234,10 @@ export const CommonButton = styled(Button)`
   ${(props) =>
     props.kindOf === `subTheme2` && `background : ${props.theme.subTheme_C};`}
   ${(props) =>
-    props.kindOf === `subTheme2` && `color : ${props.theme.black_C};`}
+    props.kindOf === `subTheme2` && `color : ${props.theme.basicTheme_C};`}
   ${(props) =>
     props.kindOf === `subTheme2` &&
-    `border : 1px solid ${props.theme.basicTheme_C};`}
+    `border : 1px solid ${props.theme.subTheme_C};`}
 
   /* subTheme3 - subTheme4_C 선, subTheme4_C 배경 */
   ${(props) =>
