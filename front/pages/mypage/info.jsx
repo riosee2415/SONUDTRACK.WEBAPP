@@ -2,7 +2,11 @@ import React, { useCallback, useState, useEffect } from "react";
 import ClientLayout from "../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../store/configureStore";
-import { LOAD_MY_INFO_REQUEST } from "../../reducers/user";
+import {
+  LOAD_MY_INFO_REQUEST,
+  USER_INFO_PASS_UPDATE_REQUEST,
+  USER_INFO_UPDATE_REQUEST,
+} from "../../reducers/user";
 import axios from "axios";
 import { END } from "redux-saga";
 import useWidth from "../../hooks/useWidth";
@@ -22,9 +26,13 @@ import { useRouter } from "next/router";
 
 const Index = () => {
   ////// GLOBAL STATE //////
-  const { me } = useSelector((state) => state.user);
-
-  // console.log(me);
+  const {
+    me,
+    st_userInfoUpdateDone,
+    st_userInfoUpdateError,
+    st_userInfoPassUpdateDone,
+    st_userInfoPassUpdateError,
+  } = useSelector((state) => state.user);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -37,14 +45,15 @@ const Index = () => {
   const nickname = useInput(me && me.nickname);
   const email = useInput(me && me.email);
   const pass = useInput("");
-  const newPass = useInput("");
-  const mobile = useInput("");
-  const term1 = useInput(false); // 수신동의
-  const term2 = useInput(false); // SMS 동의
-  const term3 = useInput(false); // 카카오톡 동의
-  const term4 = useInput(false); // 이메일 동의
-  const term5 = useInput(false); // 카카오톡 알림
-  const term6 = useInput(false); // 이메일 알림
+  const newPass = useInput(""); // 새로운 비밀번호
+  const [passCheck, setPassCheck] = useState(""); // 세로운 비밀번호 확인
+  const mobile = useInput(me && me.mobile);
+  const term1 = useInput(me && me.terms === 1 ? true : false); // 수신동의
+  const term2 = useInput(me && me.terms2 === 1 ? true : false); // SMS 동의
+  const term3 = useInput(me && me.terms3 === 1 ? true : false); // 카카오톡 동의
+  const term4 = useInput(me && me.terms4 === 1 ? true : false); // 이메일 동의
+  const term5 = useInput(me && me.terms5 === 1 ? true : false); // 카카오톡 알림
+  const term6 = useInput(me && me.terms6 === 1 ? true : false); // 이메일 알림
 
   ////// USEEFFECT //////
   useEffect(() => {
@@ -55,6 +64,40 @@ const Index = () => {
       return message.error(`로그인이 필요한 페이지입니다.`);
     }
   }, [me]);
+
+  useEffect(() => {
+    if (st_userInfoUpdateDone) {
+      dispatch({
+        type: LOAD_MY_INFO_REQUEST,
+      });
+
+      return message.success("회원정보가 수정되었습니다.");
+    }
+
+    if (st_userInfoUpdateError) {
+      return message.error(st_userInfoUpdateError);
+    }
+  }, [st_userInfoUpdateDone, st_userInfoUpdateError]);
+
+  useEffect(() => {
+    if (st_userInfoPassUpdateDone) {
+      dispatch({
+        type: LOAD_MY_INFO_REQUEST,
+      });
+
+      passwordChangeToggle();
+      pass.setValue("");
+      newPass.setValue("");
+      setPassCheck("");
+
+      return message.success("비밀번호가 변경되었습니다.");
+    }
+
+    if (st_userInfoPassUpdateError) {
+      return message.error(st_userInfoPassUpdateError);
+    }
+  }, [st_userInfoPassUpdateDone, st_userInfoPassUpdateError]);
+
   ////// TOGGLE //////
   const modalOpenToggle = useCallback(() => {
     setIsModal((prev) => !prev);
@@ -65,6 +108,76 @@ const Index = () => {
   }, [isPassword]);
 
   ////// HANDLER //////
+
+  const infoUpdateHandler = useCallback(() => {
+    dispatch({
+      type: USER_INFO_UPDATE_REQUEST,
+      data: {
+        nickname: nickname.value,
+        email: email.value,
+        mobile: mobile.value,
+        terms: term1.value,
+        terms2: term2.value,
+        terms3: term3.value,
+        terms4: term4.value,
+        terms5: term5.value,
+        terms6: term6.value,
+      },
+    });
+  }, [
+    nickname.value,
+    email.value,
+    mobile.value,
+    term1.value,
+    term2.value,
+    term3.value,
+    term4.value,
+    term5.value,
+    term6.value,
+  ]);
+
+  const passCheckHandler = useCallback(
+    (e) => {
+      setPassCheck(e.target.value);
+    },
+    [passCheck]
+  );
+
+  const infoPassUpdateHandler = useCallback(() => {
+    const passwordReg =
+      /^(?!((?:[A-Za-z]+)|(?:[~!@#$%^&*()_+=]+)|(?:[0-9]+))$)[A-Za-z\d~!@#$%^&*()_+=]{8,}$/;
+
+    if (!pass.value || pass.value.trim() === "") {
+      return message.error("기존 비밀번호를 입력해주세요.");
+    }
+
+    if (!newPass.value || newPass.value.trim() === "") {
+      return message.error("새 비밀번호를 입력해주세요.");
+    }
+
+    if (!passwordReg.test(newPass.value)) {
+      return message.error(
+        "영문 대/소문자, 특수문자, 숫자 중 2개 이상 포함, 8자 이상 입력해주세요."
+      );
+    }
+
+    if (!passCheck) {
+      return message.error("새로운 비밀번호를 재입력해주세요.");
+    }
+
+    if (newPass.value !== passCheck) {
+      return message.error("새로운 비밀번호가 일치하지 않습니다.");
+    }
+
+    dispatch({
+      type: USER_INFO_PASS_UPDATE_REQUEST,
+      data: {
+        beforePassword: pass.value,
+        afterPassword: newPass.value,
+      },
+    });
+  }, [pass, newPass, passCheck]);
+
   ////// DATAVIEW //////
 
   return (
@@ -190,6 +303,7 @@ const Index = () => {
                   type="number"
                   border={`1px solid ${Theme.lightGrey_C}`}
                   placeholder="휴대폰 번호를 입력해주세요."
+                  {...mobile}
                 />
                 <CommonButton
                   width={`136px`}
@@ -205,18 +319,48 @@ const Index = () => {
               <Text fontSize={`16px`} color={Theme.grey_C} margin={`0 0 12px`}>
                 정보 수신 동의
               </Text>
-              <Checkbox>(선택)프로모션/혜택 등 광고성 정보 수신 동의</Checkbox>
+              <Checkbox
+                checked={term1.value}
+                onClick={() => term1.setValue(!term1.value)}
+              >
+                (선택)프로모션/혜택 등 광고성 정보 수신 동의
+              </Checkbox>
               <Wrapper dr={`row`} ju={`flex-start`} margin={`12px 0 30px`}>
-                <Checkbox>SMS</Checkbox>
-                <Checkbox>카카오톡</Checkbox>
-                <Checkbox>이메일</Checkbox>
+                <Checkbox
+                  checked={term2.value}
+                  onClick={() => term2.setValue(!term2.value)}
+                >
+                  SMS
+                </Checkbox>
+                <Checkbox
+                  checked={term3.value}
+                  onClick={() => term3.setValue(!term3.value)}
+                >
+                  카카오톡
+                </Checkbox>
+                <Checkbox
+                  checked={term4.value}
+                  onClick={() => term4.setValue(!term4.value)}
+                >
+                  이메일
+                </Checkbox>
               </Wrapper>
               <Text fontSize={`16px`} color={Theme.grey_C} margin={`0 0 12px`}>
                 Contact 진행 상황 알림
               </Text>
               <Wrapper dr={`row`} ju={`flex-start`}>
-                <Checkbox>카카오톡</Checkbox>
-                <Checkbox>이메일</Checkbox>
+                <Checkbox
+                  checked={term5.value}
+                  onClick={() => term5.setValue(!term5.value)}
+                >
+                  카카오톡
+                </Checkbox>
+                <Checkbox
+                  checked={term6.value}
+                  onClick={() => term6.setValue(!term6.value)}
+                >
+                  이메일
+                </Checkbox>
               </Wrapper>
             </Wrapper>
             <Text fontSize={`16px`} color={Theme.grey2_C} margin={`10px 0 0`}>
@@ -228,6 +372,7 @@ const Index = () => {
               width={`180px`}
               height={`50px`}
               fontSize={`18px`}
+              onClick={infoUpdateHandler}
             >
               회원정보 수정
             </CommonButton>
@@ -292,6 +437,7 @@ const Index = () => {
                   border={`1px solid ${Theme.lightGrey_C}`}
                   type="password"
                   placeholder="기존 비밀번호를 입력해주세요."
+                  {...pass}
                 />
                 <Text
                   fontSize={`16px`}
@@ -307,6 +453,7 @@ const Index = () => {
                   border={`1px solid ${Theme.lightGrey_C}`}
                   type="password"
                   placeholder="영문 대/소문자, 특수문자, 숫자 중 2개 이상 포함, 8자 이상 입력"
+                  {...newPass}
                 />
                 <Text
                   fontSize={`16px`}
@@ -322,6 +469,8 @@ const Index = () => {
                   border={`1px solid ${Theme.lightGrey_C}`}
                   type="password"
                   placeholder="비밀번호를 재 입력 해주세요."
+                  value={passCheck}
+                  onChange={passCheckHandler}
                 />
               </Wrapper>
               <CommonButton
@@ -329,6 +478,7 @@ const Index = () => {
                 height={`50px`}
                 fontSize={`18px`}
                 margin={`30px 0 0`}
+                onClick={infoPassUpdateHandler}
               >
                 변경
               </CommonButton>

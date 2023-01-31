@@ -222,6 +222,8 @@ router.post("/artistem/allList", async (req, res, next) => {
             A.isTop,
             A.sampleRate,
             A.bitRate,
+            A.downloadCnt,
+            FORMAT(A.downloadCnt, 0)                    AS  viewDownloadCnt,
             A.createdAt,
             A.updatedAt,
             DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
@@ -252,13 +254,43 @@ router.post("/artistem/allList", async (req, res, next) => {
                   ON  AR.UserId = US.id
                WHERE  A.ArtistId = AR.id
                  AND  AR.isPermm = 1
-            )                                            AS artistImage
+            )                                            AS artistImage,
+            (
+              SELECT  COUNT(id)
+                FROM  userLike
+               WHERE  ArtistemId = A.id
+            )                                            AS likeCnt
+            ${
+              req.user
+                ? `,
+              CASE
+                  WHEN  (
+                          SELECT  COUNT(id)
+                            FROM  userLike
+                           WHERE  ArtistemId = A.id
+                             AND  UserId = ${req.user.id}
+                        ) > 0 THEN                       1
+                  ELSE                                   0
+              END                                        AS isLike
+              `
+                : `,
+              0                                          AS isLike
+              `
+            }
       FROM	artistem	A
      INNER
       JOIN  productCategory B
         ON  A.ProductCategoryId = B.id
      WHERE  A.isIng = 0
-     ${_orderType === 1 ? `` : `ORDER BY A.createdAt DESC`}
+     ${
+       _orderType === 1
+         ? `ORDER  BY (
+                       SELECT  COUNT(id)
+                         FROM  userLike	
+                        WHERE  ArtistemId = A.id
+                     ) DESC`
+         : `ORDER  BY  A.createdAt DESC`
+     }
     `;
 
   const selectQ2 = `
@@ -327,6 +359,8 @@ router.post("/artistem/newList", async (req, res, next) => {
             A.isTop,
             A.sampleRate,
             A.bitRate,
+            A.downloadCnt,
+            FORMAT(A.downloadCnt, 0)                    AS  viewDownloadCnt,
             A.createdAt,
             A.updatedAt,
             DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
@@ -357,7 +391,29 @@ router.post("/artistem/newList", async (req, res, next) => {
                   ON  AR.UserId = US.id
                WHERE  A.ArtistId = AR.id
                  AND  AR.isPermm = 1
-            )                                            AS artistImage
+            )                                            AS artistImage,
+            (
+              SELECT  COUNT(id)
+                FROM  userLike
+               WHERE  ArtistemId = A.id
+            )                                            AS likeCnt
+            ${
+              req.user
+                ? `,
+              CASE
+                  WHEN  (
+                          SELECT  COUNT(id)
+                            FROM  userLike
+                           WHERE  ArtistemId = A.id
+                             AND  UserId = ${req.user.id}
+                        ) > 0 THEN                       1
+                  ELSE                                   0
+              END                                        AS isLike
+              `
+                : `,
+              0                                          AS isLike
+              `
+            }
       FROM	artistem	A
      INNER
       JOIN  productCategory B
@@ -432,6 +488,8 @@ router.post("/artistem/nearList", async (req, res, next) => {
             A.isTop,
             A.sampleRate,
             A.bitRate,
+            A.downloadCnt,
+            FORMAT(A.downloadCnt, 0)                    AS  viewDownloadCnt,
             A.createdAt,
             A.updatedAt,
             DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
@@ -462,7 +520,29 @@ router.post("/artistem/nearList", async (req, res, next) => {
                   ON  AR.UserId = US.id
                WHERE  A.ArtistId = AR.id
                  AND  AR.isPermm = 1
-            )                                            AS artistImage
+            )                                            AS artistImage,
+            (
+              SELECT  COUNT(id)
+                FROM  userLike
+               WHERE  ArtistemId = A.id
+            )                                            AS likeCnt
+            ${
+              req.user
+                ? `,
+              CASE
+                  WHEN  (
+                          SELECT  COUNT(id)
+                            FROM  userLike
+                           WHERE  ArtistemId = A.id
+                             AND  UserId = ${req.user.id}
+                        ) > 0 THEN                       1
+                  ELSE                                   0
+              END                                        AS isLike
+              `
+                : `,
+              0                                          AS isLike
+              `
+            }
       FROM	artistem	A
      INNER
       JOIN  productCategory B
@@ -532,6 +612,8 @@ router.post("/target/list", async (req, res, next) => {
           A.isTop,
           A.sampleRate,
           A.bitRate,
+          A.downloadCnt,
+          FORMAT(A.downloadCnt, 0)                    AS  viewDownloadCnt,
           A.createdAt,
           A.updatedAt,
           DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
@@ -628,6 +710,8 @@ router.post("/target/detail", async (req, res, next) => {
           A.isTop,
           A.sampleRate,
           A.bitRate,
+          A.downloadCnt,
+          FORMAT(A.downloadCnt, 0)                    AS  viewDownloadCnt,
           A.createdAt,
           A.updatedAt,
           DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
@@ -640,7 +724,29 @@ router.post("/target/detail", async (req, res, next) => {
           A.filepath,
           FORMAT(A.sPrice , 0)   as viewsPrice,
           FORMAT(A.dPrice , 0)   as viewdPrice,
-          FORMAT(A.pPrice , 0)   as viewpPrice
+          FORMAT(A.pPrice , 0)   as viewpPrice,
+          (
+            SELECT  COUNT(id)
+              FROM  userLike
+             WHERE  ArtistemId = A.id
+          )                                            AS likeCnt
+          ${
+            req.user
+              ? `,
+            CASE
+                WHEN  (
+                        SELECT  COUNT(id)
+                          FROM  userLike
+                         WHERE  ArtistemId = A.id
+                           AND  UserId = ${req.user.id}
+                      ) > 0 THEN                       1
+                ELSE                                   0
+            END                                        AS isLike
+            `
+              : `,
+            0                                          AS isLike
+            `
+          }
     FROM	artistem	A
    INNER
     JOIN  productCategory B

@@ -16,6 +16,10 @@ import {
   BUYREQUEST_ISREJECT_REQUEST,
   BUYREQUEST_ISREJECT_SUCCESS,
   BUYREQUEST_ISREJECT_FAILURE,
+  //
+  BUYREQUEST_FILE_REQUEST,
+  BUYREQUEST_FILE_SUCCESS,
+  BUYREQUEST_FILE_FAILURE,
 } from "../reducers/buyRequest";
 
 // ******************************************************************************************************************
@@ -130,6 +134,34 @@ function* buyRequestIsReject(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function buyRequestFileAPI(data) {
+  return await axios.post("/api/buyRequest/file", data);
+}
+
+function* buyRequestFile(action) {
+  try {
+    const result = yield call(buyRequestFileAPI, action.data);
+
+    yield put({
+      type: BUYREQUEST_FILE_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: BUYREQUEST_FILE_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 function* watchBuyRequestList() {
   yield takeLatest(BUYREQUEST_LIST_REQUEST, buyRequestList);
@@ -143,6 +175,9 @@ function* watchBuyRequestIsOk() {
 function* watchBuyRequestIsReject() {
   yield takeLatest(BUYREQUEST_ISREJECT_REQUEST, buyRequestIsReject);
 }
+function* watchBuyRequestFile() {
+  yield takeLatest(BUYREQUEST_FILE_REQUEST, buyRequestFile);
+}
 
 //////////////////////////////////////////////////////////////
 export default function* buyRequestSaga() {
@@ -151,6 +186,7 @@ export default function* buyRequestSaga() {
     fork(watchBuyRequestCreate),
     fork(watchBuyRequestIsOk),
     fork(watchBuyRequestIsReject),
+    fork(watchBuyRequestFile),
     //
   ]);
 }

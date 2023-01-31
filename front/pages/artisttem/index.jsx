@@ -92,6 +92,11 @@ const Index = () => {
     [orderType]
   );
 
+  const movelinkHandler = useCallback((link) => {
+    router.push(link);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
   ////// DATAVIEW //////
 
   return (
@@ -441,14 +446,31 @@ const Index = () => {
             </Wrapper>
             <Wrapper dr={`row`} ju={`flex-start`} al={`flex-start`}>
               {allArtistemList && allArtistemList.length === 0 ? (
-                <Wrapper margin={`100px 0`}>
-                  <Empty description={"등록된 아티스트가 존재하지 않습니다."} />
+                <Wrapper
+                  height={`300px`}
+                  borderBottom={`1px solid ${Theme.lightGrey_C}`}
+                >
+                  <Image
+                    alt="icon"
+                    src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/blank.png`}
+                    width={`76px`}
+                  />
+                  <Text
+                    fontSize={width < 900 ? `18px` : `22px`}
+                    color={Theme.grey2_C}
+                    margin={`25px 0 0`}
+                  >
+                    등록된 아티스트가 존재하지 않습니다.
+                  </Text>
                 </Wrapper>
               ) : (
                 allArtistemList &&
                 allArtistemList.map((data) => {
                   return (
-                    <ArtWrapper key={data.id}>
+                    <ArtWrapper
+                      key={data.id}
+                      onClick={() => movelinkHandler(`/artist/${data.id}`)}
+                    >
                       <SquareBox>
                         <Image src={data.artistImage} alt="thumbnail" />
                       </SquareBox>
@@ -494,14 +516,23 @@ const Index = () => {
                           <StarFilled />
                         </Wrapper>
                         <Wrapper width={`auto`} dr={`row`}>
-                          <Image
-                            alt="icon"
-                            width={`14px`}
-                            margin={`0 4px 0 0`}
-                            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
-                          />
+                          {data.isLike ? (
+                            <Image
+                              alt="icon"
+                              width={`14px`}
+                              margin={`0 4px 0 0`}
+                              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`}
+                            />
+                          ) : (
+                            <Image
+                              alt="icon"
+                              width={`14px`}
+                              margin={`0 4px 0 0`}
+                              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
+                            />
+                          )}
                           <Text fontSize={`14px`} color={Theme.grey_C}>
-                            98
+                            {data.likeCnt}
                           </Text>
                         </Wrapper>
                       </Wrapper>

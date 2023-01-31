@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import ClientLayout from "../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../store/configureStore";
@@ -7,6 +7,7 @@ import axios from "axios";
 import { END } from "redux-saga";
 import useWidth from "../../hooks/useWidth";
 import {
+  ATag,
   CommonButton,
   Image,
   RsWrapper,
@@ -20,7 +21,7 @@ import styled from "styled-components";
 import { DownloadOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
-import { message } from "antd";
+import { Empty, message } from "antd";
 import { USER_BUY_LIST_REQUEST } from "../../reducers/buy";
 
 const Box = styled(Wrapper)`
@@ -107,6 +108,7 @@ const Index = () => {
   ////// GLOBAL STATE //////
   const { me } = useSelector((state) => state.user);
   const { userBuyList } = useSelector((state) => state.buy);
+
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
@@ -133,40 +135,8 @@ const Index = () => {
 
   ////// TOGGLE //////
   ////// HANDLER //////
-  ////// DATAVIEW //////
 
-  const albums = [
-    {
-      img: "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png",
-      name: "이차미",
-      likeCnt: "90",
-    },
-    {
-      img: "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png",
-      name: "이차미",
-      likeCnt: "90",
-    },
-    {
-      img: "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png",
-      name: "이차미",
-      likeCnt: "90",
-    },
-    {
-      img: "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png",
-      name: "이차미",
-      likeCnt: "90",
-    },
-    {
-      img: "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png",
-      name: "이차미",
-      likeCnt: "90",
-    },
-    {
-      img: "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png",
-      name: "이차미",
-      likeCnt: "90",
-    },
-  ];
+  ////// DATAVIEW //////
 
   return (
     <>
@@ -215,62 +185,127 @@ const Index = () => {
             </Wrapper>
 
             <Wrapper dr={`row`} al={`flex-start`} ju={`flex-start`}>
-              {albums.map((data) => {
-                return (
-                  <Box key={data.id}>
-                    <CdWrapper>
-                      <Image
-                        position={`absolute`}
-                        top={`0`}
-                        left={`0`}
-                        height={`100%`}
-                        radius={`100%`}
-                        src={data.img}
-                        alt="thumbnail"
-                      />
-                      <Image
-                        className="playicon"
-                        width={`21px`}
-                        src="https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/play_purple.png"
-                        alt="play icon"
-                      />
+              {userBuyList && userBuyList.length === 0 ? (
+                <Wrapper
+                  height={`400px`}
+                  borderBottom={`1px solid ${Theme.lightGrey_C}`}
+                >
+                  <Image
+                    alt="icon"
+                    src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/blank.png`}
+                    width={`76px`}
+                  />
+                  <Text
+                    fontSize={width < 900 ? `18px` : `22px`}
+                    color={Theme.grey2_C}
+                    margin={`25px 0 0`}
+                  >
+                    구매한 음원이 존재하지 않습니다.
+                  </Text>
+                </Wrapper>
+              ) : (
+                userBuyList &&
+                userBuyList.map((data) => {
+                  return (
+                    <Box key={data.num}>
+                      <CdWrapper>
+                        <Image
+                          position={`absolute`}
+                          top={`0`}
+                          left={`0`}
+                          height={`100%`}
+                          radius={`100%`}
+                          src={
+                            data.artisTemCoverImage
+                              ? data.artisTemCoverImage
+                              : data.musicTemThumbnail
+                          }
+                          alt="thumbnail"
+                        />
+                        <Image
+                          className="playicon"
+                          width={`21px`}
+                          src="https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/play_purple.png"
+                          alt="play icon"
+                        />
 
-                      <Wrapper
-                        position={`absolute`}
-                        bottom={`0`}
-                        right={`0`}
-                        width={`40px`}
-                        height={`40px`}
-                        radius={`100%`}
-                        bgColor={`rgba(0, 0, 0, 0.6)`}
-                        color={Theme.white_C}
-                        fontSize={`20px`}
-                        zIndex={`10`}
+                        <ATag
+                          href={
+                            data.buyType === "artisTem"
+                              ? data.artisTemFilepath
+                              : data.musicTemFilepath
+                          }
+                          download
+                          width={`auto`}
+                        >
+                          <Wrapper
+                            position={`absolute`}
+                            bottom={`0`}
+                            right={`0`}
+                            width={`40px`}
+                            height={`40px`}
+                            radius={`100%`}
+                            bgColor={`rgba(0, 0, 0, 0.6)`}
+                            color={Theme.white_C}
+                            fontSize={`20px`}
+                            zIndex={`10`}
+                          >
+                            <DownloadOutlined />
+                          </Wrapper>
+                        </ATag>
+                      </CdWrapper>
+                      <Text
+                        fontSize={`18px`}
+                        color={Theme.darkGrey_C}
+                        margin={`20px 0 8px`}
                       >
-                        <DownloadOutlined />
-                      </Wrapper>
-                    </CdWrapper>
-                    <Text
-                      fontSize={`18px`}
-                      color={Theme.darkGrey_C}
-                      margin={`20px 0 8px`}
-                    >
-                      {data.name}
-                    </Text>
-                    <Wrapper dr={`row`}>
-                      <Image
-                        alt="icon"
-                        width={`18px`}
-                        margin={`0 6px 0 0`}
-                        src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
-                      />
-                      <Text fontSize={`12px`} color={Theme.grey_C}>
-                        {data.likeCnt}
+                        {data.artisTemTitle
+                          ? data.artisTemTitle
+                          : data.musicTemTitle}
                       </Text>
-                    </Wrapper>
-                  </Box>
-                );
-              })}
+                      <Wrapper dr={`row`}>
+                        {data.buyType === "artisTem" &&
+                          (data.artisTemIsLike ? (
+                            <Image
+                              alt="icon"
+                              width={`18px`}
+                              margin={`0 6px 0 0`}
+                              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`}
+                            />
+                          ) : (
+                            <Image
+                              alt="icon"
+                              width={`18px`}
+                              margin={`0 6px 0 0`}
+                              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
+                            />
+                          ))}
+                        {data.buyType === "musicTem" &&
+                          (data.musicTemIsLike ? (
+                            <Image
+                              alt="icon"
+                              width={`18px`}
+                              margin={`0 6px 0 0`}
+                              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`}
+                            />
+                          ) : (
+                            <Image
+                              alt="icon"
+                              width={`18px`}
+                              margin={`0 6px 0 0`}
+                              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
+                            />
+                          ))}
+                        <Text fontSize={`12px`} color={Theme.grey_C}>
+                          {data.buyType === "artisTem"
+                            ? data.artisTemLikeCnt
+                            : data.musicTemLikeCnt}
+                        </Text>
+                      </Wrapper>
+                    </Box>
+                  );
+                })
+              )}
             </Wrapper>
           </RsWrapper>
         </WholeWrapper>

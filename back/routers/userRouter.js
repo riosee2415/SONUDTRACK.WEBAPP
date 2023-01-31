@@ -27,6 +27,7 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
   const selectQuery = `
   SELECT	ROW_NUMBER() OVER(ORDER	BY A.createdAt)		AS num,
           A.id,
+          A.userId,
           A.email,
           A.username,
           A.nickname,
@@ -41,6 +42,11 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
             WHEN	A.level = 5	THEN "개발사"
           END											AS viewLevel,
           A.terms,
+          A.terms2,
+          A.terms3,
+          A.terms4,
+          A.terms5,
+          A.terms6,
           A.createdAt,
           A.updatedAt,
           A.exitedAt,
@@ -165,27 +171,45 @@ router.post("/snsLogin", (req, res, next) => {
         }
 
         const findUserQuery = `
-      SELECT	id,
-              username,
-              email,
-              level,
-              mobile,
-              DATE_FORMAT(createdAt, "%Y년 %m월 %d일") AS viewCreatedAt,
-              DATE_FORMAT(updatedAt, "%Y년 %m월 %d일") AS updatedAt,
-              DATE_FORMAT(exitedAt, "%Y년 %m월 %d일") AS viewExitedAt,
-              menuRight1,
-              menuRight2,
-              menuRight3,
-              menuRight4,
-              menuRight5,
-              menuRight6,
-              menuRight7,
-              menuRight8,
-              menuRight9,
-              menuRight10,
-              menuRight11,
-              menuRight12
-        FROM	users   A
+      SELECT	ROW_NUMBER() OVER(ORDER	BY A.createdAt)		AS num,
+              A.id,
+              A.userId,
+              A.email,
+              A.username,
+              A.nickname,
+              A.mobile,
+              A.level,
+              A.isExit,
+              CASE
+                WHEN	A.level = 1	THEN "일반회원"
+                WHEN	A.level = 2	THEN "비어있음"
+                WHEN	A.level = 3	THEN "운영자"
+                WHEN	A.level = 4	THEN "최고관리자"
+                WHEN	A.level = 5	THEN "개발사"
+              END											AS viewLevel,
+              A.terms,
+              A.terms2,
+              A.terms3,
+              A.terms4,
+              A.terms5,
+              A.terms6,
+              A.createdAt,
+              A.updatedAt,
+              A.exitedAt,
+              DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")		AS viewCreatedAt,
+              DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")		AS viewUpdatedAt,
+              DATE_FORMAT(A.exitedAt, "%Y년 %m월 %d일")		AS viewExitedAt,
+              CASE
+                WHEN  (
+                      SELECT  COUNT(B.id)
+                        FROM  artist		B
+                        WHERE  B.isPermm = 1	 
+                          AND  B.UserId = A.id
+                      ) > 0
+                THEN  "아티스트"
+                ELSE  "일반"
+              END                    AS  isArtist
+        FROM	users     A
        WHERE  A.id = ${user.id}
 `;
 
@@ -274,27 +298,45 @@ router.post("/snsLogin", (req, res, next) => {
       const insertResult = await models.sequelize.query(insertQuery);
 
       const findUserQuery = `
-      SELECT	id,
-              username,
-              email,
-              level,
-              mobile,
-              DATE_FORMAT(createdAt, "%Y년 %m월 %d일") AS viewCreatedAt,
-              DATE_FORMAT(updatedAt, "%Y년 %m월 %d일") AS updatedAt,
-              DATE_FORMAT(exitedAt, "%Y년 %m월 %d일") AS viewExitedAt,
-              menuRight1,
-              menuRight2,
-              menuRight3,
-              menuRight4,
-              menuRight5,
-              menuRight6,
-              menuRight7,
-              menuRight8,
-              menuRight9,
-              menuRight10,
-              menuRight11,
-              menuRight12
-        FROM	users   A
+      SELECT	ROW_NUMBER() OVER(ORDER	BY A.createdAt)		AS num,
+              A.id,
+              A.userId,
+              A.email,
+              A.username,
+              A.nickname,
+              A.mobile,
+              A.level,
+              A.isExit,
+              CASE
+                WHEN	A.level = 1	THEN "일반회원"
+                WHEN	A.level = 2	THEN "비어있음"
+                WHEN	A.level = 3	THEN "운영자"
+                WHEN	A.level = 4	THEN "최고관리자"
+                WHEN	A.level = 5	THEN "개발사"
+              END											AS viewLevel,
+              A.terms,
+              A.terms2,
+              A.terms3,
+              A.terms4,
+              A.terms5,
+              A.terms6,
+              A.createdAt,
+              A.updatedAt,
+              A.exitedAt,
+              DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")		AS viewCreatedAt,
+              DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")		AS viewUpdatedAt,
+              DATE_FORMAT(A.exitedAt, "%Y년 %m월 %d일")		AS viewExitedAt,
+              CASE
+                WHEN  (
+                      SELECT  COUNT(B.id)
+                        FROM  artist		B
+                        WHERE  B.isPermm = 1	 
+                          AND  B.UserId = A.id
+                      ) > 0
+                THEN  "아티스트"
+                ELSE  "일반"
+              END                    AS  isArtist
+        FROM	users     A
        WHERE  A.id = ${insertResult[0].insertId}
 `;
 
@@ -505,33 +547,67 @@ router.get("/signin", async (req, res, next) => {
   console.log("❌❌❌❌❌❌❌❌❌❌❌❌❌❌");
   try {
     if (req.user) {
-      const fullUserWithoutPassword = await User.findOne({
-        where: { id: req.user.id },
-        attributes: [
-          "id",
-          "userId",
-          "nickname",
-          "email",
-          "level",
-          "menuRight1",
-          "menuRight2",
-          "menuRight3",
-          "menuRight4",
-          "menuRight5",
-          "menuRight6",
-          "menuRight7",
-          "menuRight8",
-          "menuRight9",
-          "menuRight10",
-          "menuRight11",
-          "menuRight12",
-        ],
-      });
+      const selectQuery = `
+      SELECT	ROW_NUMBER() OVER(ORDER	BY A.createdAt)		AS num,
+              A.id,
+              A.userId,
+              A.email,
+              A.username,
+              A.nickname,
+              A.mobile,
+              A.level,
+              A.isExit,
+              CASE
+                WHEN	A.level = 1	THEN "일반회원"
+                WHEN	A.level = 2	THEN "비어있음"
+                WHEN	A.level = 3	THEN "운영자"
+                WHEN	A.level = 4	THEN "최고관리자"
+                WHEN	A.level = 5	THEN "개발사"
+              END											AS viewLevel,
+              A.terms,
+              A.terms2,
+              A.terms3,
+              A.terms4,
+              A.terms5,
+              A.terms6,
+              A.menuRight1,
+              A.menuRight2,
+              A.menuRight3,
+              A.menuRight4,
+              A.menuRight5,
+              A.menuRight6,
+              A.menuRight7,
+              A.menuRight8,
+              A.menuRight9,
+              A.menuRight10,
+              A.menuRight11,
+              A.menuRight12,
+              A.createdAt,
+              A.updatedAt,
+              A.exitedAt,
+              DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")		AS viewCreatedAt,
+              DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")		AS viewUpdatedAt,
+              DATE_FORMAT(A.exitedAt, "%Y년 %m월 %d일")		AS viewExitedAt,
+              CASE
+                WHEN  (
+                      SELECT  COUNT(B.id)
+                        FROM  artist		B
+                        WHERE  B.isPermm = 1	 
+                          AND  B.UserId = A.id
+                      ) > 0
+                THEN  "아티스트"
+                ELSE  "일반"
+              END                    AS  isArtist
+        FROM	users     A
+       WHERE  A.id = ${req.user.id}
+      `;
+
+      const fullUserWithoutPassword = await models.sequelize.query(selectQuery);
 
       console.log("🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀");
-      console.log(fullUserWithoutPassword);
+      console.log(fullUserWithoutPassword[0][0]);
       console.log("🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀");
-      return res.status(200).json(fullUserWithoutPassword);
+      return res.status(200).json(fullUserWithoutPassword[0][0]);
     } else {
       res.status(200).json(null);
     }
@@ -559,31 +635,52 @@ router.post("/signin", (req, res, next) => {
         return next(loginErr);
       }
 
-      const fullUserWithoutPassword = await User.findOne({
-        where: { id: user.id },
-        attributes: [
-          "id",
-          "nickname",
-          "userId",
-          "email",
-          "level",
-          "username",
-          "menuRight1",
-          "menuRight2",
-          "menuRight3",
-          "menuRight4",
-          "menuRight5",
-          "menuRight6",
-          "menuRight7",
-          "menuRight8",
-          "menuRight9",
-          "menuRight10",
-          "menuRight11",
-          "menuRight12",
-        ],
-      });
+      const selectQuery = `
+      SELECT	ROW_NUMBER() OVER(ORDER	BY A.createdAt)		AS num,
+              A.id,
+              A.userId,
+              A.email,
+              A.username,
+              A.nickname,
+              A.mobile,
+              A.level,
+              A.isExit,
+              CASE
+                WHEN	A.level = 1	THEN "일반회원"
+                WHEN	A.level = 2	THEN "비어있음"
+                WHEN	A.level = 3	THEN "운영자"
+                WHEN	A.level = 4	THEN "최고관리자"
+                WHEN	A.level = 5	THEN "개발사"
+              END											AS viewLevel,
+              A.terms,
+              A.terms2,
+              A.terms3,
+              A.terms4,
+              A.terms5,
+              A.terms6,
+              A.createdAt,
+              A.updatedAt,
+              A.exitedAt,
+              DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")		AS viewCreatedAt,
+              DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")		AS viewUpdatedAt,
+              DATE_FORMAT(A.exitedAt, "%Y년 %m월 %d일")		AS viewExitedAt,
+              CASE
+                WHEN  (
+                      SELECT  COUNT(B.id)
+                        FROM  artist		B
+                        WHERE  B.isPermm = 1	 
+                          AND  B.UserId = A.id
+                      ) > 0
+                THEN  "아티스트"
+                ELSE  "일반"
+              END                    AS  isArtist
+        FROM	users     A
+       WHERE  A.id = ${user.id}
+      `;
 
-      return res.status(200).json(fullUserWithoutPassword);
+      const fullUserWithoutPassword = await models.sequelize.query(selectQuery);
+
+      return res.status(200).json(fullUserWithoutPassword[0][0]);
     });
   })(req, res, next);
 });
@@ -753,12 +850,16 @@ router.post("/me/update", isLoggedIn, async (req, res, next) => {
                                      SET  nickname = "${nickname}",
                                           email = "${email}",
                                           mobile = "${mobile}",
-                                          ${terms ? `${terms}` : null},
-                                          ${terms2},
-                                          ${terms3},
-                                          ${terms4},
-                                          ${terms5 ? `${terms5}` : null},
-                                          ${terms6 ? `${terms6}` : null},
+                                          terms = ${terms ? `${terms}` : null},
+                                          terms2 = ${terms2},
+                                          terms3 = ${terms3},
+                                          terms4 = ${terms4},
+                                          terms5 = ${
+                                            terms5 ? `${terms5}` : null
+                                          },
+                                          terms6 = ${
+                                            terms6 ? `${terms6}` : null
+                                          },
                                           updatedAt = NOW()
                                    WHERE  id = ${req.user.id}
                                   `;
@@ -784,6 +885,7 @@ router.post("/me/update", isLoggedIn, async (req, res, next) => {
     return res.status(401).send("정보를 수정할 수 없습니다.");
   }
 });
+
 /**
  * SUBJECT : 개인정보 수정 (비밀번호 변경)
  * PARAMETERS : beforePassword, afterPassword
@@ -792,6 +894,7 @@ router.post("/me/update", isLoggedIn, async (req, res, next) => {
  * DEVELOPMENT : 신태섭
  * DEV DATE : 2023/01/31
  */
+
 router.post("/me/password/update", isLoggedIn, async (req, res, next) => {
   const { beforePassword, afterPassword } = req.body;
 

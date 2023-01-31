@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import ClientLayout from "../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../store/configureStore";
@@ -21,17 +21,67 @@ import {
 import Theme from "../../components/Theme";
 import { BellOutlined, CloseOutlined, StarFilled } from "@ant-design/icons";
 import styled from "styled-components";
-import { Checkbox, DatePicker, Modal, Popover, Rate, Select } from "antd";
+import {
+  Checkbox,
+  DatePicker,
+  message,
+  Modal,
+  Popover,
+  Rate,
+  Select,
+} from "antd";
+import useInput from "../../hooks/useInput";
+import moment from "moment";
+import {
+  BUYREQUEST_CREATE_REQUEST,
+  BUYREQUEST_FILE_REQUEST,
+  BUYREQUEST_RESET,
+} from "../../reducers/buyRequest";
+import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 const Index = () => {
   ////// GLOBAL STATE //////
+  const { buyRequestFile, st_buyRequestCreateDone } = useSelector(
+    (state) => state.buyRequest
+  );
+  const { me } = useSelector((state) => state.user);
+
+  ////// HOOKS //////
+  const width = useWidth();
+
   const [isModal, setIsModal] = useState(false);
   const [isDetail, setIsDetail] = useState(false);
   const [isContact, setIsContact] = useState(false);
-  ////// HOOKS //////
-  const width = useWidth();
+
+  const [selectDate, setSelectDate] = useState(``);
+  const [fileName, setFileName] = useState(``);
+  const [terms, setTerms] = useState(false);
+  const totalPriceInput = useInput(``);
+  const contentInput = useInput(``);
+
+  const fileRef = useRef();
   ////// REDUX //////
+  const dispatch = useDispatch();
+  const router = useRouter();
   ////// USEEFFECT //////
+
+  useEffect(() => {
+    if (st_buyRequestCreateDone) {
+      setIsContact(false);
+      setSelectDate(null);
+      setFileName(null);
+      setTerms(false);
+      totalPriceInput.setValue(``);
+      contentInput.setValue(``);
+      dispatch({
+        type: BUYREQUEST_RESET,
+      });
+
+      return message.success("문의가 접수되었습니다.");
+    }
+  }, [st_buyRequestCreateDone]);
   ////// TOGGLE //////
   const modalToggle = useCallback(() => {
     setIsModal((prev) => !prev);
@@ -42,9 +92,85 @@ const Index = () => {
   }, [isDetail]);
 
   const contactToggle = useCallback(() => {
+    if (!me) {
+      return message.error("로그인 후 이용가능합니다.");
+    }
     setIsContact((prev) => !prev);
   }, [isContact]);
   ////// HANDLER //////
+
+  // 문의하기
+  const createHandler = useCallback(() => {
+    if (!contentInput.value) {
+      return message.error("내용을 입력해주세요.");
+    }
+
+    if (!totalPriceInput.value) {
+      return message.error("금액을 입력해주세요.");
+    }
+
+    if (!selectDate) {
+      return message.error("제출 마감일을 선택해주세요.");
+    }
+
+    if (!buyRequestFile) {
+      return message.error("파일을 업로드해주세요.");
+    }
+
+    if (!terms) {
+      return message.error("동의하기를 눌러주세요.");
+    }
+
+    dispatch({
+      type: BUYREQUEST_CREATE_REQUEST,
+      data: {
+        sendMessage: contentInput.value,
+        totalPrice: totalPriceInput.value,
+        endDate: selectDate.format("YYYY-MM-DD "),
+        filename: fileName,
+        filepath: buyRequestFile,
+        sendUserId: me && me.id,
+        receptionUserId: router.query.id,
+      },
+    });
+  }, [
+    me,
+    router,
+    contentInput,
+    totalPriceInput,
+    selectDate,
+    fileName,
+    buyRequestFile,
+    terms,
+  ]);
+
+  // 파일 리셋
+  const fileResetHandler = useCallback(() => {
+    dispatch({
+      type: BUYREQUEST_RESET,
+    });
+  }, []);
+
+  // 파일 선택
+  const fileClickHandler = useCallback(() => {
+    fileRef.current.click();
+  }, [fileRef]);
+
+  // 파일 업로드
+  const onChangeImages = useCallback((e) => {
+    setFileName(e.target.files[0].name);
+    const formData = new FormData();
+
+    [].forEach.call(e.target.files, (file) => {
+      formData.append("file", file);
+    });
+
+    dispatch({
+      type: BUYREQUEST_FILE_REQUEST,
+      data: formData,
+    });
+  });
+
   ////// DATAVIEW //////
 
   return (
@@ -502,7 +628,11 @@ const Index = () => {
                   fontSize={`16px`}
                   margin={`12px 0 30px`}
                 >
-                  <DatePicker style={{ width: 200, height: 50 }} />
+                  <DatePicker
+                    style={{ width: 200, height: 50 }}
+                    value={selectDate}
+                    onChange={(e) => setSelectDate(e)}
+                  />
                   &nbsp;까지
                 </Wrapper>
               </Wrapper>
@@ -521,6 +651,8 @@ const Index = () => {
                     placeholder="최소 20만원"
                     width={`200px`}
                     height={`50px`}
+                    {...totalPriceInput}
+                    type="number"
                   />
                   &nbsp;원
                 </Wrapper>
@@ -534,6 +666,7 @@ const Index = () => {
                   height={`75px`}
                   margin={`12px 0 30px`}
                   placeholder="내용을 입력해주세요."
+                  {...contentInput}
                 />
                 <Text fontSize={`16px`} color={Theme.grey_C}>
                   레퍼런스 음악을 첨부해 주세요.
@@ -541,35 +674,51 @@ const Index = () => {
                 <Wrapper dr={`row`} ju={`space-between`} margin={`12px 0 10px`}>
                   <TextInput
                     border={`1px solid ${Theme.lightGrey_C}`}
-                    placeholder="최소 20만원"
+                    placeholder="파일을 업로드해주세요."
                     width={`calc(100% - 110px)`}
+                    readOnly={true}
                     height={`50px`}
+                    // value={fileName}
+                  />
+
+                  <input
+                    type="file"
+                    name="image"
+                    accept=".mp3, .wav, .mp4"
+                    // multiple
+                    hidden
+                    ref={fileRef}
+                    onChange={onChangeImages}
                   />
                   <CommonButton
                     kindOf={`subTheme2`}
                     width={`100px`}
                     height={`50px`}
+                    onClick={fileClickHandler}
                   >
                     파일등록
                   </CommonButton>
                 </Wrapper>
-                <Wrapper
-                  dr={`row`}
-                  ju={`space-between`}
-                  padding={`16px 14px`}
-                  bgColor={Theme.lightGrey2_C}
-                >
-                  <Text fontSize={`16px`} color={Theme.grey_C}>
-                    <Image
-                      alt="icon"
-                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/music-file.png`}
-                      width={`14px`}
-                      margin={`0 5px 0 0`}
-                    />
-                    K-Pop.WAV
-                  </Text>
-                  <CloseOutlined />
-                </Wrapper>
+
+                {buyRequestFile && fileName && (
+                  <Wrapper
+                    dr={`row`}
+                    ju={`space-between`}
+                    padding={`16px 14px`}
+                    bgColor={Theme.lightGrey2_C}
+                  >
+                    <Text fontSize={`16px`} color={Theme.grey_C}>
+                      <Image
+                        alt="icon"
+                        src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/music-file.png`}
+                        width={`14px`}
+                        margin={`0 5px 0 0`}
+                      />
+                      {fileName}
+                    </Text>
+                    <CloseOutlined onClick={fileResetHandler} />
+                  </Wrapper>
+                )}
                 <Text color={Theme.grey_C} margin={`20px 0`}>
                   제작할 음악의 용도를 반드시 미리 고지해야 하며, 작업 완료 후
                   정식 앨범 출판 및 정식 앨범 출판 및 상업적 사용을 할 때에
@@ -577,7 +726,9 @@ const Index = () => {
                   통하여 전문가, 의뢰인 협의 후 진행하실 수
                   있습니다.(nws0901@nwsound1.com)
                 </Text>
-                <Checkbox>네, 동의합니다.</Checkbox>
+                <Checkbox checked={terms} onChange={() => setTerms(!terms)}>
+                  네, 동의합니다.
+                </Checkbox>
               </Wrapper>
               <Wrapper dr={`row`} margin={`34px 0 0`}>
                 <CommonButton
@@ -594,6 +745,7 @@ const Index = () => {
                   width={width < 900 ? `150px` : `180px`}
                   height={`50px`}
                   fontSize={`18px`}
+                  onClick={createHandler}
                 >
                   문의하기
                 </CommonButton>
