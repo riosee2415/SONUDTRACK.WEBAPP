@@ -216,9 +216,12 @@ const MypageMenu = ({}) => {
               fontSize={`16px`}
               fontWeight={`bold`}
               color={
-                router.pathname === `/mypage` ? Theme.black_C : Theme.grey2_C
+                router.pathname === `/mypage/purchase`
+                  ? Theme.black_C
+                  : Theme.grey2_C
               }
               isHover
+              onClick={() => movelinkHandler(`/mypage/purchase`)}
               margin={`0 0 22px`}
             >
               구매 내역

@@ -20,16 +20,33 @@ import Theme from "../../components/Theme";
 import styled from "styled-components";
 import { Checkbox } from "antd";
 import Link from "next/dist/client/link";
+import useInput from "../../hooks/useInput";
 
 const Index = () => {
   ////// GLOBAL STATE //////
   ////// HOOKS //////
   const width = useWidth();
+
+  const nameInput = useInput(``);
+  const emailInput = useInput(``);
+  const titleInput = useInput(``);
+  const contentInput = useInput(``);
+  const [terms, setTerms] = useState(false);
   ////// REDUX //////
   ////// USEEFFECT //////
   ////// TOGGLE //////
 
   ////// HANDLER //////
+
+  // 문의하기
+  const contactHandler = useCallback(() => {}, [
+    nameInput,
+    emailInput,
+    titleInput,
+    contentInput,
+    terms,
+  ]);
+
   ////// DATAVIEW //////
 
   return (
@@ -104,6 +121,7 @@ const Index = () => {
                   placeholder="성함을 입력해주세요."
                   border={`1px solid ${Theme.lightGrey_C}`}
                   margin={`12px 0 30px`}
+                  {...nameInput}
                 />
                 <Text fontSize={`16px`}>이메일</Text>
                 <TextInput
@@ -113,6 +131,7 @@ const Index = () => {
                   placeholder="답장을 받으실 이메일 주소를 입력해주세요."
                   border={`1px solid ${Theme.lightGrey_C}`}
                   margin={`12px 0 30px`}
+                  {...emailInput}
                 />
                 <Text fontSize={`16px`}>제목</Text>
                 <TextInput
@@ -122,6 +141,7 @@ const Index = () => {
                   placeholder="문의 제목을 입력해주세요."
                   border={`1px solid ${Theme.lightGrey_C}`}
                   margin={`12px 0 30px`}
+                  {...titleInput}
                 />
                 <Text fontSize={`16px`}>내용</Text>
                 <TextArea
@@ -131,8 +151,11 @@ const Index = () => {
                   placeholder="문의할 내용을 입력해주세요."
                   border={`1px solid ${Theme.lightGrey_C}`}
                   margin={`12px 0 30px`}
+                  {...contentInput}
                 />
-                <Checkbox>개인정보 처리방침에 동의합니다.</Checkbox>
+                <Checkbox checked={terms} onChange={() => setTerms(!terms)}>
+                  개인정보 처리방침에 동의합니다.
+                </Checkbox>
                 <CommonButton
                   width={`180px`}
                   height={`50px`}
