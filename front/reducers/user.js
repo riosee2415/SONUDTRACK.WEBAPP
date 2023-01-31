@@ -8,6 +8,7 @@ export const initailState = {
   userHistory: [],
   adminUserRightHistory: [],
   buyStatus: [],
+  findUserId: null, // 아이디 찾기
   //
   st_loginLoading: false,
   st_loginDone: false,
@@ -72,6 +73,18 @@ export const initailState = {
   st_userInfoUpdateLoading: false, // 회원정보 수정
   st_userInfoUpdateDone: false,
   st_userInfoUpdateError: false,
+  //
+  st_findUserIdLoading: false, // 아이디 수정
+  st_findUserIdDone: false,
+  st_findUserIdError: false,
+  //
+  st_checkSecretLoading: false, // 코드 확인 - 비밀번호 재설정
+  st_checkSecretDone: false,
+  st_checkSecretError: false,
+  //
+  st_modifyPassUpdateLoading: false, // 비밀번호 재설정
+  st_modifyPassUpdateDone: false,
+  st_modifyPassUpdateError: false,
 };
 
 export const LOGIN_REQUEST = "LOGIN_REQUEST";
@@ -141,6 +154,18 @@ export const MODIFY_PASS_FAILURE = "MODIFY_PASS_FAILURE";
 export const USER_INFO_UPDATE_REQUEST = "USER_INFO_UPDATE_REQUEST";
 export const USER_INFO_UPDATE_SUCCESS = "USER_INFO_UPDATE_SUCCESS";
 export const USER_INFO_UPDATE_FAILURE = "USER_INFO_UPDATE_FAILURE";
+//
+export const FIND_USER_ID_REQUEST = "FIND_USER_ID_REQUEST";
+export const FIND_USER_ID_SUCCESS = "FIND_USER_ID_SUCCESS";
+export const FIND_USER_ID_FAILURE = "FIND_USER_ID_FAILURE";
+//
+export const CHECK_SECRET_REQUEST = "CHECK_SECRET_REQUEST";
+export const CHECK_SECRET_SUCCESS = "CHECK_SECRET_SUCCESS";
+export const CHECK_SECRET_FAILURE = "CHECK_SECRET_FAILURE";
+//
+export const MODIFY_PASS_UPDATE_REQUEST = "MODIFY_PASS_UPDATE_REQUEST";
+export const MODIFY_PASS_UPDATE_SUCCESS = "MODIFY_PASS_UPDATE_SUCCESS";
+export const MODIFY_PASS_UPDATE_FAILURE = "MODIFY_PASS_UPDATE_FAILURE";
 
 export const UPDATE_MODAL_OPEN_REQUEST = "UPDATE_MODAL_OPEN_REQUEST";
 export const UPDATE_MODAL_CLOSE_REQUEST = "UPDATE_MODAL_CLOSE_REQUEST";
@@ -502,6 +527,69 @@ const reducer = (state = initailState, action) =>
         draft.st_userInfoUpdateLoading = false;
         draft.st_userInfoUpdateDone = false;
         draft.st_userInfoUpdateError = action.error;
+        break;
+      }
+
+      //////////////////////////////////////////////
+
+      case FIND_USER_ID_REQUEST: {
+        draft.st_findUserIdLoading = true;
+        draft.st_findUserIdDone = false;
+        draft.st_findUserIdError = null;
+        break;
+      }
+      case FIND_USER_ID_SUCCESS: {
+        draft.st_findUserIdLoading = false;
+        draft.st_findUserIdDone = true;
+        draft.st_findUserIdError = null;
+        draft.findUserId = action.data.userId;
+        break;
+      }
+      case FIND_USER_ID_FAILURE: {
+        draft.st_findUserIdLoading = false;
+        draft.st_findUserIdDone = false;
+        draft.st_findUserIdError = action.error;
+        break;
+      }
+
+      //////////////////////////////////////////////
+
+      case CHECK_SECRET_REQUEST: {
+        draft.st_checkSecretLoading = true;
+        draft.st_checkSecretDone = false;
+        draft.st_checkSecretError = null;
+        break;
+      }
+      case CHECK_SECRET_SUCCESS: {
+        draft.st_checkSecretLoading = false;
+        draft.st_checkSecretDone = true;
+        draft.st_checkSecretError = null;
+        break;
+      }
+      case CHECK_SECRET_FAILURE: {
+        draft.st_checkSecretLoading = false;
+        draft.st_checkSecretDone = false;
+        draft.st_checkSecretError = action.error;
+        break;
+      }
+      //////////////////////////////////////////////
+
+      case MODIFY_PASS_UPDATE_REQUEST: {
+        draft.st_modifyPassUpdateLoading = true;
+        draft.st_modifyPassUpdateDone = false;
+        draft.st_modifyPassUpdateError = null;
+        break;
+      }
+      case MODIFY_PASS_UPDATE_SUCCESS: {
+        draft.st_modifyPassUpdateLoading = false;
+        draft.st_modifyPassUpdateDone = true;
+        draft.st_modifyPassUpdateError = null;
+        break;
+      }
+      case MODIFY_PASS_UPDATE_FAILURE: {
+        draft.st_modifyPassUpdateLoading = false;
+        draft.st_modifyPassUpdateDone = false;
+        draft.st_modifyPassUpdateError = action.error;
         break;
       }
 
