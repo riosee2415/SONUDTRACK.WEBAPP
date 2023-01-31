@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Head from "next/head";
 import ClientLayout from "../../../components/ClientLayout";
 import wrapper from "../../../store/configureStore";
@@ -16,7 +16,7 @@ import {
 import Theme from "../../../components/Theme";
 import styled from "styled-components";
 import { ClockCircleOutlined } from "@ant-design/icons";
-import { Checkbox, message } from "antd";
+import { Checkbox, message, Modal } from "antd";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/router";
 
@@ -35,6 +35,8 @@ const Index = () => {
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
+
+  const [orderModal, setOrderModal] = useState(false);
   ////// REDUX //////
   ////// USEEFFECT //////
   useEffect(() => {
@@ -46,6 +48,9 @@ const Index = () => {
     }
   }, [me]);
   ////// TOGGLE //////
+  const orderToggle = useCallback(() => {
+    setOrderModal((prev) => !prev);
+  }, [orderModal]);
   ////// HANDLER //////
   ////// DATAVIEW //////
 
@@ -173,6 +178,7 @@ const Index = () => {
                   height={`48px`}
                   fontSize={`18px`}
                   radius={`7px`}
+                  onClick={orderToggle}
                 >
                   신청하기
                 </CommonButton>
@@ -281,6 +287,7 @@ const Index = () => {
                   height={`48px`}
                   fontSize={`18px`}
                   radius={`7px`}
+                  onClick={orderToggle}
                 >
                   신청하기
                 </CommonButton>
@@ -378,6 +385,7 @@ const Index = () => {
                   height={`48px`}
                   fontSize={`18px`}
                   radius={`7px`}
+                  onClick={orderToggle}
                 >
                   신청하기
                 </CommonButton>
@@ -466,6 +474,36 @@ const Index = () => {
               </Wrapper>
             </Wrapper>
           </RsWrapper>
+
+          <Modal onCancel={orderToggle} visible={orderModal} footer={null}>
+            <Wrapper padding={width < 900 ? `30px 0` : `30px 25px`}>
+              <Text
+                fontWeight={`bold`}
+                fontSize={`28px`}
+                color={Theme.basicTheme_C}
+                margin={`0 0 16px`}
+              >
+                광고 신청 결제
+              </Text>
+
+              <Text fontSize={width < 900 ? `14px` : `16px`}>
+                바로 구매하시겠습니까?
+              </Text>
+              <Text fontSize={width < 900 ? `14px` : `16px`}>
+                광고 신청시 주의사항을 확인해주세요.
+              </Text>
+
+              <CommonButton
+                width={`150px`}
+                height={`48px`}
+                fontSize={`18px`}
+                fontWeight={`bold`}
+                margin={`30px 0 0`}
+              >
+                바로 구매하기
+              </CommonButton>
+            </Wrapper>
+          </Modal>
         </WholeWrapper>
       </ClientLayout>
     </>
