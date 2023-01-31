@@ -753,12 +753,16 @@ router.post("/me/update", isLoggedIn, async (req, res, next) => {
                                      SET  nickname = "${nickname}",
                                           email = "${email}",
                                           mobile = "${mobile}",
-                                          ${terms ? `${terms}` : null},
-                                          ${terms2},
-                                          ${terms3},
-                                          ${terms4},
-                                          ${terms5 ? `${terms5}` : null},
-                                          ${terms6 ? `${terms6}` : null},
+                                          terms = ${terms ? `${terms}` : null},
+                                          terms2 = ${terms2},
+                                          terms3 = ${terms3},
+                                          terms4 = ${terms4},
+                                          terms5 = ${
+                                            terms5 ? `${terms5}` : null
+                                          },
+                                          terms6 = ${
+                                            terms6 ? `${terms6}` : null
+                                          },
                                           updatedAt = NOW()
                                    WHERE  id = ${req.user.id}
                                   `;
