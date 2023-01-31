@@ -252,7 +252,29 @@ router.post("/artistem/allList", async (req, res, next) => {
                   ON  AR.UserId = US.id
                WHERE  A.ArtistId = AR.id
                  AND  AR.isPermm = 1
-            )                                            AS artistImage
+            )                                            AS artistImage,
+            (
+              SELECT  COUNT(id)
+                FROM  userLike
+               WHERE  ArtistemId = A.id
+            )                                            AS likeCnt
+            ${
+              req.user
+                ? `,
+              CASE
+                  WHEN  (
+                          SELECT  COUNT(id)
+                            FROM  userLike
+                           WHERE  ArtistemId = A.id
+                             AND  UserId = ${req.user.id}
+                        ) > 0 THEN                       1
+                  ELSE                                   0
+              END                                        AS isLike
+              `
+                : `,
+              0                                          AS isLike
+              `
+            }
       FROM	artistem	A
      INNER
       JOIN  productCategory B
@@ -263,7 +285,7 @@ router.post("/artistem/allList", async (req, res, next) => {
          ? `ORDER  BY (
                        SELECT  COUNT(id)
                          FROM  userLike	
-                        WHERE  A.ArtistemId = id
+                        WHERE  ArtistemId = A.id
                      ) DESC`
          : `ORDER  BY  A.createdAt DESC`
      }
@@ -365,7 +387,29 @@ router.post("/artistem/newList", async (req, res, next) => {
                   ON  AR.UserId = US.id
                WHERE  A.ArtistId = AR.id
                  AND  AR.isPermm = 1
-            )                                            AS artistImage
+            )                                            AS artistImage,
+            (
+              SELECT  COUNT(id)
+                FROM  userLike
+               WHERE  ArtistemId = A.id
+            )                                            AS likeCnt
+            ${
+              req.user
+                ? `,
+              CASE
+                  WHEN  (
+                          SELECT  COUNT(id)
+                            FROM  userLike
+                           WHERE  ArtistemId = A.id
+                             AND  UserId = ${req.user.id}
+                        ) > 0 THEN                       1
+                  ELSE                                   0
+              END                                        AS isLike
+              `
+                : `,
+              0                                          AS isLike
+              `
+            }
       FROM	artistem	A
      INNER
       JOIN  productCategory B
@@ -470,7 +514,29 @@ router.post("/artistem/nearList", async (req, res, next) => {
                   ON  AR.UserId = US.id
                WHERE  A.ArtistId = AR.id
                  AND  AR.isPermm = 1
-            )                                            AS artistImage
+            )                                            AS artistImage,
+            (
+              SELECT  COUNT(id)
+                FROM  userLike
+               WHERE  ArtistemId = A.id
+            )                                            AS likeCnt
+            ${
+              req.user
+                ? `,
+              CASE
+                  WHEN  (
+                          SELECT  COUNT(id)
+                            FROM  userLike
+                           WHERE  ArtistemId = A.id
+                             AND  UserId = ${req.user.id}
+                        ) > 0 THEN                       1
+                  ELSE                                   0
+              END                                        AS isLike
+              `
+                : `,
+              0                                          AS isLike
+              `
+            }
       FROM	artistem	A
      INNER
       JOIN  productCategory B
@@ -648,7 +714,29 @@ router.post("/target/detail", async (req, res, next) => {
           A.filepath,
           FORMAT(A.sPrice , 0)   as viewsPrice,
           FORMAT(A.dPrice , 0)   as viewdPrice,
-          FORMAT(A.pPrice , 0)   as viewpPrice
+          FORMAT(A.pPrice , 0)   as viewpPrice,
+          (
+            SELECT  COUNT(id)
+              FROM  userLike
+             WHERE  ArtistemId = A.id
+          )                                            AS likeCnt
+          ${
+            req.user
+              ? `,
+            CASE
+                WHEN  (
+                        SELECT  COUNT(id)
+                          FROM  userLike
+                         WHERE  ArtistemId = A.id
+                           AND  UserId = ${req.user.id}
+                      ) > 0 THEN                       1
+                ELSE                                   0
+            END                                        AS isLike
+            `
+              : `,
+            0                                          AS isLike
+            `
+          }
     FROM	artistem	A
    INNER
     JOIN  productCategory B

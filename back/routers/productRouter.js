@@ -653,7 +653,29 @@ router.post("/track/detail", async (req, res, next) => {
           A.pPrice,
           FORMAT(A.sPrice , 0)   as viewsPrice,
           FORMAT(A.dPrice , 0)   as viewdPrice,
-          FORMAT(A.pPrice , 0)   as viewpPrice
+          FORMAT(A.pPrice , 0)   as viewpPrice,
+          (
+            SELECT  COUNT(id)
+              FROM  userLike
+             WHERE  ProductTrackId = A.id
+          )                                            AS likeCnt
+          ${
+            req.user
+              ? `,
+            CASE
+                WHEN  (
+                        SELECT  COUNT(id)
+                          FROM  userLike
+                         WHERE  ProductTrackId = A.id
+                           AND  UserId = ${req.user.id}
+                      ) > 0 THEN                       1
+                ELSE                                   0
+            END                                        AS isLike
+            `
+              : `,
+            0                                          AS isLike
+            `
+          }
     FROM	productTrack	A
    WHERE  A.id = ${id}
   `;
