@@ -22,10 +22,11 @@ import {
 import Theme from "../../components/Theme";
 import { SearchOutlined, StarFilled } from "@ant-design/icons";
 import styled from "styled-components";
-import { Modal, Select } from "antd";
+import { Empty, Modal, Select } from "antd";
 import MainSlider2 from "../../components/slide/MainSlider2";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
+import { ALL_ARTISTEM_LIST_REQUEST } from "../../reducers/artist";
 
 const CustomSelect = styled(Wrapper)`
   width: 240px;
@@ -60,6 +61,7 @@ const CustomSelect = styled(Wrapper)`
 
 const Index = () => {
   ////// GLOBAL STATE //////
+  const { allArtistemList } = useSelector((state) => state.artist);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -70,7 +72,14 @@ const Index = () => {
 
   ////// USEEFFECT //////
 
-  useEffect(() => {}, [orderType]);
+  useEffect(() => {
+    dispatch({
+      type: ALL_ARTISTEM_LIST_REQUEST,
+      data: {
+        orderType,
+      },
+    });
+  }, [orderType]);
 
   ////// TOGGLE //////
 
@@ -431,68 +440,75 @@ const Index = () => {
               </Wrapper>
             </Wrapper>
             <Wrapper dr={`row`} ju={`flex-start`} al={`flex-start`}>
-              <ArtWrapper>
-                <SquareBox>
-                  <Image
-                    src="https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png"
-                    alt="thumbnail"
-                  />
-                </SquareBox>
-                <Text
-                  fontSize={`18px`}
-                  fontWeight={`bold`}
-                  margin={`20px 0 7px`}
-                >
-                  이차미
-                </Text>
-                <Wrapper dr={`row`} ju={`flex-start`}>
-                  <Wrapper
-                    width={`auto`}
-                    border={`1px solid ${Theme.lightGrey_C}`}
-                    radius={`30px`}
-                    height={`27px`}
-                    padding={`0 15px`}
-                    margin={`0 7px 5px 0`}
-                  >
-                    Vocal
-                  </Wrapper>
-                  <Wrapper
-                    width={`auto`}
-                    border={`1px solid ${Theme.lightGrey_C}`}
-                    radius={`30px`}
-                    height={`27px`}
-                    padding={`0 15px`}
-                    margin={`0 7px 5px 0`}
-                  >
-                    Beat Maker
-                  </Wrapper>
+              {allArtistemList && allArtistemList.length === 0 ? (
+                <Wrapper margin={`100px 0`}>
+                  <Empty description={"등록된 아티스트가 존재하지 않습니다."} />
                 </Wrapper>
-                <Wrapper dr={`row`} ju={`space-between`} margin={`12px 0 0`}>
-                  <Wrapper
-                    dr={`row`}
-                    width={`auto`}
-                    color={Theme.subTheme3_C}
-                    fontSize={`16px`}
-                  >
-                    <StarFilled />
-                    <StarFilled />
-                    <StarFilled />
-                    <StarFilled />
-                    <StarFilled />
-                  </Wrapper>
-                  <Wrapper width={`auto`} dr={`row`}>
-                    <Image
-                      alt="icon"
-                      width={`14px`}
-                      margin={`0 4px 0 0`}
-                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
-                    />
-                    <Text fontSize={`14px`} color={Theme.grey_C}>
-                      98
-                    </Text>
-                  </Wrapper>
-                </Wrapper>
-              </ArtWrapper>
+              ) : (
+                allArtistemList &&
+                allArtistemList.map((data) => {
+                  return (
+                    <ArtWrapper key={data.id}>
+                      <SquareBox>
+                        <Image src={data.artistImage} alt="thumbnail" />
+                      </SquareBox>
+                      <Text
+                        fontSize={`18px`}
+                        fontWeight={`bold`}
+                        margin={`20px 0 7px`}
+                      >
+                        {data.artistName}
+                      </Text>
+                      <Wrapper dr={`row`} ju={`flex-start`}>
+                        {data.tags.map((v, idx) => {
+                          return (
+                            <Wrapper
+                              key={idx}
+                              width={`auto`}
+                              border={`1px solid ${Theme.lightGrey_C}`}
+                              radius={`30px`}
+                              height={`27px`}
+                              padding={`0 15px`}
+                              margin={`0 7px 5px 0`}
+                            >
+                              {v}
+                            </Wrapper>
+                          );
+                        })}
+                      </Wrapper>
+                      <Wrapper
+                        dr={`row`}
+                        ju={`space-between`}
+                        margin={`12px 0 0`}
+                      >
+                        <Wrapper
+                          dr={`row`}
+                          width={`auto`}
+                          color={Theme.subTheme3_C}
+                          fontSize={`16px`}
+                        >
+                          <StarFilled />
+                          <StarFilled />
+                          <StarFilled />
+                          <StarFilled />
+                          <StarFilled />
+                        </Wrapper>
+                        <Wrapper width={`auto`} dr={`row`}>
+                          <Image
+                            alt="icon"
+                            width={`14px`}
+                            margin={`0 4px 0 0`}
+                            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
+                          />
+                          <Text fontSize={`14px`} color={Theme.grey_C}>
+                            98
+                          </Text>
+                        </Wrapper>
+                      </Wrapper>
+                    </ArtWrapper>
+                  );
+                })
+              )}
             </Wrapper>
           </RsWrapper>
         </WholeWrapper>

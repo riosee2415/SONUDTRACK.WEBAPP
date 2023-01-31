@@ -195,8 +195,117 @@ router.post("/permm/del", isAdminCheck, async (req, res, next) => {
 });
 
 ////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////// ARTISTS ///////////////////////////////////////
+//////////////////////////////////// ARTISTEM //////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * SUBJECT : 아티스탬 전체 조회
+ * PARAMETERS : orderType
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/01/30
+ */
+router.post("/artistem/allList", async (req, res, next) => {
+  const { orderType } = req.body;
+
+  const _orderType = parseInt(orderType) || 1;
+
+  const selectQ = `
+    SELECT	ROW_NUMBER() OVER(ORDER BY A.title ASC) 	AS num,
+            A.id,
+            A.title,
+            A.subTitle,
+            A.content,
+            A.coverImage,
+            A.isIng,
+            A.isTop,
+            A.sampleRate,
+            A.bitRate,
+            A.createdAt,
+            A.updatedAt,
+            DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
+            DATE_FORMAT(A.updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt,
+            B.value AS caValue,
+            A.sPrice,
+            A.dPrice,
+            A.pPrice,
+            A.filename,
+            A.filepath,
+            FORMAT(A.sPrice , 0)   as viewsPrice,
+            FORMAT(A.dPrice , 0)   as viewdPrice,
+            FORMAT(A.pPrice , 0)   as viewpPrice,
+            (
+              SELECT  US.username
+                FROM  artist      AR
+               INNER
+                JOIN  users       US
+                  ON  AR.UserId = US.id
+               WHERE  A.ArtistId = AR.id
+                 AND  AR.isPermm = 1
+            )                                            AS artistName,
+            (
+              SELECT  AR.imagePath
+                FROM  artist      AR
+               INNER
+                JOIN  users       US
+                  ON  AR.UserId = US.id
+               WHERE  A.ArtistId = AR.id
+                 AND  AR.isPermm = 1
+            )                                            AS artistImage
+      FROM	artistem	A
+     INNER
+      JOIN  productCategory B
+        ON  A.ProductCategoryId = B.id
+     WHERE  A.isIng = 0
+     ${_orderType === 1 ? `` : `ORDER BY A.createdAt DESC`}
+    `;
+
+  const selectQ2 = `
+    SELECT	value,
+            ArtistemId
+      FROM	artistTemTag
+      `;
+
+  const selectQ3 = `
+    SELECT	value,
+            ArtistemId
+      FROM	artistTemGen
+    `;
+
+  try {
+    const list = await models.sequelize.query(selectQ);
+    const tags = await models.sequelize.query(selectQ2);
+    const gens = await models.sequelize.query(selectQ3);
+
+    const tems = list[0];
+
+    tems.map((data) => {
+      data["tags"] = [];
+      data["gens"] = [];
+
+      tags[0].map((tag) => {
+        if (data.id === tag.ArtistemId) {
+          data["tags"].push(tag.value);
+        }
+      });
+      gens[0].map((gen) => {
+        if (data.id === gen.ArtistemId) {
+          data["gens"].push(gen.value);
+        }
+      });
+    });
+
+    return res.status(200).json({
+      artistemList: tems,
+    });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(400)
+      .send("아티스템을 조회할 수 없습니다. 다시 시도해주세요.");
+  }
+});
 
 /**
  * SUBJECT : 최근 일주일 내 등록된 아티스탬 조회
@@ -409,9 +518,6 @@ router.post("/artistem/nearList", async (req, res, next) => {
   }
 });
 
-////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////// ARTISTEM //////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////
 router.post("/target/list", async (req, res, next) => {
   const { ArtistId } = req.body;
 

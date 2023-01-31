@@ -170,25 +170,6 @@ router.post("/isOk", isLoggedIn, async (req, res, next) => {
    WHERE  id = ${id};
     `;
 
-  const historyQ = `
-  INSERT  INTO  buyRequestHistory
-     (
-      content,
-      buyRequestId,
-      updator,
-      createdAt,
-      updatedAt
-     )
-     VALUES
-     (
-      "구매요청 승인",
-      ${id},
-      ${req.user.id},
-      NOW(),
-      NOW()
-     )
-  `;
-
   try {
     const checkList = await models.sequelize.query(selectQ);
 
@@ -197,7 +178,6 @@ router.post("/isOk", isLoggedIn, async (req, res, next) => {
     }
 
     await models.sequelize.query(updateQ);
-    await models.sequelize.query(historyQ);
 
     return res.status(200).json({ result: true });
   } catch (e) {
@@ -231,25 +211,6 @@ router.post("/isReject", isLoggedIn, async (req, res, next) => {
    WHERE  id = ${id};
     `;
 
-  const historyQ = `
-    INSERT  INTO  buyRequestHistory
-       (
-        content,
-        buyRequestId,
-        updator,
-        createdAt,
-        updatedAt
-       )
-       VALUES
-       (
-        "구매요청 거절",
-        ${id},
-        ${req.user.id},
-        NOW(),
-        NOW()
-       )
-    `;
-
   try {
     const checkList = await models.sequelize.query(selectQ);
 
@@ -258,7 +219,6 @@ router.post("/isReject", isLoggedIn, async (req, res, next) => {
     }
 
     await models.sequelize.query(updateQ);
-    await models.sequelize.query(historyQ);
 
     return res.status(200).json({ result: true });
   } catch (e) {
