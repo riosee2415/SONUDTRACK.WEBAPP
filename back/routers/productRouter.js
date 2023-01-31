@@ -643,6 +643,7 @@ router.post("/track/detail", async (req, res, next) => {
           A.filepath,
           A.author,
           A.downloadCnt,
+          FORMAT(A.downloadCnt, 0)                    AS  viewDownloadCnt,
           A.createdAt,
           A.updatedAt,
           A.ProductId,
