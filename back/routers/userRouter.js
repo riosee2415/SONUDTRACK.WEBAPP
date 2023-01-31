@@ -835,29 +835,6 @@ router.post("/me/password/update", isLoggedIn, async (req, res, next) => {
   }
 });
 
-router.post("/checkSecret", async (req, res, next) => {
-  const { secret } = req.body;
-
-  const findUser = `
-  SELECT  id
-    FROM  users
-   WHERE  secret = "${secret}"
-  `;
-
-  try {
-    const userData = await models.sequelize.query(findUser);
-
-    if (userData[0].length === 0) {
-      return res.status(401).send("인증코드를 잘못 입력하셨습니다.");
-    }
-
-    return res.status(200).json({ result: true });
-  } catch (error) {
-    console.error(error);
-    return res.status(401).send("잘못된 요청 입니다.");
-  }
-});
-
 router.post("/findemail", async (req, res, next) => {
   const { nickname, mobile } = req.body;
 
@@ -957,6 +934,29 @@ router.post("/modifypass", async (req, res, next) => {
   } catch (error) {
     console.error(error);
     return res.status(401).send("잘못된 요청 입니다. [CODE097]");
+  }
+});
+
+router.post("/checkSecret", async (req, res, next) => {
+  const { secret } = req.body;
+
+  const findUser = `
+  SELECT  id
+    FROM  users
+   WHERE  secret = "${secret}"
+  `;
+
+  try {
+    const userData = await models.sequelize.query(findUser);
+
+    if (userData[0].length === 0) {
+      return res.status(401).send("인증코드를 잘못 입력하셨습니다.");
+    }
+
+    return res.status(200).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("잘못된 요청 입니다.");
   }
 });
 
