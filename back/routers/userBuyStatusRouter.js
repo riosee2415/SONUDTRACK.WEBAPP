@@ -40,44 +40,88 @@ router.post("/list", async (req, res, next) => {
               CASE
                   WHEN	B.id  IS NULL THEN	"musicTem"
                   WHEN 	C.id  IS NULL THEN	"artisTem"
-              END												AS buyType,
-              B.title											AS artisTemTitle,
-              B.subTitle										AS artisTemSubTitle,
-              B.content										AS artisTemContent,
-              B.coverImage									AS artisTemCoverImage,
-              B.isIng											AS artisTemIsIng,
-              B.downloadCnt									AS artisTemDownloadCnt,
-              B.bitRate										AS artisTemBitRate,
-              B.sampleRate									AS artisTemSampleRate,
-              B.isTop											AS artisTemIsTop,
-              B.sPrice										AS artisTemSPrice,
-              B.dPrice										AS artisTemDPrice,
-              B.pPrice										AS artisTemPPrice,
+              END												                      AS buyType,
+              B.title											                    AS artisTemTitle,
+              B.subTitle										                  AS artisTemSubTitle,
+              B.content										                    AS artisTemContent,
+              B.coverImage									                  AS artisTemCoverImage,
+              B.isIng											                    AS artisTemIsIng,
+              B.downloadCnt									                  AS artisTemDownloadCnt,
+              B.bitRate										                    AS artisTemBitRate,
+              B.sampleRate									                  AS artisTemSampleRate,
+              B.isTop											                    AS artisTemIsTop,
+              B.sPrice										                    AS artisTemSPrice,
+              B.dPrice										                    AS artisTemDPrice,
+              B.pPrice										                    AS artisTemPPrice,
               FORMAT(B.sPrice, 0)                             AS artisTemViewsPrice,
               FORMAT(B.dPrice, 0)                             AS artisTemViewdPrice,
               FORMAT(B.pPrice, 0)                             AS artisTemViewpPrice,
-              B.ProductCategoryId								AS artisTemCategoryId,
-              B.ArtistId										AS artisTemArtistId,
-              B.filename										AS artisTemFilename,
-              B.filepath										AS artisTemFilepath,
-              C.title 										AS musicTemTitle,
-              C.isTitle 										AS musicTemIsTitle,
-              C.thumbnail 										AS musicTemThumbnail,
-              C.filename 										AS musicTemFilename,
-              C.filepath 										AS musicTemFilepath,
-              C.author 										AS musicTemAuthor,
-              C.downloadCnt 									AS musicTemDownloadCnt,
-              C.ProductId 									AS musicTemProductId,
-              C.sPrice										AS musicTemSPrice,
-              C.dPrice 										AS musicTemDPrice,
-              C.pPrice 										AS musicTemPPrice,
+              B.ProductCategoryId								              AS artisTemCategoryId,
+              B.ArtistId										                  AS artisTemArtistId,
+              B.filename										                  AS artisTemFilename,
+              B.filepath										                  AS artisTemFilepath,
+              C.title 										                    AS musicTemTitle,
+              C.isTitle 										                  AS musicTemIsTitle,
+              C.thumbnail 										                AS musicTemThumbnail,
+              C.filename 										                  AS musicTemFilename,
+              C.filepath 										                  AS musicTemFilepath,
+              C.author 										                    AS musicTemAuthor,
+              C.downloadCnt 									                AS musicTemDownloadCnt,
+              C.ProductId 									                  AS musicTemProductId,
+              C.sPrice										                    AS musicTemSPrice,
+              C.dPrice 										                    AS musicTemDPrice,
+              C.pPrice 										                    AS musicTemPPrice,
               FORMAT(C.sPrice, 0)                             AS musicTemViewsPrice,
               FORMAT(C.dPrice, 0)                             AS musicTemViewdPrice,
-              FORMAT(C.pPrice, 0)                             AS musicTemViewpPrice
+              FORMAT(C.pPrice, 0)                             AS musicTemViewpPrice,
+              (
+                SELECT  COUNT(id)
+                  FROM  userLike
+                 WHERE  ArtistemId = B.id
+              )                                               AS artisTemLikeCnt,
+              (
+                SELECT  COUNT(id)
+                  FROM  userLike
+                 WHERE  ProductTrackId = C.id
+              )                                               AS musicTemLikeCnt
+              ${
+                req.user
+                  ? `,
+                CASE
+                    WHEN  (
+                            SELECT  COUNT(id)
+                              FROM  userLike
+                             WHERE  ArtistemId = B.id
+                               AND  UserId = ${req.user.id}
+                          ) > 0 THEN                       1
+                    ELSE                                   0
+                END                                        AS artisTemIsLike,
+                `
+                  : `,
+                0                                          AS artisTemIsLike,
+                `
+              }
+              ${
+                req.user
+                  ? `
+                CASE
+                    WHEN  (
+                            SELECT  COUNT(id)
+                              FROM  userLike
+                             WHERE  ProductTrackId = B.id
+                               AND  UserId = ${req.user.id}
+                          ) > 0 THEN                       1
+                    ELSE                                   0
+                END                                        AS musicTemIsLike
+                `
+                  : `
+                0                                          AS musicTemIsLike
+                `
+              }
         FROM	userBuyStatus		A
         LEFT
        OUTER
-        JOIN	artistem 			B
+        JOIN	artistem 			  B
           ON	A.ArtistemId = B.id 
         LEFT
        OUTER
