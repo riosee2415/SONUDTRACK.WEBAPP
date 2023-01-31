@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ClientLayout from "../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../store/configureStore";
@@ -18,17 +18,26 @@ import {
 } from "../../components/commonComponents";
 import Theme from "../../components/Theme";
 import { Checkbox, message, Radio } from "antd";
+import { useRouter } from "next/router";
 
 const Intro = () => {
   ////// GLOBAL STATE //////
   ////// HOOKS //////
   const width = useWidth();
+  const router = useRouter();
   const [payType, setPayType] = useState("card");
   // card
   // paypal
   // phone
   ////// REDUX //////
   ////// USEEFFECT //////
+
+  useEffect(() => {
+    if (router && router.query) {
+      window.scrollTo(0, 0);
+    }
+  }, [router.query]);
+
   ////// TOGGLE //////
   ////// HANDLER //////
   const payTypeChangeHandler = useCallback(
@@ -67,7 +76,7 @@ const Intro = () => {
           pay_method: "card",
           merchant_uid: orderPK,
           name: "Star Night",
-          amount: 145000,
+          amount: 15000,
           buyer_name: "test",
           buyer_tel: "01000000000",
           buyer_email: "test@test.com",
@@ -94,7 +103,7 @@ const Intro = () => {
           pay_method: payType,
           merchant_uid: orderPK,
           name: "Star Night",
-          amount: 145000,
+          amount: 15000,
           buyer_name: "test",
           buyer_tel: "01000000000",
           buyer_email: "test@test.com",
@@ -185,7 +194,7 @@ const Intro = () => {
                     Album by Pokerface
                   </Text>
                   <Text fontSize={`18px`} fontWeight={`500`}>
-                    [비독점] 145,000원
+                    [비독점] 15,000원
                     <SpanText color={Theme.grey_C} margin={`0 0 0 8px`}>
                       Semi-Pro
                     </SpanText>
@@ -385,7 +394,7 @@ const Intro = () => {
                     color={Theme.darkGrey_C}
                     fontWeight={`bold`}
                   >
-                    145,000원
+                    15,000원
                   </Text>
                 </Wrapper>
                 <Wrapper dr={`row`} ju={`space-between`} margin={`20px 0`}>
@@ -431,7 +440,7 @@ const Intro = () => {
                     color={Theme.basicTheme_C}
                     fontWeight={`bold`}
                   >
-                    145,000원
+                    15,000원
                   </Text>
                 </Wrapper>
               </Wrapper>
