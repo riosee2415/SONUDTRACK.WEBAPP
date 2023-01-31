@@ -448,41 +448,33 @@ const Index = () => {
                 allArtistemList &&
                 allArtistemList.map((data) => {
                   return (
-                    <ArtWrapper>
+                    <ArtWrapper key={data.id}>
                       <SquareBox>
-                        <Image
-                          src="https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png"
-                          alt="thumbnail"
-                        />
+                        <Image src={data.artistImage} alt="thumbnail" />
                       </SquareBox>
                       <Text
                         fontSize={`18px`}
                         fontWeight={`bold`}
                         margin={`20px 0 7px`}
                       >
-                        이차미
+                        {data.artistName}
                       </Text>
                       <Wrapper dr={`row`} ju={`flex-start`}>
-                        <Wrapper
-                          width={`auto`}
-                          border={`1px solid ${Theme.lightGrey_C}`}
-                          radius={`30px`}
-                          height={`27px`}
-                          padding={`0 15px`}
-                          margin={`0 7px 5px 0`}
-                        >
-                          Vocal
-                        </Wrapper>
-                        <Wrapper
-                          width={`auto`}
-                          border={`1px solid ${Theme.lightGrey_C}`}
-                          radius={`30px`}
-                          height={`27px`}
-                          padding={`0 15px`}
-                          margin={`0 7px 5px 0`}
-                        >
-                          Beat Maker
-                        </Wrapper>
+                        {data.tags.map((v, idx) => {
+                          return (
+                            <Wrapper
+                              key={idx}
+                              width={`auto`}
+                              border={`1px solid ${Theme.lightGrey_C}`}
+                              radius={`30px`}
+                              height={`27px`}
+                              padding={`0 15px`}
+                              margin={`0 7px 5px 0`}
+                            >
+                              {v}
+                            </Wrapper>
+                          );
+                        })}
                       </Wrapper>
                       <Wrapper
                         dr={`row`}

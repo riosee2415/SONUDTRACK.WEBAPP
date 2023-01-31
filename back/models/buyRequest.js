@@ -34,6 +34,18 @@ module.exports = class BuyRequest extends Model {
           type: DataTypes.STRING(3000),
           allowNull: true,
         },
+        endDate: {
+          type: DataTypes.DATE,
+          allowNull: true,
+        },
+        filename: {
+          type: DataTypes.STRING(300),
+          allowNull: false,
+        },
+        filepath: {
+          type: DataTypes.STRING(3000),
+          allowNull: false,
+        },
       },
       {
         modelName: "BuyRequest",

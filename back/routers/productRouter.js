@@ -436,8 +436,8 @@ router.post("/track/allList", async (req, res, next) => {
             FORMAT(A.dPrice , 0)   as viewdPrice,
             FORMAT(A.pPrice , 0)   as viewpPrice
       FROM	productTrack	A
-      LIMIT  ${LIMIT}
-      OFFSET  ${OFFSET}
+     LIMIT  ${LIMIT}
+    OFFSET  ${OFFSET}
   `;
     const list = await models.sequelize.query(selectQ);
 
