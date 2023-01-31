@@ -80,6 +80,10 @@ import {
   MODIFY_PASS_UPDATE_REQUEST,
   MODIFY_PASS_UPDATE_SUCCESS,
   MODIFY_PASS_UPDATE_FAILURE,
+  //
+  USER_INFO_PASS_UPDATE_REQUEST,
+  USER_INFO_PASS_UPDATE_SUCCESS,
+  USER_INFO_PASS_UPDATE_FAILURE,
 } from "../reducers/user";
 
 // SAGA AREA ********************************************************************************************************
@@ -617,6 +621,33 @@ function* modifyPassUpdate(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function userInfoPassUpdateAPI(data) {
+  return await axios.post(`/api/user/me/password/update`, data);
+}
+
+function* userInfoPassUpdate(action) {
+  try {
+    const result = yield call(userInfoPassUpdateAPI, action.data);
+    yield put({
+      type: USER_INFO_PASS_UPDATE_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: USER_INFO_PASS_UPDATE_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 
 function* watchLoadMyInfo() {
@@ -699,6 +730,10 @@ function* watchModfiyPassUpdate() {
   yield takeLatest(MODIFY_PASS_UPDATE_REQUEST, modifyPassUpdate);
 }
 
+function* watchUserInfoPassUpdate() {
+  yield takeLatest(USER_INFO_PASS_UPDATE_REQUEST, userInfoPassUpdate);
+}
+
 //////////////////////////////////////////////////////////////
 export default function* userSaga() {
   yield all([
@@ -722,6 +757,7 @@ export default function* userSaga() {
     fork(watchFindUserId),
     fork(watchCheckSecret),
     fork(watchModfiyPassUpdate),
+    fork(watchUserInfoPassUpdate),
     //
   ]);
 }

@@ -881,6 +881,7 @@ router.post("/me/update", isLoggedIn, async (req, res, next) => {
  * DEVELOPMENT : 신태섭
  * DEV DATE : 2023/01/31
  */
+
 router.post("/me/password/update", isLoggedIn, async (req, res, next) => {
   const { beforePassword, afterPassword } = req.body;
 
