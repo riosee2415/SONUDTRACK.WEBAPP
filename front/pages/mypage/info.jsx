@@ -37,6 +37,15 @@ const Index = () => {
 
   const nickname = useInput(me && me.nickname);
   const email = useInput(me && me.email);
+  const pass = useInput("");
+  const newPass = useInput("");
+  const term1 = useInput(false); // 수신동의
+  const term2 = useInput(false); // SMS 동의
+  const term3 = useInput(false); // 카카오톡 동의
+  const term4 = useInput(false); // 이메일 동의
+  const term5 = useInput(false); // 카카오톡 알림
+  const term6 = useInput(false); // 이메일 알림
+
   ////// REDUX //////
   ////// USEEFFECT //////
   useEffect(() => {
@@ -146,7 +155,7 @@ const Index = () => {
                 border={`1px solid ${Theme.lightGrey_C}`}
                 type="text"
                 readOnly
-                value={me && me.name}
+                value={me && me.username}
               />
 
               <Text fontSize={`16px`} color={Theme.grey_C}>
