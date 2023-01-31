@@ -705,36 +705,133 @@ router.post("/signup", async (req, res, next) => {
   }
 });
 
-router.get("/me", isLoggedIn, async (req, res, next) => {
-  try {
-    return res.status(200).json(req.user);
-  } catch (error) {
-    console.error(error);
-    return res.status(401).send("사용자 정보를 불러올 수 없습니다.");
-  }
-});
-
+/**
+ * SUBJECT : 개인정보 수정
+ * PARAMETERS : nickname,
+                email,
+                mobile,
+                terms,
+                terms2,
+                terms3,
+                terms4,
+                terms5,
+                terms6
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/01/31
+ */
 router.post("/me/update", isLoggedIn, async (req, res, next) => {
-  const { id, nickname, mobile } = req.body;
+  const {
+    nickname,
+    email,
+    mobile,
+    terms,
+    terms2,
+    terms3,
+    terms4,
+    terms5,
+    terms6,
+  } = req.body;
+
+  const findNicknameQuery = `
+                                  SELECT  nickname
+                                    FROM  users
+                                   WHERE  nickname  = "${nickname}"
+                                     AND  id != ${req.user.id}
+                                  `;
+
+  const findEmailQuery = `
+                                  SELECT  email
+                                    FROM  users
+                                   WHERE  email  = "${email}"
+                                     AND  id != ${req.user.id}
+                                  `;
+
+  const updateQuery = `
+                                  UPDATE  users
+                                     SET  nickname = "${nickname}",
+                                          email = "${email}",
+                                          mobile = "${mobile}",
+                                          ${terms ? `${terms}` : null},
+                                          ${terms2},
+                                          ${terms3},
+                                          ${terms4},
+                                          ${terms5 ? `${terms5}` : null},
+                                          ${terms6 ? `${terms6}` : null},
+                                          updatedAt = NOW()
+                                   WHERE  id = ${req.user.id}
+                                  `;
 
   try {
-    const exUser = await User.findOne({ where: { id: parseInt(id) } });
+    const findNicknameData = await models.sequelize.query(findNicknameQuery);
 
-    if (!exUser) {
-      return res.status(401).send("존재하지 않는 사용자 입니다.");
+    const findEmailData = await models.sequelize.query(findEmailQuery);
+
+    if (findNicknameData[0].length !== 0) {
+      return res.status(401).send("이미 사용중인 닉네임입니다.");
     }
 
-    const updateUser = await User.update(
-      { nickname, mobile },
-      {
-        where: { id: parseInt(id) },
-      }
-    );
+    if (findEmailData[0].length !== 0) {
+      return res.status(401).send("이미 사용중인 이메일입니다.");
+    }
+
+    await models.sequelize.query(updateQuery);
 
     return res.status(200).json({ result: true });
   } catch (error) {
     console.error(error);
     return res.status(401).send("정보를 수정할 수 없습니다.");
+  }
+});
+/**
+ * SUBJECT : 개인정보 수정 (비밀번호 변경)
+ * PARAMETERS : beforePassword, afterPassword
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/01/31
+ */
+router.post("/me/password/update", isLoggedIn, async (req, res, next) => {
+  const { beforePassword, afterPassword } = req.body;
+
+  const findUserQuery = `
+                                  SELECT  password
+                                    FROM  users
+                                   WHERE  id = ${req.user.id}
+                                  `;
+
+  try {
+    const findUserData = await models.sequelize.query(findUserQuery);
+
+    if (findUserData[0].length === 0) {
+      return res.status(401).send("존재하지 않는 사용자입니다.");
+    }
+
+    const beforeValidate = await bcrypt.compare(
+      beforePassword,
+      findUserData[0][0].password
+    );
+
+    if (!beforeValidate) {
+      return res.status(401).send("현재 비밀번호가 일치하지 않습니다.");
+    } else {
+      const hashedPassword = await bcrypt.hash(afterPassword, 12);
+
+      const updateQuery = `
+                                      UPDATE  users
+                                         SET  password = "${hashedPassword}",
+                                              updatedAt = NOW()
+                                       WHERE  id = ${req.user.id}
+                                      `;
+
+      await models.sequelize.query(updateQuery);
+
+      return res.status(200).json({ result: true });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("비밀번호를 변경할 수 없습니다.");
   }
 });
 
