@@ -258,7 +258,15 @@ router.post("/artistem/allList", async (req, res, next) => {
       JOIN  productCategory B
         ON  A.ProductCategoryId = B.id
      WHERE  A.isIng = 0
-     ${_orderType === 1 ? `` : `ORDER BY A.createdAt DESC`}
+     ${
+       _orderType === 1
+         ? `ORDER  BY (
+                       SELECT  COUNT(id)
+                         FROM  userLike	
+                        WHERE  A.ArtistemId = id
+                     ) DESC`
+         : `ORDER  BY  A.createdAt DESC`
+     }
     `;
 
   const selectQ2 = `

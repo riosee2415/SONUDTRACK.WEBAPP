@@ -51,6 +51,9 @@ const Menu = styled(Wrapper)`
 `;
 
 const MypageMenu = ({}) => {
+  ////// GLOBAL STATE //////
+  const { me } = useSelector((state) => state.user);
+
   ////////////// - USE STATE- ///////////////
   const width = useWidth();
   const router = useRouter();
@@ -114,6 +117,7 @@ const MypageMenu = ({}) => {
             radius={`100%`}
             color={Theme.white_C}
             bgColor={`rgba(0, 0, 0, 0.6)`}
+            cursor={`pointer`}
           >
             <FormOutlined />
           </Wrapper>
@@ -212,9 +216,12 @@ const MypageMenu = ({}) => {
               fontSize={`16px`}
               fontWeight={`bold`}
               color={
-                router.pathname === `/mypage` ? Theme.black_C : Theme.grey2_C
+                router.pathname === `/mypage/purchase`
+                  ? Theme.black_C
+                  : Theme.grey2_C
               }
               isHover
+              onClick={() => movelinkHandler(`/mypage/purchase`)}
               margin={`0 0 22px`}
             >
               구매 내역

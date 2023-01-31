@@ -13,6 +13,7 @@ import faqSaga from "./faq";
 import productSaga from "./product";
 import artistSaga from "./artist";
 import buyRequestSaga from "./buyRequest";
+import buySaga from "./buy";
 //
 import axios from "axios";
 import backURL from "../config/config";
@@ -36,6 +37,7 @@ export default function* rootSaga() {
     fork(productSaga),
     fork(artistSaga),
     fork(buyRequestSaga),
+    fork(buySaga),
     //
   ]);
 }

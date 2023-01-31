@@ -605,6 +605,7 @@ export const ArtWrapper = styled(Wrapper)`
   align-items: flex-start;
   width: calc(100% / 5 - 24px);
   margin: 0 30px 0 0;
+  cursor: pointer;
 
   &:nth-child(5n) {
     margin: 0;
