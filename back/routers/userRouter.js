@@ -570,6 +570,18 @@ router.get("/signin", async (req, res, next) => {
               A.terms4,
               A.terms5,
               A.terms6,
+              A.menuRight1,
+              A.menuRight2,
+              A.menuRight3,
+              A.menuRight4,
+              A.menuRight5,
+              A.menuRight6,
+              A.menuRight7,
+              A.menuRight8,
+              A.menuRight9,
+              A.menuRight10,
+              A.menuRight11,
+              A.menuRight12,
               A.createdAt,
               A.updatedAt,
               A.exitedAt,
@@ -873,6 +885,7 @@ router.post("/me/update", isLoggedIn, async (req, res, next) => {
     return res.status(401).send("정보를 수정할 수 없습니다.");
   }
 });
+
 /**
  * SUBJECT : 개인정보 수정 (비밀번호 변경)
  * PARAMETERS : beforePassword, afterPassword

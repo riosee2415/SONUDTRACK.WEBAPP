@@ -516,14 +516,23 @@ const Index = () => {
                           <StarFilled />
                         </Wrapper>
                         <Wrapper width={`auto`} dr={`row`}>
-                          <Image
-                            alt="icon"
-                            width={`14px`}
-                            margin={`0 4px 0 0`}
-                            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
-                          />
+                          {data.isLike ? (
+                            <Image
+                              alt="icon"
+                              width={`14px`}
+                              margin={`0 4px 0 0`}
+                              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`}
+                            />
+                          ) : (
+                            <Image
+                              alt="icon"
+                              width={`14px`}
+                              margin={`0 4px 0 0`}
+                              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
+                            />
+                          )}
                           <Text fontSize={`14px`} color={Theme.grey_C}>
-                            98
+                            {data.likeCnt}
                           </Text>
                         </Wrapper>
                       </Wrapper>
