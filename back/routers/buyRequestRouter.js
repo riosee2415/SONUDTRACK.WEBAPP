@@ -2,15 +2,73 @@ const express = require("express");
 const models = require("../models");
 const isAdminCheck = require("../middlewares/isAdminCheck");
 const isLoggedIn = require("../middlewares/isLoggedIn");
+const fs = require("fs");
+const multer = require("multer");
+const path = require("path");
+const AWS = require("aws-sdk");
+const multerS3 = require("multer-s3");
 
 const router = express.Router();
+
+try {
+  fs.accessSync("uploads");
+} catch (error) {
+  console.log(
+    "uploads 폴더가 존재하지 않습니다. 새로 uploads 폴더를 생성합니다."
+  );
+  fs.mkdirSync("uploads");
+}
+
+AWS.config.update({
+  accessKeyId: process.env.S3_ACCESS_KEY_Id,
+  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+  region: "ap-northeast-2",
+});
+
+const upload = multer({
+  storage: multerS3({
+    s3: new AWS.S3(),
+    bucket: process.env.S3_BUCKET_NAME,
+    key(req, file, cb) {
+      cb(
+        null,
+        `${
+          process.env.S3_STORAGE_FOLDER_NAME
+        }/original/${Date.now()}_${path.basename(file.originalname)}`
+      );
+    },
+  }),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+});
+
+// const upload = multer({
+//   storage: multer.diskStorage({
+//     destination(req, file, done) {
+//       done(null, "uploads");
+//     },
+//     filename(req, file, done) {
+//       const ext = path.extname(file.originalname); // 확장자 추출 (.png)
+//       const basename = path.basename(file.originalname, ext);
+
+//       done(null, basename + "_" + new Date().getTime() + ext);
+//     },
+//   }),
+//   limits: { fileSize: 20 * 1024 * 2024 }, // 20MB
+// });
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.post("/file", upload.single("file"), async (req, res, next) => {
+  return res.json({ path: req.file.location });
+});
 
 /**
  * SUBJECT : 구매요청 조회
  * PARAMETERS : -
  * ORDER BY : createdAt DESC
  * STATEMENT : -
- * DEVELOPMENT : 주니어 개발자 홍민기
+ * DEVELOPMENT : 시니어 개발자 홍민기
  * DEV DATE : 2023/01/25
  */
 router.post("/list", isAdminCheck, async (req, res, next) => {
@@ -34,6 +92,9 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
             A.isOk,
             A.isReject,
             A.rejectMessage,
+            A.endDate,
+            A.filename,
+            A.filepath,
             A.totalPrice,
             CONCAT(FORMAT(A.totalPrice, ','), "원")     AS viewTotalPrice,
             CASE
@@ -107,17 +168,28 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
  * PARAMETERS : { sendMessage, sendUserId, receptionUserId }
  * ORDER BY : -
  * STATEMENT : -
- * DEVELOPMENT : 주니어 개발자 홍민기
+ * DEVELOPMENT : 시니어 개발자 홍민기
  * DEV DATE : 2023/01/25
  */
 router.post("/create", isLoggedIn, async (req, res, next) => {
-  const { sendMessage, totalPrice, sendUserId, receptionUserId } = req.body;
+  const {
+    sendMessage,
+    totalPrice,
+    endDate,
+    filename,
+    filepath,
+    sendUserId,
+    receptionUserId,
+  } = req.body;
 
   const insertQ = `
   INSERT INTO buyRequest
       (
       	sendMessage,
         totalPrice,
+        endDate,
+        filename,
+        filepath,
  	      rejectMessage,
  	      sendUserId,
  	      receptionUserId,
@@ -128,6 +200,9 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
       (
       	"${sendMessage}",
         ${totalPrice},
+        "${endDate}",
+        ${filepath ? `"${filepath}"` : null},
+        ${filename ? `"${filename}"` : null},
       	NULL,
       	${sendUserId},
       	${receptionUserId},
@@ -151,7 +226,7 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
  * PARAMETERS : { id, isOk }
  * ORDER BY : -
  * STATEMENT : -
- * DEVELOPMENT : 주니어 개발자 홍민기
+ * DEVELOPMENT : 시니어 개발자 홍민기
  * DEV DATE : 2023/01/25
  */
 router.post("/isOk", isLoggedIn, async (req, res, next) => {
@@ -191,7 +266,7 @@ router.post("/isOk", isLoggedIn, async (req, res, next) => {
  * PARAMETERS : { id, isReject, rejectMessage }
  * ORDER BY : -
  * STATEMENT : -
- * DEVELOPMENT : 주니어 개발자 홍민기
+ * DEVELOPMENT : 시니어 개발자 홍민기
  * DEV DATE : 2023/01/25
  */
 router.post("/isReject", isLoggedIn, async (req, res, next) => {
