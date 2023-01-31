@@ -192,7 +192,7 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
         SELECT    id
           FROM    userLike
          WHERE    ProductTrackId = ${ProductTrackId}
-           AND    ProductTrackId IS NULL
+           AND    ArtistemId IS NULL
            AND    ProductId IS NULL
            AND    UserId = ${req.user.id}
         `;
@@ -217,8 +217,8 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
         ${ProductTrackId},
         NULL,
         NULL,
-        createdAt,
-        updatedAt
+        NOW(),
+        NOW()
       )
       `;
 
@@ -233,7 +233,7 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
             FROM  userLike
            WHERE  UserId = ${req.user.id}
              AND  ProductTrackId = ${ProductTrackId}
-             AND  ProductTrackId IS NULL
+             AND  ArtistemId IS NULL
              AND  ProductId IS NULL
           `;
 
@@ -275,8 +275,8 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
           NULL,
           ${ArtistemId},
           NULL,
-          createdAt,
-          updatedAt
+          NOW(),
+          NOW()
         )
         `;
 
@@ -330,8 +330,8 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
           NULL,
           NULL,
           ${ProductId},
-          createdAt,
-          updatedAt
+          NOW(),
+          NOW()
         )
         `;
 
