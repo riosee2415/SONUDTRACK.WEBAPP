@@ -18,7 +18,7 @@ import {
 import Theme from "../../components/Theme";
 import styled from "styled-components";
 import { DownloadOutlined } from "@ant-design/icons";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { message, Modal, Popover } from "antd";
 import dynamic from "next/dynamic";
@@ -113,6 +113,7 @@ const Index = () => {
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const [playing, setPlaying] = useState(false);
   const [premium, setPremium] = useState(false);
@@ -126,6 +127,7 @@ const Index = () => {
       return message.error(`로그인이 필요한 페이지입니다.`);
     }
   }, [me]);
+
   ////// TOGGLE //////
   const playingToggle = useCallback(() => {
     setPlaying((prev) => !prev);
