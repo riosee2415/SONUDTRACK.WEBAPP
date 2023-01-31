@@ -637,6 +637,7 @@ router.post("/track/detail", async (req, res, next) => {
   const selectQ = `
   SELECT	A.id,
           A.title,
+          A.thumbnail,
           A.isTitle,
           A.filename,
           A.filepath,

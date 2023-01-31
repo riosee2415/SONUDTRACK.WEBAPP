@@ -358,6 +358,20 @@ const BuyStatus = ({}) => {
     },
     {
       align: "end",
+      title: "커버 이미지",
+      render: (data) => (
+        <Image
+          src={
+            data.buyType === "musicTem"
+              ? data.musicTemThumbnail
+              : data.artisTemCoverImage
+          }
+          alt={data.buyType === "musicTem" ? "thumbnail" : "coverImage"}
+        />
+      ),
+    },
+    {
+      align: "end",
       title: "음원명",
       render: (data) => (
         <Text fontWeight={`600`}>
@@ -628,6 +642,11 @@ const BuyStatus = ({}) => {
         footer={null}
         width={`1000px`}
       >
+        <ViewTitle>커버이미지</ViewTitle>
+        <Wrapper>
+          <Image src={trackDetail && trackDetail.thumbnail} alt={`thumbnail`} />
+        </Wrapper>
+
         <ViewTitle>음원명</ViewTitle>
         <ContentView>{trackDetail && trackDetail.title}</ContentView>
         <br />

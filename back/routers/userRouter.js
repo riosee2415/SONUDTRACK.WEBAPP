@@ -27,6 +27,7 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
   const selectQuery = `
   SELECT	ROW_NUMBER() OVER(ORDER	BY A.createdAt)		AS num,
           A.id,
+          A.userId,
           A.email,
           A.username,
           A.nickname,
