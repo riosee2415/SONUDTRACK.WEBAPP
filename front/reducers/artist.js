@@ -6,6 +6,7 @@ export const initailState = {
   permmWaitingList: [],
   artistems: [],
   artistemDetail: null,
+  allArtistemList: [], // 아티스트 전체조회
   //
   st_permmWaitingLoading: false,
   st_permmWaitingDone: false,
@@ -34,6 +35,10 @@ export const initailState = {
   st_artistemDetailLoading: false,
   st_artistemDetailDone: false,
   st_artistemDetailError: null,
+  //
+  st_allArtistemListLoading: false,
+  st_allArtistemListDone: false,
+  st_allArtistemListError: null,
 };
 
 export const PERMM_WAITING_LIST_REQUEST = "PERMM_WAITING_LIST_REQUEST";
@@ -63,6 +68,10 @@ export const ARTISTEM_TOP_UP_FAILURE = "ARTISTEM_TOP_UP_FAILURE";
 export const ARTISTEM_DETAIL_REQUEST = "ARTISTEM_DETAIL_REQUEST";
 export const ARTISTEM_DETAIL_SUCCESS = "ARTISTEM_DETAIL_SUCCESS";
 export const ARTISTEM_DETAIL_FAILURE = "ARTISTEM_DETAIL_FAILURE";
+
+export const ALL_ARTISTEM_LIST_REQUEST = "ALL_ARTISTEM_LIST_REQUEST";
+export const ALL_ARTISTEM_LIST_SUCCESS = "ALL_ARTISTEM_LIST_SUCCESS";
+export const ALL_ARTISTEM_LIST_FAILURE = "ALL_ARTISTEM_LIST_FAILURE";
 
 const reducer = (state = initailState, action) =>
   produce(state, (draft) => {
@@ -228,6 +237,31 @@ const reducer = (state = initailState, action) =>
         draft.st_artistemDetailLoading = false;
         draft.st_artistemDetailDone = false;
         draft.st_artistemDetailError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////
+
+      case ALL_ARTISTEM_LIST_REQUEST: {
+        draft.st_allArtistemListLoading = true;
+        draft.st_allArtistemListDone = false;
+        draft.st_allArtistemListError = null;
+        break;
+      }
+
+      case ALL_ARTISTEM_LIST_SUCCESS: {
+        draft.st_allArtistemListLoading = false;
+        draft.st_allArtistemListDone = true;
+        draft.st_allArtistemListError = null;
+        draft.allArtistemList = action.data;
+        break;
+      }
+
+      case ALL_ARTISTEM_LIST_FAILURE: {
+        draft.st_allArtistemListLoading = false;
+        draft.st_allArtistemListDone = false;
+        draft.st_allArtistemListError = action.error;
         break;
       }
 
