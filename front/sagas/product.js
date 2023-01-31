@@ -41,6 +41,10 @@ import {
   PRODUCT_TRACK_LIST_SUCCESS,
   PRODUCT_TRACK_LIST_FAILURE,
   //
+  PRODUCT_TRACK_ALL_LIST_REQUEST,
+  PRODUCT_TRACK_ALL_LIST_SUCCESS,
+  PRODUCT_TRACK_ALL_LIST_FAILURE,
+  //
   COMMON_TAG_NEW_REQUEST,
   COMMON_TAG_NEW_SUCCESS,
   COMMON_TAG_NEW_FAILURE,
@@ -345,6 +349,34 @@ function* productTrackList(action) {
 // ******************************************************************************************************************
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
+async function productTrackAllListAPI(data) {
+  return await axios.post("/api/product/track/allList", data);
+}
+
+function* productTrackAllList(action) {
+  try {
+    const result = yield call(productTrackAllListAPI, action.data);
+
+    yield put({
+      type: PRODUCT_TRACK_ALL_LIST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: PRODUCT_TRACK_ALL_LIST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
 async function commonTagNewAPI(data) {
   return await axios.post("/api/product/commontag/new", data);
 }
@@ -507,6 +539,9 @@ function* watchProductGen() {
 function* watchProductTrackList() {
   yield takeLatest(PRODUCT_TRACK_LIST_REQUEST, productTrackList);
 }
+function* watchProductTrackAllList() {
+  yield takeLatest(PRODUCT_TRACK_ALL_LIST_REQUEST, productTrackAllList);
+}
 function* watchCommonTagNew() {
   yield takeLatest(COMMON_TAG_NEW_REQUEST, commonTagNew);
 }
@@ -535,6 +570,7 @@ export default function* productSaga() {
     fork(watchProductTop),
     fork(watchProductTag),
     fork(watchProductGen),
+    fork(watchProductTrackAllList),
     fork(watchProductTrackList),
     fork(watchCommonTagNew),
     fork(watchCommonTagList),

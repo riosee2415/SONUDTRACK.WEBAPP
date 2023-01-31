@@ -230,8 +230,11 @@ const MypageMenu = ({}) => {
               fontSize={`16px`}
               fontWeight={`bold`}
               color={
-                router.pathname === `/mypage` ? Theme.black_C : Theme.grey2_C
+                router.pathname === `/mypage/contact`
+                  ? Theme.black_C
+                  : Theme.grey2_C
               }
+              onClick={() => movelinkHandler(`/mypage/contact`)}
               isHover
               margin={`0 0 22px`}
             >

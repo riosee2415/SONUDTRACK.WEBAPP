@@ -238,6 +238,14 @@ export const CommonButton = styled(Button)`
     props.kindOf === `grey3` &&
     `border : 1px solid ${props.theme.lightGrey2_C};`}
 
+    /* grey4 - 회색 선, 회색 배경 */
+  ${(props) =>
+    props.kindOf === `grey4` && `background : ${props.theme.lightGrey_C};`}
+  ${(props) => props.kindOf === `grey4` && `color : ${props.theme.black_C};`}
+  ${(props) =>
+    props.kindOf === `grey4` &&
+    `border : 1px solid ${props.theme.lightGrey_C};`}
+
   /* subTheme2 - 베이직 선, subtheme 배경 */
   ${(props) =>
     props.kindOf === `subTheme2` && `background : ${props.theme.subTheme_C};`}
@@ -255,7 +263,6 @@ export const CommonButton = styled(Button)`
   ${(props) =>
     props.kindOf === `subTheme3` &&
     `border : 1px solid ${props.theme.subTheme4_C};`}
-
 
   ${(props) =>
     props.kindOf === `kakao` && `background : ${props.theme.kakao_C};`}
@@ -336,6 +343,14 @@ export const CommonButton = styled(Button)`
     ${(props) => props.kindOf === `grey3` && `color : ${props.theme.grey_C};`}
     ${(props) =>
       props.kindOf === `grey3` && `border : 1px solid ${props.theme.grey_C};`}
+
+       /* grey4 - 회색 선, 회색 배경 */
+    ${(props) =>
+      props.kindOf === `grey4` && `background : ${props.theme.grey_C};`}
+    ${(props) =>
+      props.kindOf === `grey4` && `color : ${props.theme.lightGrey_C};`}
+    ${(props) =>
+      props.kindOf === `grey4` && `border : 1px solid ${props.theme.grey_C};`}
 
     ${(props) =>
       props.kindOf === `kakao` && `background : ${props.theme.kakao_C};`}
@@ -534,6 +549,12 @@ export const TextArea = styled.textarea`
     font-size: 14px;
     line-height: 1.6;
     color: ${(props) => props.theme.grey2_C};
+  }
+
+  &:read-only {
+    background-color: ${(props) => props.theme.lightGrey2_C};
+    border: 1px solid ${(props) => props.theme.lightGrey_C};
+    cursor: auto;
   }
 `;
 

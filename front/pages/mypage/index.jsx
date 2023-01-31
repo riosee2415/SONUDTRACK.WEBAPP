@@ -186,8 +186,22 @@ const Index = () => {
 
             <Wrapper dr={`row`} al={`flex-start`} ju={`flex-start`}>
               {userBuyList && userBuyList.length === 0 ? (
-                <Wrapper margin={`100px 0`}>
-                  <Empty description={"구매한 음원이 존재하지 않습니다."} />
+                <Wrapper
+                  height={`400px`}
+                  borderBottom={`1px solid ${Theme.lightGrey_C}`}
+                >
+                  <Image
+                    alt="icon"
+                    src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/blank.png`}
+                    width={`76px`}
+                  />
+                  <Text
+                    fontSize={width < 900 ? `18px` : `22px`}
+                    color={Theme.grey2_C}
+                    margin={`25px 0 0`}
+                  >
+                    구매한 음원이 존재하지 않습니다.
+                  </Text>
                 </Wrapper>
               ) : (
                 userBuyList &&
