@@ -338,13 +338,20 @@ router.post("/gen/list", async (req, res, next) => {
  */
 
 router.post("/track/allList", async (req, res, next) => {
-  const { orderType } = req.body;
+  const { page, orderType } = req.body;
 
   const _orderType = orderType ? parseInt(orderType) : 1;
   // 1 추천순
   // 2 최신순
 
-  const selectQ = `
+  const LIMIT = 5;
+
+  const _page = page ? page : 1;
+
+  const __page = _page - 1;
+  const OFFSET = __page * 5;
+
+  const lengthQ = `
   SELECT  A.id,
 	  	    A.title,
           A.author,
@@ -352,6 +359,7 @@ router.post("/track/allList", async (req, res, next) => {
           A.filename,
           A.filepath,
           A.downloadCnt,
+          FORMAT(A.downloadCnt, ",")					AS  viewDownLoadCnt,
           A.ProductId,
           A.createdAt,
           DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
@@ -379,10 +387,53 @@ router.post("/track/allList", async (req, res, next) => {
                            ) DESC`
               : `ORDER  BY  A.createdAt DESC`
           }
+  LIMIT  ${LIMIT}
+ OFFSET  ${OFFSET}
+    `;
+
+  const selectQ = `
+  SELECT  A.id,
+	  	    A.title,
+          A.author,
+          A.thumbnail,
+          A.filename,
+          A.filepath,
+          A.downloadCnt,
+          FORMAT(A.downloadCnt, ",")					AS  viewDownLoadCnt,
+          A.ProductId,
+          A.createdAt,
+          DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
+          (
+          	SELECT  COUNT(B.id)
+          	  FROM  userLike	B
+          	 WHERE  A.id = B.ProductTrackId
+          )		                                        AS likeCnt,
+          CASE 
+          	WHEN  (
+          			   SELECT  COUNT(B.id)
+          	  	  	 FROM  userLike	B
+          	 		    WHERE  B.UserId = ${req.user ? req.user.id : 0}
+          		    ) > 0
+          	THEN  1
+         		ELSE  0
+         	END                                         AS isLike
+    FROM  productTrack		A
+          ${
+            _orderType === 1
+              ? `ORDER  BY (
+                             SELECT  COUNT(B.id)
+                               FROM  userLike	B
+                              WHERE  A.id = B.ProductTrackId
+                           ) DESC`
+              : `ORDER  BY  A.createdAt DESC`
+          }
+   LIMIT  ${LIMIT}
+  OFFSET  ${OFFSET}
     `;
 
   try {
     const list = await models.sequelize.query(selectQ);
+    const lengths = await models.sequelize.query(lengthQ);
 
     const selectGenQ = `
     SELECT  id,
@@ -399,14 +450,20 @@ router.post("/track/allList", async (req, res, next) => {
 
     const genList = await models.sequelize.query(selectGenQ);
 
-    return res.status(200).json(
-      list[0].map((data) => ({
+    const trackLen = lengths[0].length;
+
+    const lastPage =
+      trackLen % LIMIT > 0 ? trackLen / LIMIT + 1 : trackLen / LIMIT;
+
+    return res.status(200).json({
+      list: list[0].map((data) => ({
         ...data,
         genList: genList[0].filter(
           (value) => value.ProductId === data.ProductId
         ),
-      }))
-    );
+      })),
+      lastPage: lastPage,
+    });
   } catch (e) {
     console.error(e);
     return res.status(400).send("음원을 조회할 수 없습니다.");
@@ -430,6 +487,7 @@ router.post("/track/newList", async (req, res, next) => {
           A.filename,
           A.filepath,
           A.downloadCnt,
+          FORMAT(A.downloadCnt, ",")					AS  viewDownLoadCnt,
           A.createdAt,
           A.ProductId
     FROM  productTrack	A 
@@ -486,6 +544,7 @@ router.post("/track/recentList", async (req, res, next) => {
          A.filename,
          A.filepath,
          A.downloadCnt,
+         FORMAT(A.downloadCnt, ",")					AS  viewDownLoadCnt,
          A.createdAt,
          A.ProductId
    FROM  productTrack	A 

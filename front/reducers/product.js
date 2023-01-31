@@ -6,6 +6,8 @@ export const initailState = {
   targetTags: [],
   targetGens: [],
   trackList: [],
+  trackAllList: [],
+  trackLastPage: 0,
   commonTags: [],
   trackDetail: null,
 
@@ -48,6 +50,10 @@ export const initailState = {
   st_productTrackListLoading: false,
   st_productTrackListDone: false,
   st_productTrackListError: null,
+  //
+  st_productTrackAllListLoading: false,
+  st_productTrackAllListDone: false,
+  st_productTrackAllListError: null,
   //
   st_commonTagNewLoading: false,
   st_commonTagNewDone: false,
@@ -109,6 +115,10 @@ export const PRODUCT_GEN_FAILURE = "PRODUCT_GEN_FAILURE";
 export const PRODUCT_TRACK_LIST_REQUEST = "PRODUCT_TRACK_LIST_REQUEST";
 export const PRODUCT_TRACK_LIST_SUCCESS = "PRODUCT_TRACK_LIST_SUCCESS";
 export const PRODUCT_TRACK_LIST_FAILURE = "PRODUCT_TRACK_LIST_FAILURE";
+
+export const PRODUCT_TRACK_ALL_LIST_REQUEST = "PRODUCT_TRACK_ALL_LIST_REQUEST";
+export const PRODUCT_TRACK_ALL_LIST_SUCCESS = "PRODUCT_TRACK_ALL_LIST_SUCCESS";
+export const PRODUCT_TRACK_ALL_LIST_FAILURE = "PRODUCT_TRACK_ALL_LIST_FAILURE";
 
 export const COMMON_TAG_NEW_REQUEST = "COMMON_TAG_NEW_REQUEST";
 export const COMMON_TAG_NEW_SUCCESS = "COMMON_TAG_NEW_SUCCESS";
@@ -343,6 +353,29 @@ const reducer = (state = initailState, action) =>
         draft.st_productTrackListLoading = false;
         draft.st_productTrackListDone = false;
         draft.st_productTrackListError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////
+      case PRODUCT_TRACK_ALL_LIST_REQUEST: {
+        draft.st_productTrackAllListLoading = true;
+        draft.st_productTrackAllListDone = false;
+        draft.st_productTrackAllListError = null;
+        break;
+      }
+      case PRODUCT_TRACK_ALL_LIST_SUCCESS: {
+        draft.st_productTrackAllListLoading = false;
+        draft.st_productTrackAllListDone = true;
+        draft.st_productTrackAllListError = null;
+        draft.trackAllList = action.data.list;
+        draft.trackLastPage = action.data.lastPage;
+        break;
+      }
+      case PRODUCT_TRACK_ALL_LIST_FAILURE: {
+        draft.st_productTrackAllListLoading = false;
+        draft.st_productTrackAllListDone = false;
+        draft.st_productTrackAllListError = action.error;
         break;
       }
 
