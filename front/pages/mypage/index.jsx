@@ -108,7 +108,6 @@ const Index = () => {
   const { me } = useSelector((state) => state.user);
   const { userBuyList } = useSelector((state) => state.buy);
 
-  console.log(userBuyList);
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
