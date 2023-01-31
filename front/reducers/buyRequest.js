@@ -2,6 +2,7 @@ import produce from "../util/produce";
 
 export const initailState = {
   buyRequests: [],
+  buyRequestFile: null,
 
   //
   st_buyRequestListLoading: false, // 구매요청 리스트
@@ -19,6 +20,10 @@ export const initailState = {
   st_buyRequestIsRejectLoading: false, // 구매요청 거절
   st_buyRequestIsRejectDone: false,
   st_buyRequestIsRejectError: null,
+  //
+  st_buyRequestFileLoading: false, // 파일 올리기
+  st_buyRequestFileDone: false,
+  st_buyRequestFileError: null,
 };
 
 export const BUYREQUEST_LIST_REQUEST = "BUYREQUEST_LIST_REQUEST";
@@ -36,6 +41,12 @@ export const BUYREQUEST_ISOK_FAILURE = "BUYREQUEST_ISOK_FAILURE";
 export const BUYREQUEST_ISREJECT_REQUEST = "BUYREQUEST_ISREJECT_REQUEST";
 export const BUYREQUEST_ISREJECT_SUCCESS = "BUYREQUEST_ISREJECT_SUCCESS";
 export const BUYREQUEST_ISREJECT_FAILURE = "BUYREQUEST_ISREJECT_FAILURE";
+
+export const BUYREQUEST_FILE_REQUEST = "BUYREQUEST_FILE_REQUEST";
+export const BUYREQUEST_FILE_SUCCESS = "BUYREQUEST_FILE_SUCCESS";
+export const BUYREQUEST_FILE_FAILURE = "BUYREQUEST_FILE_FAILURE";
+
+export const BUYREQUEST_RESET = "BUYREQUEST_RESET";
 
 const reducer = (state = initailState, action) =>
   produce(state, (draft) => {
@@ -125,6 +136,33 @@ const reducer = (state = initailState, action) =>
         break;
       }
       ///////////////////////////////////////////////////////
+
+      case BUYREQUEST_FILE_REQUEST: {
+        draft.st_buyRequestIsFileLoading = true;
+        draft.st_buyRequestIsFileDone = false;
+        draft.st_buyRequestIsFileError = null;
+        break;
+      }
+      case BUYREQUEST_FILE_SUCCESS: {
+        draft.st_buyRequestIsFileLoading = false;
+        draft.st_buyRequestIsFileDone = true;
+        draft.st_buyRequestIsFileError = null;
+        draft.buyRequestFile = action.data.path;
+
+        break;
+      }
+      case BUYREQUEST_FILE_FAILURE: {
+        draft.st_buyRequestIsFileLoading = false;
+        draft.st_buyRequestIsFileDone = false;
+        draft.st_buyRequestIsFileError = action.error;
+        break;
+      }
+
+      ///////////////////////////////////////////////////////
+      case BUYREQUEST_RESET: {
+        draft.buyRequestFile = null;
+        break;
+      }
 
       default:
         break;
