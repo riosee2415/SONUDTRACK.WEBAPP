@@ -18,9 +18,10 @@ import {
 import Theme from "../../components/Theme";
 import styled from "styled-components";
 import { DownloadOutlined } from "@ant-design/icons";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { message } from "antd";
+import { USER_BUY_LIST_REQUEST } from "../../reducers/buy";
 
 const Box = styled(Wrapper)`
   width: calc(100% / 6 - 37px);
@@ -105,9 +106,11 @@ const CdWrapper = styled(Wrapper)`
 const Index = () => {
   ////// GLOBAL STATE //////
   const { me } = useSelector((state) => state.user);
+  const { userBuyList } = useSelector((state) => state.buy);
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
+  const dispatch = useDispatch();
   ////// REDUX //////
   ////// USEEFFECT //////
   useEffect(() => {
@@ -118,6 +121,16 @@ const Index = () => {
       return message.error(`로그인이 필요한 페이지입니다.`);
     }
   }, [me]);
+
+  useEffect(() => {
+    dispatch({
+      type: USER_BUY_LIST_REQUEST,
+      data: {
+        UserId: me.id,
+      },
+    });
+  }, [me]);
+
   ////// TOGGLE //////
   ////// HANDLER //////
   ////// DATAVIEW //////

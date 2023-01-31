@@ -51,6 +51,9 @@ const Menu = styled(Wrapper)`
 `;
 
 const MypageMenu = ({}) => {
+  ////// GLOBAL STATE //////
+  const { me } = useSelector((state) => state.user);
+
   ////////////// - USE STATE- ///////////////
   const width = useWidth();
   const router = useRouter();
@@ -114,6 +117,7 @@ const MypageMenu = ({}) => {
             radius={`100%`}
             color={Theme.white_C}
             bgColor={`rgba(0, 0, 0, 0.6)`}
+            cursor={`pointer`}
           >
             <FormOutlined />
           </Wrapper>
