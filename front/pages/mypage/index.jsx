@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import ClientLayout from "../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../store/configureStore";
@@ -7,6 +7,7 @@ import axios from "axios";
 import { END } from "redux-saga";
 import useWidth from "../../hooks/useWidth";
 import {
+  ATag,
   CommonButton,
   Image,
   RsWrapper,
@@ -134,6 +135,7 @@ const Index = () => {
 
   ////// TOGGLE //////
   ////// HANDLER //////
+
   ////// DATAVIEW //////
 
   return (
@@ -213,20 +215,30 @@ const Index = () => {
                           alt="play icon"
                         />
 
-                        <Wrapper
-                          position={`absolute`}
-                          bottom={`0`}
-                          right={`0`}
-                          width={`40px`}
-                          height={`40px`}
-                          radius={`100%`}
-                          bgColor={`rgba(0, 0, 0, 0.6)`}
-                          color={Theme.white_C}
-                          fontSize={`20px`}
-                          zIndex={`10`}
+                        <ATag
+                          href={
+                            data.buyType === "artisTem"
+                              ? data.artisTemFilepath
+                              : data.musicTemFilepath
+                          }
+                          download
+                          width={`auto`}
                         >
-                          <DownloadOutlined />
-                        </Wrapper>
+                          <Wrapper
+                            position={`absolute`}
+                            bottom={`0`}
+                            right={`0`}
+                            width={`40px`}
+                            height={`40px`}
+                            radius={`100%`}
+                            bgColor={`rgba(0, 0, 0, 0.6)`}
+                            color={Theme.white_C}
+                            fontSize={`20px`}
+                            zIndex={`10`}
+                          >
+                            <DownloadOutlined />
+                          </Wrapper>
+                        </ATag>
                       </CdWrapper>
                       <Text
                         fontSize={`18px`}
@@ -238,14 +250,42 @@ const Index = () => {
                           : data.musicTemTitle}
                       </Text>
                       <Wrapper dr={`row`}>
-                        <Image
-                          alt="icon"
-                          width={`18px`}
-                          margin={`0 6px 0 0`}
-                          src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
-                        />
+                        {data.buyType === "artisTem" &&
+                          (data.artisTemIsLike ? (
+                            <Image
+                              alt="icon"
+                              width={`18px`}
+                              margin={`0 6px 0 0`}
+                              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`}
+                            />
+                          ) : (
+                            <Image
+                              alt="icon"
+                              width={`18px`}
+                              margin={`0 6px 0 0`}
+                              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
+                            />
+                          ))}
+                        {data.buyType === "musicTem" &&
+                          (data.musicTemIsLike ? (
+                            <Image
+                              alt="icon"
+                              width={`18px`}
+                              margin={`0 6px 0 0`}
+                              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`}
+                            />
+                          ) : (
+                            <Image
+                              alt="icon"
+                              width={`18px`}
+                              margin={`0 6px 0 0`}
+                              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
+                            />
+                          ))}
                         <Text fontSize={`12px`} color={Theme.grey_C}>
-                          {data.likeCnt}
+                          {data.buyType === "artisTem"
+                            ? data.artisTemLikeCnt
+                            : data.musicTemLikeCnt}
                         </Text>
                       </Wrapper>
                     </Box>
