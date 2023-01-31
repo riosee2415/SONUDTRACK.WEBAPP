@@ -887,6 +887,46 @@ router.post("/me/update", isLoggedIn, async (req, res, next) => {
 });
 
 /**
+ * SUBJECT : 개인정보 수정 (비밀번호 버튼 활성화 여부)
+ * PARAMETERS : password
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/01/31
+ */
+router.post("/me/password/compare", isLoggedIn, async (req, res, next) => {
+  const { password } = req.body;
+
+  const selectQuery = `
+  SELECT  password
+    FROM  users
+   WHERE  id = ${req.user.id}
+  `;
+
+  try {
+    const findResult = await models.sequelize.query(selectQuery);
+
+    if (findResult[0].length === 0) {
+      return res.status(401).send("존재하지 않는 사용자입니다.");
+    }
+
+    const compareResult = await bcrypt.compare(
+      password,
+      findResult[0][0].password
+    );
+
+    if (!compareResult) {
+      return res.status(401).send("비밀번호가 일치하지 않습니다.");
+    }
+
+    return res.status(200).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("비밀번호 일치 여부를 판별할 수 없습니다.");
+  }
+});
+
+/**
  * SUBJECT : 개인정보 수정 (비밀번호 변경)
  * PARAMETERS : beforePassword, afterPassword
  * ORDER BY : -
