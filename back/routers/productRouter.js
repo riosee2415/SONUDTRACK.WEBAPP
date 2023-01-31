@@ -345,7 +345,6 @@ router.post("/track/newList", async (req, res, next) => {
           A.filename,
           A.filepath,
           A.downloadCnt,
-          A.hit,
           A.createdAt 
     FROM  productTrack	A 
    INNER
@@ -385,16 +384,16 @@ router.post("/track/recentList", async (req, res, next) => {
          A.filename,
          A.filepath,
          A.downloadCnt,
-         A.hit,
          A.createdAt 
    FROM  productTrack	A 
-   INNER
+  INNER
    JOIN  product			B 
      ON  A.ProductId = B.id
   INNER
    JOIN  users			C 
      ON  B.UserId = C.id
-  ORDER  BY A.createdAt DESC LIMIT 5
+  ORDER  BY A.createdAt DESC 
+  LIMIT  5
   `;
 
   try {
