@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import ClientLayout from "../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../store/configureStore";
@@ -19,13 +19,12 @@ import { Checkbox, message, Modal } from "antd";
 import Theme from "../../components/Theme";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
 
 const Index = () => {
   ////// GLOBAL STATE //////
   const { me } = useSelector((state) => state.user);
 
-  console.log(me);
+  // console.log(me);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -37,7 +36,16 @@ const Index = () => {
 
   const nickname = useInput(me && me.nickname);
   const email = useInput(me && me.email);
-  ////// REDUX //////
+  const pass = useInput("");
+  const newPass = useInput("");
+  const mobile = useInput("");
+  const term1 = useInput(false); // 수신동의
+  const term2 = useInput(false); // SMS 동의
+  const term3 = useInput(false); // 카카오톡 동의
+  const term4 = useInput(false); // 이메일 동의
+  const term5 = useInput(false); // 카카오톡 알림
+  const term6 = useInput(false); // 이메일 알림
+
   ////// USEEFFECT //////
   useEffect(() => {
     if (!me) {
@@ -146,7 +154,7 @@ const Index = () => {
                 border={`1px solid ${Theme.lightGrey_C}`}
                 type="text"
                 readOnly
-                value={me && me.name}
+                value={me && me.username}
               />
 
               <Text fontSize={`16px`} color={Theme.grey_C}>

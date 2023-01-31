@@ -44,6 +44,8 @@ router.post("/list", isLoggedIn, async (req, res, next) => {
         JOIN	artistem 		B
           ON	A.ArtistemId = B.id
        WHERE	A.UserId = ${req.user.id}
+         AND    A.ProductId IS NULL
+         AND    A.ProductTrackId IS NULL
        ORDER    BY A.createdAt DESC
                 `;
 
@@ -108,6 +110,8 @@ SELECT	A.id,
    JOIN	productTrack 	B
      ON	A.ProductTrackId = B.id
   WHERE A.UserId = ${req.user.id}
+    AND A.ProductId IS NULL
+    AND A.ArtistemId IS NULL
   ORDER BY A.createdAt DESC
       `;
 
@@ -161,6 +165,8 @@ SELECT	A.id,
     JOIN	product 		B
       ON	A.ProductId = B.id
    WHERE	A.UserId = ${req.user.id}
+     AND    A.ProductTrackId IS NULL
+     AND    A.ArtistemId IS NULL
    ORDER    BY A.createdAt DESC
       `;
 

@@ -12,7 +12,7 @@ const router = express.Router();
  * DEVELOPMENT : 신태섭
  * DEV DATE : 2023/01/26
  */
-router.post("/list", isAdminCheck, async (req, res, next) => {
+router.post("/list", async (req, res, next) => {
   const { UserId } = req.body;
 
   // (

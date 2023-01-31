@@ -258,14 +258,14 @@ router.post("/snsLogin", (req, res, next) => {
       "${nickname}",
       "1",
       "${userId}",
-      "$2b$12$txYfpQZTSLnLom/71VwTP.kKU1kqGEoft8LnwvcVuJqM2OAjzJDtO",
+      "${hashedPassword},
       1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
+      ${terms},
+      ${terms2},
+      ${terms3},
+      ${terms4},
+      ${terms5},
+      ${terms6},
       NOW(),
       NOW()
     )
@@ -705,36 +705,133 @@ router.post("/signup", async (req, res, next) => {
   }
 });
 
-router.get("/me", isLoggedIn, async (req, res, next) => {
-  try {
-    return res.status(200).json(req.user);
-  } catch (error) {
-    console.error(error);
-    return res.status(401).send("사용자 정보를 불러올 수 없습니다.");
-  }
-});
-
+/**
+ * SUBJECT : 개인정보 수정
+ * PARAMETERS : nickname,
+                email,
+                mobile,
+                terms,
+                terms2,
+                terms3,
+                terms4,
+                terms5,
+                terms6
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/01/31
+ */
 router.post("/me/update", isLoggedIn, async (req, res, next) => {
-  const { id, nickname, mobile } = req.body;
+  const {
+    nickname,
+    email,
+    mobile,
+    terms,
+    terms2,
+    terms3,
+    terms4,
+    terms5,
+    terms6,
+  } = req.body;
+
+  const findNicknameQuery = `
+                                  SELECT  nickname
+                                    FROM  users
+                                   WHERE  nickname  = "${nickname}"
+                                     AND  id != ${req.user.id}
+                                  `;
+
+  const findEmailQuery = `
+                                  SELECT  email
+                                    FROM  users
+                                   WHERE  email  = "${email}"
+                                     AND  id != ${req.user.id}
+                                  `;
+
+  const updateQuery = `
+                                  UPDATE  users
+                                     SET  nickname = "${nickname}",
+                                          email = "${email}",
+                                          mobile = "${mobile}",
+                                          ${terms ? `${terms}` : null},
+                                          ${terms2},
+                                          ${terms3},
+                                          ${terms4},
+                                          ${terms5 ? `${terms5}` : null},
+                                          ${terms6 ? `${terms6}` : null},
+                                          updatedAt = NOW()
+                                   WHERE  id = ${req.user.id}
+                                  `;
 
   try {
-    const exUser = await User.findOne({ where: { id: parseInt(id) } });
+    const findNicknameData = await models.sequelize.query(findNicknameQuery);
 
-    if (!exUser) {
-      return res.status(401).send("존재하지 않는 사용자 입니다.");
+    const findEmailData = await models.sequelize.query(findEmailQuery);
+
+    if (findNicknameData[0].length !== 0) {
+      return res.status(401).send("이미 사용중인 닉네임입니다.");
     }
 
-    const updateUser = await User.update(
-      { nickname, mobile },
-      {
-        where: { id: parseInt(id) },
-      }
-    );
+    if (findEmailData[0].length !== 0) {
+      return res.status(401).send("이미 사용중인 이메일입니다.");
+    }
+
+    await models.sequelize.query(updateQuery);
 
     return res.status(200).json({ result: true });
   } catch (error) {
     console.error(error);
     return res.status(401).send("정보를 수정할 수 없습니다.");
+  }
+});
+/**
+ * SUBJECT : 개인정보 수정 (비밀번호 변경)
+ * PARAMETERS : beforePassword, afterPassword
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/01/31
+ */
+router.post("/me/password/update", isLoggedIn, async (req, res, next) => {
+  const { beforePassword, afterPassword } = req.body;
+
+  const findUserQuery = `
+                                  SELECT  password
+                                    FROM  users
+                                   WHERE  id = ${req.user.id}
+                                  `;
+
+  try {
+    const findUserData = await models.sequelize.query(findUserQuery);
+
+    if (findUserData[0].length === 0) {
+      return res.status(401).send("존재하지 않는 사용자입니다.");
+    }
+
+    const beforeValidate = await bcrypt.compare(
+      beforePassword,
+      findUserData[0][0].password
+    );
+
+    if (!beforeValidate) {
+      return res.status(401).send("현재 비밀번호가 일치하지 않습니다.");
+    } else {
+      const hashedPassword = await bcrypt.hash(afterPassword, 12);
+
+      const updateQuery = `
+                                      UPDATE  users
+                                         SET  password = "${hashedPassword}",
+                                              updatedAt = NOW()
+                                       WHERE  id = ${req.user.id}
+                                      `;
+
+      await models.sequelize.query(updateQuery);
+
+      return res.status(200).json({ result: true });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("비밀번호를 변경할 수 없습니다.");
   }
 });
 
@@ -750,9 +847,9 @@ router.post("/findemail", async (req, res, next) => {
     });
 
     if (exUser) {
-      return res.status(200).json({ email: exUser.email });
+      return res.status(200).json({ userId: exUser.userId });
     } else {
-      return res.status(200).json({ email: false });
+      return res.status(200).json({ userId: false });
     }
   } catch (error) {
     console.error(error);
@@ -760,41 +857,69 @@ router.post("/findemail", async (req, res, next) => {
   }
 });
 
-router.post("/modifypass", isLoggedIn, async (req, res, next) => {
-  const { email, nickname, mobile } = req.body;
+//아이디찾기
+
+router.post("/findeUserId", async (req, res, next) => {
+  const { username, mobile } = req.body;
+
+  const findQuery = `
+  SELECT  userId
+    FROM  users
+   WHERE  username = "${username}"
+     AND  mobile = "${mobile}"
+  `;
 
   try {
-    const cookieEmail = req.user.dataValues.email;
-    const cookieNickname = req.user.dataValues.nickname;
-    const cookieMobile = req.user.dataValues.mobile;
+    const findUser = await models.sequelize.query(findQuery);
 
-    if (
-      email === cookieEmail &&
-      nickname === cookieNickname &&
-      mobile === cookieMobile
-    ) {
-      const currentUserId = req.user.dataValues.id;
+    if (findUser[0].length !== 0) {
+      return res.status(200).json({ userId: findUser[0][0].userId });
+    } else {
+      return res.status(401).send("일치하는 정보가 없습니다.");
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("이메일을 찾을 수 없습니다.");
+  }
+});
 
-      const UUID = generateUUID();
+//비밀번호 재설정
+router.post("/modifypass", async (req, res, next) => {
+  const { userId, email } = req.body;
 
-      const updateResult = await User.update(
-        { secret: UUID },
-        {
-          where: { id: parseInt(currentUserId) },
-        }
-      );
+  const findUserQuery = `
+  SELECT  id,
+          email
+    FROM  users
+   WHERE  userId = "${userId}"
+     AND  email = "${email}"
+  `;
 
-      if (updateResult[0] > 0) {
-        // 이메일 전송
+  try {
+    const findUserData = await models.sequelize.query(findUserQuery);
 
-        await sendSecretMail(
-          cookieEmail,
-          `🔐 [보안 인증코드 입니다.] ㅁㅁㅁㅁ 에서 비밀번호 변경을 위한 보안인증 코드를 발송했습니다.`,
-          `
+    if (findUserData[0].length === 0) {
+      return res.status(401).send("일치하는 정보가 없습니다.");
+    }
+
+    const UUID = generateUUID();
+
+    const userUpdateQuery = `
+    UPDATE  users
+       SET  secret = "${UUID}"
+     WHERE  userId = "${userId}"
+    `;
+
+    await models.sequelize.query(userUpdateQuery);
+
+    await sendSecretMail(
+      email,
+      `🔐 [보안 인증코드 입니다.] 음원에서 비밀번호 변경을 위한 보안인증 코드를 발송했습니다.`,
+      `
           <div>
-            <h3>ㅁㅁㅁㅁ</h3>
+            <h3>음원</h3>
             <hr />
-            <p>보안 인증코드를 발송해드립니다. ㅁㅁㅁㅁ 홈페이지의 인증코드 입력란에 정확히 입력해주시기 바랍니다.</p>
+            <p>보안 인증코드를 발송해드립니다. 음원홈페이지의 인증코드 입력란에 정확히 입력해주시기 바랍니다.</p>
             <p>인증코드는 [<strong>${UUID}</strong>] 입니다. </p>
 
             <br /><hr />
@@ -803,53 +928,67 @@ router.post("/modifypass", isLoggedIn, async (req, res, next) => {
             </article>
           </div>
           `
-        );
+    );
 
-        return res.status(200).json({ result: true });
-      } else {
-        return res
-          .status(401)
-          .send("요청이 올바르지 않습니다. 다시 시도해주세요.");
-      }
-    } else {
-      return res
-        .status(401)
-        .send("입력하신 정보가 잘못되었습니다. 다시 확인해주세요.");
-    }
+    return res.status(200).json({ result: true });
   } catch (error) {
     console.error(error);
     return res.status(401).send("잘못된 요청 입니다. [CODE097]");
   }
 });
 
-router.patch("/modifypass/update", isLoggedIn, async (req, res, next) => {
-  const { secret, password } = req.body;
+router.post("/checkSecret", async (req, res, next) => {
+  const { secret } = req.body;
+
+  const findUser = `
+  SELECT  id
+    FROM  users
+   WHERE  secret = "${secret}"
+  `;
 
   try {
-    const exUser = await User.findOne({
-      where: { id: req.user.dataValues.id },
-    });
+    const userData = await models.sequelize.query(findUser);
 
-    if (!exUser) {
-      return res
-        .status(401)
-        .send("잘못된 요청 입니다. 다시 로그인 후 이용해주세요.");
+    if (userData[0].length === 0) {
+      return res.status(401).send("인증코드를 잘못 입력하셨습니다.");
+    }
+
+    return res.status(200).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("잘못된 요청 입니다.");
+  }
+});
+
+router.post("/modifypass/update", async (req, res, next) => {
+  const { userId, password } = req.body;
+
+  const findUser = `
+  SELECT  id
+    FROM  users
+   WHERE  userId = "${userId}"
+  `;
+
+  try {
+    const userData = await models.sequelize.query(findUser);
+
+    if (userData[0].length === 0) {
+      return res.status(401).send("잠시 후 다시 시도하여 주십시오.");
     }
 
     const hashPassord = await bcrypt.hash(password, 12);
 
-    const updateResult = await User.update(
-      { password: hashPassord },
-      {
-        where: { id: req.user.dataValues.id },
-      }
-    );
+    const userUpdateQuery = `
+    UPDATE  users
+       SET  password = "${hashPassord}",
+            updatedAt = now(),
+            secret = NULL
+     WHERE  userId = "${userId}"
+    `;
 
-    if (updateResult[0] === 1) {
-      return res.status(200).json({ result: true });
-    } else {
-      return res.status(200).json({ result: false });
-    }
+    const updateResult = await models.sequelize.query(userUpdateQuery);
+
+    return res.status(200).json({ result: true });
   } catch (error) {
     console.error(error);
     return res.status(401).send("잘못된 요청 입니다.");
