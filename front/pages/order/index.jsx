@@ -48,6 +48,10 @@ const Intro = () => {
   );
 
   const buyHandler = useCallback(() => {
+    const orderType = sessionStorage.getItem("ORDER")
+      ? JSON.parse(sessionStorage.getItem("ORDER"))
+      : null;
+
     const d = new Date();
 
     let year = d.getFullYear() + "";
@@ -75,7 +79,7 @@ const Intro = () => {
           pg: "paypal",
           pay_method: "card",
           merchant_uid: orderPK,
-          name: "Star Night",
+          name: `[${orderType && orderType.title}]` + "Star Night",
           amount: 15000,
           buyer_name: "test",
           buyer_tel: "01000000000",
@@ -102,7 +106,7 @@ const Intro = () => {
               : "paypal",
           pay_method: payType,
           merchant_uid: orderPK,
-          name: "Star Night",
+          name: `[${orderType && orderType.title}]` + "Star Night",
           amount: 15000,
           buyer_name: "test",
           buyer_tel: "01000000000",
