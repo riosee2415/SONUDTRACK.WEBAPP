@@ -254,7 +254,7 @@ const reducer = (state = initailState, action) =>
         draft.st_allArtistemListLoading = false;
         draft.st_allArtistemListDone = true;
         draft.st_allArtistemListError = null;
-        draft.allArtistemList = action.data;
+        draft.allArtistemList = action.data.artistemList;
         break;
       }
 
