@@ -44,6 +44,8 @@ router.post("/list", isLoggedIn, async (req, res, next) => {
         JOIN	artistem 		B
           ON	A.ArtistemId = B.id
        WHERE	A.UserId = ${req.user.id}
+         AND    A.ProductId IS NULL
+         AND    A.ProductTrackId IS NULL
        ORDER    BY A.createdAt DESC
                 `;
 
@@ -108,6 +110,8 @@ SELECT	A.id,
    JOIN	productTrack 	B
      ON	A.ProductTrackId = B.id
   WHERE A.UserId = ${req.user.id}
+    AND A.ProductId IS NULL
+    AND A.ArtistemId IS NULL
   ORDER BY A.createdAt DESC
       `;
 
@@ -161,6 +165,8 @@ SELECT	A.id,
     JOIN	product 		B
       ON	A.ProductId = B.id
    WHERE	A.UserId = ${req.user.id}
+     AND    A.ProductTrackId IS NULL
+     AND    A.ArtistemId IS NULL
    ORDER    BY A.createdAt DESC
       `;
 
@@ -192,7 +198,7 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
         SELECT    id
           FROM    userLike
          WHERE    ProductTrackId = ${ProductTrackId}
-           AND    ProductTrackId IS NULL
+           AND    ArtistemId IS NULL
            AND    ProductId IS NULL
            AND    UserId = ${req.user.id}
         `;
@@ -217,8 +223,8 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
         ${ProductTrackId},
         NULL,
         NULL,
-        createdAt,
-        updatedAt
+        NOW(),
+        NOW()
       )
       `;
 
@@ -233,7 +239,7 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
             FROM  userLike
            WHERE  UserId = ${req.user.id}
              AND  ProductTrackId = ${ProductTrackId}
-             AND  ProductTrackId IS NULL
+             AND  ArtistemId IS NULL
              AND  ProductId IS NULL
           `;
 
@@ -275,8 +281,8 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
           NULL,
           ${ArtistemId},
           NULL,
-          createdAt,
-          updatedAt
+          NOW(),
+          NOW()
         )
         `;
 
@@ -330,8 +336,8 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
           NULL,
           NULL,
           ${ProductId},
-          createdAt,
-          updatedAt
+          NOW(),
+          NOW()
         )
         `;
 

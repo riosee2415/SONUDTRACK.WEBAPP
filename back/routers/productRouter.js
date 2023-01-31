@@ -329,9 +329,28 @@ router.post("/gen/list", async (req, res, next) => {
 ///////////////////////////////////// TRACK ////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
 /**
- * SUBJECT : 새로운 음원 불러오기
+ * SUBJECT : 뮤직탬 음원 불러오기
  * PARAMETERS : -
  * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 시니어 홍민기
+ * DEV DATE : 2023/01/30
+ */
+
+router.post("/track/list", async (req, res, next) => {
+  const { listType } = req.body;
+
+  try {
+  } catch (e) {
+    console.error(e);
+    return res.status(400).send("음원을 조회할 수 없습니다.");
+  }
+});
+
+/**
+ * SUBJECT : 새로운 음원 불러오기
+ * PARAMETERS : -
+ * ORDER BY : createdAt DESC
  * STATEMENT : -
  * DEVELOPMENT : 시니어 홍민기
  * DEV DATE : 2023/01/30
@@ -347,12 +366,6 @@ router.post("/track/newList", async (req, res, next) => {
           A.downloadCnt,
           A.createdAt 
     FROM  productTrack	A 
-   INNER
-    JOIN  product			B 
-      ON  A.ProductId = B.id
-   INNER
-    JOIN  users			C 
-      ON  B.UserId = C.id
    WHERE  A.createdAt > DATE_SUB(NOW(), INTERVAL 7 DAY)
    ORDER  BY A.createdAt DESC
   `;
@@ -386,12 +399,6 @@ router.post("/track/recentList", async (req, res, next) => {
          A.downloadCnt,
          A.createdAt 
    FROM  productTrack	A 
-  INNER
-   JOIN  product			B 
-     ON  A.ProductId = B.id
-  INNER
-   JOIN  users			C 
-     ON  B.UserId = C.id
   ORDER  BY A.createdAt DESC 
   LIMIT  5
   `;
