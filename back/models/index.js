@@ -38,7 +38,6 @@ const Artistem = require("./artistem");
 const artistTemTag = require("./artisttemTag");
 const artistTemGen = require("./artisttemGen");
 const BuyRequest = require("./buyRequest");
-const BuyRequestHistory = require("./buyRequestHistory");
 const userbuystatus = require("./userbuystatus");
 
 const env = process.env.NODE_ENV || "development";
@@ -91,7 +90,6 @@ db.Artistem = Artistem;
 db.ArtistTemTag = artistTemTag;
 db.ArtistTemGen = artistTemGen;
 db.BuyRequest = BuyRequest;
-db.BuyRequestHistory = BuyRequestHistory;
 db.UserBuyStatus = userbuystatus;
 
 Object.keys(db).forEach((modelName) => {
