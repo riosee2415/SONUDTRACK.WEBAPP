@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Image,
   WholeWrapper,
@@ -20,8 +20,14 @@ import {
   CloseOutlined,
   FormOutlined,
 } from "@ant-design/icons";
-import { Checkbox, Modal } from "antd";
+import { Checkbox, message, Modal } from "antd";
 import useInput from "../hooks/useInput";
+import {
+  LOAD_MY_INFO_REQUEST,
+  USER_IMAGE_RESET,
+  USER_IMG_UPDATE_REQUEST,
+  USER_UPLOAD_REQUEST,
+} from "../reducers/user";
 
 const Menu = styled(Wrapper)`
   padding: 0 30px;
@@ -53,12 +59,24 @@ const Menu = styled(Wrapper)`
 
 const MypageMenu = ({}) => {
   ////// GLOBAL STATE //////
-  const { me } = useSelector((state) => state.user);
+  const {
+    me,
+    userPath,
+
+    st_userImgUpdateDone,
+    st_userImgUpdateError,
+
+    st_userUploadLoading,
+    st_userUploadDone,
+    st_userUploadError,
+  } = useSelector((state) => state.user);
 
   ////////////// - USE STATE- ///////////////
   const width = useWidth();
   const router = useRouter();
   const dispatch = useDispatch();
+
+  const imgRef = useRef();
 
   const [isModal, setIsModal] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
@@ -73,6 +91,36 @@ const MypageMenu = ({}) => {
   const [fileName, setFileName] = useState("");
 
   ////////////// - USE EFFECT- //////////////
+  useEffect(() => {
+    if (st_userUploadDone) {
+      dispatch({
+        type: USER_IMG_UPDATE_REQUEST,
+        data: {
+          profileImage: userPath,
+        },
+      });
+    }
+    if (st_userUploadError) {
+      return message.error(st_userUploadError);
+    }
+  }, [st_userUploadDone, st_userUploadError]);
+
+  useEffect(() => {
+    if (st_userImgUpdateDone) {
+      dispatch({
+        type: LOAD_MY_INFO_REQUEST,
+      });
+
+      dispatch({
+        type: USER_IMAGE_RESET,
+      });
+
+      return message.success("프로필사진이 변경되었습니다.");
+    }
+    if (st_userImgUpdateError) {
+      return message.error(st_userImgUpdateError);
+    }
+  }, [st_userImgUpdateDone, st_userImgUpdateError]);
 
   ///////////// - TOGGLE - ////////////
 
@@ -103,6 +151,27 @@ const MypageMenu = ({}) => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
+  const imgClickHandler = useCallback(() => {
+    imgRef.current.click();
+  }, [imgRef]);
+
+  const imgUploadHandler = useCallback((e) => {
+    const formData = new FormData();
+
+    [].forEach.call(e.target.files, (file) => {
+      formData.append("image", file);
+    });
+
+    if (e.target.files.length < 1) {
+      return;
+    }
+
+    dispatch({
+      type: USER_UPLOAD_REQUEST,
+      data: formData,
+    });
+  }, []);
+
   return (
     <WholeWrapper height={`calc(100vh - 166px)`} ju={`flex-start`}>
       <Wrapper margin={`0 0 50px`} ju={`flex-start`}>
@@ -116,7 +185,7 @@ const MypageMenu = ({}) => {
             height={`100%`}
             radius={`100%`}
             alt="profile"
-            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/art-goods/assets/images/main-page/img_4s_right_prod.png`}
+            src={userPath ? userPath : me && me.profileImage}
           />
 
           <Wrapper
@@ -129,12 +198,21 @@ const MypageMenu = ({}) => {
             color={Theme.white_C}
             bgColor={`rgba(0, 0, 0, 0.6)`}
             cursor={`pointer`}
+            onClick={imgClickHandler}
+            loading={st_userUploadLoading}
           >
+            <input
+              ref={imgRef}
+              type={`file`}
+              accept={`.jpg, .png`}
+              hidden
+              onChange={imgUploadHandler}
+            />
             <FormOutlined />
           </Wrapper>
         </Wrapper>
         <Text fontSize={`22px`} fontWeight={`bold`} margin={`20px 0 12px`}>
-          차참미
+          {me && me.nickname}
         </Text>
         <CommonButton
           width={`162px`}
