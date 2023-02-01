@@ -18,14 +18,32 @@ import Theme from "../../components/Theme";
 import { LeftOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 import Link from "next/dist/client/link";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { NOTICE_DETAIL_REQUEST } from "../../reducers/notice";
 
 const Index = () => {
   ////// GLOBAL STATE //////
+  const { noticeDetail } = useSelector((state) => state.notice);
 
   ////// HOOKS //////
   const width = useWidth();
+  const router = useRouter();
+  const dispatch = useDispatch();
+
   ////// REDUX //////
   ////// USEEFFECT //////
+  useEffect(() => {
+    if (router.query) {
+      dispatch({
+        type: NOTICE_DETAIL_REQUEST,
+        data: {
+          id: router.query.id,
+        },
+      });
+    }
+  }, [router]);
   ////// TOGGLE //////
 
   ////// HANDLER //////
@@ -91,7 +109,7 @@ const Index = () => {
               fontSize={width < 900 ? `25px` : `30px`}
               fontWeight={`bold`}
             >
-              공지사항에 대한 제목이 들어올 곳입니다.
+              {noticeDetail && noticeDetail.title}
             </Wrapper>
             <Wrapper
               dr={`row`}
@@ -99,54 +117,35 @@ const Index = () => {
               height={`65px`}
               borderTop={`1px solid ${Theme.lightGrey_C}`}
               borderBottom={`1px solid ${Theme.lightGrey_C}`}
-              margin={`26px 0 0`}
+              margin={`26px 0`}
               fontSize={`16px`}
             >
               <Text color={Theme.grey2_C} margin={`0 24px 0 0`}>
                 조회수
               </Text>
               <Text margin={width < 900 ? `0 50px 0 0` : `0 100px 0 0`}>
-                123
+                {noticeDetail && noticeDetail.hit}
               </Text>
               <Text color={Theme.grey2_C} margin={`0 24px 0 0`}>
                 작성일자
               </Text>
-              <Text>23.01.05</Text>
-            </Wrapper>
-            <Wrapper
-              dr={`row`}
-              ju={`flex-start`}
-              margin={`0 0 40px`}
-              fontSize={`16px`}
-              height={`65px`}
-              bgColor={Theme.lightGrey2_C}
-            >
-              <Text color={Theme.grey2_C} margin={`0 24px 0 0`}>
-                첨부파일
-              </Text>
-              <a href={``} download>
-                <Text
-                  margin={width < 900 ? `0 50px 0 0` : `0 100px 0 0`}
-                  isHover
-                >
-                  파일이름
-                </Text>
-              </a>
+              <Text> {noticeDetail && noticeDetail.viewCreatedAt}</Text>
             </Wrapper>
 
             <Wrapper
               al={`flex-start`}
               borderBottom={`1px solid ${Theme.lightGrey_C}`}
             >
-              <Image
-                alt="thumbnail"
-                src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/art-goods/assets/images/main-page/img_4s_right_prod.png`}
-                width={width < 800 ? `100%` : `60%`}
-              />
+              {noticeDetail && noticeDetail.file && (
+                <Image
+                  alt="thumbnail"
+                  src={noticeDetail && noticeDetail.file}
+                  width={width < 800 ? `100%` : `60%`}
+                />
+              )}
 
               <Text fontSize={`18px`} margin={`30px 0 70px`}>
-                공지사항에 대한 내용이 들어올 곳입니다. 공지사항에 대한 내용이
-                들어올 곳입니다. 공지사항에 대한 내용이 들어올 곳입니다.
+                {noticeDetail && noticeDetail.content}
               </Text>
             </Wrapper>
 

@@ -198,8 +198,8 @@ router.post("/user/list", async (req, res, next) => {
           A.file,
           A.createdAt,
           A.updatedAt,
-          DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일") 		AS viewCreatedAt,
-          DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일") 		AS viewUpdatedAt,
+          DATE_FORMAT(A.createdAt, "%Y.%m.%d") 		AS viewCreatedAt,
+          DATE_FORMAT(A.updatedAt, "%Y.%m.%d") 		AS viewUpdatedAt,
           B.username 										AS updator 
     FROM	notices		A
    INNER
@@ -253,8 +253,8 @@ router.post("/detail", async (req, res, next) => {
           A.file,
           A.createdAt,
           A.updatedAt,
-          DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일") 		AS viewCreatedAt,
-          DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일") 		AS viewUpdatedAt,
+          DATE_FORMAT(A.createdAt, "%Y.%m.%d") 		AS viewCreatedAt,
+          DATE_FORMAT(A.updatedAt, "%Y.%m.%d") 		AS viewUpdatedAt,
           B.username 										AS updator 
     FROM	notices		A
    INNER

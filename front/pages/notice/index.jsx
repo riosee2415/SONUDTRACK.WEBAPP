@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ClientLayout from "../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../store/configureStore";
@@ -8,6 +8,7 @@ import { END } from "redux-saga";
 import useWidth from "../../hooks/useWidth";
 import {
   CustomPage,
+  Image,
   RsWrapper,
   Text,
   TextInput,
@@ -17,6 +18,10 @@ import {
 import Theme from "../../components/Theme";
 import { FileImageOutlined, SearchOutlined } from "@ant-design/icons";
 import styled from "styled-components";
+import { useRouter } from "next/router";
+import { useDispatch, useSelector } from "react-redux";
+import useInput from "../../hooks/useInput";
+import { FRONT_NOTICE_LIST_REQUEST } from "../../reducers/notice";
 
 const List = styled(Wrapper)`
   flex-direction: row;
@@ -37,14 +42,45 @@ const List = styled(Wrapper)`
 
 const Index = () => {
   ////// GLOBAL STATE //////
+  const { noticeList, noticePage } = useSelector((state) => state.notice);
 
   ////// HOOKS //////
   const width = useWidth();
-  ////// REDUX //////
+  const router = useRouter();
+  const dispatch = useDispatch();
+
+  const search = useInput("");
+
+  const [currentPage, setCurrentPage] = useState(1); // 페이지네이션
+
   ////// USEEFFECT //////
+
+  useEffect(() => {
+    dispatch({
+      type: FRONT_NOTICE_LIST_REQUEST,
+      data: {
+        title: search.value,
+        page: currentPage,
+      },
+    });
+  }, [currentPage, search.value]);
+
   ////// TOGGLE //////
 
   ////// HANDLER //////
+  const moveLinkHandler = useCallback((link) => {
+    router.push(link);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  // 페이지네이션
+  const otherPageCall = useCallback(
+    (changePage) => {
+      setCurrentPage(changePage);
+    },
+    [currentPage]
+  );
+
   ////// DATAVIEW //////
 
   return (
@@ -117,6 +153,7 @@ const Index = () => {
                   radius={`30px`}
                   padding={`0 10px 0 50px`}
                   shadow={`0 3px 10px rgba(0, 0, 0, 0.1)`}
+                  {...search}
                 />
               </Wrapper>
             </Wrapper>
@@ -137,27 +174,66 @@ const Index = () => {
                 <Wrapper width={width < 900 ? `25%` : `20%`}>작성일자</Wrapper>
               </Wrapper>
 
-              <List>
-                <Wrapper width={`15%`} display={width < 900 ? `none` : `flex`}>
-                  16
-                </Wrapper>
+              {noticeList && noticeList.length === 0 ? (
                 <Wrapper
-                  width={width < 900 ? `55%` : `50%`}
-                  fontSize={width < 900 ? `15px` : `18px`}
-                  dr={`row`}
-                  ju={`flex-start`}
+                  height={`300px`}
+                  borderBottom={`1px solid ${Theme.lightGrey_C}`}
                 >
-                  <Text maxWidth={`90%`} isEllipsis>
-                    공지사항에 대한 제목이 들어올 곳입니다.
+                  <Image
+                    alt="icon"
+                    src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/blank.png`}
+                    width={`76px`}
+                  />
+                  <Text
+                    fontSize={width < 900 ? `18px` : `22px`}
+                    color={Theme.grey2_C}
+                    margin={`25px 0 0`}
+                  >
+                    등록된 공지사항이 존재하지 않습니다.
                   </Text>
-                  <FileImageOutlined />
                 </Wrapper>
-                <Wrapper width={width < 900 ? `20%` : `15%`}>10</Wrapper>
-                <Wrapper width={width < 900 ? `25%` : `20%`}>
-                  2022.10.01
-                </Wrapper>
-              </List>
-              <CustomPage />
+              ) : (
+                noticeList &&
+                noticeList.map((data) => {
+                  return (
+                    <List
+                      key={data.id}
+                      onClick={() => moveLinkHandler(`/notice/${data.id}`)}
+                    >
+                      <Wrapper
+                        width={`15%`}
+                        display={width < 900 ? `none` : `flex`}
+                      >
+                        {data.num}
+                      </Wrapper>
+                      <Wrapper
+                        width={width < 900 ? `55%` : `50%`}
+                        fontSize={width < 900 ? `15px` : `18px`}
+                        dr={`row`}
+                        ju={`flex-start`}
+                      >
+                        <Text maxWidth={`90%`} isEllipsis>
+                          {data.title}
+                        </Text>
+                        {data.file && <FileImageOutlined />}
+                      </Wrapper>
+                      <Wrapper width={width < 900 ? `20%` : `15%`}>
+                        {data.hit}
+                      </Wrapper>
+                      <Wrapper width={width < 900 ? `25%` : `20%`}>
+                        {data.viewCreatedAt}
+                      </Wrapper>
+                    </List>
+                  );
+                })
+              )}
+              <CustomPage
+                defaultCurrent={1}
+                current={parseInt(currentPage)}
+                total={noticePage * 10}
+                pageSize={10}
+                onChange={(page) => otherPageCall(page)}
+              />
             </Wrapper>
           </RsWrapper>
         </WholeWrapper>
