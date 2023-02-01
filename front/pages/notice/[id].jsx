@@ -99,7 +99,7 @@ const Index = () => {
               height={`65px`}
               borderTop={`1px solid ${Theme.lightGrey_C}`}
               borderBottom={`1px solid ${Theme.lightGrey_C}`}
-              margin={`26px 0 40px`}
+              margin={`26px 0 0`}
               fontSize={`16px`}
             >
               <Text color={Theme.grey2_C} margin={`0 24px 0 0`}>
@@ -112,6 +112,26 @@ const Index = () => {
                 작성일자
               </Text>
               <Text>23.01.05</Text>
+            </Wrapper>
+            <Wrapper
+              dr={`row`}
+              ju={`flex-start`}
+              margin={`0 0 40px`}
+              fontSize={`16px`}
+              height={`65px`}
+              bgColor={Theme.lightGrey2_C}
+            >
+              <Text color={Theme.grey2_C} margin={`0 24px 0 0`}>
+                첨부파일
+              </Text>
+              <a href={``} download>
+                <Text
+                  margin={width < 900 ? `0 50px 0 0` : `0 100px 0 0`}
+                  isHover
+                >
+                  파일이름
+                </Text>
+              </a>
             </Wrapper>
 
             <Wrapper
