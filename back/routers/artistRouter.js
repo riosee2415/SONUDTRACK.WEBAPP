@@ -154,14 +154,38 @@ router.post("/image", upload.single("image"), async (req, res, next) => {
 
 /**
  * SUBJECT : 판매자 신청하기
- * PARAMETERS : plan, gen, imagePath
+ * PARAMETERS : plan, gen, imagePaths
  * ORDER BY : -
  * STATEMENT : -
  * DEVELOPMENT : 시니어 개발자 신태섭
  * DEV DATE : 2023/02/01
  */
 router.post("/permm/create", isLoggedIn, async (req, res, next) => {
-  const { plan, gen, imagePath } = req.body;
+  const { plan, gen, imagePaths } = req.body;
+
+  if (!Array.isArray(imagePaths)) {
+    return res.status(401).send("잘못된 요청입니다.");
+  }
+
+  // 해당 형식 맞춰서 보내주세여
+  // [
+  //   {
+  //     filename: "",
+  //     filepath: "",
+  //   },
+  //   {
+  //     filename: "",
+  //     filepath: "",
+  //   },
+  //   {
+  //     filename: "",
+  //     filepath: "",
+  //   },
+  //   {
+  //     filename: "",
+  //     filepath: "",
+  //   },
+  // ];
 
   const findArtistQuery = `
   SELECT  id
@@ -174,7 +198,6 @@ router.post("/permm/create", isLoggedIn, async (req, res, next) => {
   (
     plan,
     gen,
-    imagePath,
     UserId,
     createdAt,
     updatedAt
@@ -183,7 +206,6 @@ router.post("/permm/create", isLoggedIn, async (req, res, next) => {
   (
     "${plan}",
     "${gen}",
-    "${imagePath}",
     ${req.user.id},
     NOW(),
     NOW()
@@ -197,7 +219,32 @@ router.post("/permm/create", isLoggedIn, async (req, res, next) => {
       return res.status(401).send("이미 신청한 내역이 존재합니다.");
     }
 
-    await models.sequelize.query(insertQuery);
+    const insertResult = await models.sequelize.query(insertQuery);
+
+    await Promise.all(
+      imagePaths.map(async (data) => {
+        const imageInsertQuery = `
+        INSERT  INTO  artistRequestFile
+        (
+          filename,
+          filepath,
+          ArtistId,
+          createdAt,
+          updatedAt
+        )
+        VALUES
+        (
+          "${data.filename}",
+          "${data.filepath}",
+          ${insertResult[0].insertId},
+          NOW(),
+          NOW()
+        )
+        `;
+
+        await models.sequelize.query(imageInsertQuery);
+      })
+    );
 
     return res.status(201).json({ result: true });
   } catch (error) {
