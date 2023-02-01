@@ -387,8 +387,6 @@ router.post("/track/allList", async (req, res, next) => {
                            ) DESC`
               : `ORDER  BY  A.createdAt DESC`
           }
-  LIMIT  ${LIMIT}
- OFFSET  ${OFFSET}
     `;
 
   const selectQ = `
@@ -420,11 +418,11 @@ router.post("/track/allList", async (req, res, next) => {
     FROM  productTrack		A
           ${
             _orderType === 1
-              ? `ORDER  BY (
-                             SELECT  COUNT(B.id)
-                               FROM  userLike	B
-                              WHERE  A.id = B.ProductTrackId
-                           ) DESC`
+              ? `ORDER  BY  (
+                              SELECT  COUNT(B.id)
+                                FROM  userLike	B
+                               WHERE  A.id = B.ProductTrackId
+                            ) DESC`
               : `ORDER  BY  A.createdAt DESC`
           }
    LIMIT  ${LIMIT}
@@ -452,9 +450,6 @@ router.post("/track/allList", async (req, res, next) => {
 
     const trackLen = lengths[0].length;
 
-    const lastPage =
-      trackLen % LIMIT > 0 ? trackLen / LIMIT + 1 : trackLen / LIMIT;
-
     return res.status(200).json({
       list: list[0].map((data) => ({
         ...data,
@@ -462,7 +457,7 @@ router.post("/track/allList", async (req, res, next) => {
           (value) => value.ProductId === data.ProductId
         ),
       })),
-      lastPage: lastPage,
+      length: trackLen,
     });
   } catch (e) {
     console.error(e);
