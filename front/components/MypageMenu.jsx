@@ -71,12 +71,24 @@ const MypageMenu = ({}) => {
     st_userUploadError,
   } = useSelector((state) => state.user);
 
+  const {
+    artistPath,
+
+    st_permmWaitingCreateDone,
+    st_permmWaitingCreateError,
+
+    st_artistUploadLoading,
+    st_artistUploadDone,
+    st_artistUploadError,
+  } = useSelector((state) => state.user);
+
   ////////////// - USE STATE- ///////////////
   const width = useWidth();
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const imgRef = useRef();
+  const imgRef = useRef(); // 프로필 변경
+  const fileRef = useRef(); // 판매자 파일 등록
 
   const [isModal, setIsModal] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
@@ -84,8 +96,6 @@ const MypageMenu = ({}) => {
   const [mypageOpen2, setMypageOpen2] = useState(false);
   const [mypageOpen3, setMypageOpen3] = useState(false);
 
-  const [music, setMusic] = useState(false);
-  const [artist, setArtist] = useState(false);
   const plan = useInput("");
   const techGenre = useInput("");
   const [fileName, setFileName] = useState("");
@@ -472,12 +482,12 @@ const MypageMenu = ({}) => {
               New Wave Sound에서 주 활동 계획은 어떻게 되시나요?
             </Text>
             <Wrapper dr={`row`} ju={`flex-start`} margin={`14px 0 12px`}>
-              <Checkbox checked={music} onClick={() => setMusic(!music)}>
+              <Checkbox>
                 <Text fontSize={`16px`} color={Theme.grey_C}>
                   Musictem 판매
                 </Text>
               </Checkbox>
-              <Checkbox checked={artist} onClick={() => setArtist(!artist)}>
+              <Checkbox>
                 <Text fontSize={`16px`} color={Theme.grey_C}>
                   Artist로서 활동
                 </Text>
