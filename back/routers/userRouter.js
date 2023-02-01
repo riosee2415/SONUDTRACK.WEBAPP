@@ -27,6 +27,7 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
   const selectQuery = `
   SELECT	ROW_NUMBER() OVER(ORDER	BY A.createdAt)		AS num,
           A.id,
+          A.profileImage,
           A.userId,
           A.email,
           A.username,
@@ -173,6 +174,7 @@ router.post("/snsLogin", (req, res, next) => {
         const findUserQuery = `
       SELECT	ROW_NUMBER() OVER(ORDER	BY A.createdAt)		AS num,
               A.id,
+              A.profileImage,
               A.userId,
               A.email,
               A.username,
@@ -300,6 +302,7 @@ router.post("/snsLogin", (req, res, next) => {
       const findUserQuery = `
       SELECT	ROW_NUMBER() OVER(ORDER	BY A.createdAt)		AS num,
               A.id,
+              A.profileImage,
               A.userId,
               A.email,
               A.username,
@@ -550,6 +553,7 @@ router.get("/signin", async (req, res, next) => {
       const selectQuery = `
       SELECT	ROW_NUMBER() OVER(ORDER	BY A.createdAt)		AS num,
               A.id,
+              A.profileImage,
               A.userId,
               A.email,
               A.username,
@@ -638,6 +642,7 @@ router.post("/signin", (req, res, next) => {
       const selectQuery = `
       SELECT	ROW_NUMBER() OVER(ORDER	BY A.createdAt)		AS num,
               A.id,
+              A.profileImage,
               A.userId,
               A.email,
               A.username,
@@ -712,6 +717,7 @@ router.post("/signin/admin", (req, res, next) => {
         where: { id: user.id },
         attributes: [
           "id",
+          "profileImage",
           "nickname",
           "userId",
           "email",
@@ -883,6 +889,34 @@ router.post("/me/update", isLoggedIn, async (req, res, next) => {
   } catch (error) {
     console.error(error);
     return res.status(401).send("정보를 수정할 수 없습니다.");
+  }
+});
+
+/**
+ * SUBJECT : 개인정보 수정 (썸네일 변경)
+ * PARAMETERS : profileImage
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/02/01
+ */
+router.post("/me/profile/update", isLoggedIn, async (req, res, next) => {
+  const { profileImage } = req.body;
+
+  const updateQuery = `
+  UPDATE  users
+     SET  profileImage = "${profileImage}",
+          updatedAt = NOW()
+   WHERE  id = ${req.user.id}
+  `;
+
+  try {
+    await models.sequelize.query(updateQuery);
+
+    return res.status(200).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("프로필 이미지를 변경할 수 없습니다.");
   }
 });
 

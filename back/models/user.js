@@ -5,6 +5,12 @@ module.exports = class User extends Model {
   static init(sequelize) {
     return super.init(
       {
+        profileImage: {
+          type: DataTypes.STRING(600),
+          allowNull: false,
+          defaultValue:
+            "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/profile.png",
+        },
         // id가 기본적으로 들어있다.
         email: {
           type: DataTypes.STRING(60), // STRING, TEXT, BOOLEAN, INTEGER, FLOAT, DATETIME

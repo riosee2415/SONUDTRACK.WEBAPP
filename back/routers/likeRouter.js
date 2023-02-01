@@ -90,23 +90,23 @@ router.post("/list", isLoggedIn, async (req, res, next) => {
     if (_findType === 2) {
       const selectTrackQuery = `
 SELECT	A.id,
- 		A.ProductTrackId,
- 		B.title,
- 		B.isTitle,
- 		B.author,
- 		B.filename,
- 		B.filepath,
+        A.ProductTrackId,
+        B.title,
+        B.isTitle,
+        B.author,
+        B.filename,
+        B.filepath,
         B.downloadCnt,
         FORMAT(B.downloadCnt, 0)                    AS  viewDownloadCnt,
- 		B.sPrice,
- 		B.dPrice,
- 		B.pPrice,
- 		FORMAT(B.sPrice , 0)   as viewsPrice,
+        B.sPrice,
+        B.dPrice,
+        B.pPrice,
+        FORMAT(B.sPrice , 0)   as viewsPrice,
         FORMAT(B.dPrice , 0)   as viewdPrice,
         FORMAT(B.pPrice , 0)   as viewpPrice,
- 		B.thumbnail,
- 		B.createdAt,
-		DATE_FORMAT(B.createdAt, "%Y년 %m월 %d일")	AS viewCreatedAt
+        B.thumbnail,
+        B.createdAt,
+        DATE_FORMAT(B.createdAt, "%Y년 %m월 %d일")	AS viewCreatedAt
    FROM	userLike		A
    LEFT
   OUTER

@@ -247,7 +247,7 @@ router.post("/artistem/allList", async (req, res, next) => {
                  AND  AR.isPermm = 1
             )                                            AS artistName,
             (
-              SELECT  AR.imagePath
+              SELECT  US.profileImage
                 FROM  artist      AR
                INNER
                 JOIN  users       US
@@ -384,7 +384,7 @@ router.post("/artistem/newList", async (req, res, next) => {
                  AND  AR.isPermm = 1
             )                                            AS artistName,
             (
-              SELECT  AR.imagePath
+              SELECT  US.profileImage
                 FROM  artist      AR
                INNER
                 JOIN  users       US
@@ -513,7 +513,7 @@ router.post("/artistem/nearList", async (req, res, next) => {
                  AND  AR.isPermm = 1
             )                                            AS artistName,
             (
-              SELECT  AR.imagePath
+              SELECT  US.profileImage
                 FROM  artist      AR
                INNER
                 JOIN  users       US
@@ -704,6 +704,15 @@ router.post("/target/detail", async (req, res, next) => {
            WHERE  A.ArtistId = AR.id
              AND  AR.isPermm = 1
           )                                            AS artistName,
+          (
+          SELECT  US.profileImage
+            FROM  artist      AR
+           INNER
+            JOIN  users       US
+              ON  AR.UserId = US.id
+           WHERE  A.ArtistId = AR.id
+             AND  AR.isPermm = 1
+          )                                            AS artistImage,
           A.content,
           A.coverImage,
           A.isIng,
