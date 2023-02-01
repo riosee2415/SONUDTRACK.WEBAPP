@@ -7,7 +7,7 @@ export const initailState = {
   targetGens: [],
   trackList: [],
   trackAllList: [],
-  trackLastPage: 0,
+  trackLength: 0,
   commonTags: [],
   trackDetail: null,
 
@@ -369,7 +369,7 @@ const reducer = (state = initailState, action) =>
         draft.st_productTrackAllListDone = true;
         draft.st_productTrackAllListError = null;
         draft.trackAllList = action.data.list;
-        draft.trackLastPage = action.data.lastPage;
+        draft.trackLength = action.data.length;
         break;
       }
       case PRODUCT_TRACK_ALL_LIST_FAILURE: {

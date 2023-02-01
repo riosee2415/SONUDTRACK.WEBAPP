@@ -25,6 +25,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { PRODUCT_TRACK_ALL_LIST_REQUEST } from "../../reducers/product";
 import { useDispatch, useSelector } from "react-redux";
+import moment from "moment";
 
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
@@ -66,7 +67,7 @@ const Audio = styled.audio``;
 const Index = () => {
   ////// GLOBAL STATE //////
 
-  const { trackAllList } = useSelector((state) => state.product);
+  const { trackAllList, trackLength } = useSelector((state) => state.product);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -79,6 +80,8 @@ const Index = () => {
   const [listPage, setListPage] = useState(1);
   // 더보기 리스트
   const [allTrackList, setAllTrackList] = useState([]);
+  const [allAudioTime, setAllAudioTime] = useState([]);
+  const [selectOrderType, setSelectOrderType] = useState(1);
 
   ////// REDUX //////
   ////// USEEFFECT //////
@@ -87,9 +90,6 @@ const Index = () => {
   useEffect(() => {
     if (trackAllList) {
       let allTrackArr = allTrackList ? allTrackList.map((data) => data) : [];
-
-      // 오디오 시간조회
-      // aRef && aRef.current && moment(aRef.current.duration * 1000).format("mm:ss")
 
       trackAllList.map((data) => {
         return allTrackArr.push(data);
@@ -101,13 +101,18 @@ const Index = () => {
 
   useEffect(() => {
     if (allTrackList) {
-      // `audio_${idx}`
-      // `audio_text_${idx}`
+      setTimeout(() => {
+        let allAudioTimeArr = allAudioTime
+          ? allAudioTime.map((data) => data)
+          : [];
 
-      for (let i = 0; i < allTrackList.length; i++) {
-        const audioTag = document.getElementById(`audio_${i}`);
-        console.log(audioTag.duration);
-      }
+        for (let i = 0; i < allTrackList.length; i++) {
+          const trackId = document.getElementById(`audioTeg_${i}`);
+
+          allAudioTimeArr.push(moment(trackId.duration * 1000).format("mm:ss"));
+        }
+        setAllAudioTime(allAudioTimeArr);
+      }, 500);
     }
   }, [allTrackList]);
 
@@ -137,11 +142,30 @@ const Index = () => {
       type: PRODUCT_TRACK_ALL_LIST_REQUEST,
       data: {
         page,
+        orderType: selectOrderType,
       },
     });
 
     setListPage(page);
-  }, [listPage]);
+  }, [listPage, selectOrderType]);
+
+  const selectOrderTypeHandler = useCallback(
+    (type) => {
+      setSelectOrderType(type);
+
+      setAllTrackList([]);
+      setListPage(1);
+
+      dispatch({
+        type: PRODUCT_TRACK_ALL_LIST_REQUEST,
+        data: {
+          page: 1,
+          orderType: type,
+        },
+      });
+    },
+    [selectOrderType, listPage]
+  );
 
   ////// DATAVIEW //////
 
@@ -833,7 +857,13 @@ const Index = () => {
                 width={`auto`}
                 fontSize={width < 900 ? `14px` : `16px`}
               >
-                <Text color={Theme.grey_C} isHover>
+                <Text
+                  color={
+                    selectOrderType === 1 ? Theme.basicTheme_C : Theme.grey_C
+                  }
+                  isHover
+                  onClick={() => selectOrderTypeHandler(1)}
+                >
                   추천순
                 </Text>
                 <SpanText
@@ -843,7 +873,13 @@ const Index = () => {
                 >
                   |
                 </SpanText>
-                <Text color={Theme.grey_C} isHover>
+                <Text
+                  color={
+                    selectOrderType === 2 ? Theme.basicTheme_C : Theme.grey_C
+                  }
+                  isHover
+                  onClick={() => selectOrderTypeHandler(2)}
+                >
                   최신순
                 </Text>
               </Wrapper>
@@ -859,6 +895,7 @@ const Index = () => {
                     return (
                       <Wrapper
                         borderBottom={`1px solid ${Theme.lightGrey_C}`}
+                        id={`audioWrapper_${idx}`}
                         dr={`row`}
                         ju={`space-between`}
                         padding={
@@ -869,11 +906,11 @@ const Index = () => {
                             : `40px 32px`
                         }
                       >
-                        <Audio
-                          id={`audio_` + idx}
-                          controls
+                        <audio
+                          id={`audioTeg_${idx}`}
                           src={data.filepath}
-                        ></Audio>
+                          hidden
+                        />
                         <Wrapper width={`auto`} dr={`row`} ju={`flex-start`}>
                           <Image
                             alt="thumbnail"
@@ -1014,9 +1051,8 @@ const Index = () => {
                             fontSize={width < 900 ? `14px` : `16px`}
                             color={Theme.darkGrey_C}
                             margin={`0 20px 0 0`}
-                            id={`audio_text_${idx}`}
                           >
-                            3:04
+                            {allAudioTime[idx]}
                           </Text>
 
                           <Wrapper width={width < 1360 ? `180px` : `236px`}>
@@ -1090,14 +1126,16 @@ const Index = () => {
             </Wrapper>
 
             <Wrapper margin={`60px 0`}>
-              <CommonButton
-                kindOf={`grey`}
-                width={`150px`}
-                height={`48px`}
-                onClick={productListHandler}
-              >
-                더보기 +
-              </CommonButton>
+              {allTrackList.length && trackLength !== allTrackList.length && (
+                <CommonButton
+                  kindOf={`grey`}
+                  width={`150px`}
+                  height={`48px`}
+                  onClick={productListHandler}
+                >
+                  더보기 +
+                </CommonButton>
+              )}
             </Wrapper>
           </RsWrapper>
 
