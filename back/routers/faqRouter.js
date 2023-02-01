@@ -105,7 +105,6 @@ router.post("/admin/list", isAdminCheck, async (req, res, next) => {
           A.id,
           A.question,
           A.answer,
-          A.FaqTypeId,
           A.createdAt,
           A.updatedAt,
           DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")    AS viewCreatedAt,
