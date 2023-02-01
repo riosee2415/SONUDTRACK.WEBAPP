@@ -164,6 +164,141 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
 });
 
 /**
+ * SUBJECT : 내가 작성한 컨택 내역 불러오기
+ * PARAMETERS : page
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 시니어 개발자 신태섭
+ * DEV DATE : 2023/02/01
+ */
+router.post("/my/list", isLoggedIn, async (req, res, next) => {
+  const { page } = req.body;
+
+  const LIMIT = 5;
+
+  const _page = page ? page : 1;
+
+  const __page = _page - 1;
+  const OFFSET = __page * 5;
+
+  const lengthQuery = `
+    SELECT  ROW_NUMBER() OVER(ORDER BY A.createdAt) AS num,
+            A.id,
+            A.sendMessage,
+            A.isOk,
+            A.isReject,
+            A.rejectMessage,
+            A.endDate,
+            A.filename,
+            A.filepath,
+            A.totalPrice,
+            CONCAT(FORMAT(A.totalPrice, ','), "원")     AS viewTotalPrice,
+            CASE
+              WHEN  A.isOk = 1 AND A.isReject = 0  THEN  '승인'
+              WHEN  A.isOk = 0 AND A.isReject = 1  THEN  '거절'
+              WHEN  A.isOk = 0 AND A.isReject = 0  THEN  '미처리'
+            END                                         AS viewType,
+            CASE
+              WHEN  A.isOk = 1 AND A.isReject = 0  THEN  1
+              WHEN  A.isOk = 0 AND A.isReject = 1  THEN  2
+              WHEN  A.isOk = 0 AND A.isReject = 0  THEN  3
+            END                                         AS type,
+            B.id										                    AS sendUserId,
+            B.username									                AS sendUsername,
+            B.nickname									                AS sendNickname,
+            B.mobile									                  AS sendMobile,
+            B.email									                    AS sendEmail,
+            C.id										                    AS receptionUserId,
+            C.username									                AS receptionUsername,
+            C.nickname									                AS receptionNickname,
+            C.mobile									                  AS receptionMobile,
+            C.email									                    AS receptionEmail,
+            A.createdAt,
+            DATE_FORMAT(A.createdAt, '%Y년 %m월 %d일')    AS viewCreatedAt, 
+            A.updatedAt,
+            DATE_FORMAT(A.updatedAt, '%Y년 %m월 %d일')    AS viewUpdatedAt
+      FROM  buyRequest		A
+     INNER
+      JOIN  users			    B
+        ON  B.id = A.sendUserId
+     INNER
+      JOIN  users			    C
+        ON  C.id = A.receptionUserId
+     WHERE  1 = 1
+       AND  A.sendUserId = ${req.user.id}
+     ORDER  BY num DESC
+    `;
+
+  const selectQuery = `
+    SELECT  ROW_NUMBER() OVER(ORDER BY A.createdAt) AS num,
+            A.id,
+            A.sendMessage,
+            A.isOk,
+            A.isReject,
+            A.rejectMessage,
+            A.endDate,
+            A.filename,
+            A.filepath,
+            A.totalPrice,
+            CONCAT(FORMAT(A.totalPrice, ','), "원")     AS viewTotalPrice,
+            CASE
+              WHEN  A.isOk = 1 AND A.isReject = 0  THEN  '승인'
+              WHEN  A.isOk = 0 AND A.isReject = 1  THEN  '거절'
+              WHEN  A.isOk = 0 AND A.isReject = 0  THEN  '미처리'
+            END                                         AS viewType,
+            CASE
+              WHEN  A.isOk = 1 AND A.isReject = 0  THEN  1
+              WHEN  A.isOk = 0 AND A.isReject = 1  THEN  2
+              WHEN  A.isOk = 0 AND A.isReject = 0  THEN  3
+            END                                         AS type,
+            B.id										                    AS sendUserId,
+            B.username									                AS sendUsername,
+            B.nickname									                AS sendNickname,
+            B.mobile									                  AS sendMobile,
+            B.email									                    AS sendEmail,
+            C.id										                    AS receptionUserId,
+            C.username									                AS receptionUsername,
+            C.nickname									                AS receptionNickname,
+            C.mobile									                  AS receptionMobile,
+            C.email									                    AS receptionEmail,
+            A.createdAt,
+            DATE_FORMAT(A.createdAt, '%Y년 %m월 %d일')    AS viewCreatedAt, 
+            A.updatedAt,
+            DATE_FORMAT(A.updatedAt, '%Y년 %m월 %d일')    AS viewUpdatedAt
+      FROM  buyRequest		A
+     INNER
+      JOIN  users			    B
+        ON  B.id = A.sendUserId
+     INNER
+      JOIN  users			    C
+        ON  C.id = A.receptionUserId
+     WHERE  1 = 1
+       AND  A.sendUserId = ${req.user.id}
+     ORDER  BY num DESC
+     LIMIT  ${LIMIT}
+    OFFSET  ${OFFSET}
+    `;
+
+  try {
+    const lengths = await models.sequelize.query(lengthQuery);
+    const contact = await models.sequelize.query(selectQuery);
+
+    const contactLen = lengths[0].length;
+
+    const lastPage =
+      contactLen % LIMIT > 0 ? contactLen / LIMIT + 1 : contactLen / LIMIT;
+
+    return res.status(200).json({
+      contacts: contact[0],
+      lastPage: parseInt(lastPage),
+    });
+  } catch (e) {
+    console.error(e);
+    return res.status(401).send("컨택 내역을 조회할 수 없습니다.");
+  }
+});
+
+/**
  * SUBJECT : 구매요청 생성
  * PARAMETERS : { sendMessage, sendUserId, receptionUserId }
  * ORDER BY : -
