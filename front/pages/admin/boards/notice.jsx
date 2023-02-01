@@ -100,7 +100,6 @@ const Notice = ({}) => {
   const [currentData, setCurrentData] = useState(null);
   const [currentTop, setCurrentTop] = useState(false);
   const [tab, setTab] = useState(0);
-  const [createModal, setCreateModal] = useState(false);
 
   const [infoForm] = Form.useForm();
 

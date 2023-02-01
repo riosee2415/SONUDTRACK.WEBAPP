@@ -1,14 +1,17 @@
 import produce from "../util/produce";
 
 export const initailState = {
-  notices: [],
-  maxPage: 1,
+  notices: [], // 관리자 리스트
   createModal: false,
   detailModal: false,
   uploadFilePath: null,
   noticeHistory: [],
+
+  noticeList: [], // 화면 리스트
+  noticePage: 1, // 페이지네이션
+  noticeDetail: null, // 디테일
   //
-  st_noticeListLoading: false, // 공지사항 가져오기
+  st_noticeListLoading: false, // 관리자 공지사항 가져오기
   st_noticeListDone: false,
   st_noticeListError: null,
   //
@@ -40,6 +43,13 @@ export const initailState = {
   st_noticeHistoryDone: false,
   st_noticeHistoryError: null,
   //
+  st_frontNoticeListLoading: false, // 화면 공지사항 가져오기
+  st_frontNoticeListDone: false,
+  st_frontNoticeListError: null,
+  //
+  st_noticeDetailLoading: false, // 공지사항 디테일
+  st_noticeDetailDone: false,
+  st_noticeDetailError: null,
 };
 
 export const NOTICE_LIST_REQUEST = "NOTICE_LIST_REQUEST";
@@ -73,12 +83,14 @@ export const NOTICE_FILE_INFO_FAILURE = "NOTICE_FILE_INFO_FAILURE";
 export const NOTICE_HISTORY_REQUEST = "NOTICE_HISTORY_REQUEST";
 export const NOTICE_HISTORY_SUCCESS = "NOTICE_HISTORY_SUCCESS";
 export const NOTICE_HISTORY_FAILURE = "NOTICE_HISTORY_FAILURE";
-//
-export const CREATE_MODAL_OPEN_REQUEST = "CREATE_MODAL_OPEN_REQUEST";
-export const CREATE_MODAL_CLOSE_REQUEST = "CREATE_MODAL_CLOSE_REQUEST";
 
-export const DETAIL_MODAL_OPEN_REQUEST = "DETAIL_MODAL_OPEN_REQUEST";
-export const DETAIL_MODAL_CLOSE_REQUEST = "DETAIL_MODAL_CLOSE_REQUEST";
+export const FRONT_NOTICE_LIST_REQUEST = "FRONT_NOTICE_LIST_REQUEST";
+export const FRONT_NOTICE_LIST_SUCCESS = "FRONT_NOTICE_LIST_SUCCESS";
+export const FRONT_NOTICE_LIST_FAILURE = "FRONT_NOTICE_LIST_FAILURE";
+
+export const NOTICE_DETAIL_REQUEST = "NOTICE_DETAIL_REQUEST";
+export const NOTICE_DETAIL_SUCCESS = "NOTICE_DETAIL_SUCCESS";
+export const NOTICE_DETAIL_FAILURE = "NOTICE_DETAIL_FAILURE";
 
 export const UPLOAD_PATH_INIT = "UPLOAD_PATH_INIT";
 
@@ -87,8 +99,8 @@ const reducer = (state = initailState, action) =>
     switch (action.type) {
       case NOTICE_LIST_REQUEST: {
         draft.st_noticeListLoading = true;
-        draft.st_noticeListDone = null;
-        draft.st_noticeListError = false;
+        draft.st_noticeListDone = false;
+        draft.st_noticeListError = null;
         break;
       }
       case NOTICE_LIST_SUCCESS: {
@@ -144,8 +156,8 @@ const reducer = (state = initailState, action) =>
       ///////////////////////////////////////////////////////
       case NOTICE_DELETE_REQUEST: {
         draft.st_noticeDeleteLoading = true;
-        draft.st_noticeDeleteDone = null;
-        draft.st_noticeDeleteError = false;
+        draft.st_noticeDeleteDone = false;
+        draft.st_noticeDeleteError = null;
         break;
       }
       case NOTICE_DELETE_SUCCESS: {
@@ -159,8 +171,6 @@ const reducer = (state = initailState, action) =>
         draft.st_noticeDeleteError = action.error;
         break;
       }
-      ///////////////////////////////////////////////////////
-      ///////////////////////////////////////////////////////
       ///////////////////////////////////////////////////////
 
       case NOTICE_UPDATE_TOP_REQUEST: {
@@ -181,8 +191,7 @@ const reducer = (state = initailState, action) =>
         draft.st_noticeUpdateTopError = action.error;
         break;
       }
-      ///////////////////////////////////////////////////////
-      ///////////////////////////////////////////////////////
+
       ///////////////////////////////////////////////////////
 
       case NOTICE_FILE_REQUEST: {
@@ -204,8 +213,7 @@ const reducer = (state = initailState, action) =>
         draft.st_noticeFileError = action.error;
         break;
       }
-      ///////////////////////////////////////////////////////
-      ///////////////////////////////////////////////////////
+
       ///////////////////////////////////////////////////////
 
       case NOTICE_FILE_INFO_REQUEST: {
@@ -227,8 +235,7 @@ const reducer = (state = initailState, action) =>
         draft.st_noticeFileInfoError = action.error;
         break;
       }
-      ///////////////////////////////////////////////////////
-      ///////////////////////////////////////////////////////
+
       ///////////////////////////////////////////////////////
 
       case NOTICE_HISTORY_REQUEST: {
@@ -251,25 +258,50 @@ const reducer = (state = initailState, action) =>
         break;
       }
       ///////////////////////////////////////////////////////
+
+      case FRONT_NOTICE_LIST_REQUEST: {
+        draft.st_frontNoticeListLoading = true;
+        draft.st_frontNoticeListDone = false;
+        draft.st_frontNoticeListError = null;
+        break;
+      }
+      case FRONT_NOTICE_LIST_SUCCESS: {
+        draft.st_frontNoticeListLoading = false;
+        draft.st_frontNoticeListDone = true;
+        draft.st_frontNoticeListError = null;
+        draft.noticeList = action.data.notices;
+        draft.noticePage = action.data.lastPage;
+        break;
+      }
+      case FRONT_NOTICE_LIST_FAILURE: {
+        draft.st_frontNoticeListLoading = false;
+        draft.st_frontNoticeListDone = false;
+        draft.st_frontNoticeListError = action.error;
+        break;
+      }
+
       ///////////////////////////////////////////////////////
-      ///////////////////////////////////////////////////////
 
-      case CREATE_MODAL_OPEN_REQUEST:
-        draft.createModal = true;
+      case NOTICE_DETAIL_REQUEST: {
+        draft.st_noticeDetailLoading = true;
+        draft.st_noticeDetailDone = false;
+        draft.st_noticeDetailError = null;
         break;
+      }
+      case NOTICE_DETAIL_SUCCESS: {
+        draft.st_noticeDetailLoading = false;
+        draft.st_noticeDetailDone = true;
+        draft.st_noticeDetailError = null;
+        draft.noticeDetail = action.data;
+        break;
+      }
+      case NOTICE_DETAIL_FAILURE: {
+        draft.st_noticeDetailLoading = false;
+        draft.st_noticeDetailDone = false;
+        draft.st_noticeDetailError = action.error;
+        break;
+      }
 
-      case CREATE_MODAL_CLOSE_REQUEST:
-        draft.createModal = false;
-        break;
-      ///////////////////////////////////////////////////////
-
-      case DETAIL_MODAL_OPEN_REQUEST:
-        draft.detailModal = true;
-        break;
-
-      case DETAIL_MODAL_CLOSE_REQUEST:
-        draft.detailModal = false;
-        break;
       ///////////////////////////////////////////////////////
 
       case UPLOAD_PATH_INIT:
