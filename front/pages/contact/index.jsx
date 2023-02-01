@@ -18,7 +18,7 @@ import {
 import Theme from "../../components/Theme";
 
 import styled from "styled-components";
-import { Checkbox } from "antd";
+import { Checkbox, message } from "antd";
 import Link from "next/dist/client/link";
 import useInput from "../../hooks/useInput";
 import { FAQ_LIST_REQUEST } from "../../reducers/faq";
@@ -43,13 +43,27 @@ const Index = () => {
   ////// HANDLER //////
 
   // 문의하기
-  const contactHandler = useCallback(() => {}, [
-    nameInput,
-    emailInput,
-    titleInput,
-    contentInput,
-    terms,
-  ]);
+  const contactHandler = useCallback(() => {
+    if (!nameInput.value || nameInput.value.trim().length === "") {
+      return message.error("성함을 입력해주세요.");
+    }
+
+    if (!emailInput.value || emailInput.value.trim().length === "") {
+      return message.error("이메일을 입력해주세요.");
+    }
+
+    if (!titleInput.value || titleInput.value.trim().length === "") {
+      return message.error("제목을 입력해주세요.");
+    }
+
+    if (!contentInput.value || contentInput.value.trim().length === "") {
+      return message.error("내용을 입력해주세요.");
+    }
+
+    if (!terms) {
+      return message.error("개인정보처리방침에 동의해주세요.");
+    }
+  }, [nameInput, emailInput, titleInput, contentInput, terms]);
 
   ////// DATAVIEW //////
 
@@ -165,6 +179,7 @@ const Index = () => {
                   height={`50px`}
                   fontSize={`18px`}
                   margin={`20px 0 0`}
+                  onClick={contactHandler}
                 >
                   문의하기
                 </CommonButton>
