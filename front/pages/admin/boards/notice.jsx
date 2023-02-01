@@ -12,6 +12,7 @@ import {
   message,
   Switch,
   Modal,
+  Popconfirm,
 } from "antd";
 import { useRouter, withRouter } from "next/router";
 import wrapper from "../../../store/configureStore";
@@ -25,6 +26,7 @@ import {
   OtherMenu,
   GuideUl,
   GuideLi,
+  DelBtn,
 } from "../../../components/commonComponents";
 import { LOAD_MY_INFO_REQUEST } from "../../../reducers/user";
 import {
@@ -35,6 +37,7 @@ import {
   NOTICE_FILE_INFO_REQUEST,
   UPLOAD_PATH_INIT,
   NOTICE_CREATE_REQUEST,
+  NOTICE_DELETE_REQUEST,
 } from "../../../reducers/notice";
 import Theme from "../../../components/Theme";
 import { items } from "../../../components/AdminLayout";
@@ -58,13 +61,13 @@ const InfoTitle = styled.div`
   align-items: center;
 
   padding-left: 15px;
-  color: ${(props) => props.theme.subTheme5_C};
+  color: ${(props) => props.theme.basicTheme_C};
 `;
 
 const ViewStatusIcon = styled(EyeOutlined)`
   font-size: 18px;
   color: ${(props) =>
-    props.active ? props.theme.subTheme5_C : props.theme.lightGrey_C};
+    props.active ? props.theme.basicTheme_C : props.theme.lightGrey_C};
 `;
 
 const Notice = ({}) => {
@@ -82,6 +85,8 @@ const Notice = ({}) => {
     st_noticeFileInfoError,
     st_noticeCreateDone,
     st_noticeCreateError,
+    st_noticeDeleteDone,
+    st_noticeDeleteError,
   } = useSelector((state) => state.notice);
 
   const router = useRouter();
@@ -95,7 +100,6 @@ const Notice = ({}) => {
   const [currentData, setCurrentData] = useState(null);
   const [currentTop, setCurrentTop] = useState(false);
   const [tab, setTab] = useState(0);
-  const [createModal, setCreateModal] = useState(false);
 
   const [infoForm] = Form.useForm();
 
@@ -300,6 +304,25 @@ const Notice = ({}) => {
   }, [tab]);
 
   useEffect(() => {
+    if (st_noticeDeleteDone) {
+      setCurrentData(null);
+
+      dispatch({
+        type: NOTICE_LIST_REQUEST,
+        data: {
+          type: 0,
+        },
+      });
+
+      return message.success("정보가 업데이트 되었습니다.");
+    }
+
+    if (st_noticeDeleteError) {
+      return message.error(st_noticeDeleteError);
+    }
+  }, [st_noticeDeleteDone, st_noticeDeleteError]);
+
+  useEffect(() => {
     if (st_loadMyInfoDone) {
       if (!me || parseInt(me.level) < 3) {
         moveLinkHandler(`/admin`);
@@ -326,20 +349,14 @@ const Notice = ({}) => {
 
   ////// HANDLER //////
 
-  const createWithTypeHandler = useCallback((typeValue) => {
+  const createWithTypeHandler = useCallback(() => {
     dispatch({
       type: NOTICE_CREATE_REQUEST,
       data: {
-        type: typeValue,
+        type: "공지사항",
       },
     });
-
-    createModalToggle();
   }, []);
-
-  const createModalToggle = useCallback(() => {
-    setCreateModal((prev) => !prev);
-  }, [createModal]);
 
   const clickFileUpload = useCallback(() => {
     fileRef.current.click();
@@ -373,15 +390,6 @@ const Notice = ({}) => {
     saveAs(file, finalFilename);
   }, []);
 
-  const onTypeChange = useCallback(
-    (value) => {
-      infoForm.setFieldsValue({
-        type: value,
-      });
-    },
-    [infoForm]
-  );
-
   const beforeSetDataHandler = useCallback(
     (record) => {
       dispatch({
@@ -412,7 +420,7 @@ const Notice = ({}) => {
           id: currentData.id,
           title: data.title,
           content: data.content,
-          type: data.type,
+          type: "공지사항",
         },
       });
     },
@@ -430,21 +438,15 @@ const Notice = ({}) => {
     });
   }, [uploadFilePath, currentData]);
 
-  const isTopChangeHandler = useCallback(
-    (data) => {
-      setCurrentTop((prev) => !prev);
-
-      dispatch({
-        type: NOTICE_UPDATE_TOP_REQUEST,
-        data: {
-          id: currentData.id,
-          flag: data ? 1 : 0,
-          title: currentData.title,
-        },
-      });
-    },
-    [currentData, currentTop]
-  );
+  const deleteHandler = useCallback((data) => {
+    dispatch({
+      type: NOTICE_DELETE_REQUEST,
+      data: {
+        id: data.id,
+        title: data.title,
+      },
+    });
+  }, []);
 
   ////// DATAVIEW //////
 
@@ -454,10 +456,6 @@ const Notice = ({}) => {
     {
       title: "번호",
       dataIndex: "num",
-    },
-    {
-      title: "유형",
-      dataIndex: "type",
     },
     {
       title: "공지사항 제목",
@@ -476,6 +474,19 @@ const Notice = ({}) => {
             parseInt(data.id) === (currentData && parseInt(currentData.id))
           }
         />
+      ),
+    },
+    {
+      title: "삭제",
+      render: (data) => (
+        <Popconfirm
+          title="정말 삭제하시겠습니까?"
+          onConfirm={() => deleteHandler(data)}
+          okText="삭제"
+          cancelText="취소"
+        >
+          <DelBtn />
+        </Popconfirm>
       ),
     },
   ];
@@ -522,34 +533,6 @@ const Notice = ({}) => {
         </GuideUl>
       </Wrapper>
 
-      {/* TAB */}
-      <Wrapper padding={`10px`} dr={`row`} ju="flex-start">
-        <Button
-          type={tab === 0 ? "primary" : "default"}
-          size="small"
-          style={{ marginRight: "5px" }}
-          onClick={() => setTab(0)}
-        >
-          전체
-        </Button>
-        <Button
-          type={tab === 1 ? "primary" : "default"}
-          size="small"
-          style={{ marginRight: "5px" }}
-          onClick={() => setTab(1)}
-        >
-          공지사항
-        </Button>
-        <Button
-          type={tab === 2 ? "primary" : "default"}
-          size="small"
-          style={{ marginRight: "5px" }}
-          onClick={() => setTab(2)}
-        >
-          새소식
-        </Button>
-      </Wrapper>
-
       {/* CONTENT */}
 
       <Wrapper dr="row" padding="0px 20px" al="flex-start">
@@ -559,7 +542,7 @@ const Notice = ({}) => {
           shadow={`3px 3px 6px ${Theme.lightGrey_C}`}
         >
           <Wrapper al="flex-end">
-            <Button size="small" type="primary" onClick={createModalToggle}>
+            <Button size="small" type="primary" onClick={createWithTypeHandler}>
               공지사항 생성
             </Button>
           </Wrapper>
@@ -586,24 +569,6 @@ const Notice = ({}) => {
               <Wrapper margin={`0px 0px 5px 0px`}>
                 <InfoTitle>
                   <CheckOutlined />
-                  상단고정 제어
-                </InfoTitle>
-              </Wrapper>
-
-              <Wrapper dr="row" ju="flex-start" al="flex-start" padding="20px">
-                <Switch onChange={isTopChangeHandler} checked={currentTop} />
-              </Wrapper>
-
-              <Wrapper
-                width="100%"
-                height="1px"
-                bgColor={Theme.lightGrey_C}
-                margin={`30px 0px`}
-              ></Wrapper>
-
-              <Wrapper margin={`0px 0px 5px 0px`}>
-                <InfoTitle>
-                  <CheckOutlined />
                   공지사항 기본정보
                 </InfoTitle>
               </Wrapper>
@@ -623,19 +588,6 @@ const Notice = ({}) => {
                   ]}
                 >
                   <Input size="small" />
-                </Form.Item>
-
-                <Form.Item
-                  label="유형"
-                  name="type"
-                  rules={[
-                    { required: true, message: "유형은 필수 선택사항 입니다." },
-                  ]}
-                >
-                  <Select onChange={onTypeChange} size="small">
-                    <Option value="새소식">새소식</Option>
-                    <Option value="공지사항">공지사항</Option>
-                  </Select>
                 </Form.Item>
 
                 <Form.Item
@@ -717,7 +669,7 @@ const Notice = ({}) => {
                       <input
                         type="file"
                         name="file"
-                        // accept=".png, .jpg"
+                        accept=".png, .jpg"
                         // multiple
                         hidden
                         ref={fileRef}
@@ -753,7 +705,7 @@ const Notice = ({}) => {
                       <input
                         type="file"
                         name="file"
-                        // accept=".png, .jpg"
+                        accept=".png, .jpg"
                         // multiple
                         hidden
                         ref={fileRef}
@@ -794,31 +746,6 @@ const Notice = ({}) => {
           )}
         </Wrapper>
       </Wrapper>
-
-      <Modal
-        visible={createModal}
-        title="새로운 공지사항 유형선택"
-        footer={null}
-        width="250px"
-        onCancel={createModalToggle}
-      >
-        <Wrapper dr="row" ju="space-around">
-          <Button
-            type="primary"
-            style={{ margin: "5px" }}
-            onClick={() => createWithTypeHandler("공지사항")}
-          >
-            공지사항
-          </Button>
-          <Button
-            type="primary"
-            style={{ margin: "5px" }}
-            onClick={() => createWithTypeHandler("새소식")}
-          >
-            새소식
-          </Button>
-        </Wrapper>
-      </Modal>
     </AdminLayout>
   );
 };

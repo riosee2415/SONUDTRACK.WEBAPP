@@ -252,7 +252,12 @@ const MypageMenu = ({}) => {
             </Text>
           </Wrapper>
         )}
-        <Menu>포인트 관리</Menu>
+        <Menu
+          isActive={router.pathname === `/mypage/point`}
+          onClick={() => movelinkHandler(`/mypage/point`)}
+        >
+          포인트 관리
+        </Menu>
 
         {/* 판매자일때
         <Menu>수익 관리</Menu>

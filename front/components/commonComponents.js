@@ -755,7 +755,7 @@ export const OtherMenu = styled.div`
   transition: 0.5s;
 
   &:hover {
-    color: ${(props) => props.theme.subTheme5_C};
+    color: ${(props) => props.theme.basicTheme_C};
   }
 `;
 
