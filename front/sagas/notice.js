@@ -118,7 +118,7 @@ function* noticeUpdate(action) {
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
 async function noticeDeleteAPI(data) {
-  return await axios.delete(`/api/notice/delete/${data.noticeId}`);
+  return await axios.post(`/api/notice/delete`, data);
 }
 
 function* noticeDelete(action) {
