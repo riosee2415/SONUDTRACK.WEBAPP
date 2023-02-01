@@ -21,9 +21,13 @@ import styled from "styled-components";
 import { Checkbox } from "antd";
 import Link from "next/dist/client/link";
 import useInput from "../../hooks/useInput";
+import { FAQ_LIST_REQUEST } from "../../reducers/faq";
+import { useSelector } from "react-redux";
 
 const Index = () => {
   ////// GLOBAL STATE //////
+  const { faqList } = useSelector((state) => state.faq);
+
   ////// HOOKS //////
   const width = useWidth();
 
@@ -170,26 +174,22 @@ const Index = () => {
                   TOP FAQS
                 </Text>
 
-                <Text
-                  fontSize={`24px`}
-                  color={Theme.grey_C}
-                  fontWeight={`bold`}
-                  isHover
-                  isEllipsis
-                  margin={`0 0 24px`}
-                >
-                  이 노래를 찾아주세요!
-                </Text>
-                <Text
-                  fontSize={`24px`}
-                  color={Theme.grey_C}
-                  fontWeight={`bold`}
-                  isHover
-                  isEllipsis
-                  margin={`0 0 24px`}
-                >
-                  "프리미엄"은 무엇인가요?
-                </Text>
+                {faqList &&
+                  faqList.slice(0, 2).map((data) => {
+                    return (
+                      <Text
+                        key={data.id}
+                        fontSize={`24px`}
+                        color={Theme.grey_C}
+                        fontWeight={`bold`}
+                        isHover
+                        isEllipsis
+                        margin={`0 0 24px`}
+                      >
+                        {data.question}
+                      </Text>
+                    );
+                  })}
 
                 <Link href={`/faq`}>
                   <a>
@@ -225,6 +225,10 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: LOAD_MY_INFO_REQUEST,
+    });
+
+    context.store.dispatch({
+      type: FAQ_LIST_REQUEST,
     });
 
     // 구현부 종료
