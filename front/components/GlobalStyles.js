@@ -131,6 +131,10 @@ const GlobalStyles = createGlobalStyle`
   .ant-slider-track{
     background: ${(props) => props.theme.subTheme4_C} !important;
   }
+
+  .ant-switch-checked{
+    background: ${(props) => props.theme.basicTheme_C} !important;
+  }
   
   @media (max-width : 576px) {
     html { 
