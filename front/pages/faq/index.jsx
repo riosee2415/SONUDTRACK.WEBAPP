@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ClientLayout from "../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../store/configureStore";
@@ -8,6 +8,7 @@ import { END } from "redux-saga";
 import useWidth from "../../hooks/useWidth";
 import {
   CustomPage,
+  Image,
   RsWrapper,
   Text,
   TextInput,
@@ -17,6 +18,9 @@ import {
 import Theme from "../../components/Theme";
 import { DownOutlined, SearchOutlined, UpOutlined } from "@ant-design/icons";
 import styled from "styled-components";
+import { useDispatch, useSelector } from "react-redux";
+import useInput from "../../hooks/useInput";
+import { FAQ_LIST_REQUEST } from "../../reducers/faq";
 
 const List = styled(Wrapper)`
   flex-direction: row;
@@ -35,16 +39,57 @@ const List = styled(Wrapper)`
 
 const Index = () => {
   ////// GLOBAL STATE //////
-  const [visible, isVisible] = useState(false);
+  const { faqList, faqPage } = useSelector((state) => state.faq);
+
   ////// HOOKS //////
   const width = useWidth();
-  ////// REDUX //////
+  const dispatch = useDispatch();
+
+  const search = useInput("");
+
+  const [visible, setvisible] = useState(false);
+  const [visibleId, setVisibleId] = useState(null);
+
+  const [currentPage, setCurrentPage] = useState(1); // 페이지네이션
+
   ////// USEEFFECT //////
+  useEffect(() => {
+    dispatch({
+      type: FAQ_LIST_REQUEST,
+      data: {
+        title: search.value,
+        page: currentPage,
+      },
+    });
+  }, [search.value, currentPage]);
+
   ////// TOGGLE //////
-  const faqToggle = useCallback(() => {
-    isVisible((prev) => !prev);
-  }, [visible]);
+  const faqToggle = useCallback(
+    (data) => {
+      if (data.id === visibleId) {
+        setvisible(false);
+        setVisibleId(null);
+
+        return;
+      }
+
+      if (data) {
+        setVisibleId(data.id);
+        setvisible(true);
+      }
+    },
+    [visible, visibleId]
+  );
+
   ////// HANDLER //////
+  // 페이지네이션
+  const otherPageCall = useCallback(
+    (changePage) => {
+      setCurrentPage(changePage);
+    },
+    [currentPage]
+  );
+
   ////// DATAVIEW //////
 
   return (
@@ -117,72 +162,103 @@ const Index = () => {
                   radius={`30px`}
                   padding={`0 10px 0 50px`}
                   shadow={`0 3px 10px rgba(0, 0, 0, 0.1)`}
+                  {...search}
                 />
               </Wrapper>
             </Wrapper>
 
             <Wrapper borderTop={`1px solid ${Theme.lightGrey_C}`}>
-              <List onClick={faqToggle}>
+              {faqList && faqList.length === 0 ? (
                 <Wrapper
-                  width={`40px`}
-                  height={`40px`}
-                  radius={`100%`}
-                  border={`1px solid ${Theme.basicTheme_C}`}
-                  color={Theme.basicTheme_C}
-                  fontSize={`16px`}
-                  fontWeight={`bold`}
+                  height={`300px`}
+                  borderBottom={`1px solid ${Theme.lightGrey_C}`}
                 >
-                  Q
-                </Wrapper>
-                <Wrapper
-                  al={`flex-start`}
-                  width={`calc(100% - 80px)`}
-                  padding={`0 24px`}
-                  fontSize={width < 900 ? `14px` : `18px`}
-                >
-                  자주묻는 질문이 들어올 곳입니다.
-                </Wrapper>
-                <Wrapper width={`40px`} al={`flex-end`}>
-                  {visible ? <UpOutlined /> : <DownOutlined />}
-                </Wrapper>
-              </List>
-              {visible && (
-                <Wrapper
-                  dr={`row`}
-                  padding={width < 900 ? `15px 0` : `16px 40px`}
-                  bgColor={Theme.lightGrey2_C}
-                >
-                  <Wrapper
-                    width={`40px`}
-                    height={`40px`}
-                    radius={`100%`}
-                    bgColor={Theme.basicTheme_C}
-                    color={Theme.white_C}
-                    fontSize={`16px`}
-                    fontWeight={`bold`}
+                  <Image
+                    alt="icon"
+                    src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/blank.png`}
+                    width={`76px`}
+                  />
+                  <Text
+                    fontSize={width < 900 ? `18px` : `22px`}
+                    color={Theme.grey2_C}
+                    margin={`25px 0 0`}
                   >
-                    A
-                  </Wrapper>
-                  <Wrapper
-                    al={`flex-start`}
-                    width={`calc(100% - 40px)`}
-                    padding={`0 24px`}
-                    fontSize={width < 900 ? `14px` : `18px`}
-                    color={Theme.grey_C}
-                  >
-                    질문에 대한 답변이 들어옵니다. 답변이 매우 길어질 경우에는
-                    이렇게 나타나게 됩니다. 질문에 대한 답변이 들어옵니다.
-                    답변이 매우 길어질 경우에는 이렇게 나타나게 됩니다. 질문에
-                    대한 답변이 들어옵니다. 답변이 매우 길어질 경우에는 이렇게
-                    나타나게 됩니다. 질문에 대한 답변이 들어옵니다. 답변이 매우
-                    길어질 경우에는 이렇게 나타나게 됩니다. 질문에 대한 답변이
-                    들어옵니다. 답변이 매우 길어질 경우에는 이렇게 나타나게
-                    됩니다.
-                  </Wrapper>
+                    등록된 FAQ가 존재하지 않습니다.
+                  </Text>
                 </Wrapper>
+              ) : (
+                faqList &&
+                faqList.map((data) => {
+                  return (
+                    <>
+                      <List onClick={() => faqToggle(data)}>
+                        <Wrapper
+                          width={`40px`}
+                          height={`40px`}
+                          radius={`100%`}
+                          border={`1px solid ${Theme.basicTheme_C}`}
+                          color={Theme.basicTheme_C}
+                          fontSize={`16px`}
+                          fontWeight={`bold`}
+                        >
+                          Q
+                        </Wrapper>
+                        <Wrapper
+                          al={`flex-start`}
+                          width={`calc(100% - 80px)`}
+                          padding={`0 24px`}
+                          fontSize={width < 900 ? `14px` : `18px`}
+                        >
+                          {data.question}
+                        </Wrapper>
+                        <Wrapper width={`40px`} al={`flex-end`}>
+                          {visibleId === data.id && visible ? (
+                            <UpOutlined />
+                          ) : (
+                            <DownOutlined />
+                          )}
+                        </Wrapper>
+                      </List>
+                      {visibleId === data.id && visible && (
+                        <Wrapper
+                          dr={`row`}
+                          padding={width < 900 ? `15px 0` : `16px 40px`}
+                          bgColor={Theme.lightGrey2_C}
+                        >
+                          <Wrapper
+                            width={`40px`}
+                            height={`40px`}
+                            radius={`100%`}
+                            bgColor={Theme.basicTheme_C}
+                            color={Theme.white_C}
+                            fontSize={`16px`}
+                            fontWeight={`bold`}
+                          >
+                            A
+                          </Wrapper>
+                          <Wrapper
+                            al={`flex-start`}
+                            width={`calc(100% - 40px)`}
+                            padding={`0 24px`}
+                            fontSize={width < 900 ? `14px` : `18px`}
+                            color={Theme.grey_C}
+                          >
+                            {data.answer}
+                          </Wrapper>
+                        </Wrapper>
+                      )}
+                    </>
+                  );
+                })
               )}
             </Wrapper>
-            <CustomPage />
+            <CustomPage
+              defaultCurrent={1}
+              current={parseInt(currentPage)}
+              total={faqPage * 10}
+              pageSize={10}
+              onChange={(page) => otherPageCall(page)}
+            />
           </RsWrapper>
         </WholeWrapper>
       </ClientLayout>
@@ -203,6 +279,10 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: LOAD_MY_INFO_REQUEST,
+    });
+
+    context.store.dispatch({
+      type: FAQ_LIST_REQUEST,
     });
 
     // 구현부 종료
