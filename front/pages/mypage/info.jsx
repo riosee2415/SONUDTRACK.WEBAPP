@@ -6,6 +6,7 @@ import {
   LOAD_MY_INFO_REQUEST,
   USER_INFO_PASS_UPDATE_REQUEST,
   USER_INFO_UPDATE_REQUEST,
+  USER_PASS_COMPARE_REQUEST,
 } from "../../reducers/user";
 import axios from "axios";
 import { END } from "redux-saga";
@@ -30,8 +31,12 @@ const Index = () => {
     me,
     st_userInfoUpdateDone,
     st_userInfoUpdateError,
+
     st_userInfoPassUpdateDone,
     st_userInfoPassUpdateError,
+
+    st_userPassCompareDone,
+    st_userPassCompareError,
   } = useSelector((state) => state.user);
 
   ////// HOOKS //////
@@ -78,6 +83,15 @@ const Index = () => {
       return message.error(st_userInfoUpdateError);
     }
   }, [st_userInfoUpdateDone, st_userInfoUpdateError]);
+
+  useEffect(() => {
+    if (st_userPassCompareDone) {
+      passwordChangeToggle();
+    }
+    if (st_userPassCompareError) {
+      return message.error(st_userPassCompareError);
+    }
+  }, [st_userPassCompareDone, st_userPassCompareError]);
 
   useEffect(() => {
     if (st_userInfoPassUpdateDone) {
@@ -178,6 +192,19 @@ const Index = () => {
     });
   }, [pass, newPass, passCheck]);
 
+  const passCompareHandler = useCallback(() => {
+    if (!pass.value || pass.value.trim() === "") {
+      return message.error("기존 비밀번호를 입력해주세요.");
+    }
+
+    dispatch({
+      type: USER_PASS_COMPARE_REQUEST,
+      data: {
+        password: pass.value,
+      },
+    });
+  }, [pass]);
+
   ////// DATAVIEW //////
 
   return (
@@ -228,6 +255,7 @@ const Index = () => {
                   type="password"
                   border={`1px solid ${Theme.lightGrey_C}`}
                   placeholder="비밀번호를 입력해주세요."
+                  {...pass}
                 />
                 <CommonButton
                   width={`100px`}
@@ -235,7 +263,7 @@ const Index = () => {
                   fontSize={`16px`}
                   fontWeight={`bold`}
                   kindOf={`subTheme2`}
-                  onClick={passwordChangeToggle}
+                  onClick={passCompareHandler}
                 >
                   변경
                 </CommonButton>
