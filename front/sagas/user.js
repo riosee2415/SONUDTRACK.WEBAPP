@@ -84,6 +84,10 @@ import {
   USER_INFO_PASS_UPDATE_REQUEST,
   USER_INFO_PASS_UPDATE_SUCCESS,
   USER_INFO_PASS_UPDATE_FAILURE,
+  //
+  USER_PASS_COMPARE_REQUEST,
+  USER_PASS_COMPARE_SUCCESS,
+  USER_PASS_COMPARE_FAILURE,
 } from "../reducers/user";
 
 // SAGA AREA ********************************************************************************************************
@@ -648,6 +652,33 @@ function* userInfoPassUpdate(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function userPassCompareAPI(data) {
+  return await axios.post(`/api/user/me/password/compare`, data);
+}
+
+function* userPassCompare(action) {
+  try {
+    const result = yield call(userPassCompareAPI, action.data);
+    yield put({
+      type: USER_PASS_COMPARE_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: USER_PASS_COMPARE_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 
 function* watchLoadMyInfo() {
@@ -734,6 +765,10 @@ function* watchUserInfoPassUpdate() {
   yield takeLatest(USER_INFO_PASS_UPDATE_REQUEST, userInfoPassUpdate);
 }
 
+function* watchUserPassCompare() {
+  yield takeLatest(USER_PASS_COMPARE_REQUEST, userPassCompare);
+}
+
 //////////////////////////////////////////////////////////////
 export default function* userSaga() {
   yield all([
@@ -758,6 +793,7 @@ export default function* userSaga() {
     fork(watchCheckSecret),
     fork(watchModfiyPassUpdate),
     fork(watchUserInfoPassUpdate),
+    fork(watchUserPassCompare),
     //
   ]);
 }

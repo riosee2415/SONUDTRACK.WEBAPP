@@ -86,9 +86,13 @@ export const initailState = {
   st_modifyPassUpdateDone: false,
   st_modifyPassUpdateError: false,
   //
-  st_userInfoPassUpdateLoading: false, // 회원정보 수정
+  st_userInfoPassUpdateLoading: false, // 회원 비밀번호 수정
   st_userInfoPassUpdateDone: false,
   st_userInfoPassUpdateError: false,
+  //
+  st_userPassCompareLoading: false, // 회원 비밀번호 확인
+  st_userPassCompareDone: false,
+  st_userPassCompareError: false,
 };
 
 export const LOGIN_REQUEST = "LOGIN_REQUEST";
@@ -174,6 +178,10 @@ export const MODIFY_PASS_UPDATE_FAILURE = "MODIFY_PASS_UPDATE_FAILURE";
 export const USER_INFO_PASS_UPDATE_REQUEST = "USER_INFO_PASS_UPDATE_REQUEST";
 export const USER_INFO_PASS_UPDATE_SUCCESS = "USER_INFO_PASS_UPDATE_SUCCESS";
 export const USER_INFO_PASS_UPDATE_FAILURE = "USER_INFO_PASS_UPDATE_FAILURE";
+//
+export const USER_PASS_COMPARE_REQUEST = "USER_PASS_COMPARE_REQUEST";
+export const USER_PASS_COMPARE_SUCCESS = "USER_PASS_COMPARE_SUCCESS";
+export const USER_PASS_COMPARE_FAILURE = "USER_PASS_COMPARE_FAILURE";
 
 export const UPDATE_MODAL_OPEN_REQUEST = "UPDATE_MODAL_OPEN_REQUEST";
 export const UPDATE_MODAL_CLOSE_REQUEST = "UPDATE_MODAL_CLOSE_REQUEST";
@@ -207,8 +215,8 @@ const reducer = (state = initailState, action) =>
 
       case LOGIN_REQUEST: {
         draft.st_loginLoading = true;
-        draft.st_loginDone = null;
-        draft.st_loginError = false;
+        draft.st_loginDone = false;
+        draft.st_loginError = null;
         break;
       }
       case LOGIN_SUCCESS: {
@@ -226,8 +234,8 @@ const reducer = (state = initailState, action) =>
       //////////////////////////////////////////////
       case LOGIN_ADMIN_REQUEST: {
         draft.st_loginAdminLoading = true;
-        draft.st_loginAdminDone = null;
-        draft.st_loginAdminError = false;
+        draft.st_loginAdminDone = false;
+        draft.st_loginAdminError = null;
         break;
       }
       case LOGIN_ADMIN_SUCCESS: {
@@ -266,8 +274,8 @@ const reducer = (state = initailState, action) =>
 
       case USERLIST_REQUEST: {
         draft.st_userListLoading = true;
-        draft.st_userListDone = null;
-        draft.st_userListError = false;
+        draft.st_userListDone = false;
+        draft.st_userListError = null;
         break;
       }
       case USERLIST_SUCCESS: {
@@ -286,8 +294,8 @@ const reducer = (state = initailState, action) =>
 
       case ADMINUSERLIST_REQUEST: {
         draft.st_adminUserListLoading = true;
-        draft.st_adminUserListDone = null;
-        draft.st_adminUserListError = false;
+        draft.st_adminUserListDone = false;
+        draft.st_adminUserListError = null;
         break;
       }
       case ADMINUSERLIST_SUCCESS: {
@@ -306,8 +314,8 @@ const reducer = (state = initailState, action) =>
 
       case USERLIST_UPDATE_REQUEST: {
         draft.st_userListUpdateLoading = true;
-        draft.st_userListUpdateDone = null;
-        draft.st_userListUpdateError = false;
+        draft.st_userListUpdateDone = false;
+        draft.st_userListUpdateError = null;
         break;
       }
       case USERLIST_UPDATE_SUCCESS: {
@@ -325,8 +333,8 @@ const reducer = (state = initailState, action) =>
 
       case KAKAO_LOGIN_REQUEST: {
         draft.st_kakaoLoginLoading = true;
-        draft.st_kakaoLoginDone = null;
-        draft.st_kakaoLoginError = false;
+        draft.st_kakaoLoginDone = false;
+        draft.st_kakaoLoginError = null;
         break;
       }
       case KAKAO_LOGIN_SUCCESS: {
@@ -370,8 +378,8 @@ const reducer = (state = initailState, action) =>
 
       case MENURIGHT_UPDATE_REQUEST: {
         draft.st_menuRightUpdateLoading = true;
-        draft.st_menuRightUpdateDone = null;
-        draft.st_menuRightUpdateError = false;
+        draft.st_menuRightUpdateDone = false;
+        draft.st_menuRightUpdateError = null;
         break;
       }
       case MENURIGHT_UPDATE_SUCCESS: {
@@ -619,6 +627,27 @@ const reducer = (state = initailState, action) =>
         draft.st_userInfoPassUpdateLoading = false;
         draft.st_userInfoPassUpdateDone = false;
         draft.st_userInfoPassUpdateError = action.error;
+        break;
+      }
+
+      //////////////////////////////////////////////
+
+      case USER_PASS_COMPARE_REQUEST: {
+        draft.st_userPassCompareLoading = true;
+        draft.st_userPassCompareDone = false;
+        draft.st_userPassCompareError = null;
+        break;
+      }
+      case USER_PASS_COMPARE_SUCCESS: {
+        draft.st_userPassCompareLoading = false;
+        draft.st_userPassCompareDone = true;
+        draft.st_userPassCompareError = null;
+        break;
+      }
+      case USER_PASS_COMPARE_FAILURE: {
+        draft.st_userPassCompareLoading = false;
+        draft.st_userPassCompareDone = false;
+        draft.st_userPassCompareError = action.error;
         break;
       }
 
