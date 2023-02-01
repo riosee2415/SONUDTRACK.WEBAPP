@@ -21,6 +21,7 @@ import {
   FormOutlined,
 } from "@ant-design/icons";
 import { Checkbox, Modal } from "antd";
+import useInput from "../hooks/useInput";
 
 const Menu = styled(Wrapper)`
   padding: 0 30px;
@@ -65,7 +66,16 @@ const MypageMenu = ({}) => {
   const [mypageOpen2, setMypageOpen2] = useState(false);
   const [mypageOpen3, setMypageOpen3] = useState(false);
 
-  ///////////// - EVENT HANDLER- ////////////
+  const [music, setMusic] = useState(false);
+  const [artist, setArtist] = useState(false);
+  const plan = useInput("");
+  const techGenre = useInput("");
+  const [fileName, setFileName] = useState("");
+
+  ////////////// - USE EFFECT- //////////////
+
+  ///////////// - TOGGLE - ////////////
+
   const mypageMenuOpenToggle = useCallback(() => {
     setMypageOpen((prev) => !prev);
   }, [mypageOpen]);
@@ -86,11 +96,12 @@ const MypageMenu = ({}) => {
     setIsComplete((prev) => !prev);
   }, [isComplete]);
 
+  ///////////// - EVENT HANDLER- ////////////
+
   const movelinkHandler = useCallback((link) => {
     router.push(link);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
-  ////////////// - USE EFFECT- //////////////
 
   return (
     <WholeWrapper height={`calc(100vh - 166px)`} ju={`flex-start`}>
@@ -352,6 +363,8 @@ const MypageMenu = ({}) => {
         )} */}
       </Wrapper>
 
+      {/* 신청토글 */}
+
       <Modal
         onCancel={modalOpenToggle}
         visible={isModal}
@@ -381,12 +394,12 @@ const MypageMenu = ({}) => {
               New Wave Sound에서 주 활동 계획은 어떻게 되시나요?
             </Text>
             <Wrapper dr={`row`} ju={`flex-start`} margin={`14px 0 12px`}>
-              <Checkbox>
+              <Checkbox checked={music} onClick={() => setMusic(!music)}>
                 <Text fontSize={`16px`} color={Theme.grey_C}>
                   Musictem 판매
                 </Text>
               </Checkbox>
-              <Checkbox>
+              <Checkbox checked={artist} onClick={() => setArtist(!artist)}>
                 <Text fontSize={`16px`} color={Theme.grey_C}>
                   Artist로서 활동
                 </Text>
@@ -397,6 +410,7 @@ const MypageMenu = ({}) => {
               width={`100%`}
               height={`85px`}
               placeholder="예) 라이브러리를 제작해서 뮤직템에 판매하려고 합니다.&#13;&#10;Artist로서는 정식 음원과 데모 작업 활동을 하려고 합니다"
+              {...plan}
             />
             <Text
               fontSize={`16px`}
@@ -410,6 +424,7 @@ const MypageMenu = ({}) => {
               width={`100%`}
               height={`85px`}
               placeholder="예) R&B 소울 음악을 추구하고, 주로 트랙을 만들고 작·편곡을 합니다."
+              {...techGenre}
             />
             <Text
               fontSize={`16px`}
@@ -430,7 +445,7 @@ const MypageMenu = ({}) => {
                 height={`50px`}
                 type="type"
                 border={`1px solid ${Theme.lightGrey_C}`}
-                placeholder="장르를 선택해주세요."
+                placeholder="파일을 등록해주세요."
               />
               <CommonButton
                 width={`100px`}
@@ -472,6 +487,7 @@ const MypageMenu = ({}) => {
         </Wrapper>
       </Modal>
 
+      {/* 신청완료 토글 */}
       <Modal
         footer={null}
         onCancel={completeModalOpenToggle}
