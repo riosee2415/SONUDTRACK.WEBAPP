@@ -13,6 +13,10 @@ import {
   PERMM_WAITING_DEL_SUCCESS,
   PERMM_WAITING_DEL_FAILURE,
   //
+  PERMM_WAITING_CREATE_REQUEST,
+  PERMM_WAITING_CREATE_SUCCESS,
+  PERMM_WAITING_CREATE_FAILURE,
+  //
   ARTISTEM_LIST_REQUEST,
   ARTISTEM_LIST_SUCCESS,
   ARTISTEM_LIST_FAILURE,
@@ -32,6 +36,10 @@ import {
   ALL_ARTISTEM_LIST_REQUEST,
   ALL_ARTISTEM_LIST_SUCCESS,
   ALL_ARTISTEM_LIST_FAILURE,
+  //
+  ARTIST_UPLOAD_REQUEST,
+  ARTIST_UPLOAD_SUCCESS,
+  ARTIST_UPLOAD_FAILURE,
 } from "../reducers/artist";
 
 // ******************************************************************************************************************
@@ -61,6 +69,7 @@ function* permmWaitingList(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 // ******************************************************************************************************************
+
 // ******************************************************************************************************************
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
@@ -108,6 +117,34 @@ function* permmWaitingDel(action) {
     console.error(err);
     yield put({
       type: PERMM_WAITING_DEL_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function permmWaitingCreateAPI(data) {
+  return await axios.post("/api/artist/permm/create", data);
+}
+
+function* permmWaitingCreate(action) {
+  try {
+    const result = yield call(permmWaitingCreateAPI, action.data);
+
+    yield put({
+      type: PERMM_WAITING_CREATE_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: PERMM_WAITING_CREATE_FAILURE,
       error: err.response.data,
     });
   }
@@ -257,6 +294,34 @@ function* allArtistemList(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function artistImgAPI(data) {
+  return await axios.post(`/api/artist/image`, data);
+}
+
+function* artistImg(action) {
+  try {
+    const result = yield call(artistImgAPI, action.data);
+
+    yield put({
+      type: ARTIST_UPLOAD_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: ARTIST_UPLOAD_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 function* watchFaqTypeList() {
   yield takeLatest(PERMM_WAITING_LIST_REQUEST, permmWaitingList);
@@ -266,6 +331,9 @@ function* watchFaqTypeOk() {
 }
 function* watchFaqTypeDel() {
   yield takeLatest(PERMM_WAITING_DEL_REQUEST, permmWaitingDel);
+}
+function* watchFaqTypeCreate() {
+  yield takeLatest(PERMM_WAITING_CREATE_REQUEST, permmWaitingCreate);
 }
 function* watchArtistemList() {
   yield takeLatest(ARTISTEM_LIST_REQUEST, artistemList);
@@ -282,6 +350,9 @@ function* watchArtistemDetail() {
 function* watchAllArtistemList() {
   yield takeLatest(ALL_ARTISTEM_LIST_REQUEST, allArtistemList);
 }
+function* watchArtistUpload() {
+  yield takeLatest(ARTIST_UPLOAD_REQUEST, artistImg);
+}
 
 //////////////////////////////////////////////////////////////
 export default function* artistSaga() {
@@ -289,11 +360,13 @@ export default function* artistSaga() {
     fork(watchFaqTypeList),
     fork(watchFaqTypeOk),
     fork(watchFaqTypeDel),
+    fork(watchFaqTypeCreate),
     fork(watchArtistemList),
     fork(watchArtistemIngUp),
     fork(watchArtistemTopUp),
     fork(watchArtistemDetail),
     fork(watchAllArtistemList),
+    fork(watchArtistUpload),
     //
   ]);
 }
