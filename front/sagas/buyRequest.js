@@ -5,6 +5,10 @@ import {
   BUYREQUEST_LIST_SUCCESS,
   BUYREQUEST_LIST_FAILURE,
   //
+  BUYREQUEST_MY_LIST_REQUEST,
+  BUYREQUEST_MY_LIST_SUCCESS,
+  BUYREQUEST_MY_LIST_FAILURE,
+  //
   BUYREQUEST_CREATE_REQUEST,
   BUYREQUEST_CREATE_SUCCESS,
   BUYREQUEST_CREATE_FAILURE,
@@ -41,6 +45,34 @@ function* buyRequestList(action) {
     console.error(err);
     yield put({
       type: BUYREQUEST_LIST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function buyRequestMyListAPI(data) {
+  return await axios.post("/api/buyRequest/my/list", data);
+}
+
+function* buyRequestMyList(action) {
+  try {
+    const result = yield call(buyRequestMyListAPI, action.data);
+
+    yield put({
+      type: BUYREQUEST_MY_LIST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: BUYREQUEST_MY_LIST_FAILURE,
       error: err.response.data,
     });
   }
@@ -166,6 +198,9 @@ function* buyRequestFile(action) {
 function* watchBuyRequestList() {
   yield takeLatest(BUYREQUEST_LIST_REQUEST, buyRequestList);
 }
+function* watchBuyRequestMyList() {
+  yield takeLatest(BUYREQUEST_MY_LIST_REQUEST, buyRequestMyList);
+}
 function* watchBuyRequestCreate() {
   yield takeLatest(BUYREQUEST_CREATE_REQUEST, buyRequestCreate);
 }
@@ -183,6 +218,7 @@ function* watchBuyRequestFile() {
 export default function* buyRequestSaga() {
   yield all([
     fork(watchBuyRequestList),
+    fork(watchBuyRequestMyList),
     fork(watchBuyRequestCreate),
     fork(watchBuyRequestIsOk),
     fork(watchBuyRequestIsReject),

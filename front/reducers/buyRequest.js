@@ -3,11 +3,15 @@ import produce from "../util/produce";
 export const initailState = {
   buyRequests: [],
   buyRequestFile: null,
-
+  myBuyRequests: [],
   //
   st_buyRequestListLoading: false, // 구매요청 리스트
   st_buyRequestListDone: false,
   st_buyRequestListError: null,
+  //
+  st_buyRequestMyListLoading: false, // 내 구매요청 리스트
+  st_buyRequestMyListDone: false,
+  st_buyRequestMyListError: null,
   //
   st_buyRequestCreateLoading: false, // 구매요청 생성
   st_buyRequestCreateDone: false,
@@ -29,6 +33,10 @@ export const initailState = {
 export const BUYREQUEST_LIST_REQUEST = "BUYREQUEST_LIST_REQUEST";
 export const BUYREQUEST_LIST_SUCCESS = "BUYREQUEST_LIST_SUCCESS";
 export const BUYREQUEST_LIST_FAILURE = "BUYREQUEST_LIST_FAILURE";
+
+export const BUYREQUEST_MY_LIST_REQUEST = "BUYREQUEST_MY_LIST_REQUEST";
+export const BUYREQUEST_MY_LIST_SUCCESS = "BUYREQUEST_MY_LIST_SUCCESS";
+export const BUYREQUEST_MY_LIST_FAILURE = "BUYREQUEST_MY_LIST_FAILURE";
 
 export const BUYREQUEST_CREATE_REQUEST = "BUYREQUEST_CREATE_REQUEST";
 export const BUYREQUEST_CREATE_SUCCESS = "BUYREQUEST_CREATE_SUCCESS";
@@ -70,6 +78,27 @@ const reducer = (state = initailState, action) =>
         draft.st_buyRequestListLoading = false;
         draft.st_buyRequestListDone = false;
         draft.st_buyRequestListError = action.error;
+        break;
+      }
+      ///////////////////////////////////////////////////////
+
+      case BUYREQUEST_MY_LIST_REQUEST: {
+        draft.st_buyRequestMyListLoading = true;
+        draft.st_buyRequestMyListDone = false;
+        draft.st_buyRequestMyListError = null;
+        break;
+      }
+      case BUYREQUEST_MY_LIST_SUCCESS: {
+        draft.st_buyRequestMyListLoading = false;
+        draft.st_buyRequestMyListDone = true;
+        draft.st_buyRequestMyListError = null;
+        draft.myBuyRequests = action.data;
+        break;
+      }
+      case BUYREQUEST_MY_LIST_FAILURE: {
+        draft.st_buyRequestMyListLoading = false;
+        draft.st_buyRequestMyListDone = false;
+        draft.st_buyRequestMyListError = action.error;
         break;
       }
       ///////////////////////////////////////////////////////
