@@ -1,5 +1,5 @@
 const express = require("express");
-const isAdminCheck = require("../middlewares/isAdminCheck");
+const isLoggedIn = require("../middlewares/isLoggedIn");
 const models = require("../models");
 
 const router = express.Router();
@@ -131,7 +131,7 @@ router.post("/list", async (req, res, next) => {
         JOIN	productTrack 		C
           ON	A.ProductTrackId = C.id
        WHERE	A.UserId = ${UserId}
-       ORDER    BY num DESC
+       ORDER  BY num DESC
     `;
 
   try {
@@ -143,6 +143,83 @@ router.post("/list", async (req, res, next) => {
     return res
       .status(401)
       .send("사용자별 음원 구매 현황 목록을 조회할 수 없습니다.");
+  }
+});
+
+/**
+ * SUBJECT : 마이페이지 구매내역 리스트
+ * PARAMETERS : -
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/02/01
+ */
+router.post("/mypageList", isLoggedIn, async (req, res, next) => {
+  const productQuery = ``;
+
+  const musicTemQuery = `
+  SELECT	ROW_NUMBER()    OVER(ORDER BY A.createdAt)      AS num,
+          A.ArtistemId,
+          A.ProductTrackId,
+          A.UserId,
+          A.createdAt,
+          DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")		    AS viewStatusCreatedAt,
+          musicTem											                  AS buyType,
+          C.title 										                    AS musicTemTitle,
+          C.isTitle 										                  AS musicTemIsTitle,
+          C.thumbnail 										                AS musicTemThumbnail,
+          C.filename 										                  AS musicTemFilename,
+          C.filepath 										                  AS musicTemFilepath,
+          C.author 										                    AS musicTemAuthor,
+          C.downloadCnt,
+          FORMAT(C.downloadCnt, 0)                        AS musicTemviewDownloadCnt,
+          C.ProductId 									                  AS musicTemProductId,
+          C.sPrice										                    AS musicTemSPrice,
+          C.dPrice 										                    AS musicTemDPrice,
+          C.pPrice 										                    AS musicTemPPrice,
+          FORMAT(C.sPrice, 0)                             AS musicTemViewsPrice,
+          FORMAT(C.dPrice, 0)                             AS musicTemViewdPrice,
+          FORMAT(C.pPrice, 0)                             AS musicTemViewpPrice,
+          (
+            SELECT  COUNT(id)
+              FROM  userLike
+             WHERE  ProductTrackId = C.id
+          )                                               AS musicTemLikeCnt
+          ${
+            req.user
+              ? `
+            CASE
+                WHEN  (
+                        SELECT  COUNT(id)
+                          FROM  userLike
+                         WHERE  ProductTrackId = B.id
+                           AND  UserId = ${req.user.id}
+                      ) > 0 THEN                       1
+                ELSE                                   0
+            END                                           AS musicTemIsLike
+            `
+              : `
+            0                                             AS musicTemIsLike
+            `
+          }
+    FROM	userBuyStatus		A
+   INNER
+    JOIN	productTrack 		C
+      ON	A.ProductTrackId = C.id
+   WHERE	A.UserId = ${req.user.id}
+   ORDER  BY num DESC
+  `;
+
+  try {
+    const productList = await models.sequelize.query(productQuery);
+    const musicTem = await models.sequelize.query(musicTemQuery);
+
+    return res.status(200).json({
+      musicTem: musicTem[0],
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("구매한 음원 내역을 불러올 수 없습니다.");
   }
 });
 

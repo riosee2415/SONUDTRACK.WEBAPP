@@ -9,10 +9,17 @@ const router = express.Router();
 //////////////////////////////////// TYPE ////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-// READ
+/**
+ * SUBJECT : 회원별 음원 구매 현황 리스트
+ * PARAMETERS : UserId
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/02/01
+ */
 router.post("/type/list", async (req, res, next) => {
   const selectQ = `
-    SELECT	ROW_NUMBER() OVER()								AS num,
+    SELECT	ROW_NUMBER() OVER(ORDER BY A.value)					AS num,
             A.id,
             A.value,
             B.username, 
@@ -25,7 +32,7 @@ router.post("/type/list", async (req, res, next) => {
       JOIN	users		B
         ON	A.updator = B.id
      WHERE  A.isDelete = 0
-     ORDER  BY  A.value ASC
+     ORDER  BY  num ASC
     `;
 
   try {
@@ -77,6 +84,45 @@ router.post("/type/delete", isAdminCheck, async (req, res, next) => {
 
 router.post("/type/create", isAdminCheck, async (req, res, next) => {
   const { value } = req.body;
+
+  const insertQ1 = `
+    INSERT INTO faqType (
+      value,
+      updator,
+      createdAt,
+      updatedAt
+    ) VALUES (
+      "${value}",
+      ${req.user.id},
+      now(),
+      now()
+    )
+  `;
+
+  const insertQuery2 = `
+  INSERT INTO faqHistory (value, content, updator, createdAt, updatedAt) VALUES 
+  (
+    "${value}",
+    "데이터 생성",
+    ${req.user.id},
+    now(),
+    now()
+  )
+  `;
+
+  try {
+    await models.sequelize.query(insertQ1);
+    await models.sequelize.query(insertQuery2);
+
+    return res.status(201).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("자주묻는질문 유형을 생성할 수 없습니다.");
+  }
+});
+
+router.post("/type/update", isAdminCheck, async (req, res, next) => {
+  const { id, value } = req.body;
 
   const insertQ1 = `
     INSERT INTO faqType (

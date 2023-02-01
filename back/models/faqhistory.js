@@ -10,7 +10,7 @@ module.exports = class FaqHistory extends Model {
           allowNull: false, // 필수
         },
         content: {
-          type: DataTypes.STRING(50),
+          type: DataTypes.STRING(500),
           allowNull: false, // 필수
         },
         updator: {

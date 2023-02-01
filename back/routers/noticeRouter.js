@@ -143,6 +143,149 @@ router.post("/list", async (req, res, next) => {
   }
 });
 
+/**
+ * SUBJECT : 공지사항 페이지네이션 리스트
+ * PARAMETERS : title, page
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/02/01
+ */
+router.post("/user/list", async (req, res, next) => {
+  const { title, page } = req.body;
+
+  const _title = title ? title : "";
+
+  const LIMIT = 10;
+
+  const _page = page ? page : 1;
+
+  const __page = _page - 1;
+  const OFFSET = __page * 10;
+
+  const lengthQuery = `
+  SELECT	ROW_NUMBER() OVER(ORDER BY A.createdAt)		AS num, 
+          A.id,
+          A.title,
+          A.type,
+          A.content,
+          A.author,
+          A.hit,
+          A.isTop,
+          A.file,
+          A.createdAt,
+          A.updatedAt,
+          DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일") 		AS viewCreatedAt,
+          DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일") 		AS viewUpdatedAt,
+          B.username 										AS updator 
+    FROM	notices		A
+   INNER
+    JOIN	users		B
+      ON	A.updator = B.id
+   WHERE	A.isDelete = 0
+     AND	A.title LIKE "%${_title}%"
+  `;
+
+  const selectQuery = `
+  SELECT	ROW_NUMBER() OVER(ORDER BY A.createdAt)		AS num, 
+          A.id,
+          A.title,
+          A.type,
+          A.content,
+          A.author,
+          A.hit,
+          A.isTop,
+          A.file,
+          A.createdAt,
+          A.updatedAt,
+          DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일") 		AS viewCreatedAt,
+          DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일") 		AS viewUpdatedAt,
+          B.username 										AS updator 
+    FROM	notices		A
+   INNER
+    JOIN	users		B
+      ON	A.updator = B.id
+   WHERE	A.isDelete = 0
+     AND	A.title LIKE "%${_title}%"
+   ORDER	BY num DESC
+   LIMIT  ${LIMIT}
+  OFFSET  ${OFFSET}
+  `;
+
+  try {
+    const lengths = await models.sequelize.query(lengthQuery);
+    const notice = await models.sequelize.query(selectQuery);
+
+    const noticeLen = lengths[0].length;
+
+    const lastPage =
+      noticeLen % LIMIT > 0 ? noticeLen / LIMIT + 1 : noticeLen / LIMIT;
+
+    return res.status(200).json({
+      notices: notice[0],
+      lastPage: parseInt(lastPage),
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("공지사항 데이터를 불러올 수 없습니다.");
+  }
+});
+
+/**
+ * SUBJECT : 공지사항 상세
+ * PARAMETERS : id
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/02/01
+ */
+router.post("/detail", async (req, res, next) => {
+  const { id } = req.body;
+
+  const selectQuery = `
+  SELECT	A.id,
+          A.title,
+          A.type,
+          A.content,
+          A.author,
+          A.hit,
+          A.isTop,
+          A.file,
+          A.createdAt,
+          A.updatedAt,
+          DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일") 		AS viewCreatedAt,
+          DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일") 		AS viewUpdatedAt,
+          B.username 										AS updator 
+    FROM	notices		A
+   INNER
+    JOIN	users		B
+      ON	A.updator = B.id
+   WHERE	A.isDelete = 0
+     AND	A.id = ${id}
+  `;
+
+  try {
+    const detailData = await models.sequelize.query(selectQuery);
+
+    if (detailData[0].length === 0) {
+      return res.status(401).send("존재하지 않는 공지사항 데이터입니다.");
+    }
+
+    const updateQuery = `
+    UPDATE  notices
+       SET  hit = ${detailData[0][0].hit + 1}
+     WHERE  id = ${id}
+    `;
+
+    await models.sequelize.query(updateQuery);
+
+    return res.status(200).json(detailData[0][0]);
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("공지사항 데이터를 불러올 수 없습니다.");
+  }
+});
+
 router.post("/create", isAdminCheck, async (req, res, next) => {
   const { type } = req.body;
 
@@ -250,33 +393,41 @@ router.post("/update/top", isAdminCheck, async (req, res, next) => {
   }
 });
 
-router.delete("/delete/:noticeId", isAdminCheck, async (req, res, next) => {
-  const { noticeId } = req.params;
+/**
+ * SUBJECT : 공지사항 상세
+ * PARAMETERS : id, title
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/02/01
+ */
+router.post("/delete", isAdminCheck, async (req, res, next) => {
+  const { id, title } = req.body;
+
+  const deleteQuery = `
+  UPDATE  notices
+     SET  isDelete = 1,
+          deletedAt = NOW(),
+          updator = ${req.user.id}
+   WHERE  id = ${id}
+  `;
+
+  const historyInsertQuery = `
+  INSERT INTO noticeHistory (content, title, updator, createdAt, updatedAt) VALUES 
+  (
+    "데이터 삭제",
+    "${title}",
+    ${req.user.id},
+    now(),
+    now()
+  )
+  `;
 
   try {
-    const exNotice = await Notice.findOne({
-      where: { id: parseInt(noticeId) },
-    });
+    await models.sequelize.query(deleteQuery);
+    await models.sequelize.query(historyInsertQuery);
 
-    if (!exNotice) {
-      return res.status(401).send("존재하지 않는 게시글 입니다.");
-    }
-
-    const updateResult = await Notice.update(
-      {
-        isDelete: true,
-        deletedAt: new Date(),
-      },
-      {
-        where: { id: parseInt(noticeId) },
-      }
-    );
-
-    if (updateResult[0] > 0) {
-      return res.status(200).json({ result: true });
-    } else {
-      return res.status(200).json({ result: false });
-    }
+    return res.status(200).json({ result: true });
   } catch (error) {
     console.error(error);
     return res.status(401).send("게시글을 삭제할 수 없습니다. [CODE 097]");
