@@ -187,7 +187,7 @@ const MypageMenu = ({}) => {
             padding={`24px 30px`}
             al={`flex-start`}
           >
-            <Text
+            {/* <Text
               fontSize={`16px`}
               fontWeight={`bold`}
               color={
@@ -200,13 +200,16 @@ const MypageMenu = ({}) => {
               onClick={() => movelinkHandler(`/mypage/cart`)}
             >
               장바구니
-            </Text>
+            </Text> */}
             <Text
               fontSize={`16px`}
               fontWeight={`bold`}
               color={
-                router.pathname === `/mypage` ? Theme.black_C : Theme.grey2_C
+                router.pathname === `/mypage/like`
+                  ? Theme.black_C
+                  : Theme.grey2_C
               }
+              onClick={() => movelinkHandler(`/mypage/like`)}
               isHover
               margin={`0 0 22px`}
             >
@@ -244,8 +247,11 @@ const MypageMenu = ({}) => {
               fontSize={`16px`}
               fontWeight={`bold`}
               color={
-                router.pathname === `/mypage` ? Theme.black_C : Theme.grey2_C
+                router.pathname === `/mypage/order`
+                  ? Theme.black_C
+                  : Theme.grey2_C
               }
+              onClick={() => movelinkHandler(`/mypage/order`)}
               isHover
             >
               결제 내역
