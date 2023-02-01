@@ -123,6 +123,7 @@ const Index = () => {
 
   ////// HANDLER //////
 
+  // 정보수정
   const infoUpdateHandler = useCallback(() => {
     dispatch({
       type: USER_INFO_UPDATE_REQUEST,
@@ -150,6 +151,7 @@ const Index = () => {
     term6.value,
   ]);
 
+  // 새로운 비번 재입력 확인
   const passCheckHandler = useCallback(
     (e) => {
       setPassCheck(e.target.value);
@@ -157,6 +159,7 @@ const Index = () => {
     [passCheck]
   );
 
+  // 비번 변경
   const infoPassUpdateHandler = useCallback(() => {
     const passwordReg =
       /^(?!((?:[A-Za-z]+)|(?:[~!@#$%^&*()_+=]+)|(?:[0-9]+))$)[A-Za-z\d~!@#$%^&*()_+=]{8,}$/;
@@ -192,6 +195,7 @@ const Index = () => {
     });
   }, [pass, newPass, passCheck]);
 
+  // 비번 확인
   const passCompareHandler = useCallback(() => {
     if (!pass.value || pass.value.trim() === "") {
       return message.error("기존 비밀번호를 입력해주세요.");
