@@ -6,7 +6,7 @@ module.exports = class FaqHistory extends Model {
     return super.init(
       {
         value: {
-          type: DataTypes.STRING(10),
+          type: DataTypes.STRING(30),
           allowNull: false, // 필수
         },
         content: {
