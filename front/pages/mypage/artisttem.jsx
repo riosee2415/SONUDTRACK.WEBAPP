@@ -26,6 +26,7 @@ import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 import { useState } from "react";
 import { useCallback } from "react";
+import useInput from "../../hooks/useInput";
 
 const Box = styled(Wrapper)`
   width: calc(100% / 6 - 37px);
@@ -75,6 +76,9 @@ const Index = () => {
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
+
+  const comName = useInput("");
+  const comNum = useInput("");
 
   const [filmo, setFilmo] = useState(false);
   ////// REDUX //////

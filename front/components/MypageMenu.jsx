@@ -291,6 +291,8 @@ const MypageMenu = ({}) => {
     });
   }, [files, plan, techGenre]);
 
+  console.log(me);
+
   return (
     <WholeWrapper height={`calc(100vh - 166px)`} ju={`flex-start`}>
       <Wrapper margin={`0 0 50px`} ju={`flex-start`}>
@@ -333,35 +335,40 @@ const MypageMenu = ({}) => {
         <Text fontSize={`22px`} fontWeight={`bold`} margin={`20px 0 12px`}>
           {me && me.nickname}
         </Text>
-        <CommonButton
-          width={`162px`}
-          height={`45px`}
-          kindOf={`subTheme3`}
-          radius={`7px`}
-          onClick={modalOpenToggle}
-        >
-          판매자로 전환
-        </CommonButton>
-
-        {/* 판매자로 전환되었을때
-        <CommonButton
-          width={`162px`}
-          height={`45px`}
-          kindOf={router.pathname === `/mypage/artisttem` ? `` : `subTheme3`}
-          radius={`7px`}
-          margin={`0 0 10px`}
-          onClick={() => movelinkHandler(`/mypage/artisttem`)}
-        >
-          My Artisttem
-        </CommonButton>
-        <CommonButton
-          width={`162px`}
-          height={`45px`}
-          kindOf={`subTheme3`}
-          radius={`7px`}
-        >
-          My Musictem
-        </CommonButton> */}
+        {me && me.isArtist === "일반" ? (
+          <CommonButton
+            width={`162px`}
+            height={`45px`}
+            kindOf={`subTheme3`}
+            radius={`7px`}
+            onClick={modalOpenToggle}
+          >
+            판매자로 전환
+          </CommonButton>
+        ) : (
+          <>
+            <CommonButton
+              width={`162px`}
+              height={`45px`}
+              kindOf={
+                router.pathname === `/mypage/artisttem` ? `` : `subTheme3`
+              }
+              radius={`7px`}
+              margin={`0 0 10px`}
+              onClick={() => movelinkHandler(`/mypage/artisttem`)}
+            >
+              My Artisttem
+            </CommonButton>
+            <CommonButton
+              width={`162px`}
+              height={`45px`}
+              kindOf={`subTheme3`}
+              radius={`7px`}
+            >
+              My Musictem
+            </CommonButton>
+          </>
+        )}
       </Wrapper>
 
       <Wrapper
