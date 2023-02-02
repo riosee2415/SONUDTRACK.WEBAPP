@@ -77,8 +77,10 @@ const Index = () => {
   const width = useWidth();
   const router = useRouter();
 
-  const comName = useInput("");
-  const comNum = useInput("");
+  const comName = useInput(""); // 담당자명
+  const comNum = useInput(""); // 사업자번호
+  const artistName = useInput(""); // 아티스트명
+  const artistInfo = useInput(""); // 아티스트소개
 
   const [filmo, setFilmo] = useState(false);
   ////// REDUX //////
