@@ -18,12 +18,31 @@ import {
   WholeWrapper,
   Wrapper,
 } from "../../components/commonComponents";
-import { Checkbox, Empty, message, Modal } from "antd";
+import { Checkbox, DatePicker, Empty, Form, message, Modal } from "antd";
 import Theme from "../../components/Theme";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import styled from "styled-components";
 import { BUYREQUEST_MY_LIST_REQUEST } from "../../reducers/buyRequest";
+import moment from "moment";
+import { saveAs } from "file-saver";
+
+const FileWrapper = styled(Wrapper)`
+  flex-direction: row;
+  justify-content: flex-start;
+  padding: 16px 14px;
+  background-color: ${(props) => props.theme.lightGrey2_C};
+  border: 1px solid ${(props) => props.theme.lightGrey_C};
+  margin: 12px 0 20px;
+  cursor: pointer;
+  color: ${(props) => props.theme.grey_C};
+
+  &:hover {
+    border: 1px solid ${(props) => props.theme.basicTheme_C};
+    background-color: ${(props) => props.theme.subTheme_C};
+    color: ${(props) => props.theme.basicTheme_C};
+  }
+`;
 
 const Box = styled(Wrapper)`
   border-radius: 7px;
@@ -35,6 +54,15 @@ const Box = styled(Wrapper)`
 
   @media (max-width: 700px) {
     padding: 20px 15px;
+  }
+`;
+
+const CustomDatePicker = styled(DatePicker)`
+  background: ${Theme.lightGrey2_C} !important;
+  border: 1px solid ${Theme.lightGrey_C} !important;
+
+  & .ant-picker-input > input[disabled] {
+    color: ${Theme.black_C} !important;
   }
 `;
 
@@ -50,10 +78,15 @@ const Index = () => {
   const router = useRouter();
   const dispatch = useDispatch();
 
+  // 문의 내역
+  const [dForm] = Form.useForm();
+
   const [contactModal, setContactModal] = useState(false);
   const [rejectModal, setRejectModal] = useState(false);
   const [orderModal, setOrderModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+
+  const [dData, setDData] = useState(null);
 
   ////// REDUX //////
   ////// USEEFFECT //////
@@ -77,9 +110,24 @@ const Index = () => {
     }
   }, [router.query, currentPage]);
   ////// TOGGLE //////
-  const contactToggle = useCallback(() => {
-    setContactModal((prev) => !prev);
-  }, [contactModal]);
+  const contactToggle = useCallback(
+    (data) => {
+      console.log(data);
+      if (data) {
+        dForm.setFieldsValue({
+          endDate: moment(data.endDate),
+          totalPrice: data.totalPrice,
+          sendMessage: data.sendMessage,
+        });
+        setDData(data);
+      } else {
+        dForm.resetFields();
+        setDData(null);
+      }
+      setContactModal((prev) => !prev);
+    },
+    [contactModal, dData]
+  );
 
   const rejectToggle = useCallback(() => {
     setRejectModal((prev) => !prev);
@@ -98,6 +146,24 @@ const Index = () => {
     },
     [currentPage]
   );
+
+  // 파일 다운로드
+  const fileDownloadHandler = useCallback(async (data) => {
+    let blob = await fetch(data.filepath).then((r) => r.blob());
+
+    const file = new Blob([blob]);
+
+    // 파일 확장자 구하기
+    // const ext = data.filepath.substring(
+    //   data.filepath.lastIndexOf(".") + 1,
+    //   data.filepath.length
+    // );
+
+    const originName = `${data.filename}`;
+
+    saveAs(file, originName);
+  }, []);
+
   ////// DATAVIEW //////
 
   return (
@@ -203,7 +269,7 @@ const Index = () => {
                             fontWeight={`600`}
                             kindOf={`grey3`}
                             margin={`0 8px 0 0`}
-                            onClick={contactToggle}
+                            onClick={() => contactToggle(data)}
                           >
                             문의 내역
                           </CommonButton>
@@ -300,109 +366,114 @@ const Index = () => {
             />
           </RsWrapper>
 
+          {/* 문의내역 상세 */}
           <Modal
-            onCancel={contactToggle}
+            onCancel={() => contactToggle(null)}
             visible={contactModal}
             footer={null}
             width={`550px`}
           >
-            <Wrapper padding={width < 900 ? `30px 0` : `30px 25px`}>
-              <Text fontSize={`32px`} fontWeight={`bold`} margin={`0 0 24px`}>
-                문의 내역
-              </Text>
+            <Form layout="inline" form={dForm}>
+              <Wrapper padding={width < 900 ? `30px 0` : `30px 25px`}>
+                <Text fontSize={`32px`} fontWeight={`bold`} margin={`0 0 24px`}>
+                  문의 내역
+                </Text>
 
-              <Wrapper al={`flex-start`}>
-                <Text fontSize={`16px`} color={Theme.grey_C}>
-                  제출 마감일
-                </Text>
-                <Wrapper
-                  dr={`row`}
-                  ju={`flex-start`}
-                  fontSize={`16px`}
-                  margin={`12px 0 30px`}
-                >
-                  <TextInput
-                    type="text"
-                    readOnly
-                    width={`200px`}
-                    height={`50px`}
-                  />
-                  &nbsp;까지
-                </Wrapper>
-              </Wrapper>
-              <Wrapper al={`flex-start`}>
-                <Text fontSize={`16px`} color={Theme.grey_C}>
-                  금액
-                </Text>
-                <Wrapper
-                  dr={`row`}
-                  ju={`flex-start`}
-                  fontSize={`16px`}
-                  margin={`12px 0 30px`}
-                >
-                  <TextInput
-                    type="text"
-                    readOnly
-                    width={`200px`}
-                    height={`50px`}
-                  />
-                  &nbsp;원
-                </Wrapper>
-              </Wrapper>
-              <Wrapper al={`flex-start`}>
-                <Text fontSize={`16px`} color={Theme.grey_C}>
-                  내용
-                </Text>
-                <TextArea
-                  width={`100%`}
-                  height={`75px`}
-                  margin={`12px 0 30px`}
-                  readOnly
-                />
-              </Wrapper>
-
-              <Wrapper al={`flex-start`}>
-                <Text fontSize={`16px`} color={Theme.grey_C}>
-                  레퍼런스 첨부파일
-                </Text>
-                <Wrapper
-                  dr={`row`}
-                  ju={`flex-start`}
-                  padding={`16px 14px`}
-                  bgColor={Theme.lightGrey2_C}
-                  border={`1px solid ${Theme.lightGrey_C}`}
-                  margin={`12px 0 20px`}
-                >
+                <Wrapper al={`flex-start`}>
                   <Text fontSize={`16px`} color={Theme.grey_C}>
-                    <Image
-                      alt="icon"
-                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/music-file.png`}
-                      width={`14px`}
-                      margin={`0 5px 0 0`}
+                    제출 마감일
+                  </Text>
+                  <Wrapper
+                    dr={`row`}
+                    ju={`flex-start`}
+                    fontSize={`16px`}
+                    margin={`12px 0 30px`}
+                  >
+                    <Form.Item name="endDate">
+                      <CustomDatePicker
+                        style={{ width: 200, height: 50 }}
+                        disabled
+                      />
+                    </Form.Item>
+                    &nbsp;까지
+                  </Wrapper>
+                </Wrapper>
+                <Wrapper al={`flex-start`}>
+                  <Text fontSize={`16px`} color={Theme.grey_C}>
+                    금액
+                  </Text>
+                  <Wrapper
+                    dr={`row`}
+                    ju={`flex-start`}
+                    fontSize={`16px`}
+                    margin={`12px 0 30px`}
+                  >
+                    <Form.Item name="totalPrice">
+                      <TextInput
+                        border={`1px solid ${Theme.lightGrey_C}`}
+                        placeholder="최소 20만원"
+                        width={`200px`}
+                        height={`50px`}
+                        type="number"
+                        readOnly
+                      />
+                    </Form.Item>
+                    &nbsp;원
+                  </Wrapper>
+                </Wrapper>
+                <Wrapper al={`flex-start`}>
+                  <Text fontSize={`16px`} color={Theme.grey_C}>
+                    내용
+                  </Text>
+                  <Form.Item style={{ width: `100%` }} name="sendMessage">
+                    <TextArea
+                      width={`100%`}
+                      height={`75px`}
+                      margin={`12px 0 30px`}
+                      readOnly
+                      placeholder="내용을 입력해주세요."
                     />
-                    파일이름
+                  </Form.Item>
+                </Wrapper>
+
+                <Wrapper al={`flex-start`}>
+                  <Text fontSize={`16px`} color={Theme.grey_C}>
+                    레퍼런스 첨부파일
+                  </Text>
+                  <FileWrapper
+                    onClick={() => fileDownloadHandler(dData && dData)}
+                  >
+                    <Text fontSize={`16px`} isEllipsis>
+                      <Image
+                        alt="icon"
+                        src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/music-file.png`}
+                        width={`14px`}
+                        margin={`0 5px 0 0`}
+                      />
+                      {dData && dData.filename}
+                    </Text>
+                  </FileWrapper>
+
+                  <Text color={Theme.grey_C}>
+                    제작할 음악의 용도를 반드시 미리 고지해야 하며, 작업 완료 후
+                    정식 앨범 출판 및 정식 앨범 출판 및 상업적 사용을 할 때에
+                    안전한 저작궈느 크레딧 협의를 위해 반드시 New Wave Sound를
+                    통하여 전문가, 의뢰인 협의 후 진행하실 수
+                    있습니다.(nws0901@nwsound1.com)
                   </Text>
                 </Wrapper>
 
-                <Text color={Theme.grey_C}>
-                  제작할 음악의 용도를 반드시 미리 고지해야 하며, 작업 완료 후
-                  정식 앨범 출판 및 정식 앨범 출판 및 상업적 사용을 할 때에
-                  안전한 저작궈느 크레딧 협의를 위해 반드시 New Wave Sound를
-                  통하여 전문가, 의뢰인 협의 후 진행하실 수
-                  있습니다.(nws0901@nwsound1.com)
-                </Text>
+                <CommonButton
+                  width={width < 900 ? `150px` : `180px`}
+                  height={`50px`}
+                  fontSize={width < 900 ? `15px` : `18px`}
+                  margin={`32px 0 0`}
+                  onClick={() => contactToggle(null)}
+                >
+                  컨택 내역
+                </CommonButton>
               </Wrapper>
-
-              <CommonButton
-                width={width < 900 ? `150px` : `180px`}
-                height={`50px`}
-                fontSize={width < 900 ? `15px` : `18px`}
-                margin={`32px 0 0`}
-                onClick={contactToggle}
-              >
-                컨택 내역
-              </CommonButton>
-            </Wrapper>
+            </Form>
           </Modal>
           <Modal
             onCancel={rejectToggle}
