@@ -11,17 +11,63 @@ import {
   Image,
   RsWrapper,
   SpanText,
+  SquareBox,
   Text,
   TextArea,
   TextInput,
   WholeWrapper,
   Wrapper,
 } from "../../components/commonComponents";
-import { Checkbox, message, Switch } from "antd";
+import { Checkbox, message, Modal, Switch } from "antd";
 import Theme from "../../components/Theme";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/router";
-import { CloseOutlined } from "@ant-design/icons";
+import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
+import styled from "styled-components";
+import { useState } from "react";
+import { useCallback } from "react";
+
+const Box = styled(Wrapper)`
+  width: calc(100% / 6 - 37px);
+  margin: 0 44px 40px 0;
+  border-radius: 7px;
+  position: relative;
+  overflow: hidden;
+
+  &:nth-child(6n) {
+    margin: 0 0 40px;
+  }
+
+  @media (max-width: 1400px) {
+    width: calc(100% / 5 - 24px);
+    margin: 0 30px 40px 0;
+
+    &:nth-child(6n) {
+      margin: 0 30px 40px 0;
+    }
+
+    &:nth-child(5n) {
+      margin: 0 0 40px;
+    }
+  }
+
+  @media (max-width: 700px) {
+    width: calc(100% / 2 - 8px);
+    margin: 0 10px 40px 0;
+
+    &:nth-child(6n) {
+      margin: 0 5px 40px 0;
+    }
+
+    &:nth-child(5n) {
+      margin: 0 5px 40px 0;
+    }
+
+    &:nth-child(2n) {
+      margin: 0 5px 40px 0;
+    }
+  }
+`;
 
 const Index = () => {
   ////// GLOBAL STATE //////
@@ -29,6 +75,8 @@ const Index = () => {
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
+
+  const [filmo, setFilmo] = useState(false);
   ////// REDUX //////
   ////// USEEFFECT //////
   useEffect(() => {
@@ -40,6 +88,10 @@ const Index = () => {
     }
   }, [me]);
   ////// TOGGLE //////
+  const filmoToggle = useCallback(() => {
+    setFilmo((prev) => !prev);
+  }, [filmo]);
+
   ////// HANDLER //////
   ////// DATAVIEW //////
 
@@ -452,10 +504,376 @@ const Index = () => {
                 placeholder="예) 음악에 따라 작업 시간과 비용이 달라질 순 있습니다. 팝스러운 멋진 음악을 원하시면 저에게 문의하세요!"
                 tyoe="text"
                 border={`1px solid ${Theme.lightGrey_C}`}
-                margin={`0 0 30px`}
               />
+
+              <Wrapper dr={`row`} ju={`flex-start`} margin={`60px 0 30px`}>
+                <Text
+                  fontSize={`24px`}
+                  fontWeight={`600`}
+                  margin={`0 20px 0 0`}
+                >
+                  필모그래피 등록
+                </Text>
+                <CommonButton onClick={filmoToggle}>
+                  추가하기 <PlusOutlined />
+                </CommonButton>
+              </Wrapper>
+              <Wrapper dr={`row`} ju={`flex-start`}>
+                <Box>
+                  <SquareBox>
+                    <Image
+                      alt="thumbnail"
+                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/art-goods/assets/images/main-page/img_4s_right_prod.png`}
+                    />
+                  </SquareBox>
+                  <Wrapper
+                    height={`100%`}
+                    bgColor={`rgba(0, 0, 0, 0.6)`}
+                    color={Theme.white_C}
+                    position={`absolute`}
+                    top={`0`}
+                    left={`0`}
+                  >
+                    <Text fontSize={`20px`} fontWeight={`bold`}>
+                      임창정
+                    </Text>
+                    <Text fontSize={`16px`}>기다리는 이유</Text>
+                  </Wrapper>
+                </Box>
+              </Wrapper>
+
+              <Text fontSize={`24px`} fontWeight={`600`} margin={`60px 0 30px`}>
+                검색 관리(TAG)
+              </Text>
+
+              <Text
+                fontSize={`16px`}
+                fontWeight={`600`}
+                color={Theme.grey_C}
+                margin={`0 0 12px`}
+              >
+                카테고리
+              </Text>
+              <Wrapper
+                border={`1px solid ${Theme.lightGrey_C}`}
+                padding={`20px 10px`}
+                dr={`row`}
+                ju={`flex-start`}
+                al={`flex-start`}
+                margin={`0 0 30px`}
+              >
+                <CommonButton
+                  kindOf={`grey`}
+                  width={
+                    width < 1100
+                      ? width < 900
+                        ? `calc(100% / 3 - 20px)`
+                        : `calc(100% / 5 - 20px)`
+                      : `calc(100% / 8 - 20px)`
+                  }
+                  margin={`0 10px`}
+                  padding={`0`}
+                  height={width < 900 ? `40px` : `54px`}
+                >
+                  Show All
+                </CommonButton>
+                <CommonButton
+                  kindOf={`grey`}
+                  width={
+                    width < 1100
+                      ? width < 900
+                        ? `calc(100% / 3 - 20px)`
+                        : `calc(100% / 5 - 20px)`
+                      : `calc(100% / 8 - 20px)`
+                  }
+                  margin={`0 10px`}
+                  padding={`0`}
+                  height={width < 900 ? `40px` : `54px`}
+                >
+                  Popular
+                </CommonButton>
+              </Wrapper>
+              <Text
+                fontSize={`16px`}
+                fontWeight={`600`}
+                color={Theme.grey_C}
+                margin={`0 0 12px`}
+              >
+                Mood
+              </Text>
+              <Wrapper
+                border={`1px solid ${Theme.lightGrey_C}`}
+                padding={`20px 10px`}
+                dr={`row`}
+                ju={`flex-start`}
+                al={`flex-start`}
+                margin={`0 0 30px`}
+              >
+                <CommonButton
+                  kindOf={`grey`}
+                  width={
+                    width < 1100
+                      ? width < 900
+                        ? `calc(100% / 3 - 20px)`
+                        : `calc(100% / 5 - 20px)`
+                      : `calc(100% / 8 - 20px)`
+                  }
+                  margin={`0 10px`}
+                  padding={`0`}
+                  height={width < 900 ? `40px` : `54px`}
+                >
+                  Show All
+                </CommonButton>
+                <CommonButton
+                  kindOf={`grey`}
+                  width={
+                    width < 1100
+                      ? width < 900
+                        ? `calc(100% / 3 - 20px)`
+                        : `calc(100% / 5 - 20px)`
+                      : `calc(100% / 8 - 20px)`
+                  }
+                  margin={`0 10px`}
+                  padding={`0`}
+                  height={width < 900 ? `40px` : `54px`}
+                >
+                  Popular
+                </CommonButton>
+              </Wrapper>
+              <Text
+                fontSize={`16px`}
+                fontWeight={`600`}
+                color={Theme.grey_C}
+                margin={`0 0 12px`}
+              >
+                Genre
+              </Text>
+              <Wrapper
+                border={`1px solid ${Theme.lightGrey_C}`}
+                padding={`20px 10px`}
+                dr={`row`}
+                ju={`flex-start`}
+                al={`flex-start`}
+                margin={`0 0 30px`}
+              >
+                <CommonButton
+                  kindOf={`grey`}
+                  width={
+                    width < 1100
+                      ? width < 900
+                        ? `calc(100% / 3 - 20px)`
+                        : `calc(100% / 5 - 20px)`
+                      : `calc(100% / 8 - 20px)`
+                  }
+                  margin={`0 10px`}
+                  padding={`0`}
+                  height={width < 900 ? `40px` : `54px`}
+                >
+                  Show All
+                </CommonButton>
+                <CommonButton
+                  kindOf={`grey`}
+                  width={
+                    width < 1100
+                      ? width < 900
+                        ? `calc(100% / 3 - 20px)`
+                        : `calc(100% / 5 - 20px)`
+                      : `calc(100% / 8 - 20px)`
+                  }
+                  margin={`0 10px`}
+                  padding={`0`}
+                  height={width < 900 ? `40px` : `54px`}
+                >
+                  Popular
+                </CommonButton>
+              </Wrapper>
+
+              <CommonButton
+                width={`180px`}
+                height={`50px`}
+                margin={`10px 0 100px`}
+                fontSize={`18px`}
+              >
+                저장하기
+              </CommonButton>
             </Wrapper>
           </RsWrapper>
+
+          <Modal
+            visible={filmo}
+            onCancel={filmoToggle}
+            footer={null}
+            width={`645px`}
+          >
+            <Wrapper padding={width < 900 ? `30px 0` : `30px 25px`}>
+              <Text
+                fontWeight={`bold`}
+                fontSize={`28px`}
+                color={Theme.basicTheme_C}
+                margin={`0 0 35px`}
+              >
+                필모그래피 등록
+              </Text>
+
+              <Wrapper al={`flex-start`}>
+                <Text
+                  fontSize={`16px`}
+                  fontWeight={`600`}
+                  color={Theme.basicTheme_C}
+                  margin={`0 0 14px`}
+                >
+                  역할
+                </Text>
+                <TextInput
+                  type="text"
+                  placeholder="예) Vocal"
+                  width={`100%`}
+                  height={`50px`}
+                  border={`1px solid ${Theme.lightGrey_C}`}
+                  margin={`0 0 30px`}
+                />
+                <Text
+                  fontSize={`16px`}
+                  fontWeight={`600`}
+                  color={Theme.basicTheme_C}
+                  margin={`0 0 14px`}
+                >
+                  Comment
+                </Text>
+                <TextInput
+                  type="text"
+                  placeholder="예) 저는 이 곡의 가이드 보컬을 담당했습니다."
+                  width={`100%`}
+                  height={`50px`}
+                  border={`1px solid ${Theme.lightGrey_C}`}
+                  margin={`0 0 30px`}
+                />
+                <Text
+                  fontSize={`16px`}
+                  fontWeight={`600`}
+                  color={Theme.basicTheme_C}
+                  margin={`0 0 14px`}
+                >
+                  가수명
+                </Text>
+                <TextInput
+                  type="text"
+                  placeholder="예) 이유정"
+                  width={`100%`}
+                  height={`50px`}
+                  border={`1px solid ${Theme.lightGrey_C}`}
+                  margin={`0 0 30px`}
+                />
+                <Text
+                  fontSize={`16px`}
+                  fontWeight={`600`}
+                  color={Theme.basicTheme_C}
+                  margin={`0 0 14px`}
+                >
+                  곡제목
+                </Text>
+                <TextInput
+                  type="text"
+                  placeholder="예) 구름 위에서"
+                  width={`100%`}
+                  height={`50px`}
+                  border={`1px solid ${Theme.lightGrey_C}`}
+                  margin={`0 0 30px`}
+                />
+                <Text
+                  fontSize={`16px`}
+                  fontWeight={`600`}
+                  color={Theme.basicTheme_C}
+                  margin={`0 0 14px`}
+                >
+                  음원 등록
+                </Text>
+                <Wrapper dr={`row`} ju={`space-between`}>
+                  <TextInput
+                    border={`1px solid ${Theme.lightGrey_C}`}
+                    placeholder="MP3로만 등록해주세요."
+                    width={`calc(100% - 110px)`}
+                    readOnly={true}
+                    height={`50px`}
+                  />
+
+                  <CommonButton
+                    kindOf={`subTheme2`}
+                    width={`100px`}
+                    height={`50px`}
+                  >
+                    파일등록
+                  </CommonButton>
+                </Wrapper>
+                <Wrapper
+                  dr={`row`}
+                  ju={`space-between`}
+                  padding={`16px 14px`}
+                  bgColor={Theme.lightGrey2_C}
+                  margin={`10px 0 0`}
+                >
+                  <Text fontSize={`16px`} color={Theme.grey_C}>
+                    <Image
+                      alt="icon"
+                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/music-file.png`}
+                      width={`14px`}
+                      margin={`0 5px 0 0`}
+                    />
+                    파일이름
+                  </Text>
+                  <CloseOutlined />
+                </Wrapper>
+
+                {/* 음원파일 등록했을때 나옴 */}
+                <Text
+                  fontSize={`16px`}
+                  fontWeight={`600`}
+                  color={Theme.basicTheme_C}
+                  margin={`30px 0 14px`}
+                >
+                  앨범 커버 이미지 등록
+                </Text>
+                <Wrapper dr={`row`} ju={`space-between`}>
+                  <TextInput
+                    border={`1px solid ${Theme.lightGrey_C}`}
+                    placeholder="이미지를 등록해주세요."
+                    width={`calc(100% - 110px)`}
+                    readOnly={true}
+                    height={`50px`}
+                  />
+
+                  <CommonButton
+                    kindOf={`subTheme2`}
+                    width={`100px`}
+                    height={`50px`}
+                  >
+                    파일등록
+                  </CommonButton>
+                </Wrapper>
+                <Wrapper
+                  dr={`row`}
+                  ju={`space-between`}
+                  padding={`16px 14px`}
+                  bgColor={Theme.lightGrey2_C}
+                  margin={`10px 0 0`}
+                >
+                  <Text fontSize={`16px`} color={Theme.grey_C}>
+                    <Image
+                      alt="icon"
+                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/image-file.png`}
+                      width={`14px`}
+                      margin={`0 5px 0 0`}
+                    />
+                    파일이름
+                  </Text>
+                  <CloseOutlined />
+                </Wrapper>
+              </Wrapper>
+              <CommonButton width={`180px`} height={`50px`} margin={`34px 0 0`}>
+                신청하기
+              </CommonButton>
+            </Wrapper>
+          </Modal>
         </WholeWrapper>
       </ClientLayout>
     </>
