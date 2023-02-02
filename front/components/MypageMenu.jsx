@@ -291,8 +291,6 @@ const MypageMenu = ({}) => {
     });
   }, [files, plan, techGenre]);
 
-  console.log(me);
-
   return (
     <WholeWrapper height={`calc(100vh - 166px)`} ju={`flex-start`}>
       <Wrapper margin={`0 0 50px`} ju={`flex-start`}>

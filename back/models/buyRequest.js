@@ -88,6 +88,15 @@ module.exports = class BuyRequest extends Model {
           type: DataTypes.STRING(3000),
           allowNull: true,
         },
+        isDelete: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
+        deletedAt: {
+          type: DataTypes.DATE,
+          allowNull: true,
+        },
       },
       {
         modelName: "BuyRequest",

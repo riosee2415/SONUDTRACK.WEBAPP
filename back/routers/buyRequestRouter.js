@@ -398,8 +398,8 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
       	"${sendMessage}",
         ${totalPrice},
         "${endDate}",
-        ${filepath ? `"${filepath}"` : null},
         ${filename ? `"${filename}"` : null},
+        ${filepath ? `"${filepath}"` : null},
       	NULL,
       	${sendUserId},
       	${artistemId},
@@ -503,6 +503,42 @@ router.post("/isReject", isLoggedIn, async (req, res, next) => {
     }
 
     await models.sequelize.query(updateQ);
+
+    return res.status(200).json({ result: true });
+  } catch (e) {
+    console.error(e);
+    return res.status(401).send("구매요청을 조회할 수 없습니다.");
+  }
+});
+
+/**
+ * SUBJECT : 삭제 라우터
+ * PARAMETERS : { idArr }
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 시니어 개발자 홍민기
+ * DEV DATE : 2023/01/25
+ */
+router.post("/delete", isLoggedIn, async (req, res, next) => {
+  const { idArr } = req.body;
+
+  if (!Array.isArray(idArr)) {
+    return res.status(401).send("잘못된 요청입니다.");
+  }
+
+  try {
+    await Promise.all(
+      idArr.map(async (data) => {
+        const deleteQ = `
+        UPDATE  buyRequest
+           SET  isDelete = 1,
+                deletedAt = NOW()
+         WHERE  id = ${data}
+        `;
+
+        await models.sequelize.query(deleteQ);
+      })
+    );
 
     return res.status(200).json({ result: true });
   } catch (e) {
