@@ -40,6 +40,8 @@ const BuyRequest = require("./buyRequest");
 const userbuystatus = require("./userbuystatus");
 const userlike = require("./userlike");
 const faq = require("./faq");
+const artistcountry = require("./artistcountry");
+const artistfilm = require("./artistfilm");
 
 const env = process.env.NODE_ENV || "development";
 const config = require("../config/config")[env];
@@ -93,6 +95,8 @@ db.BuyRequest = BuyRequest;
 db.UserBuyStatus = userbuystatus;
 db.UserLike = userlike;
 db.Faq = faq;
+db.ArtistCountry = artistcountry;
+db.ArtistFilm = artistfilm;
 
 Object.keys(db).forEach((modelName) => {
   db[modelName].init(sequelize);
