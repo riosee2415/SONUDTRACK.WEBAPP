@@ -254,6 +254,158 @@ router.post("/permm/create", isLoggedIn, async (req, res, next) => {
 });
 
 /**
+ * SUBJECT : 마이 아티스탬 정보 수정
+ * PARAMETERS : id,
+ *              name,
+                businessNum,
+                artistname,
+                info,
+                question1,
+                question2,
+                question3,
+                question4,
+                question5,
+                question6,
+                question7,
+                question8,
+                artistFilms,
+                artistCountries
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 시니어 개발자 신태섭
+ * DEV DATE : 2023/02/02
+ */
+router.post("/info/update", isLoggedIn, async (req, res, next) => {
+  const {
+    id,
+    name,
+    businessNum,
+    artistname,
+    info,
+    question1,
+    question2,
+    question3,
+    question4,
+    question5,
+    question6,
+    question7,
+    question8,
+    artistFilms,
+    artistCountries,
+  } = req.body;
+
+  if (!Array.isArray(artistFilms)) {
+    return res.status(401).send("잘못된 요청입니다.");
+  }
+
+  if (!Array.isArray(artistCountries)) {
+    return res.status(401).send("잘못된 요청입니다.");
+  }
+
+  const updateQuery = `
+  UPDATE  artist
+     SET  name = "${name}",
+          businessNum = "${businessNum}",
+          artistname = "${artistname}",
+          info = "${info}",
+          question1 = "${question1}",
+          question2 = "${question2}",
+          question3 = "${question3}",
+          question4 = "${question4}",
+          question5 = "${question5}",
+          question6 = "${question6}",
+          question7 = "${question7}",
+          question8 = "${question8}",
+          updatedAt = NOW()
+   WHERE  id = ${id}
+  `;
+
+  try {
+    await models.sequelize.query(updateQuery);
+
+    const deleteCountryQuery = `
+    DELETE
+      FROM  artistCountry
+     WHERE  ArtistId = ${id}
+    `;
+
+    const deleteFilmQuery = `
+    DELETE
+      FROM  artistFilm
+     WHERE  ArtistId = ${id}
+    `;
+
+    await models.sequelize.query(deleteCountryQuery);
+    await models.sequelize.query(deleteFilmQuery);
+
+    await Promise.all(
+      artistCountries.map(async (data) => {
+        const insertCountryQuery = `
+      INSERT  INTO  artistCountry
+      (
+        value,
+        ArtistId,
+        createdAt,
+        updatedAt
+      )
+      VALUES
+      (
+        "${data}",
+        ${id},
+        NOW(),
+        NOW()
+      )
+      `;
+
+        await models.sequelize.query(insertCountryQuery);
+      })
+    );
+
+    await Promise.all(
+      artistFilms.map(async (item) => {
+        const insertFilmQuery = `
+        INSERT  INTO  artistFilm
+        (
+          roleName,
+          comment,
+          name,
+          title,
+          musicFile,
+          coverImage,
+          sort,
+          createdAt,
+          updatedAt,
+          ArtistId
+        )
+        VALUES
+        (
+          "${item.roleName}",
+          "${item.comment}",
+          "${item.name}",
+          "${item.title}",
+          "${item.musicFile}",
+          "${item.coverImage}",
+          ${item.sort},
+          NOW(),
+          NOW(),
+          ${id}
+        )
+        `;
+
+        await models.sequelize.query(insertFilmQuery);
+      })
+    );
+
+    return res.status(200).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("마이 아티스탬 정보를 수정할 수 없습니다.");
+  }
+});
+
+router.post("/info/vacation/update");
+
+/**
  * SUBJECT : 신청자 승인하기
  * PARAMETERS : {id}
  * ORDER BY : -

@@ -77,8 +77,10 @@ const Index = () => {
   const width = useWidth();
   const router = useRouter();
 
-  const comName = useInput("");
-  const comNum = useInput("");
+  const comName = useInput(""); // 담당자명
+  const comNum = useInput(""); // 사업자번호
+  const artistName = useInput(""); // 아티스트명
+  const artistInfo = useInput(""); // 아티스트소개
 
   const [filmo, setFilmo] = useState(false);
   ////// REDUX //////
@@ -166,7 +168,7 @@ const Index = () => {
                 사업자번호
               </Text>
               <Wrapper
-                width={`440px`}
+                width={width < 700 ? `100%` : `440px`}
                 dr={`row`}
                 ju={`space-between`}
                 margin={`0 0 60px`}
@@ -229,7 +231,7 @@ const Index = () => {
                 프로필 이미지
               </Text>
               <Wrapper
-                width={`440px`}
+                width={width < 700 ? `100%` : `440px`}
                 dr={`row`}
                 ju={`space-between`}
                 margin={`0 0 10px`}
@@ -252,7 +254,7 @@ const Index = () => {
                 </CommonButton>
               </Wrapper>
               <Wrapper
-                width={`440px`}
+                width={width < 700 ? `100%` : `440px`}
                 dr={`row`}
                 ju={`space-between`}
                 padding={`16px 14px`}
@@ -289,7 +291,7 @@ const Index = () => {
                 </SpanText>
               </Text>
               <TextInput
-                width={`60%`}
+                width={width < 900 ? `100%` : `60%`}
                 height={`50px`}
                 placeholder="예) 전자 음악을 실험하는 것을 좋아하고, 저의 사운드는 개성 있고 독특합니다!"
                 tyoe="text"
@@ -308,7 +310,7 @@ const Index = () => {
                 사용 가능한 언어/국가
               </Text>
               <Wrapper
-                width={`440px`}
+                width={width < 700 ? `100%` : `440px`}
                 dr={`row`}
                 ju={`space-between`}
                 margin={`0 0 10px`}
@@ -330,7 +332,11 @@ const Index = () => {
                   추가하기
                 </CommonButton>
               </Wrapper>
-              <Wrapper dr={`row`} ju={`flex-start`} width={`440px`}>
+              <Wrapper
+                dr={`row`}
+                ju={`flex-start`}
+                width={width < 700 ? `100%` : `440px`}
+              >
                 <Wrapper
                   width={`auto`}
                   height={`27px`}
@@ -372,7 +378,7 @@ const Index = () => {
                 주로 하는 역할(기술)과 장르는 무엇인가요?
               </Text>
               <TextArea
-                width={`60%`}
+                width={width < 900 ? `100%` : `60%`}
                 height={`86px`}
                 placeholder="예) 주로 Pop을 하고 노래와 탑라인을 합니다"
                 tyoe="text"
@@ -391,7 +397,7 @@ const Index = () => {
                 보통의 작업 시간은 몇일인가요?
               </Text>
               <TextArea
-                width={`60%`}
+                width={width < 900 ? `100%` : `60%`}
                 height={`86px`}
                 placeholder="예) 간단한 데모 정도면 1~2일, 모든 하모니와 탑라인을 포함하면 보통 4~5일 걸립니다."
                 tyoe="text"
@@ -410,7 +416,7 @@ const Index = () => {
                 녹음 환경과 장비는 무엇을 사용하나요?
               </Text>
               <TextArea
-                width={`60%`}
+                width={width < 900 ? `100%` : `60%`}
                 height={`86px`}
                 placeholder="예) 간단한 데모 정도는 집에서 작업하고, 정식 음원 작업은 녹음실을 대여하여 작업합니다. (SM58 마이크, 아폴로 오디오카드)"
                 tyoe="text"
@@ -429,7 +435,7 @@ const Index = () => {
                 평균 비용은 어떻게 되나요?
               </Text>
               <TextArea
-                width={`60%`}
+                width={width < 900 ? `100%` : `60%`}
                 height={`86px`}
                 placeholder="예) 탑라인은 곡의 사용에 따라 50~100만원, 보컬은 데모는 25만원, 정식 음원 출판은 50만원 선입니다."
                 tyoe="text"
@@ -449,7 +455,7 @@ const Index = () => {
                 라이브러리등의 상업적인 용도로 사용된다면 크레딧이 필요한가요?
               </Text>
               <TextArea
-                width={`60%`}
+                width={width < 900 ? `100%` : `60%`}
                 height={`86px`}
                 placeholder="예) 광고나 라이브러리로 판매될 때는 상관이 없으나 정식 음원이 출판될 때에는 저작권 또는 실연협회에 등록되길 원합니다."
                 tyoe="text"
@@ -468,7 +474,7 @@ const Index = () => {
                 어떤 뮤지션을 좋아하고, 어떤 음악을 추구하나요?
               </Text>
               <TextArea
-                width={`60%`}
+                width={width < 900 ? `100%` : `60%`}
                 height={`86px`}
                 placeholder="예) 아리아나 그란데와 태연을 좋아하고 팝스러운 음악을 추구합니다."
                 tyoe="text"
@@ -487,7 +493,7 @@ const Index = () => {
                 이 일을 한지는 얼마나 되었고, 보통 어떤 작업을 하나요?
               </Text>
               <TextArea
-                width={`60%`}
+                width={width < 900 ? `100%` : `60%`}
                 height={`86px`}
                 placeholder="예) 5년 정도 이 일을 했고, 서울예술대학을 나와서 특정한 소속사 없이 프리랜서로 많은 작업을 했습니다."
                 tyoe="text"
@@ -503,7 +509,7 @@ const Index = () => {
                 그 외 하고싶은 말이 있나요?
               </Text>
               <TextArea
-                width={`60%`}
+                width={width < 900 ? `100%` : `60%`}
                 height={`86px`}
                 placeholder="예) 음악에 따라 작업 시간과 비용이 달라질 순 있습니다. 팝스러운 멋진 음악을 원하시면 저에게 문의하세요!"
                 tyoe="text"

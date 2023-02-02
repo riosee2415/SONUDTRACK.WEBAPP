@@ -360,8 +360,9 @@ const MypageMenu = ({}) => {
             <CommonButton
               width={`162px`}
               height={`45px`}
-              kindOf={`subTheme3`}
+              kindOf={router.pathname === `/mypage/musictem` ? `` : `subTheme3`}
               radius={`7px`}
+              onClick={() => movelinkHandler(`/mypage/musictem`)}
             >
               My Musictem
             </CommonButton>
@@ -472,6 +473,59 @@ const MypageMenu = ({}) => {
             </Text>
           </Wrapper>
         )}
+
+        {me && me.isArtist === "아티스트" && (
+          <>
+            <Menu>수익 관리</Menu>
+            <Menu onClick={mypageMenuOpen2Toggle}>
+              <Wrapper
+                dr={`row`}
+                ju={`space-between`}
+                color={mypageOpen2 ? Theme.basicTheme_C : ``}
+              >
+                광고
+                {mypageOpen2 ? <CaretUpOutlined /> : <CaretDownOutlined />}
+              </Wrapper>
+            </Menu>
+            {mypageOpen2 && (
+              <Wrapper
+                bgColor={Theme.lightGrey2_C}
+                padding={`24px 30px`}
+                al={`flex-start`}
+              >
+                <Text
+                  fontSize={`16px`}
+                  fontWeight={`bold`}
+                  color={
+                    router.pathname === `/mypage/advertise/application`
+                      ? Theme.black_C
+                      : Theme.grey2_C
+                  }
+                  isHover
+                  margin={`0 0 22px`}
+                  onClick={() =>
+                    movelinkHandler(`/mypage/advertise/application`)
+                  }
+                >
+                  광고 신청
+                </Text>
+                <Text
+                  fontSize={`16px`}
+                  fontWeight={`bold`}
+                  onClick={() => movelinkHandler(`/mypage/advertise/history`)}
+                  color={
+                    router.pathname === `/mypage/advertise/history`
+                      ? Theme.black_C
+                      : Theme.grey2_C
+                  }
+                  isHover
+                >
+                  신청 내역
+                </Text>
+              </Wrapper>
+            )}
+          </>
+        )}
         <Menu
           isActive={router.pathname === `/mypage/point`}
           onClick={() => movelinkHandler(`/mypage/point`)}
@@ -479,90 +533,57 @@ const MypageMenu = ({}) => {
           포인트 관리
         </Menu>
 
-        {/* 판매자일때
-        <Menu>수익 관리</Menu>
-        <Menu onClick={mypageMenuOpen2Toggle}>
-          <Wrapper
-            dr={`row`}
-            ju={`space-between`}
-            color={mypageOpen2 ? Theme.basicTheme_C : ``}
-          >
-            광고
-            {mypageOpen2 ? <CaretUpOutlined /> : <CaretDownOutlined />}
-          </Wrapper>
-        </Menu>
-        {mypageOpen2 && (
-          <Wrapper
-            bgColor={Theme.lightGrey2_C}
-            padding={`24px 30px`}
-            al={`flex-start`}
-          >
-            <Text
-              fontSize={`16px`}
-              fontWeight={`bold`}
-              color={router.pathname === `/mypage/advertise/application` ? Theme.black_C : Theme.grey2_C}
-              isHover
-              margin={`0 0 22px`}
-              onClick={() => movelinkHandler(`/mypage/advertise/application`)}
-            >
-              광고 신청
-            </Text>
-            <Text
-              fontSize={`16px`}
-              fontWeight={`bold`}
-              onClick={() => movelinkHandler(`/mypage/advertise/history`)}
-              color={router.pathname === `/mypage/advertise/history` ? Theme.black_C : Theme.grey2_C}
-              isHover
-            >
-              신청 내역
-            </Text>
-          </Wrapper>
-        )} */}
-        <Menu
-          isActive={router.pathname === `/mypage/info`}
-          onClick={() => movelinkHandler(`/mypage/info`)}
-        >
-          개인정보 관리
-        </Menu>
-
-        {/*
-        판매자일때
-        <Menu onClick={mypageMenuOpen3Toggle}>
-          <Wrapper
-            dr={`row`}
-            ju={`space-between`}
-            color={mypageOpen3 ? Theme.basicTheme_C : ``}
+        {me && me.isArtist === "아티스트" ? (
+          <>
+            <Menu onClick={mypageMenuOpen3Toggle}>
+              <Wrapper
+                dr={`row`}
+                ju={`space-between`}
+                color={mypageOpen3 ? Theme.basicTheme_C : ``}
+              >
+                개인정보 관리
+                {mypageOpen3 ? <CaretUpOutlined /> : <CaretDownOutlined />}
+              </Wrapper>
+            </Menu>
+            {mypageOpen3 && (
+              <Wrapper
+                bgColor={Theme.lightGrey2_C}
+                padding={`24px 30px`}
+                al={`flex-start`}
+              >
+                <Text
+                  fontSize={`16px`}
+                  fontWeight={`bold`}
+                  color={
+                    router.pathname === `/` ? Theme.black_C : Theme.grey2_C
+                  }
+                  isHover
+                  margin={`0 0 22px`}
+                  onClick={() => movelinkHandler(`/`)}
+                >
+                  회원정보 수정
+                </Text>
+                <Text
+                  fontSize={`16px`}
+                  fontWeight={`bold`}
+                  color={
+                    router.pathname === `/` ? Theme.black_C : Theme.grey2_C
+                  }
+                  isHover
+                >
+                  계좌 관리
+                </Text>
+              </Wrapper>
+            )}
+          </>
+        ) : (
+          <Menu
+            isActive={router.pathname === `/mypage/info`}
+            onClick={() => movelinkHandler(`/mypage/info`)}
           >
             개인정보 관리
-            {mypageOpen3 ? <CaretUpOutlined /> : <CaretDownOutlined />}
-          </Wrapper>
-        </Menu>
-        {mypageOpen3 && (
-          <Wrapper
-            bgColor={Theme.lightGrey2_C}
-            padding={`24px 30px`}
-            al={`flex-start`}
-          >
-            <Text
-              fontSize={`16px`}
-              fontWeight={`bold`}
-              color={router.pathname === `/` ? Theme.black_C : Theme.grey2_C}
-              isHover
-              margin={`0 0 22px`}
-              onClick={() => movelinkHandler(`/`)}
-            >
-              회원정보 수정
-            </Text>
-            <Text
-              fontSize={`16px`}
-              fontWeight={`bold`}
-              color={router.pathname === `/` ? Theme.black_C : Theme.grey2_C}
-              isHover
-            >
-              계좌 관리
-            </Text>
-          </Wrapper>
-        )} */}
+          </Menu>
+        )}
       </Wrapper>
 
       {/* 신청토글 */}
