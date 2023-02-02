@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ClientLayout from "../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../store/configureStore";
@@ -18,12 +18,12 @@ import {
   WholeWrapper,
   Wrapper,
 } from "../../components/commonComponents";
-import { Checkbox, message, Modal } from "antd";
+import { Checkbox, Empty, message, Modal } from "antd";
 import Theme from "../../components/Theme";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import styled from "styled-components";
-import { useState } from "react";
+import { BUYREQUEST_MY_LIST_REQUEST } from "../../reducers/buyRequest";
 
 const Box = styled(Wrapper)`
   border-radius: 7px;
@@ -41,14 +41,19 @@ const Box = styled(Wrapper)`
 const Index = () => {
   ////// GLOBAL STATE //////
   const { me } = useSelector((state) => state.user);
+  const { myBuyRequests, myBuyRequestLastPage } = useSelector(
+    (state) => state.buyRequest
+  );
 
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const [contactModal, setContactModal] = useState(false);
   const [rejectModal, setRejectModal] = useState(false);
   const [orderModal, setOrderModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   ////// REDUX //////
   ////// USEEFFECT //////
@@ -60,6 +65,17 @@ const Index = () => {
       return message.error(`로그인이 필요한 페이지입니다.`);
     }
   }, [me]);
+
+  useEffect(() => {
+    if (router.query) {
+      dispatch({
+        type: BUYREQUEST_MY_LIST_REQUEST,
+        data: {
+          page: currentPage,
+        },
+      });
+    }
+  }, [router.query, currentPage]);
   ////// TOGGLE //////
   const contactToggle = useCallback(() => {
     setContactModal((prev) => !prev);
@@ -74,6 +90,14 @@ const Index = () => {
   }, [orderModal]);
 
   ////// HANDLER //////
+
+  // 페이지 변경
+  const pageChangeHandler = useCallback(
+    (page) => {
+      setCurrentPage(page);
+    },
+    [currentPage]
+  );
   ////// DATAVIEW //////
 
   return (
@@ -104,137 +128,176 @@ const Index = () => {
               </SpanText>
               <Text isHover>삭제</Text>
             </Wrapper>
-
-            <Box>
-              <Wrapper
-                dr={`row`}
-                ju={`flex-start`}
-                width={width < 800 ? `100%` : `auto`}
-              >
-                <Checkbox />
-                <Wrapper dr={`row`} width={width < 800 ? `92%` : `auto`}>
-                  <Image
-                    alt="thumbnail"
-                    src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/banner/my-page.png`}
-                    width={width < 800 ? `60px` : `100px`}
-                    height={width < 800 ? `60px` : `100px`}
-                    radius={`100%`}
-                    margin={width < 800 ? `0 10px` : `0 22px`}
-                  />
-                  <Wrapper
-                    width={width < 800 ? `calc(100% - 90px)` : `auto`}
-                    al={`flex-start`}
-                  >
-                    <Text
-                      fontSize={width < 900 ? `18px` : `22px`}
-                      fontWeight={`600`}
-                    >
-                      차참미
-                    </Text>
-                    <Text
-                      fontSize={width < 900 ? `15px` : `18px`}
-                      margin={`10px 0 15px`}
-                    >
-                      "아티스트를 소개하는 한 마디"
-                    </Text>
-                    <Text color={Theme.grey_C}>문의날짜 : 2022.11.25</Text>
-                  </Wrapper>
+            {myBuyRequests &&
+              (myBuyRequests.length === 0 ? (
+                <Wrapper>
+                  <Empty description="컨택 내역이 없습니다." />
                 </Wrapper>
-              </Wrapper>
-              <Wrapper
-                dr={`row`}
-                width={width < 800 ? `100%` : `auto`}
-                margin={width < 800 ? `10px 0 0` : `0`}
-              >
-                <CommonButton
-                  width={`83px`}
-                  height={`35px`}
-                  padding={`0`}
-                  fontSize={`16px`}
-                  fontWeight={`600`}
-                  kindOf={`grey3`}
-                  margin={`0 8px 0 0`}
-                  onClick={contactToggle}
-                >
-                  문의 내역
-                </CommonButton>
+              ) : (
+                myBuyRequests.map((data) => {
+                  return (
+                    <Box>
+                      <Wrapper
+                        dr={`row`}
+                        ju={`flex-start`}
+                        width={width < 800 ? `100%` : `auto`}
+                      >
+                        <Checkbox />
+                        <Wrapper
+                          dr={`row`}
+                          width={width < 800 ? `92%` : `auto`}
+                        >
+                          <Image
+                            alt="thumbnail"
+                            src={data.receptionProfileImage}
+                            width={width < 800 ? `60px` : `100px`}
+                            height={width < 800 ? `60px` : `100px`}
+                            radius={`100%`}
+                            margin={width < 800 ? `0 10px` : `0 22px`}
+                          />
+                          <Wrapper
+                            width={width < 800 ? `calc(100% - 90px)` : `auto`}
+                            al={`flex-start`}
+                          >
+                            <Text
+                              fontSize={width < 900 ? `18px` : `22px`}
+                              fontWeight={`600`}
+                            >
+                              {data.receptionNickname}
+                            </Text>
+                            <Text
+                              fontSize={width < 900 ? `15px` : `18px`}
+                              margin={`10px 0 15px`}
+                            >
+                              {data.subTitle}
+                            </Text>
+                            <Text color={Theme.grey_C}>
+                              문의날짜 : {data.viewFrontCreatedAt}
+                            </Text>
+                          </Wrapper>
+                        </Wrapper>
+                      </Wrapper>
+                      <Wrapper
+                        dr={`row`}
+                        width={width < 800 ? `100%` : `auto`}
+                        margin={width < 800 ? `10px 0 0` : `0`}
+                      >
+                        {/**
+                         *
+                         * ---------------------- 조건 ------------------------- 내용 -- 타입
+                         * isOk = 0, isReject = 0, isPay = 0, isCompleted = 0, 문의 완료  1
+                         * isOk = 1, isReject = 0, isPay = 0, isCompleted = 0, 문의 수락  2
+                         * isOk = 1, isReject = 0, isPay = 1, isCompleted = 0, 결제 완료  3
+                         * isOk = 1, isReject = 0, isPay = 1, isCompleted = 1, 제작 완료  4
+                         * isOk = 0, isReject = 1, isPay = 0, isCompleted = 0, 문의 거절  5
+                         *
+                         */}
 
-                {/* <CommonButton
-                  width={`83px`}
-                  height={`35px`}
-                  padding={`0`}
-                  fontSize={`16px`}
-                  fontWeight={`600`}
-                  kindOf={`grey4`}
-                  margin={`0 8px 0 0`}
-                  onClick={rejectToggle}
-                >
-                  거절 사유
-                </CommonButton>
-                  <CommonButton
-                  width={`83px`}
-                  height={`35px`}
-                  padding={`0`}
-                  fontSize={`16px`}
-                  fontWeight={`600`}
-                  kindOf={`subTheme2`}
-                  margin={`0 8px 0 0`}
-                  onClick={orderToggle}
-                >
-                  결제하기
-                </CommonButton>
-               
-                <CommonButton
-                  width={`175px`}
-                  height={`35px`}
-                  padding={`0`}
-                  fontSize={`16px`}
-                  fontWeight={`600`}
-                  kindOf={`subTheme`}
-                  margin={`0 8px 0 0`}
-                >
-                  리뷰 남기고 포인트 받기
-                </CommonButton>
-                <CommonButton
-                  width={`83px`}
-                  height={`35px`}
-                  padding={`0`}
-                  fontSize={`16px`}
-                  fontWeight={`600`}
-                  kindOf={`subTheme2`}
-                  margin={`0 8px 0 0`}
-                >
-                  파일 확인
-                </CommonButton>
-                <CommonButton
-                  width={`83px`}
-                  height={`35px`}
-                  padding={`0`}
-                  fontSize={`16px`}
-                  fontWeight={`600`}
-                  kindOf={`grey3`}
-                  margin={`0 8px 0 0`}
-                >
-                  결제내역
-                </CommonButton> */}
-                <Wrapper
-                  width={`83px`}
-                  height={`35px`}
-                  border={`1px solid ${Theme.lightGrey_C}`}
-                  color={Theme.grey2_C}
-                  fontSize={`16px`}
-                >
-                  문의 완료
-                  {/* 문의 거절
-                    문의 수락
-                    결제 완료 
-                    제작 완료
-                    */}
-                </Wrapper>
-              </Wrapper>
-            </Box>
+                        {data.type === 1 ? (
+                          // 문의완료
+                          <CommonButton
+                            width={`83px`}
+                            height={`35px`}
+                            padding={`0`}
+                            fontSize={`16px`}
+                            fontWeight={`600`}
+                            kindOf={`grey3`}
+                            margin={`0 8px 0 0`}
+                            onClick={contactToggle}
+                          >
+                            문의 내역
+                          </CommonButton>
+                        ) : data.type === 2 ? (
+                          // 문의수락
+                          <CommonButton
+                            width={`83px`}
+                            height={`35px`}
+                            padding={`0`}
+                            fontSize={`16px`}
+                            fontWeight={`600`}
+                            kindOf={`subTheme2`}
+                            margin={`0 8px 0 0`}
+                            onClick={orderToggle}
+                          >
+                            결제하기
+                          </CommonButton>
+                        ) : data.type === 3 ? (
+                          // 결제완료
+                          <CommonButton
+                            width={`83px`}
+                            height={`35px`}
+                            padding={`0`}
+                            fontSize={`16px`}
+                            fontWeight={`600`}
+                            kindOf={`grey3`}
+                            margin={`0 8px 0 0`}
+                          >
+                            결제내역
+                          </CommonButton>
+                        ) : data.type === 4 ? (
+                          // 제작완료
+                          <>
+                            <CommonButton
+                              width={`175px`}
+                              height={`35px`}
+                              padding={`0`}
+                              fontSize={`16px`}
+                              fontWeight={`600`}
+                              kindOf={`subTheme`}
+                              margin={`0 8px 0 0`}
+                            >
+                              리뷰 남기고 포인트 받기
+                            </CommonButton>
+                            <CommonButton
+                              width={`83px`}
+                              height={`35px`}
+                              padding={`0`}
+                              fontSize={`16px`}
+                              fontWeight={`600`}
+                              kindOf={`subTheme2`}
+                              margin={`0 8px 0 0`}
+                            >
+                              파일 확인
+                            </CommonButton>
+                          </>
+                        ) : (
+                          // 문의거절
+                          <CommonButton
+                            width={`83px`}
+                            height={`35px`}
+                            padding={`0`}
+                            fontSize={`16px`}
+                            fontWeight={`600`}
+                            kindOf={`grey4`}
+                            margin={`0 8px 0 0`}
+                            onClick={rejectToggle}
+                          >
+                            거절 사유
+                          </CommonButton>
+                        )}
 
-            <CustomPage />
+                        <Wrapper
+                          width={`83px`}
+                          height={`35px`}
+                          border={`1px solid ${Theme.lightGrey_C}`}
+                          color={Theme.grey2_C}
+                          fontSize={`16px`}
+                        >
+                          {data.viewType}
+                        </Wrapper>
+                      </Wrapper>
+                    </Box>
+                  );
+                })
+              ))}
+
+            <CustomPage
+              defaultCurrent={1}
+              current={parseInt(currentPage)}
+              total={myBuyRequestLastPage * 10}
+              pageSize={10}
+              onChange={(page) => pageChangeHandler(page)}
+            />
           </RsWrapper>
 
           <Modal
@@ -562,6 +625,13 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: LOAD_MY_INFO_REQUEST,
+    });
+
+    context.store.dispatch({
+      type: BUYREQUEST_MY_LIST_REQUEST,
+      data: {
+        page: 1,
+      },
     });
 
     // 구현부 종료

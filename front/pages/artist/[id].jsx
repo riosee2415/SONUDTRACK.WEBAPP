@@ -130,7 +130,7 @@ const Index = () => {
         filename: fileName,
         filepath: buyRequestFile,
         sendUserId: me && me.id,
-        receptionUserId: router.query.id,
+        artistemId: router.query.id,
       },
     });
   }, [

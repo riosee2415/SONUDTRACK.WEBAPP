@@ -86,49 +86,64 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
     : false;
 
   const selectQ = `
-    SELECT  ROW_NUMBER() OVER(ORDER BY A.createdAt ASC) AS num,
-            A.id,
-            A.sendMessage,
-            A.isOk,
-            A.isReject,
-            A.rejectMessage,
-            A.endDate,
-            A.filename,
-            A.filepath,
-            A.totalPrice,
-            CONCAT(FORMAT(A.totalPrice, ','), "원")     AS viewTotalPrice,
-            CASE
-              WHEN  A.isOk = 1 AND A.isReject = 0  THEN  '승인'
-              WHEN  A.isOk = 0 AND A.isReject = 1  THEN  '거절'
-              WHEN  A.isOk = 0 AND A.isReject = 0  THEN  '미처리'
-            END                                         AS viewType,
-            CASE
-              WHEN  A.isOk = 1 AND A.isReject = 0  THEN  1
-              WHEN  A.isOk = 0 AND A.isReject = 1  THEN  2
-              WHEN  A.isOk = 0 AND A.isReject = 0  THEN  3
-            END                                         AS type,
-            B.id										                    AS sendUserId,
-            B.username									                AS sendUsername,
-            B.nickname									                AS sendNickname,
-            B.mobile									                  AS sendMobile,
-            B.email									                    AS sendEmail,
-            C.id										                    AS receptionUserId,
-            C.username									                AS receptionUsername,
-            C.nickname									                AS receptionNickname,
-            C.mobile									                  AS receptionMobile,
-            C.email									                    AS receptionEmail,
-            A.createdAt,
-            DATE_FORMAT(A.createdAt, '%Y년 %m월 %d일')    AS viewCreatedAt, 
-            A.updatedAt,
-            DATE_FORMAT(A.updatedAt, '%Y년 %m월 %d일')    AS viewUpdatedAt
-      FROM  buyRequest		A
-     INNER
-      JOIN  users			B
-        ON  B.id = A.sendUserId
-     INNER
-      JOIN  users			C
-        ON  C.id = A.receptionUserId
-     WHERE  1 = 1
+  SELECT  ROW_NUMBER() OVER(ORDER BY A.createdAt ASC) AS num,
+          A.id,
+          A.sendMessage,
+          A.isOk,
+          A.isReject,
+          A.rejectMessage,
+          A.endDate,
+          A.filename,
+          A.filepath,
+          A.totalPrice,
+          CONCAT(FORMAT(A.totalPrice, ','), "원")     AS viewTotalPrice,
+          CASE
+            WHEN  A.isOk = 1 AND A.isReject = 0  THEN  '승인'
+            WHEN  A.isOk = 0 AND A.isReject = 1  THEN  '거절'
+            WHEN  A.isOk = 0 AND A.isReject = 0  THEN  '미처리'
+          END                                         AS viewType,
+          CASE
+            WHEN  A.isOk = 1 AND A.isReject = 0  THEN  1
+            WHEN  A.isOk = 0 AND A.isReject = 1  THEN  2
+            WHEN  A.isOk = 0 AND A.isReject = 0  THEN  3
+          END                                         AS type,
+          A.isPay,
+          A.payWay,
+          A.impUid,
+          A.merchantUid,
+          A.isCompleted,
+          A.completedFilename,
+          A.completedFilepath,
+          B.id										                    AS sendUserId,
+          B.username									                AS sendUsername,
+          B.nickname									                AS sendNickname,
+          B.mobile									                  AS sendMobile,
+          B.email									                    AS sendEmail,
+          C.subTitle,
+          E.profileImage                              AS receptionProfileImage,
+          E.id										                    AS receptionUserId,
+          E.username									                AS receptionUsername,
+          E.nickname									                AS receptionNickname,
+          E.mobile									                  AS receptionMobile,
+          E.email									                    AS receptionEmail,
+          A.createdAt,
+          DATE_FORMAT(A.createdAt, '%Y년 %m월 %d일')    AS viewCreatedAt, 
+          A.updatedAt,
+          DATE_FORMAT(A.updatedAt, '%Y년 %m월 %d일')    AS viewUpdatedAt
+    FROM  buyRequest		A
+   INNER
+    JOIN  users			B
+      ON  B.id = A.sendUserId
+   INNER
+    JOIN  artistem		C
+      ON  C.id = A.artistemId
+   INNER
+    JOIN  artist 			D
+      ON  D.id = C.ArtistId 
+   INNER 
+    JOIN  users			E
+      ON  E.id = D.UserId 
+   WHERE  1 = 1
             ${
               _searchStatus === 1
                 ? `AND  A.isOk = 1
@@ -146,10 +161,10 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
             }
             ${
               _searchReceptionUsername
-                ? `AND  C.username LIKE "%${_searchReceptionUsername}%"`
+                ? `AND  E.username LIKE "%${_searchReceptionUsername}%"`
                 : ``
             }
-     ORDER  BY  A.createdAt DESC
+   ORDER  BY  A.createdAt DESC
 
     `;
 
@@ -203,18 +218,28 @@ router.post("/my/list", isLoggedIn, async (req, res, next) => {
               WHEN  A.isOk = 0 AND A.isReject = 1  THEN  2
               WHEN  A.isOk = 0 AND A.isReject = 0  THEN  3
             END                                         AS type,
+            A.isPay,
+            A.payWay,
+            A.impUid,
+            A.merchantUid,
+            A.isCompleted,
+            A.completedFilename,
+            A.completedFilepath,
             B.id										                    AS sendUserId,
             B.username									                AS sendUsername,
             B.nickname									                AS sendNickname,
             B.mobile									                  AS sendMobile,
             B.email									                    AS sendEmail,
-            C.id										                    AS receptionUserId,
-            C.username									                AS receptionUsername,
-            C.nickname									                AS receptionNickname,
-            C.mobile									                  AS receptionMobile,
-            C.email									                    AS receptionEmail,
+            C.subTitle,
+            E.profileImage                              AS receptionProfileImage,
+            E.id										                    AS receptionUserId,
+            E.username									                AS receptionUsername,
+            E.nickname									                AS receptionNickname,
+            E.mobile									                  AS receptionMobile,
+            E.email									                    AS receptionEmail,
             A.createdAt,
             DATE_FORMAT(A.createdAt, '%Y년 %m월 %d일')    AS viewCreatedAt, 
+            DATE_FORMAT(A.createdAt, '%Y.%m.%d')    AS viewFrontCreatedAt,
             A.updatedAt,
             DATE_FORMAT(A.updatedAt, '%Y년 %m월 %d일')    AS viewUpdatedAt
       FROM  buyRequest		A
@@ -222,12 +247,29 @@ router.post("/my/list", isLoggedIn, async (req, res, next) => {
       JOIN  users			    B
         ON  B.id = A.sendUserId
      INNER
-      JOIN  users			    C
-        ON  C.id = A.receptionUserId
+      JOIN  artistem		C
+        ON  C.id = A.artistemId
+     INNER
+      JOIN  artist 			D
+        ON  D.id = C.ArtistId 
+     INNER 
+      JOIN  users			E
+        ON  E.id = D.UserId 
      WHERE  1 = 1
        AND  A.sendUserId = ${req.user.id}
      ORDER  BY num DESC
     `;
+
+  /**
+   *
+   * ---------------------- 조건 ------------------------- 내용 -- 타입
+   * isOk = 0, isReject = 0, isPay = 0, isCompleted = 0, 문의 완료  1
+   * isOk = 1, isReject = 0, isPay = 0, isCompleted = 0, 문의 수락  2
+   * isOk = 1, isReject = 0, isPay = 1, isCompleted = 0, 결제 완료  3
+   * isOk = 1, isReject = 0, isPay = 1, isCompleted = 1, 제작 완료  4
+   * isOk = 0, isReject = 1, isPay = 0, isCompleted = 0, 문의 거절  5
+   *
+   */
 
   const selectQuery = `
     SELECT  ROW_NUMBER() OVER(ORDER BY A.createdAt) AS num,
@@ -242,27 +284,41 @@ router.post("/my/list", isLoggedIn, async (req, res, next) => {
             A.totalPrice,
             CONCAT(FORMAT(A.totalPrice, ','), "원")     AS viewTotalPrice,
             CASE
-              WHEN  A.isOk = 1 AND A.isReject = 0  THEN  '승인'
-              WHEN  A.isOk = 0 AND A.isReject = 1  THEN  '거절'
-              WHEN  A.isOk = 0 AND A.isReject = 0  THEN  '미처리'
+              WHEN  A.isOk = 0 AND A.isReject = 0 AND isPay = 0 AND isCompleted = 0 THEN  '문의 완료'
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND isPay = 0 AND isCompleted = 0 THEN  '문의 수락'
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND isPay = 1 AND isCompleted = 0 THEN  '결제 완료'
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND isPay = 1 AND isCompleted = 1 THEN  '제작 완료'
+              WHEN  A.isOk = 0 AND A.isReject = 1 AND isPay = 0 AND isCompleted = 0 THEN  '문의 거절'
             END                                         AS viewType,
             CASE
-              WHEN  A.isOk = 1 AND A.isReject = 0  THEN  1
-              WHEN  A.isOk = 0 AND A.isReject = 1  THEN  2
-              WHEN  A.isOk = 0 AND A.isReject = 0  THEN  3
+              WHEN  A.isOk = 0 AND A.isReject = 0 AND isPay = 0 AND isCompleted = 0 THEN  1
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND isPay = 0 AND isCompleted = 0 THEN  2
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND isPay = 1 AND isCompleted = 0 THEN  3
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND isPay = 1 AND isCompleted = 1 THEN  4
+              WHEN  A.isOk = 0 AND A.isReject = 1 AND isPay = 0 AND isCompleted = 0 THEN  5
             END                                         AS type,
+            A.isPay,
+            A.payWay,
+            A.impUid,
+            A.merchantUid,
+            A.isCompleted,
+            A.completedFilename,
+            A.completedFilepath,
             B.id										                    AS sendUserId,
             B.username									                AS sendUsername,
             B.nickname									                AS sendNickname,
             B.mobile									                  AS sendMobile,
             B.email									                    AS sendEmail,
-            C.id										                    AS receptionUserId,
-            C.username									                AS receptionUsername,
-            C.nickname									                AS receptionNickname,
-            C.mobile									                  AS receptionMobile,
-            C.email									                    AS receptionEmail,
+            C.subTitle,
+            E.profileImage                              AS receptionProfileImage,
+            E.id										                    AS receptionUserId,
+            E.username									                AS receptionUsername,
+            E.nickname									                AS receptionNickname,
+            E.mobile									                  AS receptionMobile,
+            E.email									                    AS receptionEmail,
             A.createdAt,
             DATE_FORMAT(A.createdAt, '%Y년 %m월 %d일')    AS viewCreatedAt, 
+            DATE_FORMAT(A.createdAt, '%Y.%m.%d')    AS viewFrontCreatedAt,
             A.updatedAt,
             DATE_FORMAT(A.updatedAt, '%Y년 %m월 %d일')    AS viewUpdatedAt
       FROM  buyRequest		A
@@ -270,8 +326,14 @@ router.post("/my/list", isLoggedIn, async (req, res, next) => {
       JOIN  users			    B
         ON  B.id = A.sendUserId
      INNER
-      JOIN  users			    C
-        ON  C.id = A.receptionUserId
+      JOIN  artistem		C
+        ON  C.id = A.artistemId
+     INNER
+      JOIN  artist 			D
+        ON  D.id = C.ArtistId 
+     INNER 
+      JOIN  users			E
+        ON  E.id = D.UserId 
      WHERE  1 = 1
        AND  A.sendUserId = ${req.user.id}
      ORDER  BY num DESC
@@ -314,7 +376,7 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
     filename,
     filepath,
     sendUserId,
-    receptionUserId,
+    artistemId,
   } = req.body;
 
   const insertQ = `
@@ -327,7 +389,7 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
         filepath,
  	      rejectMessage,
  	      sendUserId,
- 	      receptionUserId,
+ 	      artistemId,
  	      createdAt,
  	      updatedAt
       )
@@ -340,7 +402,7 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
         ${filename ? `"${filename}"` : null},
       	NULL,
       	${sendUserId},
-      	${receptionUserId},
+      	${artistemId},
       	NOW(),
       	NOW()
       );
@@ -368,10 +430,16 @@ router.post("/isOk", isLoggedIn, async (req, res, next) => {
   const { id, isOk } = req.body;
 
   const selectQ = `
-  SELECT  id
-    FROM  buyRequest
-   WHERE  id = ${id}
-     AND  receptionUserId = ${req.user.id}
+  SELECT  A.id
+    FROM  buyRequest    A
+   INNER
+    JOIN  artistem		  B
+      ON  B.id = A.artistemId
+   INNER
+    JOIN  artist 			  C
+      ON  C.id = B.ArtistId 
+   WHERE  A.id = ${id}
+     AND  C.UserId  = ${req.user.id}
   `;
 
   const updateQ = `
@@ -408,10 +476,16 @@ router.post("/isReject", isLoggedIn, async (req, res, next) => {
   const { id, isReject, rejectMessage } = req.body;
 
   const selectQ = `
-  SELECT  id
-    FROM  buyRequest
-   WHERE  id = ${id}
-     AND  receptionUserId = ${req.user.id}
+  SELECT  A.id
+    FROM  buyRequest    A
+   INNER
+    JOIN  artistem		  B
+      ON  B.id = A.artistemId
+   INNER
+    JOIN  artist 			  C
+      ON  C.id = B.ArtistId 
+   WHERE  A.id = ${id}
+     AND  C.UserId  = ${req.user.id}
   `;
 
   const updateQ = `

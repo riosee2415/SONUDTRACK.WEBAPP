@@ -4,6 +4,7 @@ export const initailState = {
   buyRequests: [],
   buyRequestFile: null,
   myBuyRequests: [],
+  myBuyRequestLastPage: 0,
   //
   st_buyRequestListLoading: false, // 구매요청 리스트
   st_buyRequestListDone: false,
@@ -92,7 +93,8 @@ const reducer = (state = initailState, action) =>
         draft.st_buyRequestMyListLoading = false;
         draft.st_buyRequestMyListDone = true;
         draft.st_buyRequestMyListError = null;
-        draft.myBuyRequests = action.data;
+        draft.myBuyRequests = action.data.contacts;
+        draft.myBuyRequestLastPage = action.data.lastPage;
         break;
       }
       case BUYREQUEST_MY_LIST_FAILURE: {
