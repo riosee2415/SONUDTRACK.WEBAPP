@@ -24,6 +24,10 @@ import {
   BUYREQUEST_FILE_REQUEST,
   BUYREQUEST_FILE_SUCCESS,
   BUYREQUEST_FILE_FAILURE,
+  //
+  BUYREQUEST_DELETE_REQUEST,
+  BUYREQUEST_DELETE_SUCCESS,
+  BUYREQUEST_DELETE_FAILURE,
 } from "../reducers/buyRequest";
 
 // ******************************************************************************************************************
@@ -194,6 +198,34 @@ function* buyRequestFile(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function buyRequestDeleteAPI(data) {
+  return await axios.post("/api/buyRequest/delete", data);
+}
+
+function* buyRequestDelete(action) {
+  try {
+    const result = yield call(buyRequestDeleteAPI, action.data);
+
+    yield put({
+      type: BUYREQUEST_DELETE_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: BUYREQUEST_DELETE_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 function* watchBuyRequestList() {
   yield takeLatest(BUYREQUEST_LIST_REQUEST, buyRequestList);
@@ -213,6 +245,9 @@ function* watchBuyRequestIsReject() {
 function* watchBuyRequestFile() {
   yield takeLatest(BUYREQUEST_FILE_REQUEST, buyRequestFile);
 }
+function* watchBuyRequestDelete() {
+  yield takeLatest(BUYREQUEST_DELETE_REQUEST, buyRequestDelete);
+}
 
 //////////////////////////////////////////////////////////////
 export default function* buyRequestSaga() {
@@ -223,6 +258,7 @@ export default function* buyRequestSaga() {
     fork(watchBuyRequestIsOk),
     fork(watchBuyRequestIsReject),
     fork(watchBuyRequestFile),
+    fork(watchBuyRequestDelete),
     //
   ]);
 }

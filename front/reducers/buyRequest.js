@@ -29,6 +29,10 @@ export const initailState = {
   st_buyRequestFileLoading: false, // 파일 올리기
   st_buyRequestFileDone: false,
   st_buyRequestFileError: null,
+  //
+  st_buyRequestDeleteLoading: false, // 삭제하기
+  st_buyRequestDeleteDone: false,
+  st_buyRequestDeleteError: null,
 };
 
 export const BUYREQUEST_LIST_REQUEST = "BUYREQUEST_LIST_REQUEST";
@@ -54,6 +58,10 @@ export const BUYREQUEST_ISREJECT_FAILURE = "BUYREQUEST_ISREJECT_FAILURE";
 export const BUYREQUEST_FILE_REQUEST = "BUYREQUEST_FILE_REQUEST";
 export const BUYREQUEST_FILE_SUCCESS = "BUYREQUEST_FILE_SUCCESS";
 export const BUYREQUEST_FILE_FAILURE = "BUYREQUEST_FILE_FAILURE";
+
+export const BUYREQUEST_DELETE_REQUEST = "BUYREQUEST_DELETE_REQUEST";
+export const BUYREQUEST_DELETE_SUCCESS = "BUYREQUEST_DELETE_SUCCESS";
+export const BUYREQUEST_DELETE_FAILURE = "BUYREQUEST_DELETE_FAILURE";
 
 export const BUYREQUEST_RESET = "BUYREQUEST_RESET";
 
@@ -186,6 +194,28 @@ const reducer = (state = initailState, action) =>
         draft.st_buyRequestIsFileLoading = false;
         draft.st_buyRequestIsFileDone = false;
         draft.st_buyRequestIsFileError = action.error;
+        break;
+      }
+
+      ///////////////////////////////////////////////////////
+
+      case BUYREQUEST_DELETE_REQUEST: {
+        draft.st_buyRequestDeleteLoading = true;
+        draft.st_buyRequestDeleteDone = false;
+        draft.st_buyRequestDeleteError = null;
+        break;
+      }
+      case BUYREQUEST_DELETE_SUCCESS: {
+        draft.st_buyRequestDeleteLoading = false;
+        draft.st_buyRequestDeleteDone = true;
+        draft.st_buyRequestDeleteError = null;
+
+        break;
+      }
+      case BUYREQUEST_DELETE_FAILURE: {
+        draft.st_buyRequestDeleteLoading = false;
+        draft.st_buyRequestDeleteDone = false;
+        draft.st_buyRequestDeleteError = action.error;
         break;
       }
 

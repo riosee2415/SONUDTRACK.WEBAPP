@@ -18,12 +18,23 @@ import {
   WholeWrapper,
   Wrapper,
 } from "../../components/commonComponents";
-import { Checkbox, DatePicker, Empty, Form, message, Modal } from "antd";
+import {
+  Checkbox,
+  DatePicker,
+  Empty,
+  Form,
+  message,
+  Modal,
+  Popconfirm,
+} from "antd";
 import Theme from "../../components/Theme";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import styled from "styled-components";
-import { BUYREQUEST_MY_LIST_REQUEST } from "../../reducers/buyRequest";
+import {
+  BUYREQUEST_DELETE_REQUEST,
+  BUYREQUEST_MY_LIST_REQUEST,
+} from "../../reducers/buyRequest";
 import moment from "moment";
 import { saveAs } from "file-saver";
 
@@ -69,9 +80,14 @@ const CustomDatePicker = styled(DatePicker)`
 const Index = () => {
   ////// GLOBAL STATE //////
   const { me } = useSelector((state) => state.user);
-  const { myBuyRequests, myBuyRequestLastPage } = useSelector(
-    (state) => state.buyRequest
-  );
+  const {
+    myBuyRequests,
+    myBuyRequestLastPage,
+    //
+    st_buyRequestDeleteLoading,
+    st_buyRequestDeleteDone,
+    st_buyRequestDeleteError,
+  } = useSelector((state) => state.buyRequest);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -87,6 +103,8 @@ const Index = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const [dData, setDData] = useState(null);
+
+  const [selectContact, setSelectContact] = useState([]);
 
   ////// REDUX //////
   ////// USEEFFECT //////
@@ -109,6 +127,29 @@ const Index = () => {
       });
     }
   }, [router.query, currentPage]);
+
+  // 삭제 후처리
+  useEffect(() => {
+    if (st_buyRequestDeleteDone) {
+      dispatch({
+        type: BUYREQUEST_MY_LIST_REQUEST,
+        data: {
+          page: currentPage,
+        },
+      });
+
+      setSelectContact([]);
+
+      return message.success("삭제되었습니다.");
+    }
+  }, [st_buyRequestDeleteDone]);
+
+  useEffect(() => {
+    if (st_buyRequestDeleteError) {
+      return message.error(st_buyRequestDeleteError);
+    }
+  }, [st_buyRequestDeleteError]);
+
   ////// TOGGLE //////
   const contactToggle = useCallback(
     (data) => {
@@ -164,6 +205,56 @@ const Index = () => {
     saveAs(file, originName);
   }, []);
 
+  // 삭제하기 내역 선택
+  const selectContactHandler = useCallback(
+    (data) => {
+      let selectContactArr = selectContact
+        ? selectContact.map((value) => value)
+        : [];
+
+      if (selectContactArr.find((value) => value.id === data.id)) {
+        setSelectContact(
+          selectContactArr.filter((value) => value.id !== data.id)
+        );
+        return;
+      }
+
+      selectContactArr.push(data);
+      setSelectContact(selectContactArr);
+    },
+    [selectContact]
+  );
+
+  // 삭제하기 내역 전체 선택
+  const selectContactAllHandler = useCallback(() => {
+    if (selectContact && selectContact.length > 0) {
+      setSelectContact([]);
+      return;
+    }
+
+    setSelectContact(
+      myBuyRequests.filter((data) => data.type !== 2 || data.type !== 3)
+    );
+  }, [myBuyRequests, selectContact]);
+
+  // 삭제하기
+  const deleteContactHandler = useCallback(() => {
+    if (st_buyRequestDeleteLoading) {
+      return message.error("삭제중입니다...");
+    }
+
+    if (selectContact.length === 0) {
+      return message.error("내역을 선택해주세요.");
+    }
+
+    dispatch({
+      type: BUYREQUEST_DELETE_REQUEST,
+      data: {
+        idArr: selectContact.map((data) => data.id),
+      },
+    });
+  }, [st_buyRequestDeleteLoading, selectContact]);
+
   ////// DATAVIEW //////
 
   return (
@@ -184,7 +275,7 @@ const Index = () => {
               컨택 내역
             </Wrapper>
             <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 16px`}>
-              <Checkbox>전체 선택</Checkbox>
+              <Checkbox onClick={selectContactAllHandler}>전체 선택</Checkbox>
               <SpanText
                 fontSize={`10px`}
                 margin={`0 10px`}
@@ -192,7 +283,14 @@ const Index = () => {
               >
                 |
               </SpanText>
-              <Text isHover>삭제</Text>
+              <Popconfirm
+                title="삭제하시겠습니까?"
+                okText="삭제"
+                cancelText="취소"
+                onConfirm={deleteContactHandler}
+              >
+                <Text isHover>삭제</Text>
+              </Popconfirm>
             </Wrapper>
             {myBuyRequests &&
               (myBuyRequests.length === 0 ? (
@@ -208,7 +306,16 @@ const Index = () => {
                         ju={`flex-start`}
                         width={width < 800 ? `100%` : `auto`}
                       >
-                        <Checkbox />
+                        {(data.type === 1 ||
+                          data.type === 4 ||
+                          data.type === 5) && (
+                          <Checkbox
+                            checked={selectContact.find(
+                              (value) => value.id === data.id
+                            )}
+                            onClick={() => selectContactHandler(data)}
+                          />
+                        )}
                         <Wrapper
                           dr={`row`}
                           width={width < 800 ? `92%` : `auto`}

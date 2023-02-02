@@ -144,6 +144,7 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
     JOIN  users			E
       ON  E.id = D.UserId 
    WHERE  1 = 1
+     AND  isDelete = 0
             ${
               _searchStatus === 1
                 ? `AND  A.isOk = 1
@@ -209,14 +210,18 @@ router.post("/my/list", isLoggedIn, async (req, res, next) => {
             A.totalPrice,
             CONCAT(FORMAT(A.totalPrice, ','), "원")     AS viewTotalPrice,
             CASE
-              WHEN  A.isOk = 1 AND A.isReject = 0  THEN  '승인'
-              WHEN  A.isOk = 0 AND A.isReject = 1  THEN  '거절'
-              WHEN  A.isOk = 0 AND A.isReject = 0  THEN  '미처리'
+              WHEN  A.isOk = 0 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  '문의 완료'
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  '문의 수락'
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 0 THEN  '결제 완료'
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 1 THEN  '제작 완료'
+              WHEN  A.isOk = 0 AND A.isReject = 1 AND A.isPay = 0 AND A.isCompleted = 0 THEN  '문의 거절'
             END                                         AS viewType,
             CASE
-              WHEN  A.isOk = 1 AND A.isReject = 0  THEN  1
-              WHEN  A.isOk = 0 AND A.isReject = 1  THEN  2
-              WHEN  A.isOk = 0 AND A.isReject = 0  THEN  3
+              WHEN  A.isOk = 0 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  1
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  2
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 0 THEN  3
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 1 THEN  4
+              WHEN  A.isOk = 0 AND A.isReject = 1 AND A.isPay = 0 AND A.isCompleted = 0 THEN  5
             END                                         AS type,
             A.isPay,
             A.payWay,
@@ -257,6 +262,7 @@ router.post("/my/list", isLoggedIn, async (req, res, next) => {
         ON  E.id = D.UserId 
      WHERE  1 = 1
        AND  A.sendUserId = ${req.user.id}
+       AND  A.isDelete = 0
      ORDER  BY num DESC
     `;
 
@@ -284,18 +290,18 @@ router.post("/my/list", isLoggedIn, async (req, res, next) => {
             A.totalPrice,
             CONCAT(FORMAT(A.totalPrice, ','), "원")     AS viewTotalPrice,
             CASE
-              WHEN  A.isOk = 0 AND A.isReject = 0 AND isPay = 0 AND isCompleted = 0 THEN  '문의 완료'
-              WHEN  A.isOk = 1 AND A.isReject = 0 AND isPay = 0 AND isCompleted = 0 THEN  '문의 수락'
-              WHEN  A.isOk = 1 AND A.isReject = 0 AND isPay = 1 AND isCompleted = 0 THEN  '결제 완료'
-              WHEN  A.isOk = 1 AND A.isReject = 0 AND isPay = 1 AND isCompleted = 1 THEN  '제작 완료'
-              WHEN  A.isOk = 0 AND A.isReject = 1 AND isPay = 0 AND isCompleted = 0 THEN  '문의 거절'
+              WHEN  A.isOk = 0 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  '문의 완료'
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  '문의 수락'
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 0 THEN  '결제 완료'
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 1 THEN  '제작 완료'
+              WHEN  A.isOk = 0 AND A.isReject = 1 AND A.isPay = 0 AND A.isCompleted = 0 THEN  '문의 거절'
             END                                         AS viewType,
             CASE
-              WHEN  A.isOk = 0 AND A.isReject = 0 AND isPay = 0 AND isCompleted = 0 THEN  1
-              WHEN  A.isOk = 1 AND A.isReject = 0 AND isPay = 0 AND isCompleted = 0 THEN  2
-              WHEN  A.isOk = 1 AND A.isReject = 0 AND isPay = 1 AND isCompleted = 0 THEN  3
-              WHEN  A.isOk = 1 AND A.isReject = 0 AND isPay = 1 AND isCompleted = 1 THEN  4
-              WHEN  A.isOk = 0 AND A.isReject = 1 AND isPay = 0 AND isCompleted = 0 THEN  5
+              WHEN  A.isOk = 0 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  1
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  2
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 0 THEN  3
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 1 THEN  4
+              WHEN  A.isOk = 0 AND A.isReject = 1 AND A.isPay = 0 AND A.isCompleted = 0 THEN  5
             END                                         AS type,
             A.isPay,
             A.payWay,
@@ -336,6 +342,7 @@ router.post("/my/list", isLoggedIn, async (req, res, next) => {
         ON  E.id = D.UserId 
      WHERE  1 = 1
        AND  A.sendUserId = ${req.user.id}
+       AND  A.isDelete = 0
      ORDER  BY num DESC
      LIMIT  ${LIMIT}
     OFFSET  ${OFFSET}
@@ -430,7 +437,9 @@ router.post("/isOk", isLoggedIn, async (req, res, next) => {
   const { id, isOk } = req.body;
 
   const selectQ = `
-  SELECT  A.id
+  SELECT  A.id,
+          C.UserId,
+          A.isDelete
     FROM  buyRequest    A
    INNER
     JOIN  artistem		  B
@@ -439,7 +448,6 @@ router.post("/isOk", isLoggedIn, async (req, res, next) => {
     JOIN  artist 			  C
       ON  C.id = B.ArtistId 
    WHERE  A.id = ${id}
-     AND  C.UserId  = ${req.user.id}
   `;
 
   const updateQ = `
@@ -451,7 +459,11 @@ router.post("/isOk", isLoggedIn, async (req, res, next) => {
   try {
     const checkList = await models.sequelize.query(selectQ);
 
-    if (checkList[0].length === 0) {
+    if (checkList[0][0].isDelete) {
+      return res.status(401).send("이미 삭제된 데이터 입니다.");
+    }
+
+    if (checkList[0][0].UserId === req.user.id) {
       return res.status(401).send("해당 구매요청의 판매자가 아닙니다.");
     }
 
@@ -476,7 +488,9 @@ router.post("/isReject", isLoggedIn, async (req, res, next) => {
   const { id, isReject, rejectMessage } = req.body;
 
   const selectQ = `
-  SELECT  A.id
+  SELECT  A.id,
+          C.UserId,
+          A.isDelete
     FROM  buyRequest    A
    INNER
     JOIN  artistem		  B
@@ -485,7 +499,6 @@ router.post("/isReject", isLoggedIn, async (req, res, next) => {
     JOIN  artist 			  C
       ON  C.id = B.ArtistId 
    WHERE  A.id = ${id}
-     AND  C.UserId  = ${req.user.id}
   `;
 
   const updateQ = `
@@ -498,7 +511,11 @@ router.post("/isReject", isLoggedIn, async (req, res, next) => {
   try {
     const checkList = await models.sequelize.query(selectQ);
 
-    if (checkList[0].length === 0) {
+    if (checkList[0][0].isDelete) {
+      return res.status(401).send("이미 삭제된 데이터 입니다.");
+    }
+
+    if (checkList[0][0].UserId === req.user.id) {
       return res.status(401).send("해당 구매요청의 판매자가 아닙니다.");
     }
 
@@ -527,18 +544,33 @@ router.post("/delete", isLoggedIn, async (req, res, next) => {
   }
 
   try {
-    await Promise.all(
-      idArr.map(async (data) => {
-        const deleteQ = `
-        UPDATE  buyRequest
-           SET  isDelete = 1,
-                deletedAt = NOW()
-         WHERE  id = ${data}
-        `;
+    const selectQ = `
+    SELECT  id,
+            CASE
+              WHEN  isOk = 0 AND isReject = 0 AND isPay = 0 AND isCompleted = 0 THEN  1
+              WHEN  isOk = 1 AND isReject = 0 AND isPay = 0 AND isCompleted = 0 THEN  2
+              WHEN  isOk = 1 AND isReject = 0 AND isPay = 1 AND isCompleted = 0 THEN  3
+              WHEN  isOk = 1 AND isReject = 0 AND isPay = 1 AND isCompleted = 1 THEN  4
+              WHEN  isOk = 0 AND isReject = 1 AND isPay = 0 AND isCompleted = 0 THEN  5
+            END                                         AS type
+      FROM  buyRequest
+     WHERE  id IN (${idArr.map((data) => data)})
+       AND  isDelete = 0
+    `;
+    const checkList = await models.sequelize.query(selectQ);
 
-        await models.sequelize.query(deleteQ);
-      })
-    );
+    if (checkList.find((data) => data.type === 2 || data.type === 3)) {
+      return res.status(401).send("새로고침 후 다시 시도해주세요");
+    }
+
+    const deleteQ = `
+    UPDATE  buyRequest
+       SET  isDelete = 1,
+            deletedAt = NOW()
+     WHERE  id IN (${idArr.map((data) => data)})
+    `;
+
+    await models.sequelize.query(deleteQ);
 
     return res.status(200).json({ result: true });
   } catch (e) {
