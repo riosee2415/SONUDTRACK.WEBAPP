@@ -33,6 +33,8 @@ const Index = () => {
   const width = useWidth();
   const router = useRouter();
 
+  const [isModal, setIsModal] = useState(false);
+
   ////// REDUX //////
   ////// USEEFFECT //////
   useEffect(() => {
@@ -44,7 +46,9 @@ const Index = () => {
     }
   }, [me]);
   ////// TOGGLE //////
-
+  const modalToggle = useCallback(() => {
+    setIsModal((prev) => !prev);
+  }, [isModal]);
   ////// HANDLER //////
   ////// DATAVIEW //////
 
@@ -84,6 +88,7 @@ const Index = () => {
                 height={`27px`}
                 margin={`0 0 0 8px`}
                 padding={`0 10px`}
+                onClick={modalToggle}
               >
                 등급 안내
               </CommonButton>
@@ -131,7 +136,7 @@ const Index = () => {
                 프로필 이미지
               </Text>
               <Wrapper
-                width={`440px`}
+                width={width < 700 ? `100%` : `440px`}
                 dr={`row`}
                 ju={`space-between`}
                 margin={`0 0 10px`}
@@ -154,7 +159,7 @@ const Index = () => {
                 </CommonButton>
               </Wrapper>
               <Wrapper
-                width={`440px`}
+                width={width < 700 ? `100%` : `440px`}
                 dr={`row`}
                 ju={`space-between`}
                 padding={`16px 14px`}
@@ -196,7 +201,7 @@ const Index = () => {
               </CommonButton>
 
               <Wrapper
-                width={`60%`}
+                width={width < 900 ? `100%` : `60%`}
                 dr={`row`}
                 borderTop={`1px solid ${Theme.lightGrey_C}`}
                 borderBottom={`1px solid ${Theme.lightGrey_C}`}
@@ -209,7 +214,7 @@ const Index = () => {
                 <Wrapper width={`30%`}>등록</Wrapper>
               </Wrapper>
               <Wrapper
-                width={`60%`}
+                width={width < 900 ? `100%` : `60%`}
                 dr={`row`}
                 borderBottom={`1px solid ${Theme.lightGrey_C}`}
                 height={`66px`}
@@ -219,13 +224,13 @@ const Index = () => {
                 <Wrapper width={`30%`}>앨범명</Wrapper>
                 <Wrapper width={`40%`}>승인 대기 중</Wrapper>
                 <Wrapper width={`30%`}>
-                  <CommonButton width={`80px`} height={`35px`} kindOf={`grey`}>
+                  <CommonButton height={`35px`} kindOf={`grey`}>
                     등록하기
                   </CommonButton>
                 </Wrapper>
               </Wrapper>
               <Wrapper
-                width={`60%`}
+                width={width < 900 ? `100%` : `60%`}
                 dr={`row`}
                 borderBottom={`1px solid ${Theme.lightGrey_C}`}
                 height={`66px`}
@@ -235,11 +240,7 @@ const Index = () => {
                 <Wrapper width={`30%`}>앨범명</Wrapper>
                 <Wrapper width={`40%`}>승인 완료</Wrapper>
                 <Wrapper width={`30%`}>
-                  <CommonButton
-                    width={`80px`}
-                    height={`35px`}
-                    kindOf={`subTheme2`}
-                  >
+                  <CommonButton height={`35px`} kindOf={`subTheme2`}>
                     등록하기
                   </CommonButton>
                 </Wrapper>
@@ -255,6 +256,61 @@ const Index = () => {
               </CommonButton>
             </Wrapper>
           </RsWrapper>
+
+          <Modal
+            onCancel={modalToggle}
+            visible={isModal}
+            footer={null}
+            width={`640px`}
+          >
+            <Wrapper padding={width < 900 ? `30px 0` : `30px 25px`}>
+              <Text
+                fontWeight={`bold`}
+                fontSize={`28px`}
+                color={Theme.basicTheme_C}
+                margin={`0 0 16px`}
+              >
+                등급 안내
+              </Text>
+
+              <Wrapper
+                bgColor={Theme.subTheme_C}
+                padding={`17px 10px`}
+                margin={`0 0 24px`}
+                fontWeight={`600`}
+              >
+                <Text>누적 판매 금액과 상관없이</Text>
+                <Text>누적 판매 건 수에 따라 등급이 업데이트 됩니다!</Text>
+              </Wrapper>
+
+              <Wrapper
+                al={`flex-start`}
+                color={Theme.darkGrey_C}
+                fontSize={`16px`}
+              >
+                <Text>- white : 누적 건 수 100건 미만의 판매자 회원</Text>
+                <Text>
+                  - Blue : 누적 건 수 100건 이상 300건 미만의 판매자 회원
+                </Text>
+                <Text>- Purple : 누적 건 수 300건 이상의 판매자 회원</Text>
+              </Wrapper>
+              <Wrapper
+                al={`flex-start`}
+                color={Theme.grey_C}
+                fontSize={`16px`}
+                margin={`30px 0 0`}
+              >
+                <Text>
+                  ※ 등급 심사일은 매월 1일에 결정되며, 등급 심사일로부터 3개월
+                  이내 패널티 상태였다면 White 등급이 적용됩니다.
+                </Text>
+                <Text>
+                  ※ 누적 판매 건수 조건을 만족하였더라도 그 외 조건을 미 충족한
+                  판매자는 White 등급이 적용됩니다.
+                </Text>
+              </Wrapper>
+            </Wrapper>
+          </Modal>
         </WholeWrapper>
       </ClientLayout>
     </>
