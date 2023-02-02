@@ -362,8 +362,9 @@ const MypageMenu = ({}) => {
             <CommonButton
               width={`162px`}
               height={`45px`}
-              kindOf={`subTheme3`}
+              kindOf={router.pathname === `/mypage/musictem` ? `` : `subTheme3`}
               radius={`7px`}
+              onClick={() => movelinkHandler(`/mypage/musictem`)}
             >
               My Musictem
             </CommonButton>
