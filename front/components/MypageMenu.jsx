@@ -28,6 +28,11 @@ import {
   USER_IMG_UPDATE_REQUEST,
   USER_UPLOAD_REQUEST,
 } from "../reducers/user";
+import {
+  ARTIST_IMAGE_RESET,
+  ARTIST_UPLOAD_REQUEST,
+  PERMM_WAITING_CREATE_REQUEST,
+} from "../reducers/artist";
 
 const Menu = styled(Wrapper)`
   padding: 0 30px;
@@ -80,7 +85,7 @@ const MypageMenu = ({}) => {
     st_artistUploadLoading,
     st_artistUploadDone,
     st_artistUploadError,
-  } = useSelector((state) => state.user);
+  } = useSelector((state) => state.artist);
 
   ////////////// - USE STATE- ///////////////
   const width = useWidth();
@@ -100,7 +105,11 @@ const MypageMenu = ({}) => {
   const techGenre = useInput("");
   const [fileName, setFileName] = useState("");
 
+  const [files, setFiles] = useState([]);
+
   ////////////// - USE EFFECT- //////////////
+
+  // 사용자 이미지 변경
   useEffect(() => {
     if (st_userUploadDone) {
       dispatch({
@@ -132,6 +141,43 @@ const MypageMenu = ({}) => {
     }
   }, [st_userImgUpdateDone, st_userImgUpdateError]);
 
+  // 판매자 파일 등록
+  useEffect(() => {
+    if (st_artistUploadDone) {
+      let arr = files ? files.map((data) => data) : [];
+
+      arr.push({
+        id: arr.length,
+        filename: fileName,
+        filepath: artistPath,
+      });
+
+      setFiles(arr);
+    }
+    if (st_artistUploadError) {
+      return message.error(st_artistUploadError);
+    }
+  }, [st_artistUploadDone, st_artistUploadError]);
+
+  // 판매자 전환 신청 후처리
+  useEffect(() => {
+    if (st_permmWaitingCreateDone) {
+      plan.setValue("");
+      techGenre.setValue("");
+      setFileName("");
+      setFiles([]);
+      dispatch({
+        type: ARTIST_IMAGE_RESET,
+      });
+
+      modalOpenToggle();
+      completeModalOpenToggle();
+    }
+    if (st_permmWaitingCreateError) {
+      return message.error(st_permmWaitingCreateError);
+    }
+  }, [st_permmWaitingCreateDone, st_permmWaitingCreateError]);
+
   ///////////// - TOGGLE - ////////////
 
   const mypageMenuOpenToggle = useCallback(() => {
@@ -161,6 +207,7 @@ const MypageMenu = ({}) => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
+  // 사용자 이미지 등록
   const imgClickHandler = useCallback(() => {
     imgRef.current.click();
   }, [imgRef]);
@@ -181,6 +228,68 @@ const MypageMenu = ({}) => {
       data: formData,
     });
   }, []);
+
+  // 판매자 파일 등록
+  const fileClickHandler = useCallback(() => {
+    fileRef.current.click();
+  }, [fileRef]);
+
+  const fileUploadHandler = useCallback((e) => {
+    setFileName(e.target.files[0].name);
+
+    const formData = new FormData();
+
+    [].forEach.call(e.target.files, (file) => {
+      formData.append("image", file);
+    });
+
+    if (e.target.files.length < 1) {
+      return;
+    }
+
+    dispatch({
+      type: ARTIST_UPLOAD_REQUEST,
+      data: formData,
+    });
+  }, []);
+
+  // 파일 삭제
+  const fileDeleteHandler = useCallback(
+    (data) => {
+      if (files) {
+        const arr = files.filter(function (_, index) {
+          return index !== data;
+        });
+
+        setFiles(arr);
+      }
+    },
+    [files]
+  );
+
+  // 판매자 신청
+  const salesRequestHandler = useCallback(() => {
+    if (!plan.value || plan.value.trim() === "") {
+      return message.error("활동 계획을 입력해주세요.");
+    }
+
+    if (!techGenre.value || techGenre.value.trim() === "") {
+      return message.error("역활과 장르를 입력해주세요.");
+    }
+
+    if (files.length === 0) {
+      return message.error("작업물을 등록해주세요.");
+    }
+
+    dispatch({
+      type: PERMM_WAITING_CREATE_REQUEST,
+      data: {
+        plan: plan.value,
+        gen: techGenre.value,
+        imagePaths: files,
+      },
+    });
+  }, [files, plan, techGenre]);
 
   return (
     <WholeWrapper height={`calc(100vh - 166px)`} ju={`flex-start`}>
@@ -535,40 +644,60 @@ const MypageMenu = ({}) => {
                 border={`1px solid ${Theme.lightGrey_C}`}
                 placeholder="파일을 등록해주세요."
               />
+              <input
+                type="file"
+                name="file"
+                hidden
+                ref={fileRef}
+                onChange={fileUploadHandler}
+              />
               <CommonButton
                 width={`100px`}
                 height={`50px`}
                 fontSize={`16px`}
                 fontWeight={`bold`}
                 kindOf={`subTheme2`}
+                onClick={fileClickHandler}
+                loading={st_artistUploadLoading}
               >
                 파일등록
               </CommonButton>
             </Wrapper>
-            <Wrapper
-              dr={`row`}
-              ju={`space-between`}
-              padding={`16px 14px`}
-              bgColor={Theme.lightGrey2_C}
-            >
-              <Text fontSize={`16px`} color={Theme.grey_C}>
-                <Image
-                  alt="icon"
-                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/music-file.png`}
-                  width={`14px`}
-                  margin={`0 5px 0 0`}
-                />
-                K-Pop.WAV
-              </Text>
-              <CloseOutlined />
-            </Wrapper>
+
+            {files &&
+              files.map((data) => {
+                return (
+                  <Wrapper
+                    key={data.id}
+                    dr={`row`}
+                    ju={`space-between`}
+                    padding={`16px 14px`}
+                    margin={`0 0 10px`}
+                    bgColor={Theme.lightGrey2_C}
+                  >
+                    <Text fontSize={`16px`} color={Theme.grey_C}>
+                      <Image
+                        alt="icon"
+                        src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/music-file.png`}
+                        width={`14px`}
+                        margin={`0 5px 0 0`}
+                      />
+                      {data.filename}
+                    </Text>
+                    <CloseOutlined
+                      cursor={`pointer`}
+                      onClick={() => fileDeleteHandler(data.id)}
+                    />
+                  </Wrapper>
+                );
+              })}
           </Wrapper>
           <CommonButton
             width={`180px`}
             height={`50px`}
             fontSize={`18px`}
             margin={`30px 0 0`}
-            onClick={() => [completeModalOpenToggle(), modalOpenToggle()]}
+            onClick={salesRequestHandler}
           >
             신청하기
           </CommonButton>
