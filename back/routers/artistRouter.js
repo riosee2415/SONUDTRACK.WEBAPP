@@ -6,6 +6,7 @@ const models = require("../models");
 const isAdminCheck = require("../middlewares/isAdminCheck");
 const AWS = require("aws-sdk");
 const multerS3 = require("multer-s3");
+const isLoggedIn = require("../middlewares/isLoggedIn");
 
 const router = express.Router();
 
@@ -137,6 +138,118 @@ router.post("/permm/list", isAdminCheck, async (req, res, next) => {
   } catch (error) {
     console.error(error);
     return res.status(400).send("데이터를 조회할 수 없습니다.");
+  }
+});
+/**
+ * SUBJECT : 판매자 파일처리
+ * PARAMETERS : -
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 시니어 개발자 신태섭
+ * DEV DATE : 2023/02/01
+ */
+router.post("/image", upload.single("image"), async (req, res, next) => {
+  return res.json({ path: req.file.location });
+});
+
+/**
+ * SUBJECT : 판매자 신청하기
+ * PARAMETERS : plan, gen, imagePaths
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 시니어 개발자 신태섭
+ * DEV DATE : 2023/02/01
+ */
+router.post("/permm/create", isLoggedIn, async (req, res, next) => {
+  const { plan, gen, imagePaths } = req.body;
+
+  if (!Array.isArray(imagePaths)) {
+    return res.status(401).send("잘못된 요청입니다.");
+  }
+
+  // 해당 형식 맞춰서 보내주세여
+  // [
+  //   {
+  //     filename: "",
+  //     filepath: "",
+  //   },
+  //   {
+  //     filename: "",
+  //     filepath: "",
+  //   },
+  //   {
+  //     filename: "",
+  //     filepath: "",
+  //   },
+  //   {
+  //     filename: "",
+  //     filepath: "",
+  //   },
+  // ];
+
+  const findArtistQuery = `
+  SELECT  id
+    FROM  artist
+   WHERE  UserId = ${req.user.id}
+  `;
+
+  const insertQuery = `
+  INSERT  INTO  artist
+  (
+    plan,
+    gen,
+    UserId,
+    createdAt,
+    updatedAt
+  )
+  VALUES
+  (
+    "${plan}",
+    "${gen}",
+    ${req.user.id},
+    NOW(),
+    NOW()
+  )
+  `;
+
+  try {
+    const findResult = await models.sequelize.query(findArtistQuery);
+
+    if (findResult[0].length !== 0) {
+      return res.status(401).send("이미 신청한 내역이 존재합니다.");
+    }
+
+    const insertResult = await models.sequelize.query(insertQuery);
+
+    await Promise.all(
+      imagePaths.map(async (data) => {
+        const imageInsertQuery = `
+        INSERT  INTO  artistRequestFile
+        (
+          filename,
+          filepath,
+          ArtistId,
+          createdAt,
+          updatedAt
+        )
+        VALUES
+        (
+          "${data.filename}",
+          "${data.filepath}",
+          ${insertResult[0].insertId},
+          NOW(),
+          NOW()
+        )
+        `;
+
+        await models.sequelize.query(imageInsertQuery);
+      })
+    );
+
+    return res.status(201).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("판매자 신청을 진행할 수 없습니다.");
   }
 });
 

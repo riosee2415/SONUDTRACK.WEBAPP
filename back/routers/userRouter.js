@@ -7,6 +7,33 @@ const isAdminCheck = require("../middlewares/isAdminCheck");
 const isLoggedIn = require("../middlewares/isLoggedIn");
 const generateUUID = require("../utils/generateUUID");
 const sendSecretMail = require("../utils/mailSender");
+const fs = require("fs");
+const multer = require("multer");
+const path = require("path");
+const AWS = require("aws-sdk");
+const multerS3 = require("multer-s3");
+
+AWS.config.update({
+  accessKeyId: process.env.S3_ACCESS_KEY_Id,
+  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+  region: "ap-northeast-2",
+});
+
+const upload = multer({
+  storage: multerS3({
+    s3: new AWS.S3(),
+    bucket: process.env.S3_BUCKET_NAME,
+    key(req, file, cb) {
+      cb(
+        null,
+        `${
+          process.env.S3_STORAGE_FOLDER_NAME
+        }/original/${Date.now()}_${path.basename(file.originalname)}`
+      );
+    },
+  }),
+  limits: { fileSize: 25 * 1024 * 1024 }, // 5MB
+});
 
 const router = express.Router();
 
@@ -806,6 +833,18 @@ router.post("/signup", async (req, res, next) => {
     console.error(error);
     next(error);
   }
+});
+
+/**
+ * SUBJECT : 사용자 파일처리
+ * PARAMETERS : -
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 시니어 개발자 신태섭
+ * DEV DATE : 2023/02/01
+ */
+router.post("/image", upload.single("image"), async (req, res, next) => {
+  return res.json({ path: req.file.location });
 });
 
 /**

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Image,
   WholeWrapper,
@@ -20,7 +20,19 @@ import {
   CloseOutlined,
   FormOutlined,
 } from "@ant-design/icons";
-import { Checkbox, Modal } from "antd";
+import { Checkbox, message, Modal } from "antd";
+import useInput from "../hooks/useInput";
+import {
+  LOAD_MY_INFO_REQUEST,
+  USER_IMAGE_RESET,
+  USER_IMG_UPDATE_REQUEST,
+  USER_UPLOAD_REQUEST,
+} from "../reducers/user";
+import {
+  ARTIST_IMAGE_RESET,
+  ARTIST_UPLOAD_REQUEST,
+  PERMM_WAITING_CREATE_REQUEST,
+} from "../reducers/artist";
 
 const Menu = styled(Wrapper)`
   padding: 0 30px;
@@ -52,12 +64,36 @@ const Menu = styled(Wrapper)`
 
 const MypageMenu = ({}) => {
   ////// GLOBAL STATE //////
-  const { me } = useSelector((state) => state.user);
+  const {
+    me,
+    userPath,
+
+    st_userImgUpdateDone,
+    st_userImgUpdateError,
+
+    st_userUploadLoading,
+    st_userUploadDone,
+    st_userUploadError,
+  } = useSelector((state) => state.user);
+
+  const {
+    artistPath,
+
+    st_permmWaitingCreateDone,
+    st_permmWaitingCreateError,
+
+    st_artistUploadLoading,
+    st_artistUploadDone,
+    st_artistUploadError,
+  } = useSelector((state) => state.artist);
 
   ////////////// - USE STATE- ///////////////
   const width = useWidth();
   const router = useRouter();
   const dispatch = useDispatch();
+
+  const imgRef = useRef(); // 프로필 변경
+  const fileRef = useRef(); // 판매자 파일 등록
 
   const [isModal, setIsModal] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
@@ -65,7 +101,85 @@ const MypageMenu = ({}) => {
   const [mypageOpen2, setMypageOpen2] = useState(false);
   const [mypageOpen3, setMypageOpen3] = useState(false);
 
-  ///////////// - EVENT HANDLER- ////////////
+  const plan = useInput("");
+  const techGenre = useInput("");
+  const [fileName, setFileName] = useState("");
+
+  const [files, setFiles] = useState([]);
+
+  ////////////// - USE EFFECT- //////////////
+
+  // 사용자 이미지 변경
+  useEffect(() => {
+    if (st_userUploadDone) {
+      dispatch({
+        type: USER_IMG_UPDATE_REQUEST,
+        data: {
+          profileImage: userPath,
+        },
+      });
+    }
+    if (st_userUploadError) {
+      return message.error(st_userUploadError);
+    }
+  }, [st_userUploadDone, st_userUploadError]);
+
+  useEffect(() => {
+    if (st_userImgUpdateDone) {
+      dispatch({
+        type: LOAD_MY_INFO_REQUEST,
+      });
+
+      dispatch({
+        type: USER_IMAGE_RESET,
+      });
+
+      return message.success("프로필사진이 변경되었습니다.");
+    }
+    if (st_userImgUpdateError) {
+      return message.error(st_userImgUpdateError);
+    }
+  }, [st_userImgUpdateDone, st_userImgUpdateError]);
+
+  // 판매자 파일 등록
+  useEffect(() => {
+    if (st_artistUploadDone) {
+      let arr = files ? files.map((data) => data) : [];
+
+      arr.push({
+        id: arr.length,
+        filename: fileName,
+        filepath: artistPath,
+      });
+
+      setFiles(arr);
+    }
+    if (st_artistUploadError) {
+      return message.error(st_artistUploadError);
+    }
+  }, [st_artistUploadDone, st_artistUploadError]);
+
+  // 판매자 전환 신청 후처리
+  useEffect(() => {
+    if (st_permmWaitingCreateDone) {
+      plan.setValue("");
+      techGenre.setValue("");
+      setFileName("");
+      setFiles([]);
+      dispatch({
+        type: ARTIST_IMAGE_RESET,
+      });
+
+      modalOpenToggle();
+      completeModalOpenToggle();
+    }
+    if (st_permmWaitingCreateError) {
+      return message.error(st_permmWaitingCreateError);
+    }
+  }, [st_permmWaitingCreateDone, st_permmWaitingCreateError]);
+
+  ///////////// - TOGGLE - ////////////
+
   const mypageMenuOpenToggle = useCallback(() => {
     setMypageOpen((prev) => !prev);
   }, [mypageOpen]);
@@ -86,11 +200,96 @@ const MypageMenu = ({}) => {
     setIsComplete((prev) => !prev);
   }, [isComplete]);
 
+  ///////////// - EVENT HANDLER- ////////////
+
   const movelinkHandler = useCallback((link) => {
     router.push(link);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
-  ////////////// - USE EFFECT- //////////////
+
+  // 사용자 이미지 등록
+  const imgClickHandler = useCallback(() => {
+    imgRef.current.click();
+  }, [imgRef]);
+
+  const imgUploadHandler = useCallback((e) => {
+    const formData = new FormData();
+
+    [].forEach.call(e.target.files, (file) => {
+      formData.append("image", file);
+    });
+
+    if (e.target.files.length < 1) {
+      return;
+    }
+
+    dispatch({
+      type: USER_UPLOAD_REQUEST,
+      data: formData,
+    });
+  }, []);
+
+  // 판매자 파일 등록
+  const fileClickHandler = useCallback(() => {
+    fileRef.current.click();
+  }, [fileRef]);
+
+  const fileUploadHandler = useCallback((e) => {
+    setFileName(e.target.files[0].name);
+
+    const formData = new FormData();
+
+    [].forEach.call(e.target.files, (file) => {
+      formData.append("image", file);
+    });
+
+    if (e.target.files.length < 1) {
+      return;
+    }
+
+    dispatch({
+      type: ARTIST_UPLOAD_REQUEST,
+      data: formData,
+    });
+  }, []);
+
+  // 파일 삭제
+  const fileDeleteHandler = useCallback(
+    (data) => {
+      if (files) {
+        const arr = files.filter(function (_, index) {
+          return index !== data;
+        });
+
+        setFiles(arr);
+      }
+    },
+    [files]
+  );
+
+  // 판매자 신청
+  const salesRequestHandler = useCallback(() => {
+    if (!plan.value || plan.value.trim() === "") {
+      return message.error("활동 계획을 입력해주세요.");
+    }
+
+    if (!techGenre.value || techGenre.value.trim() === "") {
+      return message.error("역활과 장르를 입력해주세요.");
+    }
+
+    if (files.length === 0) {
+      return message.error("작업물을 등록해주세요.");
+    }
+
+    dispatch({
+      type: PERMM_WAITING_CREATE_REQUEST,
+      data: {
+        plan: plan.value,
+        gen: techGenre.value,
+        imagePaths: files,
+      },
+    });
+  }, [files, plan, techGenre]);
 
   return (
     <WholeWrapper height={`calc(100vh - 166px)`} ju={`flex-start`}>
@@ -105,7 +304,7 @@ const MypageMenu = ({}) => {
             height={`100%`}
             radius={`100%`}
             alt="profile"
-            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/art-goods/assets/images/main-page/img_4s_right_prod.png`}
+            src={userPath ? userPath : me && me.profileImage}
           />
 
           <Wrapper
@@ -118,12 +317,21 @@ const MypageMenu = ({}) => {
             color={Theme.white_C}
             bgColor={`rgba(0, 0, 0, 0.6)`}
             cursor={`pointer`}
+            onClick={imgClickHandler}
+            loading={st_userUploadLoading}
           >
+            <input
+              ref={imgRef}
+              type={`file`}
+              accept={`.jpg, .png`}
+              hidden
+              onChange={imgUploadHandler}
+            />
             <FormOutlined />
           </Wrapper>
         </Wrapper>
         <Text fontSize={`22px`} fontWeight={`bold`} margin={`20px 0 12px`}>
-          차참미
+          {me && me.nickname}
         </Text>
         <CommonButton
           width={`162px`}
@@ -352,6 +560,8 @@ const MypageMenu = ({}) => {
         )} */}
       </Wrapper>
 
+      {/* 신청토글 */}
+
       <Modal
         onCancel={modalOpenToggle}
         visible={isModal}
@@ -397,6 +607,7 @@ const MypageMenu = ({}) => {
               width={`100%`}
               height={`85px`}
               placeholder="예) 라이브러리를 제작해서 뮤직템에 판매하려고 합니다.&#13;&#10;Artist로서는 정식 음원과 데모 작업 활동을 하려고 합니다"
+              {...plan}
             />
             <Text
               fontSize={`16px`}
@@ -410,6 +621,7 @@ const MypageMenu = ({}) => {
               width={`100%`}
               height={`85px`}
               placeholder="예) R&B 소울 음악을 추구하고, 주로 트랙을 만들고 작·편곡을 합니다."
+              {...techGenre}
             />
             <Text
               fontSize={`16px`}
@@ -430,7 +642,14 @@ const MypageMenu = ({}) => {
                 height={`50px`}
                 type="type"
                 border={`1px solid ${Theme.lightGrey_C}`}
-                placeholder="장르를 선택해주세요."
+                placeholder="파일을 등록해주세요."
+              />
+              <input
+                type="file"
+                name="file"
+                hidden
+                ref={fileRef}
+                onChange={fileUploadHandler}
               />
               <CommonButton
                 width={`100px`}
@@ -438,40 +657,54 @@ const MypageMenu = ({}) => {
                 fontSize={`16px`}
                 fontWeight={`bold`}
                 kindOf={`subTheme2`}
+                onClick={fileClickHandler}
+                loading={st_artistUploadLoading}
               >
                 파일등록
               </CommonButton>
             </Wrapper>
-            <Wrapper
-              dr={`row`}
-              ju={`space-between`}
-              padding={`16px 14px`}
-              bgColor={Theme.lightGrey2_C}
-            >
-              <Text fontSize={`16px`} color={Theme.grey_C}>
-                <Image
-                  alt="icon"
-                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/music-file.png`}
-                  width={`14px`}
-                  margin={`0 5px 0 0`}
-                />
-                K-Pop.WAV
-              </Text>
-              <CloseOutlined />
-            </Wrapper>
+
+            {files &&
+              files.map((data) => {
+                return (
+                  <Wrapper
+                    key={data.id}
+                    dr={`row`}
+                    ju={`space-between`}
+                    padding={`16px 14px`}
+                    margin={`0 0 10px`}
+                    bgColor={Theme.lightGrey2_C}
+                  >
+                    <Text fontSize={`16px`} color={Theme.grey_C}>
+                      <Image
+                        alt="icon"
+                        src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/music-file.png`}
+                        width={`14px`}
+                        margin={`0 5px 0 0`}
+                      />
+                      {data.filename}
+                    </Text>
+                    <CloseOutlined
+                      cursor={`pointer`}
+                      onClick={() => fileDeleteHandler(data.id)}
+                    />
+                  </Wrapper>
+                );
+              })}
           </Wrapper>
           <CommonButton
             width={`180px`}
             height={`50px`}
             fontSize={`18px`}
             margin={`30px 0 0`}
-            onClick={() => [completeModalOpenToggle(), modalOpenToggle()]}
+            onClick={salesRequestHandler}
           >
             신청하기
           </CommonButton>
         </Wrapper>
       </Modal>
 
+      {/* 신청완료 토글 */}
       <Modal
         footer={null}
         onCancel={completeModalOpenToggle}

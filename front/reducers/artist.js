@@ -7,6 +7,7 @@ export const initailState = {
   artistems: [],
   artistemDetail: null,
   allArtistemList: [], // 아티스트 전체조회
+  artistPath: null, //
   //
   st_permmWaitingLoading: false,
   st_permmWaitingDone: false,
@@ -19,6 +20,10 @@ export const initailState = {
   st_permmWaitingDelLoading: false,
   st_permmWaitingDelDone: false,
   st_permmWaitingDelError: null,
+  //
+  st_permmWaitingCreateLoading: false,
+  st_permmWaitingCreateDone: false,
+  st_permmWaitingCreateError: null,
   //
   st_artistemListLoading: false,
   st_artistemListDone: false,
@@ -39,6 +44,10 @@ export const initailState = {
   st_allArtistemListLoading: false,
   st_allArtistemListDone: false,
   st_allArtistemListError: null,
+  //
+  st_artistUploadLoading: false, // artist 이미지 등록
+  st_artistUploadDone: false,
+  st_artistUploadError: null,
 };
 
 export const PERMM_WAITING_LIST_REQUEST = "PERMM_WAITING_LIST_REQUEST";
@@ -52,6 +61,10 @@ export const PERMM_WAITING_OK_FAILURE = "PERMM_WAITING_OK_FAILURE";
 export const PERMM_WAITING_DEL_REQUEST = "PERMM_WAITING_DEL_REQUEST";
 export const PERMM_WAITING_DEL_SUCCESS = "PERMM_WAITING_DEL_SUCCESS";
 export const PERMM_WAITING_DEL_FAILURE = "PERMM_WAITING_DEL_FAILURE";
+
+export const PERMM_WAITING_CREATE_REQUEST = "PERMM_WAITING_CREATE_REQUEST";
+export const PERMM_WAITING_CREATE_SUCCESS = "PERMM_WAITING_CREATE_SUCCESS";
+export const PERMM_WAITING_CREATE_FAILURE = "PERMM_WAITING_CREATE_FAILURE";
 
 export const ARTISTEM_LIST_REQUEST = "ARTISTEM_LIST_REQUEST";
 export const ARTISTEM_LIST_SUCCESS = "ARTISTEM_LIST_SUCCESS";
@@ -72,6 +85,12 @@ export const ARTISTEM_DETAIL_FAILURE = "ARTISTEM_DETAIL_FAILURE";
 export const ALL_ARTISTEM_LIST_REQUEST = "ALL_ARTISTEM_LIST_REQUEST";
 export const ALL_ARTISTEM_LIST_SUCCESS = "ALL_ARTISTEM_LIST_SUCCESS";
 export const ALL_ARTISTEM_LIST_FAILURE = "ALL_ARTISTEM_LIST_FAILURE";
+
+export const ARTIST_UPLOAD_REQUEST = "ARTIST_UPLOAD_REQUEST";
+export const ARTIST_UPLOAD_SUCCESS = "ARTIST_UPLOAD_SUCCESS";
+export const ARTIST_UPLOAD_FAILURE = "ARTIST_UPLOAD_FAILURE";
+
+export const ARTIST_IMAGE_RESET = "ARTIST_IMAGE_RESET";
 
 const reducer = (state = initailState, action) =>
   produce(state, (draft) => {
@@ -143,6 +162,30 @@ const reducer = (state = initailState, action) =>
         draft.st_permmWaitingDelLoading = false;
         draft.st_permmWaitingDelDone = false;
         draft.st_permmWaitingDelError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////
+
+      case PERMM_WAITING_CREATE_REQUEST: {
+        draft.st_permmWaitingCreateLoading = true;
+        draft.st_permmWaitingCreateDone = false;
+        draft.st_permmWaitingCreateError = null;
+        break;
+      }
+
+      case PERMM_WAITING_CREATE_SUCCESS: {
+        draft.st_permmWaitingCreateLoading = false;
+        draft.st_permmWaitingCreateDone = true;
+        draft.st_permmWaitingCreateError = null;
+        break;
+      }
+
+      case PERMM_WAITING_CREATE_FAILURE: {
+        draft.st_permmWaitingCreateLoading = false;
+        draft.st_permmWaitingCreateDone = false;
+        draft.st_permmWaitingCreateError = action.error;
         break;
       }
 
@@ -266,6 +309,35 @@ const reducer = (state = initailState, action) =>
       }
 
       ////////////////////////////////////////////////////
+
+      case ARTIST_UPLOAD_REQUEST: {
+        draft.st_artistUploadLoading = true;
+        draft.st_artistUploadDone = false;
+        draft.st_artistUploadError = null;
+        break;
+      }
+      case ARTIST_UPLOAD_SUCCESS: {
+        draft.st_artistUploadLoading = false;
+        draft.st_artistUploadDone = true;
+        draft.st_artistUploadError = null;
+        draft.artistPath = action.data.path;
+        break;
+      }
+      case ARTIST_UPLOAD_FAILURE: {
+        draft.st_artistUploadLoading = false;
+        draft.st_artistUploadDone = false;
+        draft.st_artistUploadError = action.error;
+        break;
+      }
+
+      ///////////////////////////////////////////////////////
+
+      case ARTIST_IMAGE_RESET: {
+        draft.artistPath = null;
+        break;
+      }
+
+      //////////////////////////////////////////////
       ////////////////////////////////////////////////////
 
       default:

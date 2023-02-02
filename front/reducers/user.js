@@ -9,6 +9,8 @@ export const initailState = {
   adminUserRightHistory: [],
   buyStatus: [],
   findUserId: null, // 아이디 찾기
+
+  userPath: null,
   //
   st_loginLoading: false,
   st_loginDone: false,
@@ -93,6 +95,14 @@ export const initailState = {
   st_userPassCompareLoading: false, // 회원 비밀번호 확인
   st_userPassCompareDone: false,
   st_userPassCompareError: false,
+  //
+  st_userImgUpdateLoading: false, // 회원 프로필 변경
+  st_userImgUpdateDone: false,
+  st_userImgUpdateError: false,
+  //
+  st_userUploadLoading: false, // user 이미지 등록
+  st_userUploadDone: false,
+  st_userUploadError: null,
 };
 
 export const LOGIN_REQUEST = "LOGIN_REQUEST";
@@ -182,11 +192,21 @@ export const USER_INFO_PASS_UPDATE_FAILURE = "USER_INFO_PASS_UPDATE_FAILURE";
 export const USER_PASS_COMPARE_REQUEST = "USER_PASS_COMPARE_REQUEST";
 export const USER_PASS_COMPARE_SUCCESS = "USER_PASS_COMPARE_SUCCESS";
 export const USER_PASS_COMPARE_FAILURE = "USER_PASS_COMPARE_FAILURE";
+//
+export const USER_IMG_UPDATE_REQUEST = "USER_IMG_UPDATE_REQUEST";
+export const USER_IMG_UPDATE_SUCCESS = "USER_IMG_UPDATE_SUCCESS";
+export const USER_IMG_UPDATE_FAILURE = "USER_IMG_UPDATE_FAILURE";
+
+export const USER_UPLOAD_REQUEST = "USER_UPLOAD_REQUEST";
+export const USER_UPLOAD_SUCCESS = "USER_UPLOAD_SUCCESS";
+export const USER_UPLOAD_FAILURE = "USER_UPLOAD_FAILURE";
 
 export const UPDATE_MODAL_OPEN_REQUEST = "UPDATE_MODAL_OPEN_REQUEST";
 export const UPDATE_MODAL_CLOSE_REQUEST = "UPDATE_MODAL_CLOSE_REQUEST";
 
 export const CURRENT_ADMINMENU_STATUS = "CURRENT_ADMINMENU_STATUS";
+
+export const USER_IMAGE_RESET = "USER_IMAGE_RESET";
 
 const reducer = (state = initailState, action) =>
   produce(state, (draft) => {
@@ -652,6 +672,49 @@ const reducer = (state = initailState, action) =>
       }
 
       //////////////////////////////////////////////
+
+      case USER_IMG_UPDATE_REQUEST: {
+        draft.st_userImgUpdateLoading = true;
+        draft.st_userImgUpdateDone = false;
+        draft.st_userImgUpdateError = null;
+        break;
+      }
+      case USER_IMG_UPDATE_SUCCESS: {
+        draft.st_userImgUpdateLoading = false;
+        draft.st_userImgUpdateDone = true;
+        draft.st_userImgUpdateError = null;
+        break;
+      }
+      case USER_IMG_UPDATE_FAILURE: {
+        draft.st_userImgUpdateLoading = false;
+        draft.st_userImgUpdateDone = false;
+        draft.st_userImgUpdateError = action.error;
+        break;
+      }
+
+      //////////////////////////////////////////////
+
+      case USER_UPLOAD_REQUEST: {
+        draft.st_userUploadLoading = true;
+        draft.st_userUploadDone = false;
+        draft.st_userUploadError = null;
+        break;
+      }
+      case USER_UPLOAD_SUCCESS: {
+        draft.st_userUploadLoading = false;
+        draft.st_userUploadDone = true;
+        draft.st_userUploadError = null;
+        draft.userPath = action.data.path;
+        break;
+      }
+      case USER_UPLOAD_FAILURE: {
+        draft.st_userUploadLoading = false;
+        draft.st_userUploadDone = false;
+        draft.st_userUploadError = action.error;
+        break;
+      }
+
+      ///////////////////////////////////////////////////////
       ///////////////////////////////////////////////////////
 
       case CURRENT_ADMINMENU_STATUS: {
@@ -679,6 +742,16 @@ const reducer = (state = initailState, action) =>
       case UPDATE_MODAL_CLOSE_REQUEST:
         draft.updateModal = false;
         break;
+
+      //////////////////////////////////////////////
+
+      case USER_IMAGE_RESET: {
+        draft.userPath = null;
+        draft.st_userUploadLoading = false;
+        draft.st_userUploadDone = false;
+        draft.st_userUploadError = null;
+        break;
+      }
 
       default:
         break;

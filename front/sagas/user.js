@@ -88,6 +88,14 @@ import {
   USER_PASS_COMPARE_REQUEST,
   USER_PASS_COMPARE_SUCCESS,
   USER_PASS_COMPARE_FAILURE,
+  //
+  USER_IMG_UPDATE_REQUEST,
+  USER_IMG_UPDATE_SUCCESS,
+  USER_IMG_UPDATE_FAILURE,
+  //
+  USER_UPLOAD_REQUEST,
+  USER_UPLOAD_SUCCESS,
+  USER_UPLOAD_FAILURE,
 } from "../reducers/user";
 
 // SAGA AREA ********************************************************************************************************
@@ -679,6 +687,61 @@ function* userPassCompare(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function userImgUpdateAPI(data) {
+  return await axios.post(`/api/user/me/profile/update`, data);
+}
+
+function* userImgUpdate(action) {
+  try {
+    const result = yield call(userImgUpdateAPI, action.data);
+    yield put({
+      type: USER_IMG_UPDATE_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: USER_IMG_UPDATE_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function userImgAPI(data) {
+  return await axios.post(`/api/user/image`, data);
+}
+
+function* userImg(action) {
+  try {
+    const result = yield call(userImgAPI, action.data);
+
+    yield put({
+      type: USER_UPLOAD_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: USER_UPLOAD_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 
 function* watchLoadMyInfo() {
@@ -769,6 +832,14 @@ function* watchUserPassCompare() {
   yield takeLatest(USER_PASS_COMPARE_REQUEST, userPassCompare);
 }
 
+function* watchUserImgUpdate() {
+  yield takeLatest(USER_IMG_UPDATE_REQUEST, userImgUpdate);
+}
+
+function* watchUserUpload() {
+  yield takeLatest(USER_UPLOAD_REQUEST, userImg);
+}
+
 //////////////////////////////////////////////////////////////
 export default function* userSaga() {
   yield all([
@@ -794,6 +865,8 @@ export default function* userSaga() {
     fork(watchModfiyPassUpdate),
     fork(watchUserInfoPassUpdate),
     fork(watchUserPassCompare),
+    fork(watchUserImgUpdate),
+    fork(watchUserUpload),
     //
   ]);
 }

@@ -86,7 +86,7 @@ const AppHeader = () => {
                 }
                 margin={`0 20px 0 0`}
               >
-                일반회원
+                {me && me.isArtist}회원
               </Text>
               <Wrapper
                 width={`48px`}
@@ -99,7 +99,7 @@ const AppHeader = () => {
                   height={`100%`}
                   radius={`100%`}
                   alt="profile"
-                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/art-goods/assets/images/main-page/img_4s_right_prod.png`}
+                  src={me && me.profileImage}
                 />
               </Wrapper>
             </Wrapper>
@@ -160,7 +160,7 @@ const AppHeader = () => {
                 }
                 margin={`0 20px 0 0`}
               >
-                일반회원
+                {me && me.isArtist}회원
               </Text>
               <Wrapper
                 width={`48px`}
@@ -173,7 +173,7 @@ const AppHeader = () => {
                   height={`100%`}
                   radius={`100%`}
                   alt="profile"
-                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/art-goods/assets/images/main-page/img_4s_right_prod.png`}
+                  src={me && me.profileImage}
                 />
               </Wrapper>
             </Wrapper>
