@@ -22,6 +22,8 @@ import MainSlider2 from "../components/slide/MainSlider2";
 import dynamic from "next/dynamic";
 import { Modal } from "antd";
 import { useRouter } from "next/router";
+import { ARTISTEM_SLIDE_LIST_REQUEST } from "../reducers/artist";
+import { useSelector } from "react-redux";
 
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
@@ -69,6 +71,9 @@ const CommentWrapper = styled(Wrapper)`
 
 const Home = ({}) => {
   ////// GLOBAL STATE //////
+
+  const { artistemSlideList } = useSelector((state) => state.artist);
+
   const [playing, setPlaying] = useState(false);
   const [down, setDown] = useState(false);
 
@@ -174,7 +179,7 @@ const Home = ({}) => {
               </Wrapper>
             </Wrapper>
 
-            <MainSlider2 />
+            <MainSlider2 datum={artistemSlideList} />
 
             <Wrapper dr={`row`} ju={`space-between`} margin={`80px 0 40px`}>
               <Wrapper
@@ -470,6 +475,10 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: LOAD_MY_INFO_REQUEST,
+    });
+
+    context.store.dispatch({
+      type: ARTISTEM_SLIDE_LIST_REQUEST,
     });
 
     // 구현부 종료
