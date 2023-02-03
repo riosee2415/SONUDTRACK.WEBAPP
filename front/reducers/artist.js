@@ -48,6 +48,10 @@ export const initailState = {
   st_artistUploadLoading: false, // artist 이미지 등록
   st_artistUploadDone: false,
   st_artistUploadError: null,
+  //
+  st_artistInfoUpdateLoading: false, // artist 정보수정
+  st_artistInfoUpdateDone: false,
+  st_artistInfoUpdateError: null,
 };
 
 export const PERMM_WAITING_LIST_REQUEST = "PERMM_WAITING_LIST_REQUEST";
@@ -89,6 +93,10 @@ export const ALL_ARTISTEM_LIST_FAILURE = "ALL_ARTISTEM_LIST_FAILURE";
 export const ARTIST_UPLOAD_REQUEST = "ARTIST_UPLOAD_REQUEST";
 export const ARTIST_UPLOAD_SUCCESS = "ARTIST_UPLOAD_SUCCESS";
 export const ARTIST_UPLOAD_FAILURE = "ARTIST_UPLOAD_FAILURE";
+
+export const ARTIST_INFO_UPDATE_REQUEST = "ARTIST_INFO_UPDATE_REQUEST";
+export const ARTIST_INFO_UPDATE_SUCCESS = "ARTIST_INFO_UPDATE_SUCCESS";
+export const ARTIST_INFO_UPDATE_FAILURE = "ARTIST_INFO_UPDATE_FAILURE";
 
 export const ARTIST_IMAGE_RESET = "ARTIST_IMAGE_RESET";
 
@@ -327,6 +335,27 @@ const reducer = (state = initailState, action) =>
         draft.st_artistUploadLoading = false;
         draft.st_artistUploadDone = false;
         draft.st_artistUploadError = action.error;
+        break;
+      }
+
+      ///////////////////////////////////////////////////////
+
+      case ARTIST_INFO_UPDATE_REQUEST: {
+        draft.st_artistInfoUpdateLoading = true;
+        draft.st_artistInfoUpdateDone = false;
+        draft.st_artistInfoUpdateError = null;
+        break;
+      }
+      case ARTIST_INFO_UPDATE_SUCCESS: {
+        draft.st_artistInfoUpdateLoading = false;
+        draft.st_artistInfoUpdateDone = true;
+        draft.st_artistInfoUpdateError = null;
+        break;
+      }
+      case ARTIST_INFO_UPDATE_FAILURE: {
+        draft.st_artistInfoUpdateLoading = false;
+        draft.st_artistInfoUpdateDone = false;
+        draft.st_artistInfoUpdateError = action.error;
         break;
       }
 

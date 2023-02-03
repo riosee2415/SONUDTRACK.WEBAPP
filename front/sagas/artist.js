@@ -40,6 +40,10 @@ import {
   ARTIST_UPLOAD_REQUEST,
   ARTIST_UPLOAD_SUCCESS,
   ARTIST_UPLOAD_FAILURE,
+  //
+  ARTIST_INFO_UPDATE_REQUEST,
+  ARTIST_INFO_UPDATE_SUCCESS,
+  ARTIST_INFO_UPDATE_FAILURE,
 } from "../reducers/artist";
 
 // ******************************************************************************************************************
@@ -322,6 +326,34 @@ function* artistImg(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function artistInfoUpdateAPI(data) {
+  return await axios.post(`/api/artist/info/update`, data);
+}
+
+function* artistInfoUpdate(action) {
+  try {
+    const result = yield call(artistInfoUpdateAPI, action.data);
+
+    yield put({
+      type: ARTIST_INFO_UPDATE_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: ARTIST_INFO_UPDATE_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 function* watchFaqTypeList() {
   yield takeLatest(PERMM_WAITING_LIST_REQUEST, permmWaitingList);
@@ -353,6 +385,9 @@ function* watchAllArtistemList() {
 function* watchArtistUpload() {
   yield takeLatest(ARTIST_UPLOAD_REQUEST, artistImg);
 }
+function* watchArtistInfoUpdate() {
+  yield takeLatest(ARTIST_INFO_UPDATE_REQUEST, artistInfoUpdate);
+}
 
 //////////////////////////////////////////////////////////////
 export default function* artistSaga() {
@@ -367,6 +402,7 @@ export default function* artistSaga() {
     fork(watchArtistemDetail),
     fork(watchAllArtistemList),
     fork(watchArtistUpload),
+    fork(watchArtistInfoUpdate),
     //
   ]);
 }
