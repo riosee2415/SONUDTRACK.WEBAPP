@@ -810,6 +810,136 @@ router.post("/artistem/allList", async (req, res, next) => {
 });
 
 /**
+ * SUBJECT : 아티스탬 최신순 정렬 10개 리스트
+ * PARAMETERS : -
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/02/03
+ */
+router.post("/artistem/slideList", async (req, res, next) => {
+  const selectQ = `
+    SELECT	ROW_NUMBER() OVER(ORDER BY A.title ASC) 	AS num,
+            A.id,
+            A.title,
+            A.subTitle,
+            A.content,
+            A.coverImage,
+            A.isIng,
+            A.isTop,
+            A.sampleRate,
+            A.bitRate,
+            A.downloadCnt,
+            FORMAT(A.downloadCnt, 0)                    AS  viewDownloadCnt,
+            A.createdAt,
+            A.updatedAt,
+            DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
+            DATE_FORMAT(A.updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt,
+            B.value AS caValue,
+            A.sPrice,
+            A.dPrice,
+            A.pPrice,
+            A.filename,
+            A.filepath,
+            FORMAT(A.sPrice , 0)   as viewsPrice,
+            FORMAT(A.dPrice , 0)   as viewdPrice,
+            FORMAT(A.pPrice , 0)   as viewpPrice,
+            (
+              SELECT  US.username
+                FROM  artist      AR
+               INNER
+                JOIN  users       US
+                  ON  AR.UserId = US.id
+               WHERE  A.ArtistId = AR.id
+                 AND  AR.isPermm = 1
+            )                                            AS artistName,
+            (
+              SELECT  US.profileImage
+                FROM  artist      AR
+               INNER
+                JOIN  users       US
+                  ON  AR.UserId = US.id
+               WHERE  A.ArtistId = AR.id
+                 AND  AR.isPermm = 1
+            )                                            AS artistImage,
+            (
+              SELECT  COUNT(id)
+                FROM  userLike
+               WHERE  ArtistemId = A.id
+            )                                            AS likeCnt
+            ${
+              req.user
+                ? `,
+              CASE
+                  WHEN  (
+                          SELECT  COUNT(id)
+                            FROM  userLike
+                           WHERE  ArtistemId = A.id
+                             AND  UserId = ${req.user.id}
+                        ) > 0 THEN                       1
+                  ELSE                                   0
+              END                                        AS isLike
+              `
+                : `,
+              0                                          AS isLike
+              `
+            }
+      FROM	artistem	A
+     INNER
+      JOIN  productCategory B
+        ON  A.ProductCategoryId = B.id
+     WHERE  A.isIng = 0
+     ORDER  BY  A.createdAt DESC
+     LIMIT  10
+    `;
+
+  const selectQ2 = `
+    SELECT	value,
+            ArtistemId
+      FROM	artistTemTag
+      `;
+
+  const selectQ3 = `
+    SELECT	value,
+            ArtistemId
+      FROM	artistTemGen
+    `;
+
+  try {
+    const list = await models.sequelize.query(selectQ);
+    const tags = await models.sequelize.query(selectQ2);
+    const gens = await models.sequelize.query(selectQ3);
+
+    const tems = list[0];
+
+    tems.map((data) => {
+      data["tags"] = [];
+      data["gens"] = [];
+
+      tags[0].map((tag) => {
+        if (data.id === tag.ArtistemId) {
+          data["tags"].push(tag.value);
+        }
+      });
+      gens[0].map((gen) => {
+        if (data.id === gen.ArtistemId) {
+          data["gens"].push(gen.value);
+        }
+      });
+    });
+
+    return res.status(200).json({
+      artistemList: tems,
+    });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(400)
+      .send("아티스템을 조회할 수 없습니다. 다시 시도해주세요.");
+  }
+});
+
+/**
  * SUBJECT : 최근 일주일 내 등록된 아티스탬 조회
  * PARAMETERS : -
  * ORDER BY : -
@@ -939,7 +1069,7 @@ router.post("/artistem/newList", async (req, res, next) => {
 });
 
 /**
- * SUBJECT : 가장 최근 등록된 아티스탬 5개 불러오기
+ * SUBJECT : 가장 최근 등록된 아티스탬 4개 불러오기
  * PARAMETERS : -
  * ORDER BY : -
  * STATEMENT : -
@@ -1019,7 +1149,7 @@ router.post("/artistem/nearList", async (req, res, next) => {
         ON  A.ProductCategoryId = B.id
      WHERE  A.isIng = 0
      ORDER  BY A.createdAt DESC
-     LIMIT  5
+     LIMIT  4
     `;
 
   const selectQ2 = `
