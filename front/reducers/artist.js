@@ -8,6 +8,7 @@ export const initailState = {
   artistemDetail: null,
   allArtistemList: [], // 아티스트 전체조회
   artistPath: null, //
+  artistemNearList: [],
   //
   st_permmWaitingLoading: false,
   st_permmWaitingDone: false,
@@ -48,6 +49,10 @@ export const initailState = {
   st_artistUploadLoading: false, // artist 이미지 등록
   st_artistUploadDone: false,
   st_artistUploadError: null,
+  //
+  st_ArtistemNearListLoading: false, // 아티스트 최신 4개 불러오기
+  st_ArtistemNearListDone: false,
+  st_ArtistemNearListError: null,
 };
 
 export const PERMM_WAITING_LIST_REQUEST = "PERMM_WAITING_LIST_REQUEST";
@@ -85,6 +90,10 @@ export const ARTISTEM_DETAIL_FAILURE = "ARTISTEM_DETAIL_FAILURE";
 export const ALL_ARTISTEM_LIST_REQUEST = "ALL_ARTISTEM_LIST_REQUEST";
 export const ALL_ARTISTEM_LIST_SUCCESS = "ALL_ARTISTEM_LIST_SUCCESS";
 export const ALL_ARTISTEM_LIST_FAILURE = "ALL_ARTISTEM_LIST_FAILURE";
+
+export const ARTISTEM_NEAR_LIST_REQUEST = "ARTISTEM_NEAR_LIST_REQUEST";
+export const ARTISTEM_NEAR_LIST_SUCCESS = "ARTISTEM_NEAR_LIST_SUCCESS";
+export const ARTISTEM_NEAR_LIST_FAILURE = "ARTISTEM_NEAR_LIST_FAILURE";
 
 export const ARTIST_UPLOAD_REQUEST = "ARTIST_UPLOAD_REQUEST";
 export const ARTIST_UPLOAD_SUCCESS = "ARTIST_UPLOAD_SUCCESS";
@@ -305,6 +314,30 @@ const reducer = (state = initailState, action) =>
         draft.st_allArtistemListLoading = false;
         draft.st_allArtistemListDone = false;
         draft.st_allArtistemListError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+
+      case ARTISTEM_NEAR_LIST_REQUEST: {
+        draft.st_ArtistemNearListLoading = true;
+        draft.st_ArtistemNearListDone = false;
+        draft.st_ArtistemNearListError = null;
+        break;
+      }
+
+      case ARTISTEM_NEAR_LIST_SUCCESS: {
+        draft.st_ArtistemNearListLoading = false;
+        draft.st_ArtistemNearListDone = true;
+        draft.st_ArtistemNearListError = null;
+        draft.artistemNearList = action.data.artistemList;
+        break;
+      }
+
+      case ARTISTEM_NEAR_LIST_FAILURE: {
+        draft.st_ArtistemNearListLoading = false;
+        draft.st_ArtistemNearListDone = false;
+        draft.st_ArtistemNearListError = action.error;
         break;
       }
 

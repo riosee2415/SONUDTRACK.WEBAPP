@@ -26,7 +26,10 @@ import { Empty, Modal, Select } from "antd";
 import MainSlider2 from "../../components/slide/MainSlider2";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
-import { ALL_ARTISTEM_LIST_REQUEST } from "../../reducers/artist";
+import {
+  ALL_ARTISTEM_LIST_REQUEST,
+  ARTISTEM_NEAR_LIST_REQUEST,
+} from "../../reducers/artist";
 
 const CustomSelect = styled(Wrapper)`
   width: 240px;
@@ -61,7 +64,9 @@ const CustomSelect = styled(Wrapper)`
 
 const Index = () => {
   ////// GLOBAL STATE //////
-  const { allArtistemList } = useSelector((state) => state.artist);
+  const { allArtistemList, artistemNearList } = useSelector(
+    (state) => state.artist
+  );
 
   ////// HOOKS //////
   const width = useWidth();
@@ -69,6 +74,8 @@ const Index = () => {
   const dispatch = useDispatch();
 
   const [orderType, setOrderType] = useState(1); // 더보기 정렬 1.추천 2.최신
+
+  const [selectArtist, setSelectArtist] = useState(null);
 
   ////// USEEFFECT //////
 
@@ -81,10 +88,25 @@ const Index = () => {
     });
   }, [orderType]);
 
+  useEffect(() => {
+    if (artistemNearList) {
+      setSelectArtist(artistemNearList[0]);
+    }
+  }, [artistemNearList]);
+
   ////// TOGGLE //////
 
   ////// HANDLER //////
 
+  // 아티스트 선택
+  const selectArtistHandler = useCallback(
+    (data) => {
+      setSelectArtist(data);
+    },
+    [selectArtist]
+  );
+
+  // 순서 변경
   const orderTypeHandler = useCallback(
     (data) => {
       setOrderType(data);
@@ -92,6 +114,7 @@ const Index = () => {
     [orderType]
   );
 
+  // 페이지 이동
   const movelinkHandler = useCallback((link) => {
     router.push(link);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -216,32 +239,27 @@ const Index = () => {
                 dr={`row`}
                 ju={`space-between`}
               >
-                <Image
-                  alt="image"
-                  radius={`7px`}
-                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/artisttem/new_small1.png`}
-                  width={`48%`}
-                  margin={`0 0 20px`}
-                />
-                <Image
-                  alt="image"
-                  radius={`7px`}
-                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/artisttem/new_small2.png`}
-                  width={`48%`}
-                  margin={`0 0 20px`}
-                />
-                <Image
-                  alt="image"
-                  radius={`7px`}
-                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/artisttem/new_small1.png`}
-                  width={`48%`}
-                />
-                <Image
-                  alt="image"
-                  radius={`7px`}
-                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/artisttem/new_small2.png`}
-                  width={`48%`}
-                />
+                {artistemNearList &&
+                  (artistemNearList.length === 0 ? (
+                    <Wrapper>
+                      <Empty description="새로운 아티스트가 없습니다." />
+                    </Wrapper>
+                  ) : (
+                    artistemNearList.map((data, idx) => {
+                      return (
+                        <Image
+                          key={idx}
+                          onClick={() => selectArtistHandler(data)}
+                          alt="image"
+                          radius={`7px`}
+                          src={data.artistImage}
+                          height={width < 700 ? `120px` : `236px`}
+                          width={`48%`}
+                          margin={`0 0 20px`}
+                        />
+                      );
+                    })
+                  ))}
               </Wrapper>
               <Wrapper
                 width={width < 900 ? `100%` : `49%`}
@@ -260,50 +278,49 @@ const Index = () => {
                 >
                   <Wrapper dr={`row`} ju={`flex-start`}>
                     <Text fontSize={`18px`} fontWeight={`bold`}>
-                      이차미
+                      {selectArtist.title}
                     </Text>
                     <Wrapper width={`auto`} dr={`row`} margin={`0 0 0 14px`}>
                       <Image
                         alt="icon"
                         width={`14px`}
                         margin={`0 4px 0 0`}
-                        src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
+                        src={
+                          selectArtist && selectArtist.isLike
+                            ? `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`
+                            : `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`
+                        }
                       />
-                      <Text>98</Text>
+                      <Text>{selectArtist && selectArtist.likeCnt}</Text>
                     </Wrapper>
                   </Wrapper>
                   <Text fontSize={`16px`} margin={`12px 0 18px`}>
-                    "아티스트를 소개하는 한 마디를 적어주세요."
+                    {selectArtist.subTitle}
                   </Text>
                   <Wrapper dr={`row`} ju={`flex-start`}>
-                    <Wrapper
-                      width={`auto`}
-                      bgColor={Theme.white_C}
-                      color={Theme.darkGrey_C}
-                      radius={`30px`}
-                      height={`27px`}
-                      padding={`0 15px`}
-                      margin={`0 7px 5px 0`}
-                    >
-                      Vocal
-                    </Wrapper>
-                    <Wrapper
-                      width={`auto`}
-                      bgColor={Theme.white_C}
-                      color={Theme.darkGrey_C}
-                      radius={`30px`}
-                      height={`27px`}
-                      padding={`0 15px`}
-                      margin={`0 7px 5px 0`}
-                    >
-                      Beat Maker
-                    </Wrapper>
+                    {selectArtist &&
+                      selectArtist.tags.map((data) => {
+                        return (
+                          <Wrapper
+                            width={`auto`}
+                            bgColor={Theme.white_C}
+                            color={Theme.darkGrey_C}
+                            radius={`30px`}
+                            height={`27px`}
+                            padding={`0 15px`}
+                            margin={`0 7px 5px 0`}
+                          >
+                            {data}
+                          </Wrapper>
+                        );
+                      })}
                   </Wrapper>
                 </Wrapper>
                 <Image
+                  height={width < 700 ? `240px` : `495px`}
                   alt="image"
                   radius={`7px`}
-                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/artisttem/new_big.png`}
+                  src={selectArtist && selectArtist.artistImage}
                 />
               </Wrapper>
             </Wrapper>
@@ -561,6 +578,10 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: LOAD_MY_INFO_REQUEST,
+    });
+
+    context.store.dispatch({
+      type: ARTISTEM_NEAR_LIST_REQUEST,
     });
 
     // 구현부 종료
