@@ -327,6 +327,18 @@ SELECT	ROW_NUMBER()	OVER(ORDER	BY sort)	AS num,
  ORDER	BY num ASC
   `;
 
+  const selectTagQuery = `
+  SELECT  ROW_NUMBER()  OVER(ORDER  BY B.type ASC)  AS num,
+          B.value,
+          B.type
+    FROM  artistTags      A
+   INNER
+    JOIN  commonTag       B
+      ON  A.CommonTagId = B.id
+   WHERE  ArtistId = ${id}
+   ORDER  BY num ASC
+  `;
+
   try {
     const findArtistResult = await models.sequelize.query(selectQuery);
 
@@ -336,6 +348,7 @@ SELECT	ROW_NUMBER()	OVER(ORDER	BY sort)	AS num,
 
     const artistCountries = await models.sequelize.query(selectCountryQuery);
     const artistFilms = await models.sequelize.query(selectFilmQuery);
+    const tagDatum = await models.sequelize.query(selectTagQuery);
 
     findArtistResult[0].map((data) => {
       data["country"] = [];
@@ -350,6 +363,14 @@ SELECT	ROW_NUMBER()	OVER(ORDER	BY sort)	AS num,
 
       artistFilms[0].map((innerItem) => {
         item.film.push(innerItem);
+      });
+    });
+
+    findArtistResult[0].map((element) => {
+      element["tag"] = [];
+
+      tagDatum[0].map((innerItem) => {
+        element.tag.push(innerItem);
       });
     });
 
@@ -399,6 +420,7 @@ router.post("/info/update", isLoggedIn, async (req, res, next) => {
     question8,
     artistFilms,
     artistCountries,
+    tags,
   } = req.body;
 
   if (!Array.isArray(artistFilms)) {
@@ -409,7 +431,11 @@ router.post("/info/update", isLoggedIn, async (req, res, next) => {
     return res.status(401).send("잘못된 요청입니다.");
   }
 
-  // 두 배열은 해당 형식에 맞게 보내주세요.
+  if (!Array.isArray(tags)) {
+    return res.status(401).send("잘못된 요청입니다.");
+  }
+
+  // 세 배열은 해당 형식에 맞게 보내주세요.
   // "artistCountries": [
   //   "한국어 / 대한민국",
   //   "영어 / 미국"
@@ -433,6 +459,9 @@ router.post("/info/update", isLoggedIn, async (req, res, next) => {
   //         "coverImage": "http://via.placeholder.com/200x200",
   //         "sort": 2
   //     }
+  // ]
+  // "tags": [
+  //   1, 2, 3, 4
   // ]
 
   const findArtistQuery = `
@@ -491,8 +520,15 @@ router.post("/info/update", isLoggedIn, async (req, res, next) => {
      WHERE  ArtistId = ${id}
     `;
 
+    const deleteTagQuery = `
+    DELETE
+      FROM  artistTags
+     WHERE  ArtistId = ${id}
+    `;
+
     await models.sequelize.query(deleteCountryQuery);
     await models.sequelize.query(deleteFilmQuery);
+    await models.sequelize.query(deleteTagQuery);
 
     await Promise.all(
       artistCountries.map(async (data) => {
@@ -549,6 +585,29 @@ router.post("/info/update", isLoggedIn, async (req, res, next) => {
         `;
 
         await models.sequelize.query(insertFilmQuery);
+      })
+    );
+
+    await Promise.all(
+      tags.map(async (element) => {
+        const insertTagQuery = `
+        INSERT  INTO  artistTags
+        (
+          ArtistId,
+          CommonTagId,
+          createdAt,
+          updatedAt
+        )
+        VALUES
+        (
+          ${id},
+          ${element},
+          NOW(),
+          NOW()
+        )
+        `;
+
+        await models.sequelize.query(insertTagQuery);
       })
     );
 

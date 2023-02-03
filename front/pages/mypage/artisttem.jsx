@@ -1,8 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import ClientLayout from "../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../store/configureStore";
-import { LOAD_MY_INFO_REQUEST } from "../../reducers/user";
+import { LOAD_MY_INFO_REQUEST, USER_UPLOAD_REQUEST } from "../../reducers/user";
 import axios from "axios";
 import { END } from "redux-saga";
 import useWidth from "../../hooks/useWidth";
@@ -20,7 +20,7 @@ import {
 } from "../../components/commonComponents";
 import { Checkbox, message, Modal, Switch } from "antd";
 import Theme from "../../components/Theme";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
 import styled from "styled-components";
@@ -72,14 +72,26 @@ const Box = styled(Wrapper)`
 
 const Index = () => {
   ////// GLOBAL STATE //////
-  const { me } = useSelector((state) => state.user);
+  const {
+    me,
+    userPath,
+
+    st_userUploadLoading,
+    st_userUploadDone,
+    st_userUploadError,
+  } = useSelector((state) => state.user);
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
+  const dispatch = useDispatch();
+
+  const imgRef = useRef(); // 프로필 변경
 
   const comName = useInput(""); // 담당자명
   const comNum = useInput(""); // 사업자번호
+  const [isComNum, setIsComNum] = useState(false); // 사업자번호 인증
   const artistName = useInput(""); // 아티스트명
+  const [profileName, setProfileName] = useState(""); // 프로필이미지 이름
   const artistInfo = useInput(""); // 아티스트소개
 
   const [filmo, setFilmo] = useState(false);
@@ -99,6 +111,66 @@ const Index = () => {
   }, [filmo]);
 
   ////// HANDLER //////
+  // 사업자번호 존재하면 기업명 가져오기
+  const businessNumCheck = useCallback(() => {
+    if (!comNum.value) {
+      return message.error("사업자번호를 입력해주세요.");
+    }
+
+    const b1 = comNum.value.substr(0, 3);
+    const b2 = comNum.value.substr(3, 2);
+    const b3 = comNum.value.substr(5, 6);
+
+    let checkID = new Array(1, 3, 7, 1, 3, 7, 1, 3, 5, 1);
+    // let tmpBizID, i, chkSum=0, c2, remander;
+
+    let chkSum = 0;
+    let c2 = null;
+    let remander = null;
+    let bizID = b1 + b2 + b3;
+
+    if (!bizID) return false;
+
+    for (let i = 0; i <= 7; i++) chkSum += checkID[i] * bizID.charAt(i);
+    c2 = "0" + checkID[8] * bizID.charAt(8);
+    c2 = c2.substring(c2.length - 2, c2.length);
+    chkSum += Math.floor(c2.charAt(0)) + Math.floor(c2.charAt(1));
+    remander = (10 - (chkSum % 10)) % 10;
+
+    if (Math.floor(bizID.charAt(9)) === remander) {
+      setIsComNum(true);
+      return message.success("인증되었습니다.");
+    } // OK!
+    else {
+      setIsComNum(false);
+      return message.error("사업자번호를 정확하게 다시 입력해주세요.");
+    }
+  }, [comNum.value, isComNum]);
+
+  // 사용자 이미지 등록
+  const imgClickHandler = useCallback(() => {
+    imgRef.current.click();
+  }, [imgRef]);
+
+  const imgUploadHandler = useCallback((e) => {
+    setProfileName(e.target.files[0].name);
+
+    const formData = new FormData();
+
+    [].forEach.call(e.target.files, (file) => {
+      formData.append("image", file);
+    });
+
+    if (e.target.files.length < 1) {
+      return;
+    }
+
+    dispatch({
+      type: USER_UPLOAD_REQUEST,
+      data: formData,
+    });
+  }, []);
+
   ////// DATAVIEW //////
 
   return (
@@ -155,6 +227,7 @@ const Index = () => {
                 tyoe="text"
                 border={`1px solid ${Theme.lightGrey_C}`}
                 margin={`0 0 30px`}
+                {...comName}
               />
               <Text
                 fontSize={`16px`}
@@ -179,6 +252,7 @@ const Index = () => {
                   placeholder="사업자번호를 입력해주세요."
                   tyoe="text"
                   border={`1px solid ${Theme.lightGrey_C}`}
+                  {...comNum}
                 />
                 <CommonButton
                   width={`100px`}
@@ -186,6 +260,7 @@ const Index = () => {
                   fontSize={`18px`}
                   fontWeight={`600`}
                   kindOf={`subTheme2`}
+                  onClick={businessNumCheck}
                 >
                   인증하기
                 </CommonButton>
@@ -218,6 +293,7 @@ const Index = () => {
                 tyoe="text"
                 border={`1px solid ${Theme.lightGrey_C}`}
                 margin={`0 0 30px`}
+                {...artistName}
               />
               <Text
                 fontSize={`16px`}
@@ -297,6 +373,7 @@ const Index = () => {
                 tyoe="text"
                 border={`1px solid ${Theme.lightGrey_C}`}
                 margin={`0 0 30px`}
+                {...artistInfo}
               />
               <Text
                 fontSize={`16px`}

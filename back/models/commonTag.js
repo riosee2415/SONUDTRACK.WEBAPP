@@ -10,6 +10,11 @@ module.exports = class CommonTag extends Model {
           type: DataTypes.STRING(100),
           allowNull: false,
         },
+        type: {
+          // 태그 종류 Ex) Mood, Genre, 카테고리 등등
+          type: DataTypes.STRING(50),
+          allowNull: false,
+        },
       },
       {
         modelName: "CommonTag",
