@@ -9,6 +9,7 @@ export const initailState = {
   allArtistemList: [], // 아티스트 전체조회
   artistPath: null, //
   artistemNearList: [],
+  artistemSlideList: [],
   //
   st_permmWaitingLoading: false,
   st_permmWaitingDone: false,
@@ -53,6 +54,10 @@ export const initailState = {
   st_ArtistemNearListLoading: false, // 아티스트 최신 4개 불러오기
   st_ArtistemNearListDone: false,
   st_ArtistemNearListError: null,
+  //
+  st_ArtistemSlideListLoading: false, // 아티스트 최신 10개 불러오기(슬라이드)
+  st_ArtistemSlideListDone: false,
+  st_ArtistemSlideListError: null,
 };
 
 export const PERMM_WAITING_LIST_REQUEST = "PERMM_WAITING_LIST_REQUEST";
@@ -94,6 +99,10 @@ export const ALL_ARTISTEM_LIST_FAILURE = "ALL_ARTISTEM_LIST_FAILURE";
 export const ARTISTEM_NEAR_LIST_REQUEST = "ARTISTEM_NEAR_LIST_REQUEST";
 export const ARTISTEM_NEAR_LIST_SUCCESS = "ARTISTEM_NEAR_LIST_SUCCESS";
 export const ARTISTEM_NEAR_LIST_FAILURE = "ARTISTEM_NEAR_LIST_FAILURE";
+
+export const ARTISTEM_SLIDE_LIST_REQUEST = "ARTISTEM_SLIDE_LIST_REQUEST";
+export const ARTISTEM_SLIDE_LIST_SUCCESS = "ARTISTEM_SLIDE_LIST_SUCCESS";
+export const ARTISTEM_SLIDE_LIST_FAILURE = "ARTISTEM_SLIDE_LIST_FAILURE";
 
 export const ARTIST_UPLOAD_REQUEST = "ARTIST_UPLOAD_REQUEST";
 export const ARTIST_UPLOAD_SUCCESS = "ARTIST_UPLOAD_SUCCESS";
@@ -338,6 +347,30 @@ const reducer = (state = initailState, action) =>
         draft.st_ArtistemNearListLoading = false;
         draft.st_ArtistemNearListDone = false;
         draft.st_ArtistemNearListError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+
+      case ARTISTEM_SLIDE_LIST_REQUEST: {
+        draft.st_ArtistemSlideListLoading = true;
+        draft.st_ArtistemSlideListDone = false;
+        draft.st_ArtistemSlideListError = null;
+        break;
+      }
+
+      case ARTISTEM_SLIDE_LIST_SUCCESS: {
+        draft.st_ArtistemSlideListLoading = false;
+        draft.st_ArtistemSlideListDone = true;
+        draft.st_ArtistemSlideListError = null;
+        draft.artistemSlideList = action.data.artistemList;
+        break;
+      }
+
+      case ARTISTEM_SLIDE_LIST_FAILURE: {
+        draft.st_ArtistemSlideListLoading = false;
+        draft.st_ArtistemSlideListDone = false;
+        draft.st_ArtistemSlideListError = action.error;
         break;
       }
 

@@ -29,6 +29,7 @@ import { useRouter } from "next/router";
 import {
   ALL_ARTISTEM_LIST_REQUEST,
   ARTISTEM_NEAR_LIST_REQUEST,
+  ARTISTEM_SLIDE_LIST_REQUEST,
 } from "../../reducers/artist";
 
 const CustomSelect = styled(Wrapper)`
@@ -64,7 +65,7 @@ const CustomSelect = styled(Wrapper)`
 
 const Index = () => {
   ////// GLOBAL STATE //////
-  const { allArtistemList, artistemNearList } = useSelector(
+  const { allArtistemList, artistemNearList, artistemSlideList } = useSelector(
     (state) => state.artist
   );
 
@@ -278,7 +279,7 @@ const Index = () => {
                 >
                   <Wrapper dr={`row`} ju={`flex-start`}>
                     <Text fontSize={`18px`} fontWeight={`bold`}>
-                      {selectArtist.title}
+                      {selectArtist && selectArtist.title}
                     </Text>
                     <Wrapper width={`auto`} dr={`row`} margin={`0 0 0 14px`}>
                       <Image
@@ -295,7 +296,7 @@ const Index = () => {
                     </Wrapper>
                   </Wrapper>
                   <Text fontSize={`16px`} margin={`12px 0 18px`}>
-                    {selectArtist.subTitle}
+                    {selectArtist && selectArtist.subTitle}
                   </Text>
                   <Wrapper dr={`row`} ju={`flex-start`}>
                     {selectArtist &&
@@ -325,7 +326,8 @@ const Index = () => {
               </Wrapper>
             </Wrapper>
 
-            <MainSlider2 />
+            {/* 아티스트탬 슬라이드 */}
+            <MainSlider2 datum={artistemSlideList} />
 
             <Wrapper margin={`100px 0 45px`}>
               <Text
@@ -582,6 +584,10 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: ARTISTEM_NEAR_LIST_REQUEST,
+    });
+
+    context.store.dispatch({
+      type: ARTISTEM_SLIDE_LIST_REQUEST,
     });
 
     // 구현부 종료
