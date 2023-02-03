@@ -175,7 +175,11 @@ const MainSlider2 = ({ datum }) => {
             </Text>
             <Image
               alt="icon"
-              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
+              src={
+                datum[status] && datum[status].isLike
+                  ? `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`
+                  : `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`
+              }
               width={`14px`}
               margin={`0 4px 0 0`}
             />
