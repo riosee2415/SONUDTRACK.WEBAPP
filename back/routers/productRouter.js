@@ -779,11 +779,11 @@ router.post("/track/detail", async (req, res, next) => {
 //////////////////////////////////COMMON TAG ///////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
 router.post("/commontag/new", isAdminCheck, async (req, res, next) => {
-  const { value } = req.body;
+  const { value, type } = req.body;
 
   const insertQ = `
-    INSERT INTO commonTag (value, createdAt, updatedAt) VALUES (
-      "${value}", NOW(), NOW()
+    INSERT INTO commonTag (value, type, createdAt, updatedAt) VALUES (
+      "${value}", "${type}", NOW(), NOW()
     )
   `;
 
@@ -798,12 +798,15 @@ router.post("/commontag/new", isAdminCheck, async (req, res, next) => {
 });
 
 router.post("/commontag/list", isAdminCheck, async (req, res, next) => {
-  const { value } = req.body;
+  const { value, type } = req.body;
   const _value = value ? value : "";
+
+  const _type = type ? type : false;
 
   const selectQ = `
     SELECT  ROW_NUMBER() OVER(ORDER BY createdAt DESC)  AS num,
             id,
+            type,
             value,
             createdAt,
             updatedAt,
@@ -811,7 +814,8 @@ router.post("/commontag/list", isAdminCheck, async (req, res, next) => {
             DATE_FORMAT(updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt
       FROM  commonTag
      WHERE  1 = 1
-       ${_value ? `AND  value LIKE "%${_value}%"` : ""} 
+       ${_value ? `AND  value LIKE "%${_value}%"` : ""}
+       ${_type ? `AND type = "${_type}"` : ``}
      ORDER  BY  value ASC
 
   `;
@@ -827,11 +831,12 @@ router.post("/commontag/list", isAdminCheck, async (req, res, next) => {
 });
 
 router.post("/commontag/modify", isAdminCheck, async (req, res, next) => {
-  const { id, value } = req.body;
+  const { id, value, type } = req.body;
 
   const updateQ = `
     UPDATE  commonTag
        SET  value = "${value}",
+            type = "${type}"
             updatedAt = NOW()
      WHERE  id = ${id}
   `;
