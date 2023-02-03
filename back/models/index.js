@@ -42,6 +42,7 @@ const userlike = require("./userlike");
 const faq = require("./faq");
 const artistcountry = require("./artistcountry");
 const artistfilm = require("./artistfilm");
+const artisttag = require("./artisttag");
 
 const env = process.env.NODE_ENV || "development";
 const config = require("../config/config")[env];
@@ -97,6 +98,7 @@ db.UserLike = userlike;
 db.Faq = faq;
 db.ArtistCountry = artistcountry;
 db.ArtistFilm = artistfilm;
+db.ArtistTag = artisttag;
 
 Object.keys(db).forEach((modelName) => {
   db[modelName].init(sequelize);

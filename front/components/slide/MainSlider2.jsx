@@ -84,7 +84,8 @@ const Audio = styled.audio`
 `;
 
 const MainSlider2 = ({
-  array = [
+  datum,
+  arrray = [
     {
       leftImg:
         "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png",
@@ -146,7 +147,7 @@ const MainSlider2 = ({
       if (statement === 0) {
         setStatus((prev) => {
           if (prev === 0) {
-            return array.length - 1;
+            return datum.length - 1;
           } else {
             return prev - 1;
           }
@@ -155,7 +156,7 @@ const MainSlider2 = ({
 
       if (statement === 1) {
         setStatus((prev) => {
-          if (prev === array.length - 1) {
+          if (prev === datum.length - 1) {
             return 0;
           } else {
             return prev + 1;
@@ -163,7 +164,7 @@ const MainSlider2 = ({
         });
       }
     },
-    [status, array]
+    [status, datum]
   );
 
   const musicToggle = useCallback(() => {
@@ -177,7 +178,7 @@ const MainSlider2 = ({
           radius={`14px`}
           alt="thumnail"
           height={`100%`}
-          src={array[status].rightImg}
+          src={datum[status] && datum[status].artistImage}
         />
       </LeftBox>
       <RightBox>
@@ -199,7 +200,7 @@ const MainSlider2 = ({
               fontWeight={`500`}
               margin={`0 14px 0 0`}
             >
-              {array[status].name}
+              {datum[status] && datum[status].title}
             </Text>
             <Image
               alt="icon"
@@ -207,7 +208,9 @@ const MainSlider2 = ({
               width={`14px`}
               margin={`0 4px 0 0`}
             />
-            <Text color={Theme.darkGrey_C}>98</Text>
+            <Text color={Theme.darkGrey_C}>
+              {datum[status] && datum[status].likeCnt}
+            </Text>
             <Wrapper
               dr={`row`}
               width={`auto`}
@@ -223,24 +226,25 @@ const MainSlider2 = ({
             </Wrapper>
           </Wrapper>
           <Text fontSize={width < 900 ? `14px` : `16px`}>
-            {array[status].title}
+            {datum[status] && datum[status].subTitle}
           </Text>
 
           <Wrapper dr={`row`} ju={`flex-start`} margin={`20px 0 0`}>
-            {array[status].hash.map((data) => {
-              return (
-                <Wrapper
-                  width={`auto`}
-                  border={`1px solid ${Theme.lightGrey_C}`}
-                  radius={`30px`}
-                  height={`27px`}
-                  padding={`0 15px`}
-                  margin={`0 4px 0 0`}
-                >
-                  {data}
-                </Wrapper>
-              );
-            })}
+            {datum[status] &&
+              datum[status].tags.map((data) => {
+                return (
+                  <Wrapper
+                    width={`auto`}
+                    border={`1px solid ${Theme.lightGrey_C}`}
+                    radius={`30px`}
+                    height={`27px`}
+                    padding={`0 15px`}
+                    margin={`0 4px 0 0`}
+                  >
+                    {data}
+                  </Wrapper>
+                );
+              })}
           </Wrapper>
         </Wrapper>
         <Wrapper>
@@ -253,7 +257,7 @@ const MainSlider2 = ({
             wrap={`nowrap`}
             padding={`0 0 30px`}
           >
-            {array.map((data) => {
+            {datum.map((data) => {
               return (
                 <Circle bgImg={`url("${data.leftImg}")`} onClick={musicToggle}>
                   <Wrapper bgColor={`rgba(0, 0, 0, 0.4)`} height={`100%`}>

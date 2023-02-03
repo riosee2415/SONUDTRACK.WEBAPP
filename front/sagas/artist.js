@@ -37,6 +37,14 @@ import {
   ALL_ARTISTEM_LIST_SUCCESS,
   ALL_ARTISTEM_LIST_FAILURE,
   //
+  ARTISTEM_NEAR_LIST_REQUEST,
+  ARTISTEM_NEAR_LIST_SUCCESS,
+  ARTISTEM_NEAR_LIST_FAILURE,
+  //
+  ARTISTEM_SLIDE_LIST_REQUEST,
+  ARTISTEM_SLIDE_LIST_SUCCESS,
+  ARTISTEM_SLIDE_LIST_FAILURE,
+  //
   ARTIST_UPLOAD_REQUEST,
   ARTIST_UPLOAD_SUCCESS,
   ARTIST_UPLOAD_FAILURE,
@@ -301,6 +309,62 @@ function* allArtistemList(action) {
 // ******************************************************************************************************************
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
+async function artistemNaerListAPI(data) {
+  return await axios.post("/api/artist/artistem/nearList", data);
+}
+
+function* artistemNaerList(action) {
+  try {
+    const result = yield call(artistemNaerListAPI, action.data);
+
+    yield put({
+      type: ARTISTEM_NEAR_LIST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: ARTISTEM_NEAR_LIST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function artistemSlideListAPI(data) {
+  return await axios.post("/api/artist/artistem/slideList", data);
+}
+
+function* artistemSlideList(action) {
+  try {
+    const result = yield call(artistemSlideListAPI, action.data);
+
+    yield put({
+      type: ARTISTEM_SLIDE_LIST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: ARTISTEM_SLIDE_LIST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
 async function artistImgAPI(data) {
   return await axios.post(`/api/artist/image`, data);
 }
@@ -382,6 +446,12 @@ function* watchArtistemDetail() {
 function* watchAllArtistemList() {
   yield takeLatest(ALL_ARTISTEM_LIST_REQUEST, allArtistemList);
 }
+function* watchArtistNearList() {
+  yield takeLatest(ARTISTEM_NEAR_LIST_REQUEST, artistemNaerList);
+}
+function* watchArtistSlideList() {
+  yield takeLatest(ARTISTEM_SLIDE_LIST_REQUEST, artistemSlideList);
+}
 function* watchArtistUpload() {
   yield takeLatest(ARTIST_UPLOAD_REQUEST, artistImg);
 }
@@ -401,6 +471,8 @@ export default function* artistSaga() {
     fork(watchArtistemTopUp),
     fork(watchArtistemDetail),
     fork(watchAllArtistemList),
+    fork(watchArtistNearList),
+    fork(watchArtistSlideList),
     fork(watchArtistUpload),
     fork(watchArtistInfoUpdate),
     //
