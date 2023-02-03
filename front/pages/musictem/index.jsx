@@ -112,7 +112,7 @@ const Index = () => {
           allAudioTimeArr.push(moment(trackId.duration * 1000).format("mm:ss"));
         }
         setAllAudioTime(allAudioTimeArr);
-      }, 500);
+      }, 2000);
     }
   }, [allTrackList]);
 
