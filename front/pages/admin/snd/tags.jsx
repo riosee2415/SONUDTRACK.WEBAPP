@@ -2,7 +2,15 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import AdminLayout from "../../../components/AdminLayout";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { Form, Popover, Input, Button, message, Popconfirm } from "antd";
+import {
+  Form,
+  Popover,
+  Input,
+  Button,
+  message,
+  Popconfirm,
+  Select,
+} from "antd";
 import { useRouter, withRouter } from "next/router";
 import wrapper from "../../../store/configureStore";
 import { END } from "redux-saga";
@@ -147,6 +155,7 @@ const Tags = ({}) => {
     dispatch({
       type: COMMON_TAG_NEW_REQUEST,
       data: {
+        type: data.type,
         value: data.value,
       },
     });
@@ -161,6 +170,10 @@ const Tags = ({}) => {
       dataIndex: "num",
     },
 
+    {
+      title: "테그유형",
+      dataIndex: "type",
+    },
     {
       title: "테그명",
       dataIndex: "value",
@@ -257,7 +270,26 @@ const Tags = ({}) => {
           form={nForm}
         >
           <CustomForm.Item
-            label="새 테그명"
+            label="테그유형"
+            name="type"
+            rules={[
+              { required: true, message: "테그유형은 필수입력사항 입니다." },
+            ]}
+          >
+            <Select
+              style={{ width: "250px", marginRight: `10px` }}
+              size="small"
+              placeholder="테그유형을 선택하세요."
+              maxLength={35}
+            >
+              <Select.Option value={"카테고리"}>카테고리</Select.Option>
+              <Select.Option value={"Mood"}>Mood</Select.Option>
+              <Select.Option value={"Genre"}>Genre</Select.Option>
+            </Select>
+          </CustomForm.Item>
+
+          <CustomForm.Item
+            label="테그명"
             name="value"
             rules={[
               { required: true, message: "테그명은 필수입력사항 입니다." },

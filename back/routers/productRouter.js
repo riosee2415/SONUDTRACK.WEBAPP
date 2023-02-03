@@ -816,7 +816,7 @@ router.post("/commontag/list", isAdminCheck, async (req, res, next) => {
      WHERE  1 = 1
        ${_value ? `AND  value LIKE "%${_value}%"` : ""}
        ${_type ? `AND type = "${_type}"` : ``}
-     ORDER  BY  value ASC
+     ORDER  BY  type ASC
 
   `;
 
