@@ -63,6 +63,20 @@ const CustomSelect = styled(Wrapper)`
   }
 `;
 
+const Box = styled(Wrapper)`
+  cursor: pointer;
+
+  & .thumb {
+    transition: 0.5s;
+  }
+
+  &:hover {
+    & .thumb {
+      transform: scale(1.1);
+    }
+  }
+`;
+
 const Index = () => {
   ////// GLOBAL STATE //////
   const { allArtistemList, artistemNearList, artistemSlideList } = useSelector(
@@ -248,16 +262,19 @@ const Index = () => {
                   ) : (
                     artistemNearList.map((data, idx) => {
                       return (
-                        <Image
-                          key={idx}
-                          onClick={() => selectArtistHandler(data)}
-                          alt="image"
-                          radius={`7px`}
-                          src={data.artistImage}
-                          height={width < 700 ? `120px` : `236px`}
-                          width={`48%`}
-                          margin={`0 0 20px`}
-                        />
+                        <Box width={`48%`}>
+                          <Image
+                            className="thumb"
+                            key={idx}
+                            onClick={() => selectArtistHandler(data)}
+                            alt="image"
+                            radius={`7px`}
+                            src={data.artistImage}
+                            height={width < 700 ? `120px` : `236px`}
+                            width={`100%`}
+                            margin={`0 0 20px`}
+                          />
+                        </Box>
                       );
                     })
                   ))}
