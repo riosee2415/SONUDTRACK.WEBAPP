@@ -254,6 +254,113 @@ router.post("/permm/create", isLoggedIn, async (req, res, next) => {
 });
 
 /**
+ * SUBJECT : 마이 아티스탬 정보 가져오기
+ * PARAMETERS : id
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 시니어 개발자 신태섭
+ * DEV DATE : 2023/02/03
+ */
+router.post("/info/data", async (req, res, next) => {
+  const { id } = req.body;
+
+  const selectQuery = `
+SELECT	id,
+        plan,
+        gen,
+        isPermm,
+        permmAt,
+        DATE_FORMAT(permmAt, "%Y년 %m월  %d일")		AS viewPermmAt,
+        createdAt,
+        updatedAt,
+        DATE_FORMAT(createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
+        DATE_FORMAT(updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt,
+        UserId,
+        name,
+        businessNum,
+        artistname,
+        info,
+        question1,
+        question2,
+        question3,
+        question4,
+        question5,
+        question6,
+        question7,
+        question8,
+        isVacation 
+  FROM	artist
+ WHERE	id = ${id}
+  `;
+
+  const selectCountryQuery = `
+  SELECT	ROW_NUMBER() OVER(ORDER	BY createdAt)	AS num,
+          id,
+          value,
+          createdAt,
+          updatedAt,
+          DATE_FORMAT(createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
+          DATE_FORMAT(updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt,
+          ArtistId 
+    FROM	artistCountry
+   WHERE  ArtistId = ${id}
+   ORDER	BY num ASC
+  `;
+
+  const selectFilmQuery = `
+SELECT	ROW_NUMBER()	OVER(ORDER	BY sort)	AS num,
+        id,
+        roleName,
+        comment,
+        name,
+        title,
+        musicFile,
+        coverImage,
+        sort,
+        createdAt,
+        updatedAt,
+        DATE_FORMAT(createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
+        DATE_FORMAT(updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt,
+        ArtistId 
+  FROM	artistFilm
+ WHERE  ArtistId = ${id}
+ ORDER	BY num ASC
+  `;
+
+  try {
+    const findArtistResult = await models.sequelize.query(selectQuery);
+
+    if (findArtistResult[0].length === 0) {
+      return res.status(401).send("아티스트 정보가 존재하지 않습니다.");
+    }
+
+    const artistCountries = await models.sequelize.query(selectCountryQuery);
+    const artistFilms = await models.sequelize.query(selectFilmQuery);
+
+    findArtistResult[0].map((data) => {
+      data["country"] = [];
+
+      artistCountries[0].map((innerItem) => {
+        data.country.push(innerItem);
+      });
+    });
+
+    findArtistResult[0].map((item) => {
+      item["film"] = [];
+
+      artistFilms[0].map((innerItem) => {
+        item.film.push(innerItem);
+      });
+    });
+
+    return res.status(200).json(findArtistResult[0][0]);
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("데이터를 조회할 수 없습니다.");
+  }
+});
+
+/**
  * SUBJECT : 마이 아티스탬 정보 수정
  * PARAMETERS : id,
  *              name,
@@ -302,6 +409,39 @@ router.post("/info/update", isLoggedIn, async (req, res, next) => {
     return res.status(401).send("잘못된 요청입니다.");
   }
 
+  // 두 배열은 해당 형식에 맞게 보내주세요.
+  // "artistCountries": [
+  //   "한국어 / 대한민국",
+  //   "영어 / 미국"
+  // ],
+  // "artistFilms": [
+  //     {
+  //         "roleName": "역할",
+  //         "comment": "comment",
+  //         "name": "가수명",
+  //         "title": "곡 제목",
+  //         "musicFile": "http://via.placeholder.com/200x200",
+  //         "coverImage": "http://via.placeholder.com/200x200",
+  //         "sort": 1
+  //     },
+  //     {
+  //         "roleName": "역할2",
+  //         "comment": "comment2",
+  //         "name": "가수명2",
+  //         "title": "곡 제목2",
+  //         "musicFile": "http://via.placeholder.com/200x200",
+  //         "coverImage": "http://via.placeholder.com/200x200",
+  //         "sort": 2
+  //     }
+  // ]
+
+  const findArtistQuery = `
+  SELECT  UserId,
+          isPermm
+    FROM  artist  
+   WHERE  id = ${id}
+  `;
+
   const updateQuery = `
   UPDATE  artist
      SET  name = "${name}",
@@ -321,6 +461,22 @@ router.post("/info/update", isLoggedIn, async (req, res, next) => {
   `;
 
   try {
+    const findResult = await models.sequelize.query(findArtistQuery);
+
+    if (findResult[0].length === 0) {
+      return res.status(401).send("데이터가 존재하지 않습니다.");
+    }
+
+    if (!findResult[0][0].isPermm) {
+      return res
+        .status(401)
+        .send("승인이 완료되지 않아 데이터를 수정할 수 없습니다.");
+    }
+
+    if (findResult[0][0].UserId !== req.user.id) {
+      return res.status(401).send("자신의 정보만 수정할 수 있습니다.");
+    }
+
     await models.sequelize.query(updateQuery);
 
     const deleteCountryQuery = `
@@ -403,7 +559,56 @@ router.post("/info/update", isLoggedIn, async (req, res, next) => {
   }
 });
 
-router.post("/info/vacation/update");
+/**
+ * SUBJECT : 휴가중 토글
+ * PARAMETERS : id, isVacation
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 시니어 개발자 신태섭
+ * DEV DATE : 2023/02/03
+ */
+router.post("/info/vacation/update", isLoggedIn, async (req, res, next) => {
+  const { id, isVacation } = req.body;
+
+  const findArtistQuery = `
+  SELECT  UserId,
+          isPermm
+    FROM  artist  
+   WHERE  id = ${id}
+  `;
+
+  const updateQuery = `
+UPDATE  artist
+   SET  isVacation = ${isVacation},
+        updatedAt = NOW()
+ WHERE  id = ${id}
+`;
+
+  try {
+    const findResult = await models.sequelize.query(findArtistQuery);
+
+    if (findResult[0].length === 0) {
+      return res.status(401).send("데이터가 존재하지 않습니다.");
+    }
+
+    if (!findResult[0][0].isPermm) {
+      return res
+        .status(401)
+        .send("승인이 완료되지 않아 데이터를 수정할 수 없습니다.");
+    }
+
+    if (findResult[0][0].UserId !== req.user.id) {
+      return res.status(401).send("자신의 정보만 수정할 수 있습니다.");
+    }
+
+    await models.sequelize.query(updateQuery);
+
+    return res.status(200).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("데이터를 수정할 수 없습니다.");
+  }
+});
 
 /**
  * SUBJECT : 신청자 승인하기
