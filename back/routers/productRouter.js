@@ -541,7 +541,21 @@ router.post("/track/recentList", async (req, res, next) => {
          A.downloadCnt,
          FORMAT(A.downloadCnt, ",")					AS  viewDownLoadCnt,
          A.createdAt,
-         A.ProductId
+         A.ProductId,
+         (
+           SELECT  COUNT(B.id)
+             FROM  userLike	B
+            WHERE  A.id = B.ProductTrackId
+         )		                                        AS likeCnt,
+         CASE 
+           WHEN  (
+                  SELECT  COUNT(B.id)
+                    FROM  userLike	B
+                   WHERE  B.UserId = ${req.user ? req.user.id : 0}
+                 ) > 0
+           THEN  1
+           ELSE  0
+          END                                         AS isLike
    FROM  productTrack	A 
   ORDER  BY A.createdAt DESC 
   LIMIT  5
