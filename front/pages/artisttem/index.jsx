@@ -65,6 +65,7 @@ const CustomSelect = styled(Wrapper)`
 
 const Box = styled(Wrapper)`
   cursor: pointer;
+  overflow: hidden;
 
   & .thumb {
     transition: 0.5s;
@@ -279,68 +280,74 @@ const Index = () => {
                     })
                   ))}
               </Wrapper>
-              <Wrapper
+              <Box
                 width={width < 900 ? `100%` : `49%`}
                 margin={width < 900 ? `20px 0 0` : `0`}
-                position={`relative`}
+                onClick={() =>
+                  movelinkHandler(`/artist/${selectArtist && selectArtist.id}`)
+                }
               >
-                <Wrapper
-                  position={`absolute`}
-                  bottom={`0`}
-                  left={`0`}
-                  bgColor={`rgba(0, 0, 0, 0.5)`}
-                  color={Theme.white_C}
-                  radius={`7px`}
-                  padding={`20px`}
-                  al={`flex-start`}
-                >
-                  <Wrapper dr={`row`} ju={`flex-start`}>
-                    <Text fontSize={`18px`} fontWeight={`bold`}>
-                      {selectArtist && selectArtist.title}
+                <Wrapper position={`relative`}>
+                  <Wrapper
+                    position={`absolute`}
+                    bottom={`0`}
+                    left={`0`}
+                    bgColor={`rgba(0, 0, 0, 0.5)`}
+                    color={Theme.white_C}
+                    radius={`7px`}
+                    padding={`20px`}
+                    al={`flex-start`}
+                    zIndex={`2`}
+                  >
+                    <Wrapper dr={`row`} ju={`flex-start`}>
+                      <Text fontSize={`18px`} fontWeight={`bold`}>
+                        {selectArtist && selectArtist.title}
+                      </Text>
+                      <Wrapper width={`auto`} dr={`row`} margin={`0 0 0 14px`}>
+                        <Image
+                          alt="icon"
+                          width={`14px`}
+                          margin={`0 4px 0 0`}
+                          src={
+                            selectArtist && selectArtist.isLike
+                              ? `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`
+                              : `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`
+                          }
+                        />
+                        <Text>{selectArtist && selectArtist.likeCnt}</Text>
+                      </Wrapper>
+                    </Wrapper>
+                    <Text fontSize={`16px`} margin={`12px 0 18px`}>
+                      {selectArtist && selectArtist.subTitle}
                     </Text>
-                    <Wrapper width={`auto`} dr={`row`} margin={`0 0 0 14px`}>
-                      <Image
-                        alt="icon"
-                        width={`14px`}
-                        margin={`0 4px 0 0`}
-                        src={
-                          selectArtist && selectArtist.isLike
-                            ? `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`
-                            : `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`
-                        }
-                      />
-                      <Text>{selectArtist && selectArtist.likeCnt}</Text>
+                    <Wrapper dr={`row`} ju={`flex-start`}>
+                      {selectArtist &&
+                        selectArtist.tags.map((data) => {
+                          return (
+                            <Wrapper
+                              width={`auto`}
+                              bgColor={Theme.white_C}
+                              color={Theme.darkGrey_C}
+                              radius={`30px`}
+                              height={`27px`}
+                              padding={`0 15px`}
+                              margin={`0 7px 5px 0`}
+                            >
+                              {data}
+                            </Wrapper>
+                          );
+                        })}
                     </Wrapper>
                   </Wrapper>
-                  <Text fontSize={`16px`} margin={`12px 0 18px`}>
-                    {selectArtist && selectArtist.subTitle}
-                  </Text>
-                  <Wrapper dr={`row`} ju={`flex-start`}>
-                    {selectArtist &&
-                      selectArtist.tags.map((data) => {
-                        return (
-                          <Wrapper
-                            width={`auto`}
-                            bgColor={Theme.white_C}
-                            color={Theme.darkGrey_C}
-                            radius={`30px`}
-                            height={`27px`}
-                            padding={`0 15px`}
-                            margin={`0 7px 5px 0`}
-                          >
-                            {data}
-                          </Wrapper>
-                        );
-                      })}
-                  </Wrapper>
+                  <Image
+                    height={width < 700 ? `240px` : `495px`}
+                    alt="image"
+                    radius={`7px`}
+                    src={selectArtist && selectArtist.artistImage}
+                    className="thumb"
+                  />
                 </Wrapper>
-                <Image
-                  height={width < 700 ? `240px` : `495px`}
-                  alt="image"
-                  radius={`7px`}
-                  src={selectArtist && selectArtist.artistImage}
-                />
-              </Wrapper>
+              </Box>
             </Wrapper>
 
             {/* 아티스트탬 슬라이드 */}

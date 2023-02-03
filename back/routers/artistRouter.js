@@ -900,6 +900,7 @@ router.post("/artistem/slideList", async (req, res, next) => {
             A.pPrice,
             A.filename,
             A.filepath,
+            A.ArtistId,
             FORMAT(A.sPrice , 0)   as viewsPrice,
             FORMAT(A.dPrice , 0)   as viewdPrice,
             FORMAT(A.pPrice , 0)   as viewpPrice,
@@ -964,16 +965,31 @@ router.post("/artistem/slideList", async (req, res, next) => {
       FROM	artistTemGen
     `;
 
+  const selectQ4 = `
+    SELECT	id,
+            roleName,
+            comment,
+            name,
+            title,
+            musicFile,
+            coverImage,
+            sort,
+            ArtistId
+      FROM	artistFilm
+    `;
+
   try {
     const list = await models.sequelize.query(selectQ);
     const tags = await models.sequelize.query(selectQ2);
     const gens = await models.sequelize.query(selectQ3);
+    const film = await models.sequelize.query(selectQ4);
 
     const tems = list[0];
 
     tems.map((data) => {
       data["tags"] = [];
       data["gens"] = [];
+      data["film"] = [];
 
       tags[0].map((tag) => {
         if (data.id === tag.ArtistemId) {
@@ -983,6 +999,13 @@ router.post("/artistem/slideList", async (req, res, next) => {
       gens[0].map((gen) => {
         if (data.id === gen.ArtistemId) {
           data["gens"].push(gen.value);
+        }
+      });
+      film[0].map((film) => {
+        if (data.ArtistId === film.ArtistId) {
+          data["film"].push({
+            ...film,
+          });
         }
       });
     });

@@ -13,6 +13,7 @@ import { Image, Text, Wrapper } from "../commonComponents";
 import Theme from "../Theme";
 import useWidth from "../../hooks/useWidth";
 import moment from "moment";
+import { useRouter } from "next/router";
 
 const LeftBox = styled(Wrapper)`
   width: 50%;
@@ -83,59 +84,13 @@ const Audio = styled.audio`
   width: calc(100% - 150px);
 `;
 
-const MainSlider2 = ({
-  datum,
-  arrray = [
-    {
-      leftImg:
-        "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png",
-      rightImg:
-        "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png",
-      name: "이차미",
-      title: "아티스트를 소개하는 한 마디를 적어주세요.",
-      hash: ["Vocal", "Beat Maker", "Remixer", "Effect & Fx Sound Desingers"],
-    },
-    {
-      leftImg:
-        "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/art-goods/assets/images/main-page/img_4s_left_prod.png",
-      rightImg:
-        "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/art-goods/assets/images/main-page/img_4s_right_prod.png",
-      name: "이차미",
-      title: "아티스트를 소개하는 한 마디를 적어주세요.",
-      hash: ["Vocal", "Beat Maker"],
-    },
-    {
-      leftImg:
-        "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png",
-      rightImg:
-        "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png",
-      name: "이차미",
-      title: "아티스트를 소개하는 한 마디를 적어주세요.",
-      hash: ["Vocal", "Beat Maker", "Remixer", "Effect & Fx Sound Desingers"],
-    },
-    {
-      leftImg:
-        "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/art-goods/assets/images/main-page/img_4s_left_prod.png",
-      rightImg:
-        "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/art-goods/assets/images/main-page/img_4s_right_prod.png",
-      name: "이차미",
-      title: "아티스트를 소개하는 한 마디를 적어주세요.",
-      hash: ["Vocal", "Beat Maker", "Remixer", "Effect & Fx Sound Desingers"],
-    },
-    {
-      leftImg:
-        "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/art-goods/assets/images/main-page/img_4s_left_prod.png",
-      rightImg:
-        "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/art-goods/assets/images/main-page/img_4s_right_prod.png",
-      name: "이차미",
-      title: "아티스트를 소개하는 한 마디를 적어주세요.",
-      hash: ["Vocal", "Beat Maker", "Remixer", "Effect & Fx Sound Desingers"],
-    },
-  ],
-}) => {
+const MainSlider2 = ({ datum }) => {
   const width = useWidth();
+  const router = useRouter();
+
   const [status, setStatus] = useState(0);
   const [isMusic, setIsMusic] = useState(false);
+  const [musticData, setMusticData] = useState(null);
 
   const aRef = useRef();
 
@@ -167,9 +122,25 @@ const MainSlider2 = ({
     [status, datum]
   );
 
-  const musicToggle = useCallback(() => {
-    setIsMusic((prev) => !prev);
-  }, [isMusic]);
+  const musicToggle = useCallback(
+    (data) => {
+      if (musticData && data.id === musticData.id) {
+        setMusticData(null);
+        setIsMusic(false);
+        return;
+      }
+
+      setMusticData(data);
+      setIsMusic(true);
+    },
+    [musticData, isMusic]
+  );
+
+  // 페이지 이동
+  const moveLinkHandler = useCallback((link) => {
+    router.push(link);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   return (
     <Wrapper dr={`row`} height={width < 900 ? `auto` : `476px`}>
@@ -204,7 +175,11 @@ const MainSlider2 = ({
             </Text>
             <Image
               alt="icon"
-              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
+              src={
+                datum[status] && datum[status].isLike
+                  ? `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`
+                  : `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`
+              }
               width={`14px`}
               margin={`0 4px 0 0`}
             />
@@ -257,19 +232,23 @@ const MainSlider2 = ({
             wrap={`nowrap`}
             padding={`0 0 30px`}
           >
-            {datum.map((data) => {
-              return (
-                <Circle bgImg={`url("${data.leftImg}")`} onClick={musicToggle}>
-                  <Wrapper bgColor={`rgba(0, 0, 0, 0.4)`} height={`100%`}>
-                    <Image
-                      alt="playicon"
-                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/play_white.png`}
-                      width={width < 900 ? `15px` : `32px`}
-                    />
-                  </Wrapper>
-                </Circle>
-              );
-            })}
+            {datum[status] &&
+              datum[status].film.map((value) => {
+                return (
+                  <Circle
+                    bgImg={`url("${value.coverImage}")`}
+                    onClick={() => musicToggle(value)}
+                  >
+                    <Wrapper bgColor={`rgba(0, 0, 0, 0.4)`} height={`100%`}>
+                      <Image
+                        alt="playicon"
+                        src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/play_white.png`}
+                        width={width < 900 ? `15px` : `32px`}
+                      />
+                    </Wrapper>
+                  </Circle>
+                );
+              })}
           </Wrapper>
 
           <Wrapper dr={`row`} ju={`flex-end`}>
@@ -282,8 +261,7 @@ const MainSlider2 = ({
           </Wrapper>
         </Wrapper>
       </RightBox>
-
-      {isMusic && (
+      {isMusic && musticData && (
         <Wrapper
           position={`fixed`}
           zIndex={`100`}
@@ -304,17 +282,13 @@ const MainSlider2 = ({
             />
             <Wrapper width={`auto`} al={`flex-start`} padding={`0 0 0 14px`}>
               <Text fontSize={`20px`} fontWeight={`bold`}>
-                Star Night
+                {musticData.title}
               </Text>
-              <Text>Pokerface</Text>
+              <Text>{musticData.name}</Text>
             </Wrapper>
           </Wrapper>
           <Wrapper width={`calc(100% - 540px)`} dr={`row`}>
-            <Audio
-              ref={aRef}
-              controls
-              src="https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/mp3/mp3_sample.mp3"
-            ></Audio>
+            <Audio ref={aRef} controls src={musticData.musicFile}></Audio>
             <Wrapper
               width={`150px`}
               dr={`row`}
@@ -322,7 +296,7 @@ const MainSlider2 = ({
               ju={`center`}
               margin={`10px 0 0`}
             >
-              <Wrapper width={`50px`} cursor={`pointer`}>
+              {/* <Wrapper width={`50px`} cursor={`pointer`}>
                 <Image
                   alt="icon"
                   width={`22px`}
@@ -348,7 +322,7 @@ const MainSlider2 = ({
                 <Text fontSize={`12px`} color={Theme.grey_C}>
                   98
                 </Text>
-              </Wrapper>
+              </Wrapper> */}
             </Wrapper>
           </Wrapper>
           <Wrapper
@@ -356,6 +330,9 @@ const MainSlider2 = ({
             al={`flex-end`}
             fontWeight={`bold`}
             color={Theme.subTheme4_C}
+            onClick={() =>
+              moveLinkHandler(`/artist/${datum[status] && datum[status].id}`)
+            }
           >
             <Text isHover>
               MORE <PlusOutlined />
