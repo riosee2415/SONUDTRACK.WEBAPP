@@ -33,6 +33,7 @@ import { useCallback } from "react";
 import useInput from "../../hooks/useInput";
 import { COMMON_TAG_LIST_REQUEST } from "../../reducers/product";
 import {
+  ARTIST_INFO_UPDATE_REQUEST,
   FILMO_FILE_RESET,
   FILMO_FILE_UPLOAD_REQUEST,
   FILMO_IMAGE_RESET,
@@ -457,13 +458,85 @@ const Index = () => {
     if (useArtCoun.length === 0) {
       return message.error("사용 가능한 언어/국가를 등록해주세요.");
     }
+
+    if (!ques1.value || ques1.value.trim() === "") {
+      return message.error("질문1을 입력해주세요.");
+    }
+
+    if (!ques2.value || ques2.value.trim() === "") {
+      return message.error("질문2을 입력해주세요.");
+    }
+
+    if (!ques3.value || ques3.value.trim() === "") {
+      return message.error("질문3을 입력해주세요.");
+    }
+
+    if (!ques4.value || ques4.value.trim() === "") {
+      return message.error("질문4을 입력해주세요.");
+    }
+
+    if (!ques5.value || ques5.value.trim() === "") {
+      return message.error("질문5을 입력해주세요.");
+    }
+
+    if (!ques6.value || ques6.value.trim() === "") {
+      return message.error("질문6을 입력해주세요.");
+    }
+
+    if (!ques7.value || ques7.value.trim() === "") {
+      return message.error("질문7을 입력해주세요.");
+    }
+
+    if (!ques8.value || ques8.value.trim() === "") {
+      return message.error("그 외 하고 싶은말을 입력해주세요.");
+    }
+
+    if (filmoArr.length === 0) {
+      return message.error("필모그래피를 등록해주세요.");
+    }
+
+    if (tagArr.length === 0) {
+      return message.error("검색관리를 등록해주세요.");
+    }
+
+    // dispatch({
+    //   type: ARTIST_INFO_UPDATE_REQUEST,
+    //   data: {
+    //     id,
+    //     name,
+    //     businessNum,
+    //     artistname,
+    //     info,
+    //     question1,
+    //     question2,
+    //     question3,
+    //     question4,
+    //     question5,
+    //     question6,
+    //     question7,
+    //     question8,
+    //     artistFilms,
+    //     artistCountries,
+    //     tags,
+    //   }
+    // })
   }, [
     comName.value,
-    comNum.value,
     artistName.value,
     artistInfo.value,
     useArtCoun,
     isComNum,
+    ques1.value,
+    ques2.value,
+    ques3.value,
+    ques4.value,
+    ques5.value,
+    ques6.value,
+    ques7.value,
+    ques8.value,
+    filmoArr,
+    tagArr,
+    me,
   ]);
 
   ////// DATAVIEW //////
