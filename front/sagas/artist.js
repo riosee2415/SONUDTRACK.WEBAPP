@@ -52,6 +52,14 @@ import {
   ARTIST_INFO_UPDATE_REQUEST,
   ARTIST_INFO_UPDATE_SUCCESS,
   ARTIST_INFO_UPDATE_FAILURE,
+  //
+  FILMO_FILE_UPLOAD_REQUEST,
+  FILMO_FILE_UPLOAD_SUCCESS,
+  FILMO_FILE_UPLOAD_FAILURE,
+  //
+  FILMO_IMG_UPLOAD_REQUEST,
+  FILMO_IMG_UPLOAD_SUCCESS,
+  FILMO_IMG_UPLOAD_FAILURE,
 } from "../reducers/artist";
 
 // ******************************************************************************************************************
@@ -418,6 +426,62 @@ function* artistInfoUpdate(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function filmoFileAPI(data) {
+  return await axios.post(`/api/artist/image`, data);
+}
+
+function* filmoFile(action) {
+  try {
+    const result = yield call(filmoFileAPI, action.data);
+
+    yield put({
+      type: FILMO_FILE_UPLOAD_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: FILMO_FILE_UPLOAD_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function filmoImgAPI(data) {
+  return await axios.post(`/api/artist/image`, data);
+}
+
+function* filmoImg(action) {
+  try {
+    const result = yield call(filmoImgAPI, action.data);
+
+    yield put({
+      type: FILMO_IMG_UPLOAD_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: FILMO_IMG_UPLOAD_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 function* watchFaqTypeList() {
   yield takeLatest(PERMM_WAITING_LIST_REQUEST, permmWaitingList);
@@ -458,6 +522,12 @@ function* watchArtistUpload() {
 function* watchArtistInfoUpdate() {
   yield takeLatest(ARTIST_INFO_UPDATE_REQUEST, artistInfoUpdate);
 }
+function* watchFilmoFileUpload() {
+  yield takeLatest(FILMO_FILE_UPLOAD_REQUEST, filmoFile);
+}
+function* watchFilmoImgUpload() {
+  yield takeLatest(FILMO_IMG_UPLOAD_REQUEST, filmoImg);
+}
 
 //////////////////////////////////////////////////////////////
 export default function* artistSaga() {
@@ -475,6 +545,8 @@ export default function* artistSaga() {
     fork(watchArtistSlideList),
     fork(watchArtistUpload),
     fork(watchArtistInfoUpdate),
+    fork(watchFilmoFileUpload),
+    fork(watchFilmoImgUpload),
     //
   ]);
 }

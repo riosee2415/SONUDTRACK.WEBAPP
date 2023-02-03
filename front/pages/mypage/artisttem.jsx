@@ -2,7 +2,11 @@ import React, { useEffect, useRef } from "react";
 import ClientLayout from "../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../store/configureStore";
-import { LOAD_MY_INFO_REQUEST, USER_UPLOAD_REQUEST } from "../../reducers/user";
+import {
+  LOAD_MY_INFO_REQUEST,
+  USER_IMAGE_RESET,
+  USER_UPLOAD_REQUEST,
+} from "../../reducers/user";
 import axios from "axios";
 import { END } from "redux-saga";
 import useWidth from "../../hooks/useWidth";
@@ -27,6 +31,13 @@ import styled from "styled-components";
 import { useState } from "react";
 import { useCallback } from "react";
 import useInput from "../../hooks/useInput";
+import { COMMON_TAG_LIST_REQUEST } from "../../reducers/product";
+import {
+  FILMO_FILE_RESET,
+  FILMO_FILE_UPLOAD_REQUEST,
+  FILMO_IMAGE_RESET,
+  FILMO_IMG_UPLOAD_REQUEST,
+} from "../../reducers/artist";
 
 const Box = styled(Wrapper)`
   width: calc(100% / 6 - 37px);
@@ -70,6 +81,16 @@ const Box = styled(Wrapper)`
   }
 `;
 
+const TagBtn = styled(CommonButton)`
+  ${(props) =>
+    props.isActive &&
+    `
+    border :1px solid ${Theme.basicTheme_C};
+    background: ${Theme.white_C};
+    color : ${Theme.black_C};
+  `}
+`;
+
 const Index = () => {
   ////// GLOBAL STATE //////
   const {
@@ -80,12 +101,32 @@ const Index = () => {
     st_userUploadDone,
     st_userUploadError,
   } = useSelector((state) => state.user);
+
+  const { commonTags } = useSelector((state) => state.product);
+
+  const {
+    filmoFile,
+    st_filmoFileUploadLoading,
+    st_filmoFileUploadDone,
+    st_filmoFileUploadError,
+
+    filmoImg,
+    st_filmoImgUploadLoading,
+    st_filmoImgUploadDone,
+    st_filmoImgUploadError,
+
+    st_artistInfoUpdateDone,
+    st_artistInfoUpdateError,
+  } = useSelector((state) => state.artist);
+
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
   const dispatch = useDispatch();
 
   const imgRef = useRef(); // 프로필 변경
+  const filmoFileRef = useRef(); // 필모 음원
+  const filmoImgRef = useRef(); // 필모 앨범이미지
 
   const comName = useInput(""); // 담당자명
   const comNum = useInput(""); // 사업자번호
@@ -93,6 +134,25 @@ const Index = () => {
   const artistName = useInput(""); // 아티스트명
   const [profileName, setProfileName] = useState(""); // 프로필이미지 이름
   const artistInfo = useInput(""); // 아티스트소개
+  const artCoun = useInput(""); // 사용가능한 언어
+  const [useArtCoun, setUseArtCoun] = useState([]); // 사용가능한 언어/국가
+  const ques1 = useInput(""); // 질문1
+  const ques2 = useInput(""); // 질문2
+  const ques3 = useInput(""); // 질문3
+  const ques4 = useInput(""); // 질문4
+  const ques5 = useInput(""); // 질문5
+  const ques6 = useInput(""); // 질문6
+  const ques7 = useInput(""); // 질문7
+  const ques8 = useInput(""); // 그 외 질문8
+
+  const roleName = useInput(""); // 필모 역활
+  const comment = useInput(""); // 필모 코멘트
+  const singer = useInput(""); // 필모 가수
+  const songTitle = useInput(""); // 필모 곡제목
+  const filmoFileName = useInput(""); // 필모 파일이름
+  const filmoImgName = useInput(""); // 필모 곡제목
+  const [filmoArr, setFilmoArr] = useState([]); // 필모그래피 데이터
+  const [tagArr, setTagArr] = useState([]); // 검색 태그
 
   const [filmo, setFilmo] = useState(false);
   ////// REDUX //////
@@ -105,6 +165,45 @@ const Index = () => {
       return message.error(`로그인이 필요한 페이지입니다.`);
     }
   }, [me]);
+
+  useEffect(() => {
+    if (!filmo) {
+      roleName.setValue("");
+      comment.setValue("");
+      singer.setValue("");
+      songTitle.setValue("");
+      filmoFileName.setValue("");
+      filmoImgName.setValue("");
+
+      dispatch({
+        type: FILMO_FILE_RESET,
+      });
+      dispatch({
+        type: FILMO_IMAGE_RESET,
+      });
+    }
+  }, [filmo]);
+
+  // 필모 음원 등록
+  useEffect(() => {
+    if (st_filmoFileUploadDone) {
+      return message.success("음원이 등록되었습니다.");
+    }
+    if (st_filmoFileUploadError) {
+      return message.error(st_filmoFileUploadError);
+    }
+  }, [st_filmoFileUploadDone, st_filmoFileUploadError]);
+
+  // 필모 앪범 이미지 등록
+  useEffect(() => {
+    if (st_filmoImgUploadDone) {
+      return message.success("앨범 커버 이미지가 등록되었습니다.");
+    }
+    if (st_filmoImgUploadError) {
+      return message.error(st_filmoImgUploadError);
+    }
+  }, [st_filmoImgUploadDone, st_filmoImgUploadError]);
+
   ////// TOGGLE //////
   const filmoToggle = useCallback(() => {
     setFilmo((prev) => !prev);
@@ -147,7 +246,7 @@ const Index = () => {
     }
   }, [comNum.value, isComNum]);
 
-  // 사용자 이미지 등록
+  // 프로필 등록
   const imgClickHandler = useCallback(() => {
     imgRef.current.click();
   }, [imgRef]);
@@ -170,6 +269,202 @@ const Index = () => {
       data: formData,
     });
   }, []);
+
+  // 프로필 삭제
+  const profileDeleteHandler = useCallback(() => {
+    setProfileName("");
+
+    dispatch({
+      type: USER_IMAGE_RESET,
+    });
+  }, []);
+
+  // 사용가능한 언어/국가 추가
+  const artCounCreateHandler = useCallback(() => {
+    if (!artCoun.value) {
+      return message.error("사용가능한 언어/국가를 입력해주세요.");
+    }
+
+    if (artCoun.value) {
+      let arr = useArtCoun ? useArtCoun.map((data) => data) : [];
+
+      arr.push(artCoun.value);
+
+      setUseArtCoun(arr);
+
+      artCoun.setValue("");
+    }
+  }, [artCoun, useArtCoun]);
+
+  // 사용가능한 언어/국가 삭제
+  const artCounDeleteHandler = useCallback(
+    (data) => {
+      if (useArtCoun) {
+        const arr = useArtCoun.filter(function (_, index) {
+          return index !== data;
+        });
+
+        setUseArtCoun(arr);
+      }
+    },
+    [useArtCoun]
+  );
+
+  // 필모음원 등록
+  const filmoFileClickHandler = useCallback(() => {
+    filmoFileRef.current.click();
+  }, [filmoFileRef]);
+
+  const filmoFileUploadHandler = useCallback((e) => {
+    filmoFileName.setValue(e.target.files[0].name);
+
+    const formData = new FormData();
+
+    [].forEach.call(e.target.files, (file) => {
+      formData.append("image", file);
+    });
+
+    if (e.target.files.length < 1) {
+      return;
+    }
+
+    dispatch({
+      type: FILMO_FILE_UPLOAD_REQUEST,
+      data: formData,
+    });
+  }, []);
+
+  // 필모음원 삭제
+  const filmoFileDeleteHandler = useCallback(() => {
+    filmoFileName.setValue("");
+
+    dispatch({
+      type: FILMO_FILE_RESET,
+    });
+  }, []);
+
+  // 필모앨범이미지 등록
+  const filmoImgClickHandler = useCallback(() => {
+    filmoImgRef.current.click();
+  }, [filmoImgRef]);
+
+  const filmoImgUploadHandler = useCallback((e) => {
+    filmoImgName.setValue(e.target.files[0].name);
+
+    const formData = new FormData();
+
+    [].forEach.call(e.target.files, (file) => {
+      formData.append("image", file);
+    });
+
+    if (e.target.files.length < 1) {
+      return;
+    }
+
+    dispatch({
+      type: FILMO_IMG_UPLOAD_REQUEST,
+      data: formData,
+    });
+  }, []);
+
+  // 필모앨범이미지 삭제
+  const filmoImgDeleteHandler = useCallback(() => {
+    filmoImgName.setValue("");
+
+    dispatch({
+      type: FILMO_IMAGE_RESET,
+    });
+  }, []);
+
+  const filmoCreateHandler = useCallback(() => {
+    if (!roleName.value || roleName.value.trim() === "") {
+      return message.error("역활을 입력해주세요.");
+    }
+
+    if (!comment.value || comment.value.trim() === "") {
+      return message.error("Comment를 입력해주세요.");
+    }
+
+    if (!singer.value || singer.value.trim() === "") {
+      return message.error("가수명을 입력해주세요.");
+    }
+
+    if (!songTitle.value || songTitle.value.trim() === "") {
+      return message.error("곡제목을 입력해주세요.");
+    }
+
+    if (!filmoFile) {
+      return message.error("음원을 등록해주세요.");
+    }
+
+    if (!filmoImg) {
+      return message.error("이미지를 등록해주세요.");
+    }
+
+    let arr = filmoArr ? filmoArr.map((data) => data) : [];
+
+    arr.push({
+      roleName: roleName.value,
+      comment: comment.value,
+      name: singer.value,
+      title: songTitle.value,
+      musicFile: filmoFile,
+      coverImage: filmoImg,
+      sort: arr.length + 1,
+    });
+
+    setFilmoArr(arr);
+
+    filmoToggle();
+
+    return message.success("필모그래피가 등록되었습니다.");
+  }, [roleName, comment, singer, songTitle, filmoFile, filmoImg, filmoArr]);
+
+  // 검색태그 아이디 추가
+  const tagHandler = useCallback(
+    (type) => {
+      const index = tagArr.indexOf(type.id);
+      let tempArr = tagArr.map((data) => data);
+
+      if (index !== -1) {
+        tempArr = tempArr.filter((data) => data !== type.id);
+      } else {
+        tempArr.push(type.id);
+      }
+
+      setTagArr(tempArr);
+    },
+    [tagArr]
+  );
+
+  const saveHandler = useCallback(() => {
+    if (!comName.value || comName.value.trim() === "") {
+      return message.error("담당자 성함을 입력해주세요.");
+    }
+
+    if (!isComNum) {
+      return message.error("사업자번호 인증해주세요.");
+    }
+
+    if (!artistName.value || artistName.value.trim() === "") {
+      return message.error("아티스트명을 입력해주세요.");
+    }
+
+    if (!artistInfo.value || artistInfo.value.trim() === "") {
+      return message.error("아티스트 소개를 입력해주세요.");
+    }
+
+    if (useArtCoun.length === 0) {
+      return message.error("사용 가능한 언어/국가를 등록해주세요.");
+    }
+  }, [
+    comName.value,
+    comNum.value,
+    artistName.value,
+    artistInfo.value,
+    useArtCoun,
+    isComNum,
+  ]);
 
   ////// DATAVIEW //////
 
@@ -319,40 +614,50 @@ const Index = () => {
                   tyoe="text"
                   border={`1px solid ${Theme.lightGrey_C}`}
                 />
+                <input
+                  ref={imgRef}
+                  type={`file`}
+                  accept={`.jpg, .png`}
+                  hidden
+                  onChange={imgUploadHandler}
+                />
                 <CommonButton
                   width={`100px`}
                   height={`50px`}
                   fontSize={`18px`}
                   fontWeight={`600`}
                   kindOf={`subTheme2`}
+                  onClick={imgClickHandler}
+                  loading={st_userUploadLoading}
                 >
                   파일등록
                 </CommonButton>
               </Wrapper>
-              <Wrapper
-                width={width < 700 ? `100%` : `440px`}
-                dr={`row`}
-                ju={`space-between`}
-                padding={`16px 14px`}
-                bgColor={Theme.lightGrey2_C}
-                margin={`0 0 30px`}
-              >
-                <Text fontSize={`16px`} color={Theme.grey_C}>
-                  <Image
-                    alt="icon"
-                    src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/music-file.png`}
-                    width={`14px`}
-                    margin={`0 5px 0 0`}
-                  />
-                  K-Pop.jpg
-                </Text>
-                <CloseOutlined />
-              </Wrapper>
+              {userPath && (
+                <Wrapper
+                  width={width < 700 ? `100%` : `440px`}
+                  dr={`row`}
+                  ju={`space-between`}
+                  padding={`16px 14px`}
+                  bgColor={Theme.lightGrey2_C}
+                >
+                  <Text fontSize={`16px`} color={Theme.grey_C}>
+                    <Image
+                      alt="icon"
+                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/music-file.png`}
+                      width={`14px`}
+                      margin={`0 5px 0 0`}
+                    />
+                    {profileName}
+                  </Text>
+                  <CloseOutlined onClick={profileDeleteHandler} />
+                </Wrapper>
+              )}
               <Text
                 fontSize={`16px`}
                 color={Theme.grey_C}
                 fontWeight={`500`}
-                margin={`0 0 12px`}
+                margin={`30px 0 12px`}
               >
                 <SpanText fontWeight={`bold`} margin={`0 4px 0 0`}>
                   Q3.
@@ -395,9 +700,10 @@ const Index = () => {
                 <TextInput
                   width={`calc(100% - 108px)`}
                   height={`50px`}
-                  placeholder="사용 가능한 언어를 작성해주세요."
+                  placeholder="사용 가능한 언어를 작성해주세요. ex) 한국어/대한민국"
                   tyoe="text"
                   border={`1px solid ${Theme.lightGrey_C}`}
+                  {...artCoun}
                 />
                 <CommonButton
                   width={`100px`}
@@ -405,6 +711,7 @@ const Index = () => {
                   fontSize={`18px`}
                   fontWeight={`600`}
                   kindOf={`subTheme2`}
+                  onClick={artCounCreateHandler}
                 >
                   추가하기
                 </CommonButton>
@@ -414,30 +721,26 @@ const Index = () => {
                 ju={`flex-start`}
                 width={width < 700 ? `100%` : `440px`}
               >
-                <Wrapper
-                  width={`auto`}
-                  height={`27px`}
-                  border={`1px solid ${Theme.lightGrey_C}`}
-                  padding={`0 15px`}
-                  radius={`25px`}
-                  dr={`row`}
-                  margin={`0 8px 0 0`}
-                >
-                  한국/대한민국
-                  <CloseOutlined />
-                </Wrapper>
-                <Wrapper
-                  width={`auto`}
-                  height={`27px`}
-                  border={`1px solid ${Theme.lightGrey_C}`}
-                  padding={`0 15px`}
-                  radius={`25px`}
-                  dr={`row`}
-                  margin={`0 8px 0 0`}
-                >
-                  영어/미국
-                  <CloseOutlined />
-                </Wrapper>
+                {useArtCoun &&
+                  useArtCoun.map((data, idx) => {
+                    return (
+                      <Wrapper
+                        width={`auto`}
+                        height={`27px`}
+                        border={`1px solid ${Theme.lightGrey_C}`}
+                        padding={`0 15px`}
+                        radius={`25px`}
+                        dr={`row`}
+                        margin={`0 8px 0 0`}
+                        key={idx}
+                      >
+                        {data}
+                        <CloseOutlined
+                          onClick={() => artCounDeleteHandler(idx)}
+                        />
+                      </Wrapper>
+                    );
+                  })}
               </Wrapper>
               <Text fontSize={`24px`} fontWeight={`600`} margin={`60px 0 30px`}>
                 상세 프로필 수정
@@ -461,6 +764,7 @@ const Index = () => {
                 tyoe="text"
                 border={`1px solid ${Theme.lightGrey_C}`}
                 margin={`0 0 30px`}
+                {...ques1}
               />
               <Text
                 fontSize={`16px`}
@@ -480,6 +784,7 @@ const Index = () => {
                 tyoe="text"
                 border={`1px solid ${Theme.lightGrey_C}`}
                 margin={`0 0 30px`}
+                {...ques2}
               />
               <Text
                 fontSize={`16px`}
@@ -499,6 +804,7 @@ const Index = () => {
                 tyoe="text"
                 border={`1px solid ${Theme.lightGrey_C}`}
                 margin={`0 0 30px`}
+                {...ques3}
               />
               <Text
                 fontSize={`16px`}
@@ -518,6 +824,7 @@ const Index = () => {
                 tyoe="text"
                 border={`1px solid ${Theme.lightGrey_C}`}
                 margin={`0 0 30px`}
+                {...ques4}
               />
               <Text
                 fontSize={`16px`}
@@ -538,6 +845,7 @@ const Index = () => {
                 tyoe="text"
                 border={`1px solid ${Theme.lightGrey_C}`}
                 margin={`0 0 30px`}
+                {...ques5}
               />
               <Text
                 fontSize={`16px`}
@@ -557,6 +865,7 @@ const Index = () => {
                 tyoe="text"
                 border={`1px solid ${Theme.lightGrey_C}`}
                 margin={`0 0 30px`}
+                {...ques6}
               />
               <Text
                 fontSize={`16px`}
@@ -576,6 +885,7 @@ const Index = () => {
                 tyoe="text"
                 border={`1px solid ${Theme.lightGrey_C}`}
                 margin={`0 0 30px`}
+                {...ques7}
               />
               <Text
                 fontSize={`16px`}
@@ -591,6 +901,7 @@ const Index = () => {
                 placeholder="예) 음악에 따라 작업 시간과 비용이 달라질 순 있습니다. 팝스러운 멋진 음악을 원하시면 저에게 문의하세요!"
                 tyoe="text"
                 border={`1px solid ${Theme.lightGrey_C}`}
+                {...ques8}
               />
 
               <Wrapper dr={`row`} ju={`flex-start`} margin={`60px 0 30px`}>
@@ -606,27 +917,29 @@ const Index = () => {
                 </CommonButton>
               </Wrapper>
               <Wrapper dr={`row`} ju={`flex-start`}>
-                <Box>
-                  <SquareBox>
-                    <Image
-                      alt="thumbnail"
-                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/art-goods/assets/images/main-page/img_4s_right_prod.png`}
-                    />
-                  </SquareBox>
-                  <Wrapper
-                    height={`100%`}
-                    bgColor={`rgba(0, 0, 0, 0.6)`}
-                    color={Theme.white_C}
-                    position={`absolute`}
-                    top={`0`}
-                    left={`0`}
-                  >
-                    <Text fontSize={`20px`} fontWeight={`bold`}>
-                      임창정
-                    </Text>
-                    <Text fontSize={`16px`}>기다리는 이유</Text>
-                  </Wrapper>
-                </Box>
+                {filmoArr &&
+                  filmoArr.map((data) => {
+                    return (
+                      <Box key={data.sort}>
+                        <SquareBox>
+                          <Image alt="thumbnail" src={data.coverImage} />
+                        </SquareBox>
+                        <Wrapper
+                          height={`100%`}
+                          bgColor={`rgba(0, 0, 0, 0.6)`}
+                          color={Theme.white_C}
+                          position={`absolute`}
+                          top={`0`}
+                          left={`0`}
+                        >
+                          <Text fontSize={`20px`} fontWeight={`bold`}>
+                            {data.name}
+                          </Text>
+                          <Text fontSize={`16px`}>{data.title}</Text>
+                        </Wrapper>
+                      </Box>
+                    );
+                  })}
               </Wrapper>
 
               <Text fontSize={`24px`} fontWeight={`600`} margin={`60px 0 30px`}>
@@ -649,36 +962,31 @@ const Index = () => {
                 al={`flex-start`}
                 margin={`0 0 30px`}
               >
-                <CommonButton
-                  kindOf={`grey`}
-                  width={
-                    width < 1100
-                      ? width < 900
-                        ? `calc(100% / 3 - 20px)`
-                        : `calc(100% / 5 - 20px)`
-                      : `calc(100% / 8 - 20px)`
-                  }
-                  margin={`0 10px`}
-                  padding={`0`}
-                  height={width < 900 ? `40px` : `54px`}
-                >
-                  Show All
-                </CommonButton>
-                <CommonButton
-                  kindOf={`grey`}
-                  width={
-                    width < 1100
-                      ? width < 900
-                        ? `calc(100% / 3 - 20px)`
-                        : `calc(100% / 5 - 20px)`
-                      : `calc(100% / 8 - 20px)`
-                  }
-                  margin={`0 10px`}
-                  padding={`0`}
-                  height={width < 900 ? `40px` : `54px`}
-                >
-                  Popular
-                </CommonButton>
+                {commonTags &&
+                  commonTags.map((data) => {
+                    return (
+                      data.type === "카테고리" && (
+                        <TagBtn
+                          key={data.id}
+                          kindOf={`grey`}
+                          width={
+                            width < 1100
+                              ? width < 900
+                                ? `calc(100% / 3 - 20px)`
+                                : `calc(100% / 5 - 20px)`
+                              : `calc(100% / 8 - 20px)`
+                          }
+                          margin={`0 10px`}
+                          padding={`0`}
+                          height={width < 900 ? `40px` : `54px`}
+                          onClick={() => tagHandler(data)}
+                          isActive={tagArr.includes(data.id)}
+                        >
+                          {data.value}
+                        </TagBtn>
+                      )
+                    );
+                  })}
               </Wrapper>
               <Text
                 fontSize={`16px`}
@@ -696,36 +1004,31 @@ const Index = () => {
                 al={`flex-start`}
                 margin={`0 0 30px`}
               >
-                <CommonButton
-                  kindOf={`grey`}
-                  width={
-                    width < 1100
-                      ? width < 900
-                        ? `calc(100% / 3 - 20px)`
-                        : `calc(100% / 5 - 20px)`
-                      : `calc(100% / 8 - 20px)`
-                  }
-                  margin={`0 10px`}
-                  padding={`0`}
-                  height={width < 900 ? `40px` : `54px`}
-                >
-                  Show All
-                </CommonButton>
-                <CommonButton
-                  kindOf={`grey`}
-                  width={
-                    width < 1100
-                      ? width < 900
-                        ? `calc(100% / 3 - 20px)`
-                        : `calc(100% / 5 - 20px)`
-                      : `calc(100% / 8 - 20px)`
-                  }
-                  margin={`0 10px`}
-                  padding={`0`}
-                  height={width < 900 ? `40px` : `54px`}
-                >
-                  Popular
-                </CommonButton>
+                {commonTags &&
+                  commonTags.map((data) => {
+                    return (
+                      data.type === "Mood" && (
+                        <TagBtn
+                          key={data.id}
+                          kindOf={`grey`}
+                          width={
+                            width < 1100
+                              ? width < 900
+                                ? `calc(100% / 3 - 20px)`
+                                : `calc(100% / 5 - 20px)`
+                              : `calc(100% / 8 - 20px)`
+                          }
+                          margin={`0 10px`}
+                          padding={`0`}
+                          height={width < 900 ? `40px` : `54px`}
+                          onClick={() => tagHandler(data)}
+                          isActive={tagArr.includes(data.id)}
+                        >
+                          {data.value}
+                        </TagBtn>
+                      )
+                    );
+                  })}
               </Wrapper>
               <Text
                 fontSize={`16px`}
@@ -743,36 +1046,31 @@ const Index = () => {
                 al={`flex-start`}
                 margin={`0 0 30px`}
               >
-                <CommonButton
-                  kindOf={`grey`}
-                  width={
-                    width < 1100
-                      ? width < 900
-                        ? `calc(100% / 3 - 20px)`
-                        : `calc(100% / 5 - 20px)`
-                      : `calc(100% / 8 - 20px)`
-                  }
-                  margin={`0 10px`}
-                  padding={`0`}
-                  height={width < 900 ? `40px` : `54px`}
-                >
-                  Show All
-                </CommonButton>
-                <CommonButton
-                  kindOf={`grey`}
-                  width={
-                    width < 1100
-                      ? width < 900
-                        ? `calc(100% / 3 - 20px)`
-                        : `calc(100% / 5 - 20px)`
-                      : `calc(100% / 8 - 20px)`
-                  }
-                  margin={`0 10px`}
-                  padding={`0`}
-                  height={width < 900 ? `40px` : `54px`}
-                >
-                  Popular
-                </CommonButton>
+                {commonTags &&
+                  commonTags.map((data) => {
+                    return (
+                      data.type === "Genre" && (
+                        <TagBtn
+                          key={data.id}
+                          kindOf={`grey`}
+                          width={
+                            width < 1100
+                              ? width < 900
+                                ? `calc(100% / 3 - 20px)`
+                                : `calc(100% / 5 - 20px)`
+                              : `calc(100% / 8 - 20px)`
+                          }
+                          margin={`0 10px`}
+                          padding={`0`}
+                          height={width < 900 ? `40px` : `54px`}
+                          onClick={() => tagHandler(data)}
+                          isActive={tagArr.includes(data.id)}
+                        >
+                          {data.value}
+                        </TagBtn>
+                      )
+                    );
+                  })}
               </Wrapper>
 
               <CommonButton
@@ -780,6 +1078,7 @@ const Index = () => {
                 height={`50px`}
                 margin={`10px 0 100px`}
                 fontSize={`18px`}
+                onClick={saveHandler}
               >
                 저장하기
               </CommonButton>
@@ -818,6 +1117,7 @@ const Index = () => {
                   height={`50px`}
                   border={`1px solid ${Theme.lightGrey_C}`}
                   margin={`0 0 30px`}
+                  {...roleName}
                 />
                 <Text
                   fontSize={`16px`}
@@ -834,6 +1134,7 @@ const Index = () => {
                   height={`50px`}
                   border={`1px solid ${Theme.lightGrey_C}`}
                   margin={`0 0 30px`}
+                  {...comment}
                 />
                 <Text
                   fontSize={`16px`}
@@ -850,6 +1151,7 @@ const Index = () => {
                   height={`50px`}
                   border={`1px solid ${Theme.lightGrey_C}`}
                   margin={`0 0 30px`}
+                  {...singer}
                 />
                 <Text
                   fontSize={`16px`}
@@ -866,6 +1168,7 @@ const Index = () => {
                   height={`50px`}
                   border={`1px solid ${Theme.lightGrey_C}`}
                   margin={`0 0 30px`}
+                  {...songTitle}
                 />
                 <Text
                   fontSize={`16px`}
@@ -883,33 +1186,43 @@ const Index = () => {
                     readOnly={true}
                     height={`50px`}
                   />
-
+                  <input
+                    ref={filmoFileRef}
+                    type={`file`}
+                    accept={`.mp3`}
+                    hidden
+                    onChange={filmoFileUploadHandler}
+                  />
                   <CommonButton
                     kindOf={`subTheme2`}
                     width={`100px`}
                     height={`50px`}
+                    onClick={filmoFileClickHandler}
+                    loading={st_filmoFileUploadLoading}
                   >
                     파일등록
                   </CommonButton>
                 </Wrapper>
-                <Wrapper
-                  dr={`row`}
-                  ju={`space-between`}
-                  padding={`16px 14px`}
-                  bgColor={Theme.lightGrey2_C}
-                  margin={`10px 0 0`}
-                >
-                  <Text fontSize={`16px`} color={Theme.grey_C}>
-                    <Image
-                      alt="icon"
-                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/music-file.png`}
-                      width={`14px`}
-                      margin={`0 5px 0 0`}
-                    />
-                    파일이름
-                  </Text>
-                  <CloseOutlined />
-                </Wrapper>
+                {filmoFile && (
+                  <Wrapper
+                    dr={`row`}
+                    ju={`space-between`}
+                    padding={`16px 14px`}
+                    bgColor={Theme.lightGrey2_C}
+                    margin={`10px 0 0`}
+                  >
+                    <Text fontSize={`16px`} color={Theme.grey_C}>
+                      <Image
+                        alt="icon"
+                        src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/music-file.png`}
+                        width={`14px`}
+                        margin={`0 5px 0 0`}
+                      />
+                      {filmoFileName.value}
+                    </Text>
+                    <CloseOutlined onClick={filmoFileDeleteHandler} />
+                  </Wrapper>
+                )}
 
                 {/* 음원파일 등록했을때 나옴 */}
                 <Text
@@ -928,35 +1241,50 @@ const Index = () => {
                     readOnly={true}
                     height={`50px`}
                   />
-
+                  <input
+                    ref={filmoImgRef}
+                    type={`file`}
+                    accept={`.jpg, .png`}
+                    hidden
+                    onChange={filmoImgUploadHandler}
+                  />
                   <CommonButton
                     kindOf={`subTheme2`}
                     width={`100px`}
                     height={`50px`}
+                    onClick={filmoImgClickHandler}
+                    loading={st_filmoImgUploadLoading}
                   >
                     파일등록
                   </CommonButton>
                 </Wrapper>
-                <Wrapper
-                  dr={`row`}
-                  ju={`space-between`}
-                  padding={`16px 14px`}
-                  bgColor={Theme.lightGrey2_C}
-                  margin={`10px 0 0`}
-                >
-                  <Text fontSize={`16px`} color={Theme.grey_C}>
-                    <Image
-                      alt="icon"
-                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/image-file.png`}
-                      width={`14px`}
-                      margin={`0 5px 0 0`}
-                    />
-                    파일이름
-                  </Text>
-                  <CloseOutlined />
-                </Wrapper>
+                {filmoImg && (
+                  <Wrapper
+                    dr={`row`}
+                    ju={`space-between`}
+                    padding={`16px 14px`}
+                    bgColor={Theme.lightGrey2_C}
+                    margin={`10px 0 0`}
+                  >
+                    <Text fontSize={`16px`} color={Theme.grey_C}>
+                      <Image
+                        alt="icon"
+                        src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/image-file.png`}
+                        width={`14px`}
+                        margin={`0 5px 0 0`}
+                      />
+                      {filmoImgName.value}
+                    </Text>
+                    <CloseOutlined onClick={filmoImgDeleteHandler} />
+                  </Wrapper>
+                )}
               </Wrapper>
-              <CommonButton width={`180px`} height={`50px`} margin={`34px 0 0`}>
+              <CommonButton
+                width={`180px`}
+                height={`50px`}
+                margin={`34px 0 0`}
+                onClick={filmoCreateHandler}
+              >
                 신청하기
               </CommonButton>
             </Wrapper>
@@ -980,6 +1308,10 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: LOAD_MY_INFO_REQUEST,
+    });
+
+    context.store.dispatch({
+      type: COMMON_TAG_LIST_REQUEST,
     });
 
     // 구현부 종료

@@ -797,7 +797,7 @@ router.post("/commontag/new", isAdminCheck, async (req, res, next) => {
   }
 });
 
-router.post("/commontag/list", isAdminCheck, async (req, res, next) => {
+router.post("/commontag/list", async (req, res, next) => {
   const { value, type } = req.body;
   const _value = value ? value : "";
 

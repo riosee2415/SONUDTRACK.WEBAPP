@@ -7,9 +7,12 @@ export const initailState = {
   artistems: [],
   artistemDetail: null,
   allArtistemList: [], // 아티스트 전체조회
-  artistPath: null, //
+  artistPath: null, // 판매자 신청 파일 등록
   artistemNearList: [],
   artistemSlideList: [],
+
+  filmoFile: null, // 필모 음원
+  filmoImg: null, // 필모 앨범 이미지
   //
   st_permmWaitingLoading: false,
   st_permmWaitingDone: false,
@@ -47,7 +50,7 @@ export const initailState = {
   st_allArtistemListDone: false,
   st_allArtistemListError: null,
   //
-  st_artistUploadLoading: false, // artist 이미지 등록
+  st_artistUploadLoading: false, // 판매자 신청 파일 등록
   st_artistUploadDone: false,
   st_artistUploadError: null,
   //
@@ -62,6 +65,14 @@ export const initailState = {
   st_ArtistemSlideListLoading: false, // 아티스트 최신 10개 불러오기(슬라이드)
   st_ArtistemSlideListDone: false,
   st_ArtistemSlideListError: null,
+  //
+  st_filmoFileUploadLoading: false, // 필모 음원
+  st_filmoFileUploadDone: false,
+  st_filmoFileUploadError: null,
+  //
+  st_filmoImgUploadLoading: false, // 필모 앨범 이미지
+  st_filmoImgUploadDone: false,
+  st_filmoImgUploadError: null,
 };
 
 export const PERMM_WAITING_LIST_REQUEST = "PERMM_WAITING_LIST_REQUEST";
@@ -116,7 +127,19 @@ export const ARTIST_INFO_UPDATE_REQUEST = "ARTIST_INFO_UPDATE_REQUEST";
 export const ARTIST_INFO_UPDATE_SUCCESS = "ARTIST_INFO_UPDATE_SUCCESS";
 export const ARTIST_INFO_UPDATE_FAILURE = "ARTIST_INFO_UPDATE_FAILURE";
 
+export const FILMO_FILE_UPLOAD_REQUEST = "FILMO_FILE_UPLOAD_REQUEST";
+export const FILMO_FILE_UPLOAD_SUCCESS = "FILMO_FILE_UPLOAD_SUCCESS";
+export const FILMO_FILE_UPLOAD_FAILURE = "FILMO_FILE_UPLOAD_FAILURE";
+
+export const FILMO_IMG_UPLOAD_REQUEST = "FILMO_IMG_UPLOAD_REQUEST";
+export const FILMO_IMG_UPLOAD_SUCCESS = "FILMO_IMG_UPLOAD_SUCCESS";
+export const FILMO_IMG_UPLOAD_FAILURE = "FILMO_IMG_UPLOAD_FAILURE";
+
 export const ARTIST_IMAGE_RESET = "ARTIST_IMAGE_RESET";
+
+export const FILMO_FILE_RESET = "FILMO_FILE_RESET";
+
+export const FILMO_IMAGE_RESET = "FILMO_IMAGE_RESET";
 
 const reducer = (state = initailState, action) =>
   produce(state, (draft) => {
@@ -427,8 +450,68 @@ const reducer = (state = initailState, action) =>
 
       ///////////////////////////////////////////////////////
 
+      case FILMO_FILE_UPLOAD_REQUEST: {
+        draft.st_filmoFileUploadLoading = true;
+        draft.st_filmoFileUploadDone = false;
+        draft.st_filmoFileUploadError = null;
+        break;
+      }
+      case FILMO_FILE_UPLOAD_SUCCESS: {
+        draft.st_filmoFileUploadLoading = false;
+        draft.st_filmoFileUploadDone = true;
+        draft.st_filmoFileUploadError = null;
+        draft.filmoFile = action.data.path;
+        break;
+      }
+      case FILMO_FILE_UPLOAD_FAILURE: {
+        draft.st_filmoFileUploadLoading = false;
+        draft.st_filmoFileUploadDone = false;
+        draft.st_filmoFileUploadError = action.error;
+        break;
+      }
+
+      ///////////////////////////////////////////////////////
+
+      case FILMO_IMG_UPLOAD_REQUEST: {
+        draft.st_filmoImgUploadLoading = true;
+        draft.st_filmoImgUploadDone = false;
+        draft.st_filmoImgUploadError = null;
+        break;
+      }
+      case FILMO_IMG_UPLOAD_SUCCESS: {
+        draft.st_filmoImgUploadLoading = false;
+        draft.st_filmoImgUploadDone = true;
+        draft.st_filmoImgUploadError = null;
+        draft.filmoImg = action.data.path;
+        break;
+      }
+      case FILMO_IMG_UPLOAD_FAILURE: {
+        draft.st_filmoImgUploadLoading = false;
+        draft.st_filmoImgUploadDone = false;
+        draft.st_filmoImgUploadError = action.error;
+        break;
+      }
+
+      ///////////////////////////////////////////////////////
+
       case ARTIST_IMAGE_RESET: {
         draft.artistPath = null;
+        break;
+      }
+
+      case FILMO_FILE_RESET: {
+        draft.filmoFile = null;
+        draft.st_filmoFileUploadLoading = false;
+        draft.st_filmoFileUploadDone = false;
+        draft.st_filmoFileUploadError = null;
+        break;
+      }
+
+      case FILMO_IMAGE_RESET: {
+        draft.filmoImg = null;
+        draft.st_filmoImgUploadLoading = false;
+        draft.st_filmoImgUploadDone = false;
+        draft.st_filmoImgUploadError = null;
         break;
       }
 
