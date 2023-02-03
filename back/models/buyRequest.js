@@ -23,6 +23,11 @@ module.exports = class BuyRequest extends Model {
           allowNull: false,
           defaultValue: false,
         },
+        // 승인 시 제작자의 의견
+        okMessage: {
+          type: DataTypes.STRING(3000),
+          allowNull: true,
+        },
 
         // 결제완료
         isPay: {

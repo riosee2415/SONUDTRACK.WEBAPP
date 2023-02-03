@@ -33,6 +33,8 @@ import { useRouter } from "next/router";
 import styled from "styled-components";
 import {
   BUYREQUEST_DELETE_REQUEST,
+  BUYREQUEST_ISOK_REQUEST,
+  BUYREQUEST_ISREJECT_REQUEST,
   BUYREQUEST_MY_LIST_REQUEST,
 } from "../../reducers/buyRequest";
 import moment from "moment";
@@ -87,6 +89,14 @@ const Index = () => {
     st_buyRequestDeleteLoading,
     st_buyRequestDeleteDone,
     st_buyRequestDeleteError,
+    //
+    st_buyRequestIsOkLoading,
+    st_buyRequestIsOkDone,
+    st_buyRequestIsOkError,
+    //
+    st_buyRequestIsRejectLoading,
+    st_buyRequestIsRejectDone,
+    st_buyRequestIsRejectError,
   } = useSelector((state) => state.buyRequest);
 
   ////// HOOKS //////
@@ -97,12 +107,32 @@ const Index = () => {
   // 문의 내역
   const [dForm] = Form.useForm();
 
-  const [contactModal, setContactModal] = useState(false);
-  const [rejectModal, setRejectModal] = useState(false);
-  const [orderModal, setOrderModal] = useState(false);
+  // 수락
+  const [oForm] = Form.useForm();
+
+  // 거절
+  const [rForm] = Form.useForm();
+
+  // 결제
+  const [orderForm] = Form.useForm();
+
   const [currentPage, setCurrentPage] = useState(1);
 
+  // 문의 내역 모달
   const [dData, setDData] = useState(null);
+  const [contactModal, setContactModal] = useState(false);
+
+  // 결제 모달
+  const [orderModal, setOrderModal] = useState(false);
+  const [orderData, setOrderData] = useState(false);
+
+  // 수락 모달
+  const [oData, setOData] = useState(null);
+  const [okModal, setOkModal] = useState(false);
+
+  // 거절 모달
+  const [rData, setRData] = useState(null);
+  const [rejectModal, setRejectModal] = useState(false);
 
   const [selectContact, setSelectContact] = useState([]);
 
@@ -123,6 +153,7 @@ const Index = () => {
         type: BUYREQUEST_MY_LIST_REQUEST,
         data: {
           page: currentPage,
+          type: me && me.isArtist,
         },
       });
     }
@@ -135,6 +166,7 @@ const Index = () => {
         type: BUYREQUEST_MY_LIST_REQUEST,
         data: {
           page: currentPage,
+          type: me && me.isArtist,
         },
       });
 
@@ -150,10 +182,52 @@ const Index = () => {
     }
   }, [st_buyRequestDeleteError]);
 
+  // 수락 후 처리
+  useEffect(() => {
+    if (st_buyRequestIsOkDone) {
+      dispatch({
+        type: BUYREQUEST_MY_LIST_REQUEST,
+        data: {
+          page: currentPage,
+          type: me && me.isArtist,
+        },
+      });
+
+      contactToggle(null);
+      okToggle(null);
+
+      return message.success("수락되었습니다.");
+    }
+    if (st_buyRequestIsOkError) {
+      return message.error(st_buyRequestIsOkError);
+    }
+  }, [st_buyRequestIsOkDone, st_buyRequestIsOkError]);
+
+  // 거절 후 처리
+  useEffect(() => {
+    if (st_buyRequestIsRejectDone) {
+      dispatch({
+        type: BUYREQUEST_MY_LIST_REQUEST,
+        data: {
+          page: currentPage,
+          type: me && me.isArtist,
+        },
+      });
+
+      contactToggle(null);
+      rejectToggle(null);
+
+      return message.success("거절되었습니다.");
+    }
+    if (st_buyRequestIsRejectError) {
+      return message.error(st_buyRequestIsRejectError);
+    }
+  }, [st_buyRequestIsRejectDone, st_buyRequestIsRejectError]);
+
   ////// TOGGLE //////
+  // 내역 모달
   const contactToggle = useCallback(
     (data) => {
-      console.log(data);
       if (data) {
         dForm.setFieldsValue({
           endDate: moment(data.endDate),
@@ -170,13 +244,61 @@ const Index = () => {
     [contactModal, dData]
   );
 
-  const rejectToggle = useCallback(() => {
-    setRejectModal((prev) => !prev);
-  }, [rejectModal]);
+  // 거절 모달
+  const rejectToggle = useCallback(
+    (data) => {
+      if (data) {
+        rForm.setFieldsValue({
+          rejectMessage: data.rejectMessage,
+        });
+        setRData(data);
+      } else {
+        rForm.resetFields();
+        setRData(null);
+      }
+      setRejectModal((prev) => !prev);
+    },
+    [rejectModal]
+  );
 
-  const orderToggle = useCallback(() => {
-    setOrderModal((prev) => !prev);
-  }, [orderModal]);
+  // 결제 모달
+  const orderToggle = useCallback(
+    (data) => {
+      if (data) {
+        setOrderData(data);
+        console.log(data);
+
+        orderForm.setFieldsValue({
+          endDate: moment(data.endDate),
+          totalPrice: data.totalPrice,
+          okMessage: data.okMessage,
+        });
+      } else {
+        setOrderData(null);
+
+        orderForm.resetFields();
+      }
+      setOrderModal((prev) => !prev);
+    },
+    [orderModal]
+  );
+
+  // 수락 모달
+  const okToggle = useCallback(
+    (data) => {
+      if (data) {
+        setOData(data);
+        oForm.setFieldsValue({
+          okMessage: data.okMessage,
+        });
+      } else {
+        setOData(null);
+        oForm.resetFields();
+      }
+      setOkModal((prev) => !prev);
+    },
+    [okModal]
+  );
 
   ////// HANDLER //////
 
@@ -254,6 +376,36 @@ const Index = () => {
       },
     });
   }, [st_buyRequestDeleteLoading, selectContact]);
+
+  // 수락하기
+  const isOkHandler = useCallback(
+    (data) => {
+      dispatch({
+        type: BUYREQUEST_ISOK_REQUEST,
+        data: {
+          id: oData.id,
+          isOk: 1,
+          okMessage: data.okMessage,
+        },
+      });
+    },
+    [oData]
+  );
+
+  // 거절하기
+  const isRejectHandler = useCallback(
+    (data) => {
+      dispatch({
+        type: BUYREQUEST_ISREJECT_REQUEST,
+        data: {
+          id: rData.id,
+          isReject: 1,
+          rejectMessage: data.rejectMessage,
+        },
+      });
+    },
+    [rData]
+  );
 
   ////// DATAVIEW //////
 
@@ -357,12 +509,12 @@ const Index = () => {
                       >
                         {/**
                          *
-                         * ---------------------- 조건 ------------------------- 내용 -- 타입
-                         * isOk = 0, isReject = 0, isPay = 0, isCompleted = 0, 문의 완료  1
-                         * isOk = 1, isReject = 0, isPay = 0, isCompleted = 0, 문의 수락  2
-                         * isOk = 1, isReject = 0, isPay = 1, isCompleted = 0, 결제 완료  3
-                         * isOk = 1, isReject = 0, isPay = 1, isCompleted = 1, 제작 완료  4
-                         * isOk = 0, isReject = 1, isPay = 0, isCompleted = 0, 문의 거절  5
+                         * ---------------------- 조건 ------------------------- 내용 -- 타입 -- 회원타입
+                         * isOk = 0, isReject = 0, isPay = 0, isCompleted = 0, 문의 완료  1      일반
+                         * isOk = 1, isReject = 0, isPay = 0, isCompleted = 0, 문의 수락  2     아티스트
+                         * isOk = 1, isReject = 0, isPay = 1, isCompleted = 0, 결제 완료  3      일반
+                         * isOk = 1, isReject = 0, isPay = 1, isCompleted = 1, 제작 완료  4      일반
+                         * isOk = 0, isReject = 1, isPay = 0, isCompleted = 0, 문의 거절  5     아티스트
                          *
                          */}
 
@@ -382,18 +534,31 @@ const Index = () => {
                           </CommonButton>
                         ) : data.type === 2 ? (
                           // 문의수락
-                          <CommonButton
-                            width={`83px`}
-                            height={`35px`}
-                            padding={`0`}
-                            fontSize={`16px`}
-                            fontWeight={`600`}
-                            kindOf={`subTheme2`}
-                            margin={`0 8px 0 0`}
-                            onClick={orderToggle}
-                          >
-                            결제하기
-                          </CommonButton>
+                          me && me.isArtist === "아티스트" ? (
+                            <Wrapper
+                              width={`83px`}
+                              height={`35px`}
+                              border={`1px solid ${Theme.lightGrey_C}`}
+                              color={Theme.grey2_C}
+                              fontSize={`16px`}
+                              margin={`0 8px 0 0`}
+                            >
+                              결제 대기
+                            </Wrapper>
+                          ) : (
+                            <CommonButton
+                              width={`83px`}
+                              height={`35px`}
+                              padding={`0`}
+                              fontSize={`16px`}
+                              fontWeight={`600`}
+                              kindOf={`subTheme2`}
+                              margin={`0 8px 0 0`}
+                              onClick={() => orderToggle(data)}
+                            >
+                              결제하기
+                            </CommonButton>
+                          )
                         ) : data.type === 3 ? (
                           // 결제완료
                           <CommonButton
@@ -443,7 +608,7 @@ const Index = () => {
                             fontWeight={`600`}
                             kindOf={`grey4`}
                             margin={`0 8px 0 0`}
-                            onClick={rejectToggle}
+                            onClick={() => rejectToggle(data)}
                           >
                             거절 사유
                           </CommonButton>
@@ -570,91 +735,229 @@ const Index = () => {
                   </Text>
                 </Wrapper>
 
-                <CommonButton
-                  width={width < 900 ? `150px` : `180px`}
-                  height={`50px`}
-                  fontSize={width < 900 ? `15px` : `18px`}
-                  margin={`32px 0 0`}
-                  onClick={() => contactToggle(null)}
-                >
-                  컨택 내역
-                </CommonButton>
+                {me && me.isArtist === "아티스트" && (
+                  <Wrapper dr={`row`}>
+                    <CommonButton
+                      width={width < 900 ? `150px` : `180px`}
+                      height={`50px`}
+                      fontSize={width < 900 ? `15px` : `18px`}
+                      margin={`32px 8px 0 0`}
+                      onClick={() => okToggle(dData && dData)}
+                    >
+                      컨택 수락
+                    </CommonButton>
+                    <CommonButton
+                      kindOf={`subTheme`}
+                      width={width < 900 ? `150px` : `180px`}
+                      height={`50px`}
+                      fontSize={width < 900 ? `15px` : `18px`}
+                      margin={`32px 0 0`}
+                      onClick={() => rejectToggle(dData && dData)}
+                    >
+                      컨택 거절
+                    </CommonButton>
+                  </Wrapper>
+                )}
               </Wrapper>
             </Form>
           </Modal>
+
+          {/* ISOK MODAL */}
           <Modal
-            onCancel={rejectToggle}
+            visible={okModal}
+            onCancel={okToggle}
+            footer={null}
+            width={`550px`}
+          >
+            <Form form={oForm} onFinish={isOkHandler}>
+              <Wrapper padding={width < 900 ? `30px 0` : `30px 25px`}>
+                <Text fontSize={`32px`} fontWeight={`bold`} margin={`0 0 24px`}>
+                  수락하기
+                </Text>
+                <Wrapper dr={`row`} ju={`flex-start`}>
+                  <Image
+                    alt="thumbnail"
+                    src={oData && oData.receptionProfileImage}
+                    width={`100px`}
+                    height={`100px`}
+                    radius={`100%`}
+                    margin={`0 22px 0 0`}
+                  />
+                  <Wrapper width={`auto`} al={`flex-start`}>
+                    <Text
+                      fontSize={width < 900 ? `18px` : `22px`}
+                      fontWeight={`600`}
+                    >
+                      {oData && oData.receptionNickname}
+                    </Text>
+                    <Text
+                      fontSize={width < 900 ? `15px` : `18px`}
+                      margin={`10px 0 15px`}
+                    >
+                      {oData && oData.subTitle}
+                    </Text>
+                    <Text color={Theme.grey_C}>
+                      문의날짜 : {oData && oData.viewFrontCreatedAt}
+                    </Text>
+                  </Wrapper>
+                </Wrapper>
+
+                <Wrapper al={`flex-start`} margin={`34px 0 0`}>
+                  <Text fontSize={`16px`} color={Theme.grey_C}>
+                    제작자의 의견
+                  </Text>
+                  <Form.Item style={{ width: `100%` }} name="okMessage">
+                    <TextArea
+                      width={`100%`}
+                      height={`75px`}
+                      margin={`12px 0 0`}
+                      readOnly={dData && dData.isReject}
+                      placeholder="제작자의 의견을 입력해주세요."
+                    />
+                  </Form.Item>
+                </Wrapper>
+
+                <Wrapper dr={`row`} margin={`34px 0 0`}>
+                  <CommonButton
+                    width={width < 900 ? `150px` : `180px`}
+                    height={`50px`}
+                    fontSize={width < 900 ? `15px` : `18px`}
+                    kindOf={`subTheme`}
+                    margin={`0 8px 0 0`}
+                    htmlType="submit"
+                    loading={st_buyRequestIsOkLoading}
+                  >
+                    수락
+                  </CommonButton>
+                  <CommonButton
+                    width={width < 900 ? `150px` : `180px`}
+                    height={`50px`}
+                    fontSize={width < 900 ? `15px` : `18px`}
+                    onClick={() => okToggle(null)}
+                  >
+                    취소
+                  </CommonButton>
+                </Wrapper>
+              </Wrapper>
+            </Form>
+          </Modal>
+
+          {/* REJECT MODAL */}
+          <Modal
+            onCancel={() => rejectToggle(null)}
             visible={rejectModal}
             footer={null}
             width={`550px`}
           >
-            <Wrapper padding={width < 900 ? `30px 0` : `30px 25px`}>
-              <Text fontSize={`32px`} fontWeight={`bold`} margin={`0 0 24px`}>
-                거절사유
-              </Text>
+            <Form form={rForm} onFinish={isRejectHandler}>
+              <Wrapper padding={width < 900 ? `30px 0` : `30px 25px`}>
+                <Text fontSize={`32px`} fontWeight={`bold`} margin={`0 0 24px`}>
+                  거절사유
+                </Text>
 
-              <Wrapper dr={`row`} ju={`flex-start`}>
-                <Image
-                  alt="thumbnail"
-                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/banner/my-page.png`}
-                  width={`100px`}
-                  height={`100px`}
-                  radius={`100%`}
-                  margin={`0 22px 0 0`}
-                />
-                <Wrapper width={`auto`} al={`flex-start`}>
-                  <Text
-                    fontSize={width < 900 ? `18px` : `22px`}
-                    fontWeight={`600`}
-                  >
-                    차참미
+                <Wrapper dr={`row`} ju={`flex-start`}>
+                  <Image
+                    alt="thumbnail"
+                    src={rData && rData.receptionProfileImage}
+                    width={`100px`}
+                    height={`100px`}
+                    radius={`100%`}
+                    margin={`0 22px 0 0`}
+                  />
+                  <Wrapper width={`auto`} al={`flex-start`}>
+                    <Text
+                      fontSize={width < 900 ? `18px` : `22px`}
+                      fontWeight={`600`}
+                    >
+                      {rData && rData.receptionNickname}
+                    </Text>
+                    <Text
+                      fontSize={width < 900 ? `15px` : `18px`}
+                      margin={`10px 0 15px`}
+                    >
+                      {rData && rData.subTitle}
+                    </Text>
+                    <Text color={Theme.grey_C}>
+                      문의날짜 : {rData && rData.viewFrontCreatedAt}
+                    </Text>
+                  </Wrapper>
+                </Wrapper>
+
+                <Wrapper al={`flex-start`} margin={`34px 0 0`}>
+                  <Text fontSize={`16px`} color={Theme.grey_C}>
+                    제작자의 답변
                   </Text>
-                  <Text
-                    fontSize={width < 900 ? `15px` : `18px`}
-                    margin={`10px 0 15px`}
+                  <Form.Item
+                    style={{ width: `100%` }}
+                    name="rejectMessage"
+                    rules={[
+                      { required: true, message: "답변을 입력해주세요." },
+                    ]}
                   >
-                    "아티스트를 소개하는 한 마디"
-                  </Text>
-                  <Text color={Theme.grey_C}>문의날짜 : 2022.11.25</Text>
+                    <TextArea
+                      width={`100%`}
+                      height={`75px`}
+                      margin={`12px 0 0`}
+                      readOnly={rData && rData.isReject}
+                      placeholder="제작자의 답변을 입력해주세요."
+                    />
+                  </Form.Item>
+                </Wrapper>
+                <Text color={Theme.grey_C}>
+                  문의하신 내용과 제작자의 의견이 맞지 않아 거절되는 경우 다시
+                  문의해주셔야 합니다. 다시 문의할 경우 이전의 문의 내용이
+                  옮겨가지 않으므로 원하는 문의 내용을 전부 적어주셔야 합니다.
+                </Text>
+
+                <Wrapper dr={`row`} margin={`34px 0 0`}>
+                  {rData && rData.isReject ? (
+                    me &&
+                    me.isArtist === "일반" && (
+                      <>
+                        <CommonButton
+                          width={width < 900 ? `150px` : `180px`}
+                          height={`50px`}
+                          fontSize={width < 900 ? `15px` : `18px`}
+                          kindOf={`subTheme`}
+                          margin={`0 8px 0 0`}
+                        >
+                          다른 아티스트보기
+                        </CommonButton>
+                        <CommonButton
+                          width={width < 900 ? `150px` : `180px`}
+                          height={`50px`}
+                          fontSize={width < 900 ? `15px` : `18px`}
+                        >
+                          다시 컨택하기
+                        </CommonButton>
+                      </>
+                    )
+                  ) : (
+                    <>
+                      <CommonButton
+                        width={width < 900 ? `150px` : `180px`}
+                        height={`50px`}
+                        fontSize={width < 900 ? `15px` : `18px`}
+                        kindOf={`subTheme`}
+                        margin={`0 8px 0 0`}
+                        htmlType="submit"
+                        loading={st_buyRequestIsRejectLoading}
+                      >
+                        거절
+                      </CommonButton>
+                      <CommonButton
+                        width={width < 900 ? `150px` : `180px`}
+                        height={`50px`}
+                        fontSize={width < 900 ? `15px` : `18px`}
+                        onClick={() => rejectToggle(null)}
+                      >
+                        취소
+                      </CommonButton>
+                    </>
+                  )}
                 </Wrapper>
               </Wrapper>
-
-              <Wrapper al={`flex-start`} margin={`34px 0 0`}>
-                <Text fontSize={`16px`} color={Theme.grey_C}>
-                  제작자의 답변
-                </Text>
-                <TextArea
-                  width={`100%`}
-                  height={`75px`}
-                  margin={`12px 0 20px`}
-                  readOnly
-                />
-              </Wrapper>
-              <Text color={Theme.grey_C}>
-                문의하신 내용과 제작자의 의견이 맞지 않아 거절되는 경우 다시
-                문의해주셔야 합니다. 다시 문의할 경우 이전의 문의 내용이
-                옮겨가지 않으므로 원하는 문의 내용을 전부 적어주셔야 합니다.
-              </Text>
-
-              <Wrapper dr={`row`} margin={`34px 0 0`}>
-                <CommonButton
-                  width={width < 900 ? `150px` : `180px`}
-                  height={`50px`}
-                  fontSize={width < 900 ? `15px` : `18px`}
-                  kindOf={`subTheme`}
-                  margin={`0 8px 0 0`}
-                >
-                  다른 아티스트보기
-                </CommonButton>
-                <CommonButton
-                  width={width < 900 ? `150px` : `180px`}
-                  height={`50px`}
-                  fontSize={width < 900 ? `15px` : `18px`}
-                >
-                  다시 컨택하기
-                </CommonButton>
-              </Wrapper>
-            </Wrapper>
+            </Form>
           </Modal>
 
           <Modal
@@ -663,126 +966,131 @@ const Index = () => {
             footer={null}
             width={`550px`}
           >
-            <Wrapper padding={width < 900 ? `30px 0` : `30px 25px`}>
-              <Text fontSize={`32px`} fontWeight={`bold`} margin={`0 0 24px`}>
-                결제하기
-              </Text>
-
-              <Wrapper dr={`row`} ju={`flex-start`}>
-                <Image
-                  alt="thumbnail"
-                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/banner/my-page.png`}
-                  width={`100px`}
-                  height={`100px`}
-                  radius={`100%`}
-                  margin={`0 22px 0 0`}
-                />
-                <Wrapper width={`auto`} al={`flex-start`}>
-                  <Text
-                    fontSize={width < 900 ? `18px` : `22px`}
-                    fontWeight={`600`}
-                  >
-                    차참미
-                  </Text>
-                  <Text
-                    fontSize={width < 900 ? `15px` : `18px`}
-                    margin={`10px 0 15px`}
-                  >
-                    "아티스트를 소개하는 한 마디"
-                  </Text>
-                  <Text color={Theme.grey_C}>문의날짜 : 2022.11.25</Text>
-                </Wrapper>
-              </Wrapper>
-              <Wrapper al={`flex-start`}>
-                <Text fontSize={`16px`} color={Theme.grey_C}>
-                  제출 마감일
-                </Text>
-                <Wrapper
-                  dr={`row`}
-                  ju={`flex-start`}
-                  fontSize={`16px`}
-                  margin={`12px 0 30px`}
-                >
-                  <TextInput
-                    type="text"
-                    readOnly
-                    width={`200px`}
-                    height={`50px`}
-                  />
-                  &nbsp;까지
-                </Wrapper>
-              </Wrapper>
-              <Wrapper al={`flex-start`}>
-                <Text fontSize={`16px`} color={Theme.grey_C}>
-                  금액
-                </Text>
-                <Wrapper
-                  dr={`row`}
-                  ju={`flex-start`}
-                  fontSize={`16px`}
-                  margin={`12px 0 30px`}
-                >
-                  <TextInput
-                    type="text"
-                    readOnly
-                    width={`200px`}
-                    height={`50px`}
-                  />
-                  &nbsp;원
-                </Wrapper>
-              </Wrapper>
-              <Wrapper al={`flex-start`}>
-                <Text fontSize={`16px`} color={Theme.grey_C}>
-                  제작자의 의견
-                </Text>
-                <TextArea
-                  width={`100%`}
-                  height={`75px`}
-                  margin={`12px 0 30px`}
-                  readOnly
-                />
-
-                <Text color={Theme.grey_C}>
-                  제작할 음악의 용도를 반드시 미리 고지해야 하며, 작업 완료 후
-                  정식 앨범 출판 및 정식 앨범 출판 및 상업적 사용을 할 때에
-                  안전한 저작궈느 크레딧 협의를 위해 반드시 New Wave Sound를
-                  통하여 전문가, 의뢰인 협의 후 진행하실 수
-                  있습니다.(nws0901@nwsound1.com)
-                </Text>
-              </Wrapper>
-
-              <Wrapper dr={`row`} ju={`space-between`} margin={`34px 0 0`}>
-                <Text fontSize={`16px`} color={Theme.grey_C}>
-                  결제금액
-                </Text>
-                <Text fontSize={`24px`}>
-                  <SpanText fontWeight={`bold`} color={Theme.basicTheme_C}>
-                    260,000
-                  </SpanText>
-                  원
-                </Text>
-              </Wrapper>
-
-              <Wrapper dr={`row`} margin={`34px 0 0`}>
-                <CommonButton
-                  width={width < 900 ? `150px` : `180px`}
-                  height={`50px`}
-                  fontSize={width < 900 ? `15px` : `18px`}
-                  kindOf={`subTheme`}
-                  margin={`0 8px 0 0`}
-                  onClick={orderToggle}
-                >
-                  컨택 내역
-                </CommonButton>
-                <CommonButton
-                  width={width < 900 ? `150px` : `180px`}
-                  height={`50px`}
-                  fontSize={width < 900 ? `15px` : `18px`}
-                >
+            <Form form={orderForm} layout="inline">
+              <Wrapper padding={width < 900 ? `30px 0` : `30px 25px`}>
+                <Text fontSize={`32px`} fontWeight={`bold`} margin={`0 0 24px`}>
                   결제하기
-                </CommonButton>
+                </Text>
+
+                <Wrapper dr={`row`} ju={`flex-start`}>
+                  <Image
+                    alt="thumbnail"
+                    src={orderData && orderData.receptionProfileImage}
+                    width={`100px`}
+                    height={`100px`}
+                    radius={`100%`}
+                    margin={`0 22px 0 0`}
+                  />
+                  <Wrapper width={`auto`} al={`flex-start`}>
+                    <Text
+                      fontSize={width < 900 ? `18px` : `22px`}
+                      fontWeight={`600`}
+                    >
+                      {orderData && orderData.receptionNickname}
+                    </Text>
+                    <Text
+                      fontSize={width < 900 ? `15px` : `18px`}
+                      margin={`10px 0 15px`}
+                    >
+                      "아티스트를 소개하는 한 마디"
+                    </Text>
+                    <Text color={Theme.grey_C}>문의날짜 : 2022.11.25</Text>
+                  </Wrapper>
+                </Wrapper>
+                <Wrapper al={`flex-start`} margin={`34px 0 0`}>
+                  <Text fontSize={`16px`} color={Theme.grey_C}>
+                    제출 마감일
+                  </Text>
+                  <Wrapper
+                    dr={`row`}
+                    ju={`flex-start`}
+                    fontSize={`16px`}
+                    margin={`12px 0 30px`}
+                  >
+                    <Form.Item name="endDate">
+                      <CustomDatePicker
+                        disabled
+                        style={{ width: 200, height: 50 }}
+                      />
+                    </Form.Item>
+                    &nbsp;까지
+                  </Wrapper>
+                </Wrapper>
+                <Wrapper al={`flex-start`}>
+                  <Text fontSize={`16px`} color={Theme.grey_C}>
+                    금액
+                  </Text>
+                  <Wrapper
+                    dr={`row`}
+                    ju={`flex-start`}
+                    fontSize={`16px`}
+                    margin={`12px 0 30px`}
+                  >
+                    <Form.Item name="totalPrice">
+                      <TextInput
+                        type="text"
+                        readOnly
+                        width={`200px`}
+                        height={`50px`}
+                      />
+                    </Form.Item>
+                    &nbsp;원
+                  </Wrapper>
+                </Wrapper>
+                <Wrapper al={`flex-start`}>
+                  <Text fontSize={`16px`} color={Theme.grey_C}>
+                    제작자의 의견
+                  </Text>
+                  <Form.Item name="okMessage" style={{ width: `100%` }}>
+                    <TextArea
+                      width={`100%`}
+                      height={`75px`}
+                      margin={`12px 0 30px`}
+                      readOnly
+                    />
+                  </Form.Item>
+
+                  <Text color={Theme.grey_C}>
+                    제작할 음악의 용도를 반드시 미리 고지해야 하며, 작업 완료 후
+                    정식 앨범 출판 및 정식 앨범 출판 및 상업적 사용을 할 때에
+                    안전한 저작궈느 크레딧 협의를 위해 반드시 New Wave Sound를
+                    통하여 전문가, 의뢰인 협의 후 진행하실 수
+                    있습니다.(nws0901@nwsound1.com)
+                  </Text>
+                </Wrapper>
+
+                <Wrapper dr={`row`} ju={`space-between`} margin={`34px 0 0`}>
+                  <Text fontSize={`16px`} color={Theme.grey_C}>
+                    결제금액
+                  </Text>
+                  <Text fontSize={`24px`}>
+                    <SpanText fontWeight={`bold`} color={Theme.basicTheme_C}>
+                      {orderData && orderData.viewTotalPrice}
+                    </SpanText>
+                  </Text>
+                </Wrapper>
+
+                <Wrapper dr={`row`} margin={`34px 0 0`}>
+                  <CommonButton
+                    width={width < 900 ? `150px` : `180px`}
+                    height={`50px`}
+                    fontSize={width < 900 ? `15px` : `18px`}
+                    kindOf={`subTheme`}
+                    margin={`0 8px 0 0`}
+                    onClick={orderToggle}
+                  >
+                    컨택 내역
+                  </CommonButton>
+                  <CommonButton
+                    width={width < 900 ? `150px` : `180px`}
+                    height={`50px`}
+                    fontSize={width < 900 ? `15px` : `18px`}
+                  >
+                    결제하기
+                  </CommonButton>
+                </Wrapper>
               </Wrapper>
-            </Wrapper>
+            </Form>
           </Modal>
         </WholeWrapper>
       </ClientLayout>
@@ -803,13 +1111,6 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: LOAD_MY_INFO_REQUEST,
-    });
-
-    context.store.dispatch({
-      type: BUYREQUEST_MY_LIST_REQUEST,
-      data: {
-        page: 1,
-      },
     });
 
     // 구현부 종료

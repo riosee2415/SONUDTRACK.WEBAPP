@@ -188,7 +188,7 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
  * DEV DATE : 2023/02/01
  */
 router.post("/my/list", isLoggedIn, async (req, res, next) => {
-  const { page } = req.body;
+  const { page, type } = req.body;
 
   const LIMIT = 5;
 
@@ -197,170 +197,347 @@ router.post("/my/list", isLoggedIn, async (req, res, next) => {
   const __page = _page - 1;
   const OFFSET = __page * 5;
 
-  const lengthQuery = `
-    SELECT  ROW_NUMBER() OVER(ORDER BY A.createdAt) AS num,
-            A.id,
-            A.sendMessage,
-            A.isOk,
-            A.isReject,
-            A.rejectMessage,
-            A.endDate,
-            A.filename,
-            A.filepath,
-            A.totalPrice,
-            CONCAT(FORMAT(A.totalPrice, ','), "원")     AS viewTotalPrice,
-            CASE
-              WHEN  A.isOk = 0 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  '문의 완료'
-              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  '문의 수락'
-              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 0 THEN  '결제 완료'
-              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 1 THEN  '제작 완료'
-              WHEN  A.isOk = 0 AND A.isReject = 1 AND A.isPay = 0 AND A.isCompleted = 0 THEN  '문의 거절'
-            END                                         AS viewType,
-            CASE
-              WHEN  A.isOk = 0 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  1
-              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  2
-              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 0 THEN  3
-              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 1 THEN  4
-              WHEN  A.isOk = 0 AND A.isReject = 1 AND A.isPay = 0 AND A.isCompleted = 0 THEN  5
-            END                                         AS type,
-            A.isPay,
-            A.payWay,
-            A.impUid,
-            A.merchantUid,
-            A.isCompleted,
-            A.completedFilename,
-            A.completedFilepath,
-            B.id										                    AS sendUserId,
-            B.username									                AS sendUsername,
-            B.nickname									                AS sendNickname,
-            B.mobile									                  AS sendMobile,
-            B.email									                    AS sendEmail,
-            C.subTitle,
-            E.profileImage                              AS receptionProfileImage,
-            E.id										                    AS receptionUserId,
-            E.username									                AS receptionUsername,
-            E.nickname									                AS receptionNickname,
-            E.mobile									                  AS receptionMobile,
-            E.email									                    AS receptionEmail,
-            A.createdAt,
-            DATE_FORMAT(A.createdAt, '%Y년 %m월 %d일')    AS viewCreatedAt, 
-            DATE_FORMAT(A.createdAt, '%Y.%m.%d')    AS viewFrontCreatedAt,
-            A.updatedAt,
-            DATE_FORMAT(A.updatedAt, '%Y년 %m월 %d일')    AS viewUpdatedAt
-      FROM  buyRequest		A
-     INNER
-      JOIN  users			    B
-        ON  B.id = A.sendUserId
-     INNER
-      JOIN  artistem		C
-        ON  C.id = A.artistemId
-     INNER
-      JOIN  artist 			D
-        ON  D.id = C.ArtistId 
-     INNER 
-      JOIN  users			E
-        ON  E.id = D.UserId 
-     WHERE  1 = 1
-       AND  A.sendUserId = ${req.user.id}
-       AND  A.isDelete = 0
-     ORDER  BY num DESC
-    `;
-
-  /**
-   *
-   * ---------------------- 조건 ------------------------- 내용 -- 타입
-   * isOk = 0, isReject = 0, isPay = 0, isCompleted = 0, 문의 완료  1
-   * isOk = 1, isReject = 0, isPay = 0, isCompleted = 0, 문의 수락  2
-   * isOk = 1, isReject = 0, isPay = 1, isCompleted = 0, 결제 완료  3
-   * isOk = 1, isReject = 0, isPay = 1, isCompleted = 1, 제작 완료  4
-   * isOk = 0, isReject = 1, isPay = 0, isCompleted = 0, 문의 거절  5
-   *
-   */
-
-  const selectQuery = `
-    SELECT  ROW_NUMBER() OVER(ORDER BY A.createdAt) AS num,
-            A.id,
-            A.sendMessage,
-            A.isOk,
-            A.isReject,
-            A.rejectMessage,
-            A.endDate,
-            A.filename,
-            A.filepath,
-            A.totalPrice,
-            CONCAT(FORMAT(A.totalPrice, ','), "원")     AS viewTotalPrice,
-            CASE
-              WHEN  A.isOk = 0 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  '문의 완료'
-              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  '문의 수락'
-              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 0 THEN  '결제 완료'
-              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 1 THEN  '제작 완료'
-              WHEN  A.isOk = 0 AND A.isReject = 1 AND A.isPay = 0 AND A.isCompleted = 0 THEN  '문의 거절'
-            END                                         AS viewType,
-            CASE
-              WHEN  A.isOk = 0 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  1
-              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  2
-              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 0 THEN  3
-              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 1 THEN  4
-              WHEN  A.isOk = 0 AND A.isReject = 1 AND A.isPay = 0 AND A.isCompleted = 0 THEN  5
-            END                                         AS type,
-            A.isPay,
-            A.payWay,
-            A.impUid,
-            A.merchantUid,
-            A.isCompleted,
-            A.completedFilename,
-            A.completedFilepath,
-            B.id										                    AS sendUserId,
-            B.username									                AS sendUsername,
-            B.nickname									                AS sendNickname,
-            B.mobile									                  AS sendMobile,
-            B.email									                    AS sendEmail,
-            C.subTitle,
-            E.profileImage                              AS receptionProfileImage,
-            E.id										                    AS receptionUserId,
-            E.username									                AS receptionUsername,
-            E.nickname									                AS receptionNickname,
-            E.mobile									                  AS receptionMobile,
-            E.email									                    AS receptionEmail,
-            A.createdAt,
-            DATE_FORMAT(A.createdAt, '%Y년 %m월 %d일')    AS viewCreatedAt, 
-            DATE_FORMAT(A.createdAt, '%Y.%m.%d')    AS viewFrontCreatedAt,
-            A.updatedAt,
-            DATE_FORMAT(A.updatedAt, '%Y년 %m월 %d일')    AS viewUpdatedAt
-      FROM  buyRequest		A
-     INNER
-      JOIN  users			    B
-        ON  B.id = A.sendUserId
-     INNER
-      JOIN  artistem		C
-        ON  C.id = A.artistemId
-     INNER
-      JOIN  artist 			D
-        ON  D.id = C.ArtistId 
-     INNER 
-      JOIN  users			E
-        ON  E.id = D.UserId 
-     WHERE  1 = 1
-       AND  A.sendUserId = ${req.user.id}
-       AND  A.isDelete = 0
-     ORDER  BY num DESC
-     LIMIT  ${LIMIT}
-    OFFSET  ${OFFSET}
-    `;
-
   try {
-    const lengths = await models.sequelize.query(lengthQuery);
-    const contact = await models.sequelize.query(selectQuery);
+    if (type === "아티스트") {
+      ////////////////////////////////////////////////////////////////////////
+      //////////////////////////////// 아티스트 ////////////////////////////////
+      ////////////////////////////////////////////////////////////////////////
+      const lengthQuery = `
+      SELECT  ROW_NUMBER() OVER(ORDER BY A.createdAt) AS num,
+              A.id,
+              A.sendMessage,
+              A.isOk,
+              A.okMessage,
+              A.isReject,
+              A.rejectMessage,
+              A.endDate,
+              A.filename,
+              A.filepath,
+              A.totalPrice,
+              CONCAT(FORMAT(A.totalPrice, ','), "원")     AS viewTotalPrice,
+              CASE
+                WHEN  A.isOk = 0 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  '문의 완료'
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  '문의 수락'
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 0 THEN  '결제 완료'
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 1 THEN  '제작 완료'
+                WHEN  A.isOk = 0 AND A.isReject = 1 AND A.isPay = 0 AND A.isCompleted = 0 THEN  '문의 거절'
+              END                                         AS viewType,
+              CASE
+                WHEN  A.isOk = 0 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  1
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  2
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 0 THEN  3
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 1 THEN  4
+                WHEN  A.isOk = 0 AND A.isReject = 1 AND A.isPay = 0 AND A.isCompleted = 0 THEN  5
+              END                                         AS type,
+              A.isPay,
+              A.payWay,
+              A.impUid,
+              A.merchantUid,
+              A.isCompleted,
+              A.completedFilename,
+              A.completedFilepath,
+              B.id										                    AS sendUserId,
+              B.username									                AS sendUsername,
+              B.nickname									                AS sendNickname,
+              B.mobile									                  AS sendMobile,
+              B.email									                    AS sendEmail,
+              C.subTitle,
+              E.profileImage                              AS receptionProfileImage,
+              E.id										                    AS receptionUserId,
+              E.username									                AS receptionUsername,
+              E.nickname									                AS receptionNickname,
+              E.mobile									                  AS receptionMobile,
+              E.email									                    AS receptionEmail,
+              A.createdAt,
+              DATE_FORMAT(A.createdAt, '%Y년 %m월 %d일')    AS viewCreatedAt, 
+              DATE_FORMAT(A.createdAt, '%Y.%m.%d')    AS viewFrontCreatedAt,
+              A.updatedAt,
+              DATE_FORMAT(A.updatedAt, '%Y년 %m월 %d일')    AS viewUpdatedAt
+        FROM  buyRequest		A
+       INNER
+        JOIN  users			    B
+          ON  B.id = A.sendUserId
+       INNER
+        JOIN  artistem		C
+          ON  C.id = A.artistemId
+       INNER
+        JOIN  artist 			D
+          ON  D.id = C.ArtistId 
+       INNER 
+        JOIN  users			E
+          ON  E.id = D.UserId 
+       WHERE  1 = 1
+         AND  E.id = ${req.user.id}
+         AND  A.isDelete = 0
+       ORDER  BY num DESC
+      `;
 
-    const contactLen = lengths[0].length;
+      /**
+       *
+       * ---------------------- 조건 ------------------------- 내용 -- 타입
+       * isOk = 0, isReject = 0, isPay = 0, isCompleted = 0, 문의 완료  1
+       * isOk = 1, isReject = 0, isPay = 0, isCompleted = 0, 문의 수락  2
+       * isOk = 1, isReject = 0, isPay = 1, isCompleted = 0, 결제 완료  3
+       * isOk = 1, isReject = 0, isPay = 1, isCompleted = 1, 제작 완료  4
+       * isOk = 0, isReject = 1, isPay = 0, isCompleted = 0, 문의 거절  5
+       *
+       */
 
-    const lastPage =
-      contactLen % LIMIT > 0 ? contactLen / LIMIT + 1 : contactLen / LIMIT;
+      const selectQuery = `
+      SELECT  ROW_NUMBER() OVER(ORDER BY A.createdAt) AS num,
+              A.id,
+              A.sendMessage,
+              A.isOk,
+              A.okMessage,
+              A.isReject,
+              A.rejectMessage,
+              A.endDate,
+              A.filename,
+              A.filepath,
+              A.totalPrice,
+              CONCAT(FORMAT(A.totalPrice, ','), "원")     AS viewTotalPrice,
+              CASE
+                WHEN  A.isOk = 0 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  '문의 완료'
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  '문의 수락'
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 0 THEN  '결제 완료'
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 1 THEN  '제작 완료'
+                WHEN  A.isOk = 0 AND A.isReject = 1 AND A.isPay = 0 AND A.isCompleted = 0 THEN  '문의 거절'
+              END                                         AS viewType,
+              CASE
+                WHEN  A.isOk = 0 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  1
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  2
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 0 THEN  3
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 1 THEN  4
+                WHEN  A.isOk = 0 AND A.isReject = 1 AND A.isPay = 0 AND A.isCompleted = 0 THEN  5
+              END                                         AS type,
+              A.isPay,
+              A.payWay,
+              A.impUid,
+              A.merchantUid,
+              A.isCompleted,
+              A.completedFilename,
+              A.completedFilepath,
+              B.profileImage                              AS sendProfileImage,
+              B.id										                    AS sendUserId,
+              B.username									                AS sendUsername,
+              B.nickname									                AS sendNickname,
+              B.mobile									                  AS sendMobile,
+              B.email									                    AS sendEmail,
+              C.subTitle,
+              E.profileImage                              AS receptionProfileImage,
+              E.id										                    AS receptionUserId,
+              E.username									                AS receptionUsername,
+              E.nickname									                AS receptionNickname,
+              E.mobile									                  AS receptionMobile,
+              E.email									                    AS receptionEmail,
+              A.createdAt,
+              DATE_FORMAT(A.createdAt, '%Y년 %m월 %d일')    AS viewCreatedAt, 
+              DATE_FORMAT(A.createdAt, '%Y.%m.%d')    AS viewFrontCreatedAt,
+              A.updatedAt,
+              DATE_FORMAT(A.updatedAt, '%Y년 %m월 %d일')    AS viewUpdatedAt
+        FROM  buyRequest		A
+       INNER
+        JOIN  users			    B
+          ON  B.id = A.sendUserId
+       INNER
+        JOIN  artistem		C
+          ON  C.id = A.artistemId
+       INNER
+        JOIN  artist 			D
+          ON  D.id = C.ArtistId 
+       INNER 
+        JOIN  users			E
+          ON  E.id = D.UserId 
+       WHERE  1 = 1
+         AND  E.id = ${req.user.id}
+         AND  A.isDelete = 0
+       ORDER  BY num DESC
+       LIMIT  ${LIMIT}
+      OFFSET  ${OFFSET}
+      `;
 
-    return res.status(200).json({
-      contacts: contact[0],
-      lastPage: parseInt(lastPage),
-    });
+      const lengths = await models.sequelize.query(lengthQuery);
+      const contact = await models.sequelize.query(selectQuery);
+
+      const contactLen = lengths[0].length;
+
+      const lastPage =
+        contactLen % LIMIT > 0 ? contactLen / LIMIT + 1 : contactLen / LIMIT;
+
+      return res.status(200).json({
+        contacts: contact[0],
+        lastPage: parseInt(lastPage),
+      });
+    } else {
+      ////////////////////////////////////////////////////////////////////////
+      ///////////////////////////////// 일반 //////////////////////////////////
+      ////////////////////////////////////////////////////////////////////////
+      const lengthQuery = `
+      SELECT  ROW_NUMBER() OVER(ORDER BY A.createdAt) AS num,
+              A.id,
+              A.sendMessage,
+              A.isOk,
+              A.okMessage,
+              A.isReject,
+              A.rejectMessage,
+              A.endDate,
+              A.filename,
+              A.filepath,
+              A.totalPrice,
+              CONCAT(FORMAT(A.totalPrice, ','), "원")     AS viewTotalPrice,
+              CASE
+                WHEN  A.isOk = 0 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  '문의 완료'
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  '문의 수락'
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 0 THEN  '결제 완료'
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 1 THEN  '제작 완료'
+                WHEN  A.isOk = 0 AND A.isReject = 1 AND A.isPay = 0 AND A.isCompleted = 0 THEN  '문의 거절'
+              END                                         AS viewType,
+              CASE
+                WHEN  A.isOk = 0 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  1
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  2
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 0 THEN  3
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 1 THEN  4
+                WHEN  A.isOk = 0 AND A.isReject = 1 AND A.isPay = 0 AND A.isCompleted = 0 THEN  5
+              END                                         AS type,
+              A.isPay,
+              A.payWay,
+              A.impUid,
+              A.merchantUid,
+              A.isCompleted,
+              A.completedFilename,
+              A.completedFilepath,
+              B.id										                    AS sendUserId,
+              B.username									                AS sendUsername,
+              B.nickname									                AS sendNickname,
+              B.mobile									                  AS sendMobile,
+              B.email									                    AS sendEmail,
+              C.subTitle,
+              E.profileImage                              AS receptionProfileImage,
+              E.id										                    AS receptionUserId,
+              E.username									                AS receptionUsername,
+              E.nickname									                AS receptionNickname,
+              E.mobile									                  AS receptionMobile,
+              E.email									                    AS receptionEmail,
+              A.createdAt,
+              DATE_FORMAT(A.createdAt, '%Y년 %m월 %d일')    AS viewCreatedAt, 
+              DATE_FORMAT(A.createdAt, '%Y.%m.%d')    AS viewFrontCreatedAt,
+              A.updatedAt,
+              DATE_FORMAT(A.updatedAt, '%Y년 %m월 %d일')    AS viewUpdatedAt
+        FROM  buyRequest		A
+       INNER
+        JOIN  users			    B
+          ON  B.id = A.sendUserId
+       INNER
+        JOIN  artistem		C
+          ON  C.id = A.artistemId
+       INNER
+        JOIN  artist 			D
+          ON  D.id = C.ArtistId 
+       INNER 
+        JOIN  users			E
+          ON  E.id = D.UserId 
+       WHERE  1 = 1
+         AND  A.sendUserId = ${req.user.id}
+         AND  A.isDelete = 0
+       ORDER  BY num DESC
+      `;
+
+      /**
+       *
+       * ---------------------- 조건 ------------------------- 내용 -- 타입
+       * isOk = 0, isReject = 0, isPay = 0, isCompleted = 0, 문의 완료  1
+       * isOk = 1, isReject = 0, isPay = 0, isCompleted = 0, 문의 수락  2
+       * isOk = 1, isReject = 0, isPay = 1, isCompleted = 0, 결제 완료  3
+       * isOk = 1, isReject = 0, isPay = 1, isCompleted = 1, 제작 완료  4
+       * isOk = 0, isReject = 1, isPay = 0, isCompleted = 0, 문의 거절  5
+       *
+       */
+
+      const selectQuery = `
+      SELECT  ROW_NUMBER() OVER(ORDER BY A.createdAt) AS num,
+              A.id,
+              A.sendMessage,
+              A.isOk,
+              A.okMessage,
+              A.isReject,
+              A.rejectMessage,
+              A.endDate,
+              A.filename,
+              A.filepath,
+              A.totalPrice,
+              CONCAT(FORMAT(A.totalPrice, ','), "원")     AS viewTotalPrice,
+              CASE
+                WHEN  A.isOk = 0 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  '문의 완료'
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  '문의 수락'
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 0 THEN  '결제 완료'
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 1 THEN  '제작 완료'
+                WHEN  A.isOk = 0 AND A.isReject = 1 AND A.isPay = 0 AND A.isCompleted = 0 THEN  '문의 거절'
+              END                                         AS viewType,
+              CASE
+                WHEN  A.isOk = 0 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  1
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  2
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 0 THEN  3
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 1 THEN  4
+                WHEN  A.isOk = 0 AND A.isReject = 1 AND A.isPay = 0 AND A.isCompleted = 0 THEN  5
+              END                                         AS type,
+              A.isPay,
+              A.payWay,
+              A.impUid,
+              A.merchantUid,
+              A.isCompleted,
+              A.completedFilename,
+              A.completedFilepath,
+              B.id										                    AS sendUserId,
+              B.username									                AS sendUsername,
+              B.nickname									                AS sendNickname,
+              B.mobile									                  AS sendMobile,
+              B.email									                    AS sendEmail,
+              C.subTitle,
+              E.profileImage                              AS receptionProfileImage,
+              E.id										                    AS receptionUserId,
+              E.username									                AS receptionUsername,
+              E.nickname									                AS receptionNickname,
+              E.mobile									                  AS receptionMobile,
+              E.email									                    AS receptionEmail,
+              A.createdAt,
+              DATE_FORMAT(A.createdAt, '%Y년 %m월 %d일')    AS viewCreatedAt, 
+              DATE_FORMAT(A.createdAt, '%Y.%m.%d')    AS viewFrontCreatedAt,
+              A.updatedAt,
+              DATE_FORMAT(A.updatedAt, '%Y년 %m월 %d일')    AS viewUpdatedAt
+        FROM  buyRequest		A
+       INNER
+        JOIN  users			    B
+          ON  B.id = A.sendUserId
+       INNER
+        JOIN  artistem		C
+          ON  C.id = A.artistemId
+       INNER
+        JOIN  artist 			D
+          ON  D.id = C.ArtistId 
+       INNER 
+        JOIN  users			E
+          ON  E.id = D.UserId 
+       WHERE  1 = 1
+         AND  A.sendUserId = ${req.user.id}
+         AND  A.isDelete = 0
+       ORDER  BY num DESC
+       LIMIT  ${LIMIT}
+      OFFSET  ${OFFSET}
+      `;
+
+      const lengths = await models.sequelize.query(lengthQuery);
+      const contact = await models.sequelize.query(selectQuery);
+
+      const contactLen = lengths[0].length;
+
+      const lastPage =
+        contactLen % LIMIT > 0 ? contactLen / LIMIT + 1 : contactLen / LIMIT;
+
+      return res.status(200).json({
+        contacts: contact[0],
+        lastPage: parseInt(lastPage),
+      });
+    }
   } catch (e) {
     console.error(e);
     return res.status(401).send("컨택 내역을 조회할 수 없습니다.");
@@ -434,7 +611,7 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
  * DEV DATE : 2023/01/25
  */
 router.post("/isOk", isLoggedIn, async (req, res, next) => {
-  const { id, isOk } = req.body;
+  const { id, isOk, okMessage } = req.body;
 
   const selectQ = `
   SELECT  A.id,
@@ -452,8 +629,9 @@ router.post("/isOk", isLoggedIn, async (req, res, next) => {
 
   const updateQ = `
   UPDATE  buyRequest 
-     SET  isOk = ${isOk}
-   WHERE  id = ${id};
+     SET  isOk = ${isOk},
+          okMessage = '${okMessage}'
+   WHERE  id = ${id}
     `;
 
   try {
@@ -463,7 +641,7 @@ router.post("/isOk", isLoggedIn, async (req, res, next) => {
       return res.status(401).send("이미 삭제된 데이터 입니다.");
     }
 
-    if (checkList[0][0].UserId === req.user.id) {
+    if (checkList[0][0].UserId !== req.user.id) {
       return res.status(401).send("해당 구매요청의 판매자가 아닙니다.");
     }
 
@@ -472,7 +650,7 @@ router.post("/isOk", isLoggedIn, async (req, res, next) => {
     return res.status(200).json({ result: true });
   } catch (e) {
     console.error(e);
-    return res.status(401).send("구매요청을 조회할 수 없습니다.");
+    return res.status(401).send("수락할 수 없습니다.");
   }
 });
 
@@ -505,7 +683,7 @@ router.post("/isReject", isLoggedIn, async (req, res, next) => {
   UPDATE  buyRequest 
      SET  isReject = ${isReject},
           rejectMessage = "${rejectMessage}"
-   WHERE  id = ${id};
+   WHERE  id = ${id}
     `;
 
   try {
@@ -515,7 +693,7 @@ router.post("/isReject", isLoggedIn, async (req, res, next) => {
       return res.status(401).send("이미 삭제된 데이터 입니다.");
     }
 
-    if (checkList[0][0].UserId === req.user.id) {
+    if (checkList[0][0].UserId !== req.user.id) {
       return res.status(401).send("해당 구매요청의 판매자가 아닙니다.");
     }
 
@@ -524,7 +702,7 @@ router.post("/isReject", isLoggedIn, async (req, res, next) => {
     return res.status(200).json({ result: true });
   } catch (e) {
     console.error(e);
-    return res.status(401).send("구매요청을 조회할 수 없습니다.");
+    return res.status(401).send("거절할 수 없습니다.");
   }
 });
 
