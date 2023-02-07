@@ -593,6 +593,85 @@ router.post("/track/recentList", async (req, res, next) => {
   }
 });
 
+/**
+ * SUBJECT : 뮤직탬 판매량 많은 순 (다운로드 횟수 많은 순)
+ * PARAMETERS : -
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 시니어 개발자 신태섭
+ * DEV DATE : 2023/02/07
+ */
+router.post("/track/sellDesc", async (req, res, next) => {
+  const selectQ = `
+ SELECT  A.id,
+         A.title,
+         A.author,
+         A.thumbnail,
+         A.filename,
+         A.filepath,
+         A.downloadCnt,
+         FORMAT(A.downloadCnt, 0)					          AS  viewDownLoadCnt,
+         A.createdAt,
+         A.ProductId,
+         (
+           SELECT  COUNT(B.id)
+             FROM  userLike	B
+            WHERE  A.id = B.ProductTrackId
+         )		                                        AS likeCnt,
+         ${
+           req.user
+             ? `
+          CASE
+              WHEN  (
+                      SELECT  COUNT(id)
+                        FROM  userLike
+                       WHERE  ProductTrackId = A.id
+                         AND  UserId = ${req.user.id}
+                    ) > 0 THEN                       1
+              ELSE                                   0
+          END                                        AS isLike
+          `
+             : `
+          0                                          AS isLike
+          `
+         }
+   FROM  productTrack	A 
+  ORDER  BY A.downloadCnt DESC 
+  LIMIT  5
+  `;
+
+  try {
+    const list = await models.sequelize.query(selectQ);
+
+    const selectGenQ = `
+    SELECT  id,
+        		value,
+        		createdAt,
+        		ProductId 
+      FROM  productGen
+     WHERE  ProductId IN (${
+       list[0].map((data) => data.ProductId).length === 0
+         ? 0
+         : list[0].map((data) => data.ProductId)
+     })
+    `;
+
+    const genList = await models.sequelize.query(selectGenQ);
+
+    return res.status(200).json(
+      list[0].map((data) => ({
+        ...data,
+        genList: genList[0].filter(
+          (value) => value.ProductId === data.ProductId
+        ),
+      }))
+    );
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("데이터를 조회할 수 없습니다.");
+  }
+});
+
 router.post("/track/allList", async (req, res, next) => {
   try {
     const selectQ = `
