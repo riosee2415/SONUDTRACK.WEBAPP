@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
-import ClientLayout from "../../components/ClientLayout";
+import ClientLayout from "../../../components/ClientLayout";
 import Head from "next/head";
-import wrapper from "../../store/configureStore";
-import { LOAD_MY_INFO_REQUEST } from "../../reducers/user";
+import wrapper from "../../../store/configureStore";
+import { LOAD_MY_INFO_REQUEST } from "../../../reducers/user";
 import axios from "axios";
 import { END } from "redux-saga";
-import useWidth from "../../hooks/useWidth";
+import useWidth from "../../../hooks/useWidth";
 import {
   CommonButton,
   Image,
@@ -16,15 +16,16 @@ import {
   TextInput,
   WholeWrapper,
   Wrapper,
-} from "../../components/commonComponents";
+} from "../../../components/commonComponents";
 import { Checkbox, message, Modal, Switch } from "antd";
-import Theme from "../../components/Theme";
+import Theme from "../../../components/Theme";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import styled from "styled-components";
 import { useState } from "react";
 import { useCallback } from "react";
 import { CloseOutlined } from "@ant-design/icons";
+import Link from "next/dist/client/link";
 
 const Index = () => {
   ////// GLOBAL STATE //////
@@ -191,15 +192,18 @@ const Index = () => {
                 </Text>
               </Wrapper>
 
-              <CommonButton
-                kindOf={`subTheme`}
-                width={`142px`}
-                height={`48px`}
-                margin={`0 0 20px`}
-              >
-                승인 전 등록하기
-              </CommonButton>
-
+              <Link href={`/mypage/musictem/upload`}>
+                <a>
+                  <CommonButton
+                    kindOf={`subTheme`}
+                    width={`142px`}
+                    height={`48px`}
+                    margin={`0 0 20px`}
+                  >
+                    승인 전 등록하기
+                  </CommonButton>
+                </a>
+              </Link>
               <Wrapper
                 width={width < 900 ? `100%` : `60%`}
                 dr={`row`}
@@ -266,7 +270,7 @@ const Index = () => {
             <Wrapper padding={width < 900 ? `30px 0` : `30px 25px`}>
               <Text
                 fontWeight={`bold`}
-                fontSize={`28px`}
+                fontSize={width < 900 ? `20px` : `28px`}
                 color={Theme.basicTheme_C}
                 margin={`0 0 16px`}
               >

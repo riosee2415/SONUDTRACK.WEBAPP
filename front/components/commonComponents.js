@@ -400,6 +400,7 @@ export const Text = styled.p`
   border-bottom: ${(props) => props.borderBottom};
   opacity: ${(props) => props.opacity};
   letter-spacing: ${(props) => props.letterSpacing};
+  text-decoration: ${(props) => props.td};
 
   ${(props) =>
     props.isEllipsis
