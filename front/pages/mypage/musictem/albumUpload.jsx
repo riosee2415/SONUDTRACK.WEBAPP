@@ -22,11 +22,7 @@ import Theme from "../../../components/Theme";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import styled from "styled-components";
-import {
-  CloseOutlined,
-  DownloadOutlined,
-  LeftOutlined,
-} from "@ant-design/icons";
+import { DownloadOutlined, LeftOutlined } from "@ant-design/icons";
 
 const CustomForm = styled(Form)`
   width: 100%;

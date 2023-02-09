@@ -17,7 +17,7 @@ import {
   WholeWrapper,
   Wrapper,
 } from "../../../../components/commonComponents";
-import { Checkbox, message, Modal, Switch } from "antd";
+import { Checkbox, Form, message, Modal, Switch } from "antd";
 import Theme from "../../../../components/Theme";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/router";
@@ -30,6 +30,14 @@ import {
   LeftOutlined,
 } from "@ant-design/icons";
 import Link from "next/dist/client/link";
+
+const CustomForm = styled(Form)`
+  width: 100%;
+
+  & .ant-form-item {
+    width: 100%;
+  }
+`;
 
 const Index = () => {
   ////// GLOBAL STATE //////
@@ -104,110 +112,164 @@ const Index = () => {
               </CommonButton>
             </Wrapper>
 
-            <Wrapper al={`flex-start`}>
-              <Text fontSize={`24px`} fontWeight={`600`} isHover>
-                <LeftOutlined style={{ margin: `0 15px 0 0` }} /> Musictem
-                업로드 신청
-              </Text>
+            {/* ------------------ CUSTOM FORM ------------------ */}
+            <CustomForm>
+              <Wrapper al={`flex-start`}>
+                <Text fontSize={`24px`} fontWeight={`600`} isHover>
+                  <LeftOutlined style={{ margin: `0 15px 0 0` }} />
+                  앨범 Track 등록 신청하기
+                </Text>
 
-              <Wrapper
-                width={width < 700 ? `100%` : `440px`}
-                bgColor={Theme.subTheme_C}
-                height={`55px`}
-                fontSize={width < 700 ? `14px` : `16px`}
-                radius={`5px`}
-                margin={`18px 0 30px`}
-              >
-                제출은 앨범으로만 가능하며, 모두 같은 형식이어야 합니다.
-              </Wrapper>
-              <Text fontSize={width < 700 ? `14px` : `16px`}>Track 업로드</Text>
-
-              <Wrapper
-                width={`auto`}
-                padding={`20px`}
-                radius={`5px`}
-                fontSize={width < 700 ? `14px` : `16px`}
-                al={`flex-start`}
-                bgColor={Theme.lightGrey2_C}
-                margin={`10px 0 30px`}
-              >
-                <Text>
-                  모든 track은 곡제목과 함께 MP3, WAV 파일 모두 등록해주세요.
-                </Text>
-                <Text>타이틀 곡이 앨범명이 됩니다.</Text>
-                <Text>
-                  예) 봄이 와(타이틀곡).mp3, 봄이 와(타이틀곡).wav, 벚꽃.mp3,
-                  벚꽃.wav
-                </Text>
-                <Text
-                  fontWeight={`600`}
-                  color={Theme.basicTheme_C}
-                  margin={`15px 0 0`}
-                >
-                  Tip!
-                </Text>
-                <Text fontWeight={`500`}>
-                  한 앨범의 곡은 앨범 테마에 맞게 같은 분위기로 등록하시면
-                  좋습니다.
-                </Text>
-                <Text fontWeight={`500`}>
-                  한 앨범에 등록 가능한 Track 수는 최소 1곡에서 최대 10곡
-                  입니다.
-                </Text>
-                <Text fontWeight={`500`}>
-                  모든 참여 인원의 동의서가 있어야 음원 판매가 가능합니다.
-                </Text>
-                <Text color={Theme.darkGrey_C}>
-                  (추후 뮤직템 등록시 동의서를 다운받을 수 있습니다.)
-                </Text>
-              </Wrapper>
-
-              <Wrapper
-                dr={`row`}
-                ju={`space-between`}
-                margin={`0 0 30px`}
-                width={width < 700 ? `100%` : `440px`}
-              >
-                <TextInput
-                  width={`calc(100% - 110px)`}
-                  height={`50px`}
-                  readOnly
-                  border={`1px solid ${Theme.lightGrey_C}`}
-                  placeholder="Track을 업로드해주세요."
-                />
-                <CommonButton
-                  width={`100px`}
-                  height={`50px`}
+                <Wrapper
+                  width={width < 700 ? `100%` : `440px`}
+                  bgColor={Theme.subTheme_C}
+                  height={`55px`}
                   fontSize={width < 700 ? `14px` : `16px`}
-                  fontWeight={`bold`}
-                  kindOf={`subTheme2`}
+                  radius={`5px`}
+                  margin={`18px 0 30px`}
                 >
-                  파일등록
+                  제출은 앨범으로만 가능하며, 모두 같은 형식이어야 합니다.
+                </Wrapper>
+                <Text fontSize={width < 700 ? `14px` : `16px`}>
+                  Track 업로드
+                </Text>
+
+                <Wrapper
+                  width={width < 700 ? `100%` : `auto`}
+                  padding={`20px`}
+                  radius={`5px`}
+                  fontSize={width < 700 ? `14px` : `16px`}
+                  al={`flex-start`}
+                  bgColor={Theme.lightGrey2_C}
+                  margin={`10px 0 30px`}
+                >
+                  <Text>
+                    모든 track은 곡제목과 함께 MP3, WAV 파일 모두 등록해주세요.
+                  </Text>
+                  <Text>타이틀 곡이 앨범명이 됩니다.</Text>
+                  <Text>
+                    예) 봄이 와(타이틀곡).mp3, 봄이 와(타이틀곡).wav, 벚꽃.mp3,
+                    벚꽃.wav
+                  </Text>
+                  <Text
+                    fontWeight={`600`}
+                    color={Theme.basicTheme_C}
+                    margin={`15px 0 0`}
+                  >
+                    Tip!
+                  </Text>
+                  <Text fontWeight={`500`}>
+                    한 앨범의 곡은 앨범 테마에 맞게 같은 분위기로 등록하시면
+                    좋습니다.
+                  </Text>
+                  <Text fontWeight={`500`}>
+                    한 앨범에 등록 가능한 Track 수는 최소 1곡에서 최대 10곡
+                    입니다.
+                  </Text>
+                  <Text fontWeight={`500`}>
+                    모든 참여 인원의 동의서가 있어야 음원 판매가 가능합니다.
+                  </Text>
+                  <Text color={Theme.darkGrey_C}>
+                    (추후 뮤직템 등록시 동의서를 다운받을 수 있습니다.)
+                  </Text>
+                </Wrapper>
+
+                <Text>
+                  Title 등록
+                  <SpanText>*</SpanText>
+                </Text>
+                <Wrapper
+                  dr={`row`}
+                  ju={`space-between`}
+                  margin={`12px 0 10px`}
+                  width={width < 700 ? `100%` : `440px`}
+                >
+                  <Wrapper width={`calc(100% - 110px)`}>
+                    <Form.Item>
+                      <TextInput
+                        width={`100%`}
+                        height={`50px`}
+                        readOnly
+                        border={`1px solid ${Theme.lightGrey_C}`}
+                        placeholder="1곡만 업로드할 수 있습니다."
+                      />
+                    </Form.Item>
+                  </Wrapper>
+                  <CommonButton
+                    width={`100px`}
+                    height={`50px`}
+                    fontSize={width < 700 ? `14px` : `16px`}
+                    fontWeight={`bold`}
+                    kindOf={`subTheme2`}
+                    margin={`0 0 23px`}
+                  >
+                    파일등록
+                  </CommonButton>
+                </Wrapper>
+
+                <Text>
+                  Track 등록
+                  <SpanText>*</SpanText>
+                </Text>
+                <Wrapper
+                  dr={`row`}
+                  ju={`space-between`}
+                  margin={`12px 0 10px`}
+                  width={width < 700 ? `100%` : `440px`}
+                >
+                  <Wrapper width={`calc(100% - 110px)`}>
+                    <Form.Item>
+                      <TextInput
+                        width={`100%`}
+                        height={`50px`}
+                        readOnly
+                        border={`1px solid ${Theme.lightGrey_C}`}
+                        placeholder="Track을 업로드해주세요."
+                      />
+                    </Form.Item>
+                  </Wrapper>
+                  <CommonButton
+                    width={`100px`}
+                    height={`50px`}
+                    fontSize={width < 700 ? `14px` : `16px`}
+                    fontWeight={`bold`}
+                    kindOf={`subTheme2`}
+                    margin={`0 0 23px`}
+                  >
+                    파일등록
+                  </CommonButton>
+                </Wrapper>
+
+                <Text fontWeight={`600`}>
+                  업로드한 전 곡은 New Wave Sound 외에 어느 곳에서도
+                </Text>
+                <Text fontWeight={`600`} margin={`0 0 10px`}>
+                  유통 및 스트리밍 된 적이 없습니까?
+                </Text>
+
+                <Text color={Theme.grey2_C}>
+                  ※다른 곳에서 유통 및 스트리밍한 내역이 있을 경우
+                </Text>
+                <Text color={Theme.grey2_C} margin={`0 0 20px`}>
+                  New Wave Sound에서 판매가 불가합니다.
+                </Text>
+
+                <Checkbox>
+                  <Text fontSize={width < 700 ? `14px` : `16px`}>
+                    (필수)네, 없습니다.
+                  </Text>
+                </Checkbox>
+
+                <CommonButton
+                  width={`180px`}
+                  height={`50px`}
+                  margin={`50px 0 100px`}
+                  onClick={modalToggle2}
+                >
+                  신청하기
                 </CommonButton>
               </Wrapper>
-
-              <Text color={Theme.grey2_C}>
-                ※다른 곳에서 유통 및 스트리밍한 내역이 있을 경우
-              </Text>
-              <Text color={Theme.grey2_C} margin={`0 0 20px`}>
-                New Wave Sound에서 판매가 불가합니다.
-              </Text>
-
-              <Checkbox>
-                <Text fontSize={width < 700 ? `14px` : `16px`}>
-                  (필수)네, 없습니다.
-                </Text>
-              </Checkbox>
-
-              <CommonButton
-                width={`180px`}
-                height={`50px`}
-                margin={`50px 0 100px`}
-                onClick={modalToggle2}
-              >
-                신청하기
-              </CommonButton>
-            </Wrapper>
+            </CustomForm>
           </RsWrapper>
 
           <Modal
