@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import ClientLayout from "../../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../../store/configureStore";
@@ -22,8 +22,6 @@ import Theme from "../../../components/Theme";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import styled from "styled-components";
-import { useState } from "react";
-import { useCallback } from "react";
 import {
   CloseOutlined,
   DownloadOutlined,
@@ -40,6 +38,16 @@ const CustomForm = styled(Form)`
 
 const CustomSelect = styled(Select)`
   height: 50px;
+
+  & .ant-select-selector,
+  & .ant-select-selection-search-input {
+    height: 100% !important;
+  }
+
+  & .ant-select-selection-placeholder {
+    display: flex;
+    align-items: center;
+  }
 `;
 
 const Index = () => {
@@ -186,33 +194,110 @@ const Index = () => {
                         border={`1px solid ${Theme.lightGrey_C}`}
                         placeholder="권장사이즈 : 300px*300px"
                       /> */}
-                      <Select placeholder="장르를 선택해주세요.">
+                      <CustomSelect placeholder="장르를 선택해주세요.">
                         <Select.Option value="test">test</Select.Option>
-                      </Select>
+                      </CustomSelect>
                     </Form.Item>
                   </Wrapper>
                 </Wrapper>
 
-                <Text color={Theme.grey2_C}>
-                  ※다른 곳에서 유통 및 스트리밍한 내역이 있을 경우
+                <Text>
+                  Bit Rate
+                  <SpanText>*</SpanText>
                 </Text>
-                <Text color={Theme.grey2_C} margin={`0 0 20px`}>
-                  New Wave Sound에서 판매가 불가합니다.
+                <Wrapper
+                  dr={`row`}
+                  ju={`space-between`}
+                  margin={`12px 0 10px`}
+                  width={width < 700 ? `100%` : `440px`}
+                >
+                  <Form.Item>
+                    <TextInput
+                      width={`100%`}
+                      height={`50px`}
+                      border={`1px solid ${Theme.lightGrey_C}`}
+                      placeholder="ex) 32bit"
+                    />
+                  </Form.Item>
+                </Wrapper>
+
+                <Text>
+                  Sample Rate
+                  <SpanText>*</SpanText>
+                </Text>
+                <Wrapper
+                  dr={`row`}
+                  ju={`space-between`}
+                  margin={`12px 0 10px`}
+                  width={width < 700 ? `100%` : `440px`}
+                >
+                  <Form.Item>
+                    <TextInput
+                      width={`100%`}
+                      height={`50px`}
+                      border={`1px solid ${Theme.lightGrey_C}`}
+                      placeholder="ex) 44.1khz"
+                    />
+                  </Form.Item>
+                </Wrapper>
+
+                <Text>제작 참여 동의서 업로드</Text>
+                <Wrapper
+                  width={width < 700 ? `100%` : `684px`}
+                  padding={`20px`}
+                  radius={`5px`}
+                  fontSize={width < 700 ? `14px` : `16px`}
+                  al={`flex-start`}
+                  bgColor={Theme.lightGrey2_C}
+                  margin={`12px 0 20px`}
+                >
+                  <Text>
+                    해당 음원 판매를 위하여 제작에 참여한 연주자, 보컬, 프로듀서
+                    등의 판매 허가 동의서가 필요합니다.
+                  </Text>
+                  <Text>반드시 참여한 모든 인원에 서명을 받아 제출하세요.</Text>
+                </Wrapper>
+
+                <Text isHover td={`underLine`}>
+                  동의서 다운로드
+                  <DownloadOutlined />
                 </Text>
 
-                <Checkbox>
-                  <Text fontSize={width < 700 ? `14px` : `16px`}>
-                    (필수)네, 없습니다.
-                  </Text>
-                </Checkbox>
+                <Wrapper
+                  dr={`row`}
+                  ju={`space-between`}
+                  margin={`30px 0 10px`}
+                  width={width < 700 ? `100%` : `440px`}
+                >
+                  <Wrapper width={`calc(100% - 110px)`}>
+                    <Form.Item>
+                      <TextInput
+                        width={`100%`}
+                        height={`50px`}
+                        border={`1px solid ${Theme.lightGrey_C}`}
+                        placeholder="동의서를 업로드해주세요.(중복 가능)"
+                      />
+                    </Form.Item>
+                  </Wrapper>
+                  <CommonButton
+                    margin={`0 0 23px`}
+                    width={`100px`}
+                    height={`50px`}
+                    fontSize={width < 700 ? `14px` : `16px`}
+                    fontWeight={`bold`}
+                    kindOf={`subTheme2`}
+                  >
+                    파일등록
+                  </CommonButton>
+                </Wrapper>
 
                 <CommonButton
                   width={`180px`}
                   height={`50px`}
-                  margin={`50px 0 100px`}
+                  margin={`40px 0 100px`}
                   onClick={modalToggle2}
                 >
-                  신청하기
+                  등록하기
                 </CommonButton>
               </Wrapper>
             </CustomForm>
