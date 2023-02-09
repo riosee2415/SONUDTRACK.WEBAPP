@@ -17,6 +17,10 @@ import {
   CATEGORY_DEL_SUCCESS,
   CATEGORY_DEL_FAILURE,
   //
+  PRODUCT_MYLIST_REQUEST,
+  PRODUCT_MYLIST_SUCCESS,
+  PRODUCT_MYLIST_FAILURE,
+  //
   PRODUCT_LIST_REQUEST,
   PRODUCT_LIST_SUCCESS,
   PRODUCT_LIST_FAILURE,
@@ -173,6 +177,34 @@ function* categoryDelete(action) {
     console.error(err);
     yield put({
       type: CATEGORY_DEL_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function productMyListAPI(data) {
+  return await axios.post("/api/product/pro/myList", data);
+}
+
+function* productMyList(action) {
+  try {
+    const result = yield call(productMyListAPI, action.data);
+
+    yield put({
+      type: PRODUCT_MYLIST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: PRODUCT_MYLIST_FAILURE,
       error: err.response.data,
     });
   }
@@ -552,6 +584,9 @@ function* watchCategoryModify() {
 function* watchCategoryDelete() {
   yield takeLatest(CATEGORY_DEL_REQUEST, categoryDelete);
 }
+function* watchProductMyList() {
+  yield takeLatest(PRODUCT_MYLIST_REQUEST, productMyList);
+}
 function* watchProductList() {
   yield takeLatest(PRODUCT_LIST_REQUEST, productList);
 }
@@ -599,6 +634,7 @@ export default function* productSaga() {
     fork(watchCategoryNew),
     fork(watchCategoryModify),
     fork(watchCategoryDelete),
+    fork(watchProductMyList),
     fork(watchProductList),
     fork(watchProductIng),
     fork(watchProductTop),

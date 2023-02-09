@@ -1,0 +1,141 @@
+import React, { useCallback } from "react";
+import { Carousel } from "antd";
+import { Image, Text, Wrapper, CommonButton } from "../commonComponents";
+import styled from "styled-components";
+import Theme from "../Theme";
+import useWidth from "../../hooks/useWidth";
+import { useRouter } from "next/router";
+
+const AlbumSliderWrapper = styled(Wrapper)`
+  & .ant-carousel {
+    width: 100%;
+  }
+
+  & .slick-dots-bottom {
+    margin: 0 0 -50px;
+  }
+
+  & .ant-carousel .slick-dots li button {
+    background-color: ${(props) => props.theme.basicTheme_C};
+  }
+`;
+
+const CdWrapper = styled(Wrapper)`
+  height: 200px;
+  border-radius: 100%;
+  position: relative;
+  cursor: pointer;
+
+  &:before {
+    content: "";
+    width: 60px;
+    height: 60px;
+    background: ${(props) => props.theme.white_C};
+    border-radius: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  @media (max-width: 700px) {
+    height: 150px;
+  }
+
+  &:hover {
+    transition: 0.9s;
+    transform: rotate(20deg);
+  }
+`;
+
+const AlbumSlider = ({ list }) => {
+  ////// HOOKS //////
+  const width = useWidth();
+  const router = useRouter();
+
+  ////// HANDLER //////
+  const moveLinkHandler = useCallback((link) => {
+    router.push(link);
+  }, []);
+
+  return (
+    <AlbumSliderWrapper>
+      <Carousel
+        slide="div"
+        slidesToShow={list.length > 6 ? 6 : list.length}
+        slidesToScroll={list.length > 6 ? 6 : list.length}
+        draggable={true}
+        responsive={[
+          {
+            breakpoint: 1670,
+            settings: {
+              slidesToShow: list.length > 5 ? 5 : list.length,
+              slidesToScroll: list.length > 5 ? 5 : list.length,
+            },
+          },
+          {
+            breakpoint: 1450,
+            settings: {
+              slidesToShow: list.length > 4 ? 4 : list.length,
+              slidesToScroll: list.length > 4 ? 4 : list.length,
+            },
+          },
+          {
+            breakpoint: 1050,
+            settings: {
+              slidesToShow: list.length > 3 ? 3 : list.length,
+              slidesToScroll: list.length > 3 ? 3 : list.length,
+            },
+          },
+          {
+            breakpoint: 700,
+            settings: {
+              slidesToShow: list.length > 2 ? 2 : list.length,
+              slidesToScroll: list.length > 2 ? 2 : list.length,
+            },
+          },
+        ]}
+      >
+        {list &&
+          list.map((data) => {
+            return (
+              <Wrapper
+                width={width < 700 ? `150px !important` : `200px !important`}
+              >
+                <CdWrapper>
+                  <Image
+                    radius={`100%`}
+                    width={`100%`}
+                    height={`100%`}
+                    src={data.coverImage}
+                    alt="corverImage"
+                  />
+                </CdWrapper>
+                <Wrapper margin={`20px 0 14px`}>
+                  <Text fontSize={`20px`} fontWeight={`600`}>
+                    {data.title}
+                  </Text>
+                  <Text fontSize={`16px`} color={Theme.subTheme4_C}>
+                    {data.value}
+                  </Text>
+                </Wrapper>
+
+                <Wrapper>
+                  <CommonButton
+                    kindOf={`subTheme2`}
+                    onClick={() =>
+                      moveLinkHandler(`/mypage/musictem/trackUpload/${data.id}`)
+                    }
+                  >
+                    Track 등록하기
+                  </CommonButton>
+                </Wrapper>
+              </Wrapper>
+            );
+          })}
+      </Carousel>
+    </AlbumSliderWrapper>
+  );
+};
+
+export default AlbumSlider;

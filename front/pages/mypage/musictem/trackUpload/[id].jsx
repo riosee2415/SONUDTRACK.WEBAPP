@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
-import ClientLayout from "../../../components/ClientLayout";
+import ClientLayout from "../../../../components/ClientLayout";
 import Head from "next/head";
-import wrapper from "../../../store/configureStore";
-import { LOAD_MY_INFO_REQUEST } from "../../../reducers/user";
+import wrapper from "../../../../store/configureStore";
+import { LOAD_MY_INFO_REQUEST } from "../../../../reducers/user";
 import axios from "axios";
 import { END } from "redux-saga";
-import useWidth from "../../../hooks/useWidth";
+import useWidth from "../../../../hooks/useWidth";
 import {
   CommonButton,
   Image,
@@ -16,9 +16,9 @@ import {
   TextInput,
   WholeWrapper,
   Wrapper,
-} from "../../../components/commonComponents";
+} from "../../../../components/commonComponents";
 import { Checkbox, message, Modal, Switch } from "antd";
-import Theme from "../../../components/Theme";
+import Theme from "../../../../components/Theme";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import styled from "styled-components";

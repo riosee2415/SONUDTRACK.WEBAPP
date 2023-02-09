@@ -17,7 +17,7 @@ import {
   WholeWrapper,
   Wrapper,
 } from "../../../components/commonComponents";
-import { Checkbox, message, Modal, Switch } from "antd";
+import { Checkbox, Empty, Form, message, Modal, Switch } from "antd";
 import Theme from "../../../components/Theme";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/router";
@@ -26,10 +26,21 @@ import { useState } from "react";
 import { useCallback } from "react";
 import { CloseOutlined } from "@ant-design/icons";
 import Link from "next/dist/client/link";
+import { PRODUCT_MYLIST_REQUEST } from "../../../reducers/product";
+import AlbumSlider from "../../../components/slide/Albumslider";
+
+const CustomForm = styled(Form)`
+  width: 100%;
+
+  & .ant-form-item {
+    width: 100%;
+  }
+`;
 
 const Index = () => {
   ////// GLOBAL STATE //////
   const { me } = useSelector((state) => state.user);
+  const { myProducts } = useSelector((state) => state.product);
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
@@ -95,170 +106,177 @@ const Index = () => {
               </CommonButton>
             </Wrapper>
 
-            <Wrapper al={`flex-start`}>
-              <Text fontSize={`24px`} fontWeight={`600`} margin={`0 0 30px`}>
-                프로필 수정
-              </Text>
-              <Text
-                fontSize={`16px`}
-                color={Theme.grey_C}
-                fontWeight={`500`}
-                margin={`0 0 12px`}
-              >
-                <SpanText fontWeight={`bold`} margin={`0 4px 0 0`}>
-                  Q1.
-                </SpanText>
-                아티스트명
-                <SpanText
-                  color={Theme.grey2_C}
-                  fontWeight={`300`}
-                  margin={`0 0 0 4px`}
-                >
-                  (한 번 설정하면 변경이 어려우니 신중하게 등록해주세요!)
-                </SpanText>
-              </Text>
-              <TextInput
-                width={`200px`}
-                height={`50px`}
-                placeholder="아티스트명"
-                tyoe="text"
-                border={`1px solid ${Theme.lightGrey_C}`}
-                margin={`0 0 30px`}
-              />
-              <Text
-                fontSize={`16px`}
-                color={Theme.grey_C}
-                fontWeight={`500`}
-                margin={`0 0 12px`}
-              >
-                <SpanText fontWeight={`bold`} margin={`0 4px 0 0`}>
-                  Q2.
-                </SpanText>
-                프로필 이미지
-              </Text>
-              <Wrapper
-                width={width < 700 ? `100%` : `440px`}
-                dr={`row`}
-                ju={`space-between`}
-                margin={`0 0 10px`}
-              >
-                <TextInput
-                  width={`calc(100% - 108px)`}
-                  height={`50px`}
-                  placeholder="프로필 이미지를 등록해주세요."
-                  tyoe="text"
-                  border={`1px solid ${Theme.lightGrey_C}`}
-                />
-                <CommonButton
-                  width={`100px`}
-                  height={`50px`}
-                  fontSize={`18px`}
-                  fontWeight={`600`}
-                  kindOf={`subTheme2`}
-                >
-                  파일등록
-                </CommonButton>
-              </Wrapper>
-              <Wrapper
-                width={width < 700 ? `100%` : `440px`}
-                dr={`row`}
-                ju={`space-between`}
-                padding={`16px 14px`}
-                bgColor={Theme.lightGrey2_C}
-                margin={`0 0 60px`}
-              >
-                <Text fontSize={`16px`} color={Theme.grey_C}>
-                  <Image
-                    alt="icon"
-                    src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/music-file.png`}
-                    width={`14px`}
-                    margin={`0 5px 0 0`}
-                  />
-                  K-Pop.jpg
+            {/* ------------------ CUSTOM FORM ------------------ */}
+            <CustomForm>
+              <Wrapper al={`flex-start`}>
+                <Text fontSize={`24px`} fontWeight={`600`} margin={`0 0 30px`}>
+                  프로필 수정
                 </Text>
-                <CloseOutlined />
-              </Wrapper>
-
-              <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 30px`}>
                 <Text
-                  fontSize={`24px`}
-                  fontWeight={`600`}
-                  margin={`0 10px 0 0`}
+                  fontSize={`16px`}
+                  color={Theme.grey_C}
+                  fontWeight={`500`}
+                  margin={`0 0 12px`}
                 >
-                  Musictem 업로드 신청
-                </Text>
-                <Text fontSize={`16px`} color={Theme.grey_C}>
-                  새로운 음원을 등록해주세요!
-                </Text>
-              </Wrapper>
-
-              <Link href={`/mypage/musictem/upload`}>
-                <a>
-                  <CommonButton
-                    kindOf={`subTheme`}
-                    width={`142px`}
-                    height={`48px`}
-                    margin={`0 0 20px`}
+                  <SpanText fontWeight={`bold`} margin={`0 4px 0 0`}>
+                    Q1.
+                  </SpanText>
+                  아티스트명
+                  <SpanText
+                    color={Theme.grey2_C}
+                    fontWeight={`300`}
+                    margin={`0 0 0 4px`}
                   >
-                    승인 전 등록하기
-                  </CommonButton>
-                </a>
-              </Link>
-              <Wrapper
-                width={width < 900 ? `100%` : `60%`}
-                dr={`row`}
-                borderTop={`1px solid ${Theme.lightGrey_C}`}
-                borderBottom={`1px solid ${Theme.lightGrey_C}`}
-                height={`66px`}
-                color={Theme.subTheme4_C}
-                fontSize={`16px`}
-              >
-                <Wrapper width={`30%`}>앨범명</Wrapper>
-                <Wrapper width={`40%`}>승인 여부</Wrapper>
-                <Wrapper width={`30%`}>등록</Wrapper>
-              </Wrapper>
-              <Wrapper
-                width={width < 900 ? `100%` : `60%`}
-                dr={`row`}
-                borderBottom={`1px solid ${Theme.lightGrey_C}`}
-                height={`66px`}
-                color={Theme.darkGrey_C}
-                fontSize={`16px`}
-              >
-                <Wrapper width={`30%`}>앨범명</Wrapper>
-                <Wrapper width={`40%`}>승인 대기 중</Wrapper>
-                <Wrapper width={`30%`}>
-                  <CommonButton height={`35px`} kindOf={`grey`}>
-                    등록하기
+                    (한 번 설정하면 변경이 어려우니 신중하게 등록해주세요!)
+                  </SpanText>
+                </Text>
+                <Form.Item name="artistName">
+                  <TextInput
+                    width={`200px`}
+                    height={`50px`}
+                    placeholder="아티스트명"
+                    tyoe="text"
+                    border={`1px solid ${Theme.lightGrey_C}`}
+                    margin={`0 0 30px`}
+                  />
+                </Form.Item>
+                <Text
+                  fontSize={`16px`}
+                  color={Theme.grey_C}
+                  fontWeight={`500`}
+                  margin={`0 0 12px`}
+                >
+                  <SpanText fontWeight={`bold`} margin={`0 4px 0 0`}>
+                    Q2.
+                  </SpanText>
+                  프로필 이미지
+                </Text>
+                <Wrapper
+                  width={width < 700 ? `100%` : `440px`}
+                  dr={`row`}
+                  ju={`space-between`}
+                  margin={`0 0 10px`}
+                >
+                  <TextInput
+                    width={`calc(100% - 108px)`}
+                    height={`50px`}
+                    placeholder="프로필 이미지를 등록해주세요."
+                    tyoe="text"
+                    readOnly
+                    border={`1px solid ${Theme.lightGrey_C}`}
+                  />
+                  <CommonButton
+                    width={`100px`}
+                    height={`50px`}
+                    fontSize={`18px`}
+                    fontWeight={`600`}
+                    kindOf={`subTheme2`}
+                  >
+                    파일등록
                   </CommonButton>
                 </Wrapper>
-              </Wrapper>
-              <Wrapper
-                width={width < 900 ? `100%` : `60%`}
-                dr={`row`}
-                borderBottom={`1px solid ${Theme.lightGrey_C}`}
-                height={`66px`}
-                color={Theme.darkGrey_C}
-                fontSize={`16px`}
-              >
-                <Wrapper width={`30%`}>앨범명</Wrapper>
-                <Wrapper width={`40%`}>승인 완료</Wrapper>
-                <Wrapper width={`30%`}>
-                  <CommonButton height={`35px`} kindOf={`subTheme2`}>
-                    등록하기
-                  </CommonButton>
+                <Wrapper
+                  width={width < 700 ? `100%` : `440px`}
+                  dr={`row`}
+                  ju={`space-between`}
+                  padding={`16px 14px`}
+                  bgColor={Theme.lightGrey2_C}
+                  margin={`0 0 60px`}
+                >
+                  <Text fontSize={`16px`} color={Theme.grey_C}>
+                    <Image
+                      alt="icon"
+                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/music-file.png`}
+                      width={`14px`}
+                      margin={`0 5px 0 0`}
+                    />
+                    K-Pop.jpg
+                  </Text>
+                  <CloseOutlined />
                 </Wrapper>
-              </Wrapper>
 
-              <CommonButton
-                width={`180px`}
-                height={`50px`}
-                margin={`50px 0 100px`}
-                fontSize={`18px`}
-              >
-                저장하기
-              </CommonButton>
-            </Wrapper>
+                <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 30px`}>
+                  <Text
+                    fontSize={`24px`}
+                    fontWeight={`600`}
+                    margin={`0 10px 0 0`}
+                  >
+                    Musictem 앨범 등록
+                  </Text>
+                  <Text fontSize={`16px`} color={Theme.grey_C}>
+                    새로운 음원을 등록해주세요!
+                  </Text>
+                </Wrapper>
+
+                <Link href={`/mypage/musictem/albumUpload`}>
+                  <a>
+                    <CommonButton
+                      kindOf={`subTheme`}
+                      width={`142px`}
+                      height={`48px`}
+                      margin={`0 0 40px`}
+                    >
+                      앨범 등록하기
+                    </CommonButton>
+                  </a>
+                </Link>
+                <Wrapper dr={`row`} margin={`0 0 100px`}>
+                  {myProducts &&
+                    (myProducts.length === 0 ? (
+                      <Wrapper>
+                        <Empty description="앨범이 없습니다." />
+                      </Wrapper>
+                    ) : (
+                      <AlbumSlider list={myProducts} />
+                    ))}
+                </Wrapper>
+                {/* <Wrapper
+                  width={width < 900 ? `100%` : `60%`}
+                  dr={`row`}
+                  borderTop={`1px solid ${Theme.lightGrey_C}`}
+                  borderBottom={`1px solid ${Theme.lightGrey_C}`}
+                  height={`66px`}
+                  color={Theme.subTheme4_C}
+                  fontSize={`16px`}
+                >
+                  <Wrapper width={`30%`}>앨범명</Wrapper>
+                  <Wrapper width={`40%`}>승인 여부</Wrapper>
+                  <Wrapper width={`30%`}>등록</Wrapper>
+                </Wrapper>
+                <Wrapper
+                  width={width < 900 ? `100%` : `60%`}
+                  dr={`row`}
+                  borderBottom={`1px solid ${Theme.lightGrey_C}`}
+                  height={`66px`}
+                  color={Theme.darkGrey_C}
+                  fontSize={`16px`}
+                >
+                  <Wrapper width={`30%`}>앨범명</Wrapper>
+                  <Wrapper width={`40%`}>승인 대기 중</Wrapper>
+                  <Wrapper width={`30%`}>
+                    <CommonButton height={`35px`} kindOf={`grey`}>
+                      등록하기
+                    </CommonButton>
+                  </Wrapper>
+                </Wrapper>
+                <Wrapper
+                  width={width < 900 ? `100%` : `60%`}
+                  dr={`row`}
+                  borderBottom={`1px solid ${Theme.lightGrey_C}`}
+                  height={`66px`}
+                  color={Theme.darkGrey_C}
+                  fontSize={`16px`}
+                >
+                  <Wrapper width={`30%`}>앨범명</Wrapper>
+                  <Wrapper width={`40%`}>승인 완료</Wrapper>
+                  <Wrapper width={`30%`}>
+                    <CommonButton height={`35px`} kindOf={`subTheme2`}>
+                      등록하기
+                    </CommonButton>
+                  </Wrapper>
+                </Wrapper> */}
+              </Wrapper>
+            </CustomForm>
           </RsWrapper>
 
           <Modal
@@ -334,6 +352,10 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: LOAD_MY_INFO_REQUEST,
+    });
+
+    context.store.dispatch({
+      type: PRODUCT_MYLIST_REQUEST,
     });
 
     // 구현부 종료

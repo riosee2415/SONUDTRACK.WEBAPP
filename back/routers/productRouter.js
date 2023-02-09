@@ -4,6 +4,7 @@ const multer = require("multer");
 const path = require("path");
 const models = require("../models");
 const isAdminCheck = require("../middlewares/isAdminCheck");
+const isLoggedIn = require("../middlewares/isLoggedIn");
 const AWS = require("aws-sdk");
 const multerS3 = require("multer-s3");
 
@@ -158,6 +159,45 @@ router.post("/ca/delete", async (req, res, next) => {
 ////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// PRODUCT ///////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * SUBJECT : 회언의 상품(앨범) 조회하기
+ * PARAMETERS : -
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 시니어 홍민기
+ * DEV DATE : 2023/02/09
+ */
+router.post("/pro/myList", isLoggedIn, async (req, res, next) => {
+  const selectQ = `
+  SELECT  A.id,
+          A.title,
+          A.subTitle,
+          A.content,
+          A.coverImage,
+          A.isIng,
+          A.downloadCnt,
+          A.bitRate,
+          A.sampleRate,
+          A.isTop,
+          B.value
+    FROM  product           A
+   INNER
+    JOIN  productCategory   B
+      ON  A.ProductCategoryId = B.id
+   WHERE  A.isIng = true
+     AND  A.UserId = ${req.user.id}
+  `;
+
+  try {
+    const list = await models.sequelize.query(selectQ);
+
+    return res.status(200).json(list[0]);
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("데이터를 조회할 수 없습니다.");
+  }
+});
 
 /**
  * SUBJECT : 상품(앨범) 조회하기

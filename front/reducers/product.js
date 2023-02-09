@@ -11,6 +11,7 @@ export const initailState = {
   trackLength: 0,
   commonTags: [],
   trackDetail: null,
+  myProducts: [],
 
   st_categoryLoading: false,
   st_categoryDone: false,
@@ -27,6 +28,10 @@ export const initailState = {
   st_categoryDeleteLoading: false,
   st_categoryDeleteDone: false,
   st_categoryDeleteError: null,
+  //
+  st_productMyListLoading: false,
+  st_productMyListDone: false,
+  st_productMyListError: null,
   //
   st_productListLoading: false,
   st_productListDone: false,
@@ -96,6 +101,10 @@ export const CATEGORY_MODIFY_FAILURE = "CATEGORY_MODIFY_FAILURE";
 export const CATEGORY_DEL_REQUEST = "CATEGORY_DEL_REQUEST";
 export const CATEGORY_DEL_SUCCESS = "CATEGORY_DEL_SUCCESS";
 export const CATEGORY_DEL_FAILURE = "CATEGORY_DEL_FAILURE";
+
+export const PRODUCT_MYLIST_REQUEST = "PRODUCT_MYLIST_REQUEST";
+export const PRODUCT_MYLIST_SUCCESS = "PRODUCT_MYLIST_SUCCESS";
+export const PRODUCT_MYLIST_FAILURE = "PRODUCT_MYLIST_FAILURE";
 
 export const PRODUCT_LIST_REQUEST = "PRODUCT_LIST_REQUEST";
 export const PRODUCT_LIST_SUCCESS = "PRODUCT_LIST_SUCCESS";
@@ -232,6 +241,28 @@ const reducer = (state = initailState, action) =>
         draft.st_categoryDeleteLoading = false;
         draft.st_categoryDeleteDone = false;
         draft.st_categoryDeleteError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////
+      case PRODUCT_MYLIST_REQUEST: {
+        draft.st_productMyListLoading = true;
+        draft.st_productMyListDone = false;
+        draft.st_productMyListError = null;
+        break;
+      }
+      case PRODUCT_MYLIST_SUCCESS: {
+        draft.st_productMyListLoading = false;
+        draft.st_productMyListDone = true;
+        draft.st_productMyListError = null;
+        draft.myProducts = action.data;
+        break;
+      }
+      case PRODUCT_MYLIST_FAILURE: {
+        draft.st_productMyListLoading = false;
+        draft.st_productMyListDone = false;
+        draft.st_productMyListError = action.error;
         break;
       }
 
