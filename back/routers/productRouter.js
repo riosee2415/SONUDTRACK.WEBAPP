@@ -32,6 +32,9 @@ const upload = multer({
   limits: { fileSize: 25 * 1024 * 1024 }, // 5MB
 });
 
+router.post("/file", upload.single("file"), async (req, res, next) => {
+  return res.json({ path: req.file.location });
+});
 ////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////// CATEGORY ///////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
@@ -161,7 +164,7 @@ router.post("/ca/delete", async (req, res, next) => {
 ////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * SUBJECT : 회언의 상품(앨범) 조회하기
+ * SUBJECT : 회원의 상품(앨범) 조회하기
  * PARAMETERS : -
  * ORDER BY : -
  * STATEMENT : -
@@ -175,7 +178,6 @@ router.post("/pro/myList", isLoggedIn, async (req, res, next) => {
           A.subTitle,
           A.content,
           A.coverImage,
-          A.isIng,
           A.downloadCnt,
           A.bitRate,
           A.sampleRate,
@@ -185,8 +187,7 @@ router.post("/pro/myList", isLoggedIn, async (req, res, next) => {
    INNER
     JOIN  productCategory   B
       ON  A.ProductCategoryId = B.id
-   WHERE  A.isIng = true
-     AND  A.UserId = ${req.user.id}
+   WHERE  A.UserId = ${req.user.id}
   `;
 
   try {
@@ -200,19 +201,104 @@ router.post("/pro/myList", isLoggedIn, async (req, res, next) => {
 });
 
 /**
+ * SUBJECT : 뮤직탬 엘범 등록
+ * PARAMETERS : -
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 시니어 홍민기
+ * DEV DATE : 2023/02/10
+ */
+router.post("/pro/create", isLoggedIn, async (req, res, next) => {
+  const {
+    title,
+    subTitle,
+    content,
+    coverImage,
+    bitRate,
+    sampleRate,
+    agreementPath,
+    agreementName,
+    productCategoryId,
+    productGenArr,
+  } = req.body;
+
+  if (!Array.isArray(productGenArr)) {
+    return res.status(401).send("잘못된 요청입니다.");
+  }
+
+  const insertQ = `
+  INSERT INTO product (
+		title,
+		subTitle,
+		content,
+		coverImage,
+		bitRate,
+		sampleRate,
+		createdAt,
+		updatedAt,
+		UserId,
+		ProductCategoryId,
+    agreementPath,
+    agreementName
+	) VALUES (
+		'${title}',
+		'${subTitle}',
+		'${content}',
+		'${coverImage}',
+		'${bitRate}',
+		'${sampleRate}',
+		NOW(),
+		NOW(),
+		${req.user.id},
+		${productCategoryId},
+    '${agreementPath}',
+    '${agreementName}'
+	)
+  `;
+
+  try {
+    const result = await models.sequelize.query(insertQ);
+
+    const insertConnectQ = `
+    INSERT INTO productGenConnect (
+      createdAt,
+      updatedAt,
+      ProductGenId,
+      ProductId 
+    ) VALUES 
+    ${productGenArr.map((data, idx) => {
+      return `
+      (
+        NOW(),
+        NOW(),
+        ${data},
+        ${result[0]}
+      )`;
+    })}
+    `;
+
+    await models.sequelize.query(insertConnectQ);
+
+    return res.status(200).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("엘범을 등록할 수 없습니다.");
+  }
+});
+
+/**
  * SUBJECT : 상품(앨범) 조회하기
- * PARAMETERS : { CategoryId, isTop, isIng, title, username }
+ * PARAMETERS : { CategoryId, isTop, title, username }
  * ORDER BY : -
  * STATEMENT : -
  * DEVELOPMENT : CTO 윤상호
  * DEV DATE : 2023/01/09
  */
 router.post("/pro/list", async (req, res, next) => {
-  const { CategoryId, isTop, isIng, title, username } = req.body;
+  const { CategoryId, isTop, title, username } = req.body;
 
   const _CategoryId = CategoryId ? CategoryId : false;
   const _isTop = isTop ? isTop : false;
-  const _isIng = isIng ? isIng : false;
   const _title = title ? title : false;
   const _username = username ? username : false;
 
@@ -223,7 +309,6 @@ router.post("/pro/list", async (req, res, next) => {
             A.subTitle,
             A.content,
             A.coverImage,
-            A.isIng,
             A.downloadCnt,
             A.isTop,
             A.createdAt,
@@ -248,7 +333,6 @@ router.post("/pro/list", async (req, res, next) => {
     WHERE   1 = 1
     ${_CategoryId ? `AND  A.ProductCategoryId = ${_CategoryId}` : ``}
     ${_isTop ? `AND  A.isTop = ${_isTop === -1 ? 0 : _isTop}` : ``}
-    ${_isIng ? `AND  A.isIng = ${_isIng === -1 ? 0 : _isIng}` : ``}
     ${_title ? `AND  A.title LIKE "%${_title}%"` : ``}
     ${_username ? `AND  C.username LIKE "%${_username}%"` : ``}
     `;
@@ -276,8 +360,7 @@ router.post("/pro/ing", async (req, res, next) => {
 
   const updateQ = `
         UPDATE  product
-           SET  isIng = ${nextIng},
-                updatedAt = NOW()
+           SET  updatedAt = NOW()
          WHERE  id = ${id}
          `;
 
@@ -353,6 +436,33 @@ router.post("/gen/list", async (req, res, next) => {
           value
     FROM	productGen
    WHERE	ProductId = ${id}
+  `;
+
+  try {
+    const list = await models.sequelize.query(selectQ);
+
+    return res.status(200).json(list[0]);
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("데이터를 조회할 수 없습니다.");
+  }
+});
+
+/**
+ * SUBJECT : 장르 전체 조회
+ * PARAMETERS : -
+ * ORDER BY : value ASC
+ * STATEMENT : -
+ * DEVELOPMENT : 시니어 홍민기
+ * DEV DATE : 2023/02/10
+ */
+
+router.post("/gen/allList", async (req, res, next) => {
+  const selectQ = `
+  SELECT  id,
+          value
+    FROM  productGen
+   ORDER  BY value ASC
   `;
 
   try {

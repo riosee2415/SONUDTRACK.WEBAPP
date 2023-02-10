@@ -25,12 +25,6 @@ module.exports = class Product extends Model {
           type: DataTypes.STRING(3000),
           allowNull: false,
         },
-        isIng: {
-          // 판매여부
-          type: DataTypes.BOOLEAN,
-          allowNull: false,
-          defaultValue: false,
-        },
         downloadCnt: {
           // 다운로드 수
           type: DataTypes.INTEGER,
@@ -50,6 +44,14 @@ module.exports = class Product extends Model {
           type: DataTypes.BOOLEAN,
           allowNull: false,
           defaultValue: false,
+        },
+        agreementPath: {
+          type: DataTypes.STRING(3000),
+          allowNull: false,
+        },
+        agreementName: {
+          type: DataTypes.STRING(500),
+          allowNull: false,
         },
       },
       {

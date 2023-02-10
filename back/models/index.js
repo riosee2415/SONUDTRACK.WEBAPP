@@ -43,6 +43,7 @@ const faq = require("./faq");
 const artistcountry = require("./artistcountry");
 const artistfilm = require("./artistfilm");
 const artisttag = require("./artisttag");
+const productGenConnect = require("./productGenConnect");
 
 const env = process.env.NODE_ENV || "development";
 const config = require("../config/config")[env];
@@ -99,6 +100,7 @@ db.Faq = faq;
 db.ArtistCountry = artistcountry;
 db.ArtistFilm = artistfilm;
 db.ArtistTag = artisttag;
+db.ProductGenConnect = productGenConnect;
 
 Object.keys(db).forEach((modelName) => {
   db[modelName].init(sequelize);

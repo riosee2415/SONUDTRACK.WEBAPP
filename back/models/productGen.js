@@ -20,7 +20,5 @@ module.exports = class ProductGen extends Model {
       }
     );
   }
-  static associate(db) {
-    db.ProductGen.belongsTo(db.Product);
-  }
+  static associate(db) {}
 };

@@ -5,6 +5,7 @@ export const initailState = {
   products: [],
   targetTags: [],
   targetGens: [],
+  targetAllGens: [],
   trackList: [],
   trackAllList: [],
   trackRecentList: [],
@@ -12,6 +13,8 @@ export const initailState = {
   commonTags: [],
   trackDetail: null,
   myProducts: [],
+  coverPath: null,
+  agreementPath: null,
 
   st_categoryLoading: false,
   st_categoryDone: false,
@@ -36,6 +39,10 @@ export const initailState = {
   st_productListLoading: false,
   st_productListDone: false,
   st_productListError: null,
+  //
+  st_productCreateLoading: false,
+  st_productCreateDone: false,
+  st_productCreateError: null,
   //
   st_productIngLoading: false,
   st_productIngDone: false,
@@ -84,6 +91,14 @@ export const initailState = {
   st_productTrackRecentLoading: false,
   st_productTrackRecentDone: false,
   st_productTrackRecentError: null,
+  //
+  st_productCoverUploadLoading: false,
+  st_productCoverUploadDone: false,
+  st_productCoverUploadError: null,
+  //
+  st_productAgreementUploadLoading: false,
+  st_productAgreementUploadDone: false,
+  st_productAgreementUploadError: null,
 };
 
 export const CATEGORY_LIST_REQUEST = "CATEGORY_LIST_REQUEST";
@@ -110,6 +125,10 @@ export const PRODUCT_LIST_REQUEST = "PRODUCT_LIST_REQUEST";
 export const PRODUCT_LIST_SUCCESS = "PRODUCT_LIST_SUCCESS";
 export const PRODUCT_LIST_FAILURE = "PRODUCT_LIST_FAILURE";
 
+export const PRODUCT_CREATE_REQUEST = "PRODUCT_CREATE_REQUEST";
+export const PRODUCT_CREATE_SUCCESS = "PRODUCT_CREATE_SUCCESS";
+export const PRODUCT_CREATE_FAILURE = "PRODUCT_CREATE_FAILURE";
+
 export const PRODUCT_ING_REQUEST = "PRODUCT_ING_REQUEST";
 export const PRODUCT_ING_SUCCESS = "PRODUCT_ING_SUCCESS";
 export const PRODUCT_ING_FAILURE = "PRODUCT_ING_FAILURE";
@@ -125,6 +144,10 @@ export const PRODUCT_TAG_FAILURE = "PRODUCT_TAG_FAILURE";
 export const PRODUCT_GEN_REQUEST = "PRODUCT_GEN_REQUEST";
 export const PRODUCT_GEN_SUCCESS = "PRODUCT_GEN_SUCCESS";
 export const PRODUCT_GEN_FAILURE = "PRODUCT_GEN_FAILURE";
+
+export const PRODUCT_GEN_ALL_REQUEST = "PRODUCT_GEN_ALL_REQUEST";
+export const PRODUCT_GEN_ALL_SUCCESS = "PRODUCT_GEN_ALL_SUCCESS";
+export const PRODUCT_GEN_ALL_FAILURE = "PRODUCT_GEN_ALL_FAILURE";
 
 export const PRODUCT_TRACK_LIST_REQUEST = "PRODUCT_TRACK_LIST_REQUEST";
 export const PRODUCT_TRACK_LIST_SUCCESS = "PRODUCT_TRACK_LIST_SUCCESS";
@@ -157,6 +180,17 @@ export const PRODUCT_TRACK_DETAIL_FAILURE = "PRODUCT_TRACK_DETAIL_FAILURE";
 export const PRODUCT_TRACK_RECENT_REQUEST = "PRODUCT_TRACK_RECENT_REQUEST";
 export const PRODUCT_TRACK_RECENT_SUCCESS = "PRODUCT_TRACK_RECENT_SUCCESS";
 export const PRODUCT_TRACK_RECENT_FAILURE = "PRODUCT_TRACK_RECENT_FAILURE";
+
+export const PRODUCT_COVER_UPLOAD_REQUEST = "PRODUCT_COVER_UPLOAD_REQUEST";
+export const PRODUCT_COVER_UPLOAD_SUCCESS = "PRODUCT_COVER_UPLOAD_SUCCESS";
+export const PRODUCT_COVER_UPLOAD_FAILURE = "PRODUCT_COVER_UPLOAD_FAILURE";
+
+export const PRODUCT_AGREEMENT_UPLOAD_REQUEST =
+  "PRODUCT_AGREEMENT_UPLOAD_REQUEST";
+export const PRODUCT_AGREEMENT_UPLOAD_SUCCESS =
+  "PRODUCT_AGREEMENT_UPLOAD_SUCCESS";
+export const PRODUCT_AGREEMENT_UPLOAD_FAILURE =
+  "PRODUCT_AGREEMENT_UPLOAD_FAILURE";
 
 const reducer = (state = initailState, action) =>
   produce(state, (draft) => {
@@ -290,6 +324,27 @@ const reducer = (state = initailState, action) =>
 
       ////////////////////////////////////////////////////
       ////////////////////////////////////////////////////
+      case PRODUCT_CREATE_REQUEST: {
+        draft.st_productCreateLoading = true;
+        draft.st_productCreateDone = false;
+        draft.st_productCreateError = null;
+        break;
+      }
+      case PRODUCT_CREATE_SUCCESS: {
+        draft.st_productCreateLoading = false;
+        draft.st_productCreateDone = true;
+        draft.st_productCreateError = null;
+        break;
+      }
+      case PRODUCT_CREATE_FAILURE: {
+        draft.st_productCreateLoading = false;
+        draft.st_productCreateDone = false;
+        draft.st_productCreateError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////
       case PRODUCT_ING_REQUEST: {
         draft.st_productIngLoading = true;
         draft.st_productIngDone = false;
@@ -371,6 +426,28 @@ const reducer = (state = initailState, action) =>
         draft.st_productGenLoading = false;
         draft.st_productGenDone = false;
         draft.st_productGenError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////
+      case PRODUCT_GEN_ALL_REQUEST: {
+        draft.st_productGenAllLoading = true;
+        draft.st_productGenAllDone = false;
+        draft.st_productGenAllError = null;
+        break;
+      }
+      case PRODUCT_GEN_ALL_SUCCESS: {
+        draft.st_productGenAllLoading = false;
+        draft.st_productGenAllDone = true;
+        draft.st_productGenAllError = null;
+        draft.targetAllGens = action.data;
+        break;
+      }
+      case PRODUCT_GEN_ALL_FAILURE: {
+        draft.st_productGenAllLoading = false;
+        draft.st_productGenAllDone = false;
+        draft.st_productGenAllError = action.error;
         break;
       }
 
@@ -546,6 +623,50 @@ const reducer = (state = initailState, action) =>
         draft.st_productTrackRecentLoading = false;
         draft.st_productTrackRecentDone = false;
         draft.st_productTrackRecentError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////
+      case PRODUCT_COVER_UPLOAD_REQUEST: {
+        draft.st_productCoverUploadLoading = true;
+        draft.st_productCoverUploadDone = false;
+        draft.st_productCoverUploadError = null;
+        break;
+      }
+      case PRODUCT_COVER_UPLOAD_SUCCESS: {
+        draft.st_productCoverUploadLoading = false;
+        draft.st_productCoverUploadDone = true;
+        draft.st_productCoverUploadError = null;
+        draft.coverPath = action.data.path;
+        break;
+      }
+      case PRODUCT_COVER_UPLOAD_FAILURE: {
+        draft.st_productCoverUploadLoading = false;
+        draft.st_productCoverUploadDone = false;
+        draft.st_productCoverUploadError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////
+      case PRODUCT_AGREEMENT_UPLOAD_REQUEST: {
+        draft.st_productAgreementUploadLoading = true;
+        draft.st_productAgreementUploadDone = false;
+        draft.st_productAgreementUploadError = null;
+        break;
+      }
+      case PRODUCT_AGREEMENT_UPLOAD_SUCCESS: {
+        draft.st_productAgreementUploadLoading = false;
+        draft.st_productAgreementUploadDone = true;
+        draft.st_productAgreementUploadError = null;
+        draft.agreementPath = action.data.path;
+        break;
+      }
+      case PRODUCT_AGREEMENT_UPLOAD_FAILURE: {
+        draft.st_productAgreementUploadLoading = false;
+        draft.st_productAgreementUploadDone = false;
+        draft.st_productAgreementUploadError = action.error;
         break;
       }
 

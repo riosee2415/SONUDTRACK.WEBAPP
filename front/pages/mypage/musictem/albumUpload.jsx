@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import ClientLayout from "../../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../../store/configureStore";
@@ -19,10 +19,21 @@ import {
 } from "../../../components/commonComponents";
 import { Checkbox, message, Modal, Form, Select } from "antd";
 import Theme from "../../../components/Theme";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import styled from "styled-components";
-import { DownloadOutlined, LeftOutlined } from "@ant-design/icons";
+import {
+  DownloadOutlined,
+  LeftOutlined,
+  CloseOutlined,
+} from "@ant-design/icons";
+import {
+  CATEGORY_LIST_REQUEST,
+  PRODUCT_AGREEMENT_UPLOAD_REQUEST,
+  PRODUCT_COVER_UPLOAD_REQUEST,
+  PRODUCT_CREATE_REQUEST,
+  PRODUCT_GEN_ALL_REQUEST,
+} from "../../../reducers/product";
 
 const CustomForm = styled(Form)`
   width: 100%;
@@ -30,9 +41,17 @@ const CustomForm = styled(Form)`
   & .ant-form-item {
     width: 100%;
   }
+
+  &
+    .ant-form-item-has-error
+    .ant-select:not(.ant-select-disabled):not(.ant-select-customize-input)
+    .ant-select-selector {
+    border-color: ${(props) => props.theme.lightGrey_C} !important;
+  }
 `;
 
 const CustomSelect = styled(Select)`
+  width: 100%;
   height: 50px;
 
   & .ant-select-selector,
@@ -40,21 +59,85 @@ const CustomSelect = styled(Select)`
     height: 100% !important;
   }
 
-  & .ant-select-selection-placeholder {
+  & .ant-select-selection-placeholder,
+  & .ant-select-selection-item {
     display: flex;
     align-items: center;
+  }
+`;
+
+const CloseButton = styled(CloseOutlined)`
+  cursor: pointer;
+  margin: 0 0 0 5px;
+  &:hover {
+    color: ${(props) => props.theme.basicTheme_C};
+  }
+`;
+
+const CdWrapper = styled(Wrapper)`
+  width: 200px;
+  height: 200px;
+  border-radius: 100%;
+  position: relative;
+  cursor: pointer;
+  margin: 0 0 10px;
+
+  &:before {
+    content: "";
+    width: 60px;
+    height: 60px;
+    background: ${(props) => props.theme.white_C};
+    border-radius: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  @media (max-width: 700px) {
+    height: 150px;
+  }
+
+  &:hover {
+    transition: 0.9s;
+    transform: rotate(20deg);
   }
 `;
 
 const Index = () => {
   ////// GLOBAL STATE //////
   const { me } = useSelector((state) => state.user);
+  const {
+    targetAllGens,
+    categorys,
+    coverPath,
+    agreementPath,
+    //
+    st_productCreateLoading,
+    st_productCreateDone,
+    st_productCreateError,
+    //
+    st_productCoverUploadLoading,
+    st_productCoverUploadError,
+    //
+    st_productAgreementUploadLoading,
+    st_productAgreementUploadError,
+  } = useSelector((state) => state.product);
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const [isModal, setIsModal] = useState(false);
-  const [isModal2, setIsModal2] = useState(false);
+
+  // 장르 선택
+  const [selectGen, setSelectGen] = useState([]);
+
+  const [covertName, setCovertName] = useState(null);
+  const [agreementName, setAgreementName] = useState(null);
+
+  const coverImageRef = useRef();
+  const agreementRef = useRef();
 
   ////// REDUX //////
   ////// USEEFFECT //////
@@ -66,15 +149,136 @@ const Index = () => {
       return message.error(`로그인이 필요한 페이지입니다.`);
     }
   }, [me]);
+
+  // 엘범 등록
+
+  useEffect(() => {
+    if (st_productCreateDone) {
+      router.push("/mypage/musictem");
+
+      return message.success("엘범이 등록되었습니다.");
+    }
+
+    if (st_productCreateError) {
+      return message.error(st_productCreateError);
+    }
+  }, [st_productCreateDone, st_productCreateError]);
+
+  // 커버이미지 업로드
+  useEffect(() => {
+    if (st_productCoverUploadError) {
+      return message.error(st_productCoverUploadError);
+    }
+  }, [st_productCoverUploadError]);
+
+  // 동의서 업로드
+  useEffect(() => {
+    if (st_productAgreementUploadError) {
+      return message.error(st_productAgreementUploadError);
+    }
+  }, [st_productAgreementUploadError]);
+
   ////// TOGGLE //////
   const modalToggle = useCallback(() => {
     setIsModal((prev) => !prev);
   }, [isModal]);
 
-  const modalToggle2 = useCallback(() => {
-    setIsModal2((prev) => !prev);
-  }, [isModal2]);
   ////// HANDLER //////
+
+  // 장르 선택
+  const selectGenHandler = useCallback(
+    (gen) => {
+      let selectGenArr = selectGen ? selectGen.map((data) => data) : [];
+
+      if (selectGenArr.find((data) => data === gen)) {
+        setSelectGen(selectGenArr.filter((data) => data !== gen));
+        return;
+      }
+
+      selectGenArr.push(gen);
+      setSelectGen(selectGenArr);
+    },
+    [selectGen]
+  );
+
+  // 커버이미지 업로드
+  const coverImageRefClick = useCallback(() => {
+    coverImageRef.current.click();
+  }, []);
+
+  const coverImageUploadHandler = useCallback(
+    (e) => {
+      const formData = new FormData();
+
+      [].forEach.call(e.target.files, (file) => {
+        setCovertName(file.name);
+        formData.append("file", file);
+      });
+
+      dispatch({
+        type: PRODUCT_COVER_UPLOAD_REQUEST,
+        data: formData,
+      });
+    },
+    [covertName]
+  );
+
+  // 동의서 업로드
+  const agreementRefClick = useCallback(() => {
+    agreementRef.current.click();
+  }, []);
+
+  const agreementHandler = useCallback(
+    (e) => {
+      const formData = new FormData();
+
+      [].forEach.call(e.target.files, (file) => {
+        setAgreementName(file.name);
+        formData.append("file", file);
+      });
+
+      dispatch({
+        type: PRODUCT_AGREEMENT_UPLOAD_REQUEST,
+        data: formData,
+      });
+    },
+    [agreementName]
+  );
+
+  // 앨범 생성
+  const albumCreateHandler = useCallback(
+    (data) => {
+      if (!coverPath) {
+        return message.info("엘범 이미지를 등록해주세요.");
+      }
+
+      if (selectGen && selectGen.length === 0) {
+        return message.info("장르를 선택해주세요.");
+      }
+
+      if (!agreementPath) {
+        return message.info("동의서를 등록해주세요.");
+      }
+
+      dispatch({
+        type: PRODUCT_CREATE_REQUEST,
+        data: {
+          title: data.title,
+          subTitle: data.subTitle,
+          content: data.content,
+          coverImage: coverPath,
+          bitRate: data.bitRate,
+          sampleRate: data.sampleRate,
+          productCategoryId: data.productCategoryId,
+          productGenArr: selectGen.map((data) => data),
+          agreementPath: agreementPath,
+          agreementName: agreementName,
+        },
+      });
+    },
+    [coverPath, agreementPath, agreementName, selectGen]
+  );
+
   ////// DATAVIEW //////
 
   return (
@@ -120,7 +324,7 @@ const Index = () => {
             </Wrapper>
 
             {/* ------------------ CUSTOM FORM ------------------ */}
-            <CustomForm>
+            <CustomForm onFinish={albumCreateHandler}>
               <Wrapper al={`flex-start`}>
                 <Text fontSize={`24px`} fontWeight={`600`} isHover>
                   <LeftOutlined style={{ margin: `0 15px 0 0` }} /> Musictem
@@ -145,34 +349,53 @@ const Index = () => {
                 <Wrapper
                   dr={`row`}
                   ju={`space-between`}
-                  margin={`12px 0 10px`}
+                  margin={`12px 0 33px`}
                   width={width < 700 ? `100%` : `440px`}
                 >
-                  <Wrapper width={`calc(100% - 110px)`}>
-                    <Form.Item>
-                      <TextInput
+                  {coverPath && (
+                    <CdWrapper>
+                      <Image
+                        radius={`100%`}
                         width={`100%`}
-                        height={`50px`}
-                        readOnly
-                        border={`1px solid ${Theme.lightGrey_C}`}
-                        placeholder="권장사이즈 : 300px*300px"
+                        height={`100%`}
+                        src={coverPath}
+                        alt="corverImage"
                       />
-                    </Form.Item>
-                  </Wrapper>
+                    </CdWrapper>
+                  )}
+
+                  <TextInput
+                    value={covertName}
+                    width={`calc(100% - 110px)`}
+                    height={`50px`}
+                    readOnly
+                    border={`1px solid ${Theme.lightGrey_C}`}
+                    placeholder="권장사이즈 : 300px*300px"
+                  />
+
+                  <input
+                    type="file"
+                    hidden
+                    ref={coverImageRef}
+                    accept=".jpg, .png"
+                    onChange={coverImageUploadHandler}
+                  />
+
                   <CommonButton
-                    margin={`0 0 23px`}
                     width={`100px`}
                     height={`50px`}
                     fontSize={width < 700 ? `14px` : `16px`}
                     fontWeight={`bold`}
                     kindOf={`subTheme2`}
+                    onClick={coverImageRefClick}
+                    loading={st_productCoverUploadLoading}
                   >
                     파일등록
                   </CommonButton>
                 </Wrapper>
 
                 <Text>
-                  장르(중복선택가능)
+                  카테고리
                   <SpanText>*</SpanText>
                 </Text>
                 <Wrapper
@@ -182,19 +405,148 @@ const Index = () => {
                   width={width < 700 ? `100%` : `440px`}
                 >
                   <Wrapper>
-                    <Form.Item>
-                      {/* <TextInput
-                        width={`100%`}
-                        height={`50px`}
-                        readOnly
-                        border={`1px solid ${Theme.lightGrey_C}`}
-                        placeholder="권장사이즈 : 300px*300px"
-                      /> */}
-                      <CustomSelect placeholder="장르를 선택해주세요.">
-                        <Select.Option value="test">test</Select.Option>
+                    <Form.Item
+                      name="productCategoryId"
+                      rules={[
+                        { required: true, message: "카테고리는 필수 입니다." },
+                      ]}
+                    >
+                      <CustomSelect placeholder="카테고리를 선택해주세요.">
+                        {categorys &&
+                          categorys.map((data) => {
+                            return (
+                              <Select.Option key={data.id} value={data.id}>
+                                {data.value}
+                              </Select.Option>
+                            );
+                          })}
                       </CustomSelect>
                     </Form.Item>
                   </Wrapper>
+                </Wrapper>
+
+                <Text>
+                  장르(중복선택가능)
+                  <SpanText>*</SpanText>
+                </Text>
+                <Wrapper
+                  dr={`row`}
+                  ju={`space-between`}
+                  margin={`12px 0 33px`}
+                  width={width < 700 ? `100%` : `440px`}
+                >
+                  <CustomSelect
+                    placeholder="장르를 선택해주세요."
+                    onChange={selectGenHandler}
+                  >
+                    {targetAllGens &&
+                      targetAllGens.map((data) => {
+                        return (
+                          <Select.Option key={data.id} value={data.id}>
+                            {data.value}
+                          </Select.Option>
+                        );
+                      })}
+                  </CustomSelect>
+                  <Wrapper dr={`row`} ju={`flex-start`} margin={`10px 0 0`}>
+                    {selectGen &&
+                      selectGen.map((data) => {
+                        return (
+                          <Wrapper
+                            width={`auto`}
+                            dr={`row`}
+                            padding={`5px 15px`}
+                            margin={`0 5px 5px 0`}
+                            radius={`30px`}
+                            border={`1px solid ${Theme.lightGrey_C}`}
+                          >
+                            <Text>
+                              {targetAllGens &&
+                                targetAllGens.find(
+                                  (value) => value.id === data
+                                ) &&
+                                targetAllGens.find((value) => value.id === data)
+                                  .value}
+                            </Text>
+                            <CloseButton
+                              onClick={() => selectGenHandler(data)}
+                            />
+                          </Wrapper>
+                        );
+                      })}
+                  </Wrapper>
+                </Wrapper>
+
+                <Text>
+                  제목
+                  <SpanText>*</SpanText>
+                </Text>
+                <Wrapper
+                  dr={`row`}
+                  ju={`space-between`}
+                  margin={`12px 0 10px`}
+                  width={width < 700 ? `100%` : `440px`}
+                >
+                  <Form.Item
+                    name="title"
+                    rules={[{ required: true, message: "제목은 필수 입니다." }]}
+                  >
+                    <TextInput
+                      width={`100%`}
+                      height={`50px`}
+                      border={`1px solid ${Theme.lightGrey_C}`}
+                      placeholder="제목을 입력해주세요."
+                    />
+                  </Form.Item>
+                </Wrapper>
+
+                <Text>
+                  부제목
+                  <SpanText>*</SpanText>
+                </Text>
+                <Wrapper
+                  dr={`row`}
+                  ju={`space-between`}
+                  margin={`12px 0 10px`}
+                  width={width < 700 ? `100%` : `440px`}
+                >
+                  <Form.Item
+                    name="subTitle"
+                    rules={[
+                      { required: true, message: "부제목은 필수 입니다." },
+                    ]}
+                  >
+                    <TextInput
+                      width={`100%`}
+                      height={`50px`}
+                      border={`1px solid ${Theme.lightGrey_C}`}
+                      placeholder="부제목을 입력해주세요."
+                    />
+                  </Form.Item>
+                </Wrapper>
+
+                <Text>
+                  소개글
+                  <SpanText>*</SpanText>
+                </Text>
+                <Wrapper
+                  dr={`row`}
+                  ju={`space-between`}
+                  margin={`12px 0 10px`}
+                  width={width < 700 ? `100%` : `440px`}
+                >
+                  <Form.Item
+                    name="content"
+                    rules={[
+                      { required: true, message: "소개글은 필수 입니다." },
+                    ]}
+                  >
+                    <TextArea
+                      width={`100%`}
+                      border={`1px solid ${Theme.lightGrey_C}`}
+                      placeholder="소개글을 입력해주세요."
+                    />
+                  </Form.Item>
                 </Wrapper>
 
                 <Text>
@@ -207,7 +559,12 @@ const Index = () => {
                   margin={`12px 0 10px`}
                   width={width < 700 ? `100%` : `440px`}
                 >
-                  <Form.Item>
+                  <Form.Item
+                    name="bitRate"
+                    rules={[
+                      { required: true, message: "Bit Rate는 필수 입니다." },
+                    ]}
+                  >
                     <TextInput
                       width={`100%`}
                       height={`50px`}
@@ -227,7 +584,12 @@ const Index = () => {
                   margin={`12px 0 10px`}
                   width={width < 700 ? `100%` : `440px`}
                 >
-                  <Form.Item>
+                  <Form.Item
+                    name="sampleRate"
+                    rules={[
+                      { required: true, message: "Sample Rate는 필수 입니다." },
+                    ]}
+                  >
                     <TextInput
                       width={`100%`}
                       height={`50px`}
@@ -262,26 +624,33 @@ const Index = () => {
                 <Wrapper
                   dr={`row`}
                   ju={`space-between`}
-                  margin={`30px 0 10px`}
+                  margin={`30px 0 33px`}
                   width={width < 700 ? `100%` : `440px`}
                 >
-                  <Wrapper width={`calc(100% - 110px)`}>
-                    <Form.Item>
-                      <TextInput
-                        width={`100%`}
-                        height={`50px`}
-                        border={`1px solid ${Theme.lightGrey_C}`}
-                        placeholder="동의서를 업로드해주세요.(중복 가능)"
-                      />
-                    </Form.Item>
-                  </Wrapper>
+                  <TextInput
+                    value={agreementName}
+                    readOnly
+                    width={`calc(100% - 110px)`}
+                    height={`50px`}
+                    border={`1px solid ${Theme.lightGrey_C}`}
+                    placeholder="동의서를 압축해서 업로드해주세요."
+                  />
+
+                  <input
+                    type="file"
+                    hidden
+                    ref={agreementRef}
+                    accept=".zip"
+                    onChange={agreementHandler}
+                  />
                   <CommonButton
-                    margin={`0 0 23px`}
                     width={`100px`}
                     height={`50px`}
                     fontSize={width < 700 ? `14px` : `16px`}
                     fontWeight={`bold`}
                     kindOf={`subTheme2`}
+                    onClick={agreementRefClick}
+                    loading={st_productAgreementUploadLoading}
                   >
                     파일등록
                   </CommonButton>
@@ -291,86 +660,14 @@ const Index = () => {
                   width={`180px`}
                   height={`50px`}
                   margin={`40px 0 100px`}
-                  onClick={modalToggle2}
+                  htmlType="submit"
+                  loading={st_productCreateLoading}
                 >
                   등록하기
                 </CommonButton>
               </Wrapper>
             </CustomForm>
           </RsWrapper>
-
-          <Modal
-            onCancel={modalToggle2}
-            visible={isModal2}
-            footer={null}
-            width={`640px`}
-          >
-            <Wrapper padding={width < 900 ? `30px 0` : `30px 25px`}>
-              <Text
-                fontWeight={`bold`}
-                fontSize={width < 900 ? `20px` : `28px`}
-                color={Theme.basicTheme_C}
-                margin={`0 0 16px`}
-              >
-                정상적으로 신청되었습니다!
-              </Text>
-
-              <Wrapper
-                bgColor={Theme.subTheme_C}
-                color={Theme.red_C}
-                padding={`17px 10px`}
-                margin={`0 0 24px`}
-                fontWeight={`600`}
-              >
-                잠깐! 판매자님의 음원 보호를 위해 다음을 확인해주세요!
-              </Wrapper>
-
-              <Text fontSize={width < 700 ? `14px` : `16px`}>
-                등록하신 Musictem이 승인되면&nbsp;
-                <SpanText fontWeight={`600`}>
-                  New Wave Sound의 로고 사운드
-                </SpanText>
-                가
-              </Text>
-              <Text
-                fontSize={width < 700 ? `14px` : `16px`}
-                margin={`0 0 30px`}
-              >
-                등록하신 음원에 &nbsp;
-                <SpanText fontWeight={`600`}>
-                  10초에 한 번씩 재생되도록 작업
-                </SpanText>
-                하여 보내주세요!
-              </Text>
-
-              <Wrapper dr={`row`} fontSize={width < 700 ? `14px` : `16px`}>
-                <Image
-                  alt="icon"
-                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/musictem.png`}
-                  width={`10px`}
-                />
-                <Text td={`underline`} margin={`0 6px`}>
-                  New Wave Sound Water Mark
-                </Text>
-                <DownloadOutlined />
-              </Wrapper>
-              <Wrapper
-                dr={`row`}
-                fontSize={width < 700 ? `14px` : `16px`}
-                margin={`5px 0 0`}
-              >
-                <Image
-                  alt="icon"
-                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/musictem.png`}
-                  width={`10px`}
-                />
-                <Text td={`underline`} margin={`0 6px`}>
-                  Sample
-                </Text>
-                <DownloadOutlined />
-              </Wrapper>
-            </Wrapper>
-          </Modal>
 
           <Modal
             onCancel={modalToggle}
@@ -445,6 +742,14 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: LOAD_MY_INFO_REQUEST,
+    });
+
+    context.store.dispatch({
+      type: PRODUCT_GEN_ALL_REQUEST,
+    });
+
+    context.store.dispatch({
+      type: CATEGORY_LIST_REQUEST,
     });
 
     // 구현부 종료

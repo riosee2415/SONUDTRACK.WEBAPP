@@ -25,6 +25,10 @@ import {
   PRODUCT_LIST_SUCCESS,
   PRODUCT_LIST_FAILURE,
   //
+  PRODUCT_CREATE_REQUEST,
+  PRODUCT_CREATE_SUCCESS,
+  PRODUCT_CREATE_FAILURE,
+  //
   PRODUCT_ING_REQUEST,
   PRODUCT_ING_SUCCESS,
   PRODUCT_ING_FAILURE,
@@ -40,6 +44,10 @@ import {
   PRODUCT_GEN_REQUEST,
   PRODUCT_GEN_SUCCESS,
   PRODUCT_GEN_FAILURE,
+  //
+  PRODUCT_GEN_ALL_REQUEST,
+  PRODUCT_GEN_ALL_SUCCESS,
+  PRODUCT_GEN_ALL_FAILURE,
   //
   PRODUCT_TRACK_LIST_REQUEST,
   PRODUCT_TRACK_LIST_SUCCESS,
@@ -72,6 +80,14 @@ import {
   PRODUCT_TRACK_RECENT_REQUEST,
   PRODUCT_TRACK_RECENT_SUCCESS,
   PRODUCT_TRACK_RECENT_FAILURE,
+  //
+  PRODUCT_COVER_UPLOAD_REQUEST,
+  PRODUCT_COVER_UPLOAD_SUCCESS,
+  PRODUCT_COVER_UPLOAD_FAILURE,
+  //
+  PRODUCT_AGREEMENT_UPLOAD_REQUEST,
+  PRODUCT_AGREEMENT_UPLOAD_SUCCESS,
+  PRODUCT_AGREEMENT_UPLOAD_FAILURE,
 } from "../reducers/product";
 
 // ******************************************************************************************************************
@@ -245,6 +261,34 @@ function* productList(action) {
 // ******************************************************************************************************************
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
+async function productCreateAPI(data) {
+  return await axios.post("/api/product/pro/create", data);
+}
+
+function* productCreate(action) {
+  try {
+    const result = yield call(productCreateAPI, action.data);
+
+    yield put({
+      type: PRODUCT_CREATE_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: PRODUCT_CREATE_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
 async function productIngAPI(data) {
   return await axios.post("/api/product/pro/ing", data);
 }
@@ -345,6 +389,34 @@ function* productGen(action) {
     console.error(err);
     yield put({
       type: PRODUCT_GEN_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function productGenAllAPI(data) {
+  return await axios.post("/api/product/gen/allList", data);
+}
+
+function* productGenAll(action) {
+  try {
+    const result = yield call(productGenAllAPI, action.data);
+
+    yield put({
+      type: PRODUCT_GEN_ALL_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: PRODUCT_GEN_ALL_FAILURE,
       error: err.response.data,
     });
   }
@@ -571,6 +643,60 @@ function* productTrackRecentList(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function productCoverUploadAPI(data) {
+  return await axios.post("/api/product/file", data);
+}
+
+function* productCoverUpload(action) {
+  try {
+    const result = yield call(productCoverUploadAPI, action.data);
+
+    yield put({
+      type: PRODUCT_COVER_UPLOAD_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: PRODUCT_COVER_UPLOAD_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function productAgreementUploadAPI(data) {
+  return await axios.post("/api/product/file", data);
+}
+
+function* productAgreementUpload(action) {
+  try {
+    const result = yield call(productAgreementUploadAPI, action.data);
+
+    yield put({
+      type: PRODUCT_AGREEMENT_UPLOAD_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: PRODUCT_AGREEMENT_UPLOAD_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 function* watchCategoryList() {
   yield takeLatest(CATEGORY_LIST_REQUEST, categoryList);
@@ -590,6 +716,9 @@ function* watchProductMyList() {
 function* watchProductList() {
   yield takeLatest(PRODUCT_LIST_REQUEST, productList);
 }
+function* watchProductCreate() {
+  yield takeLatest(PRODUCT_CREATE_REQUEST, productCreate);
+}
 function* watchProductIng() {
   yield takeLatest(PRODUCT_ING_REQUEST, productIng);
 }
@@ -601,6 +730,9 @@ function* watchProductTag() {
 }
 function* watchProductGen() {
   yield takeLatest(PRODUCT_GEN_REQUEST, productGen);
+}
+function* watchProductGenAll() {
+  yield takeLatest(PRODUCT_GEN_ALL_REQUEST, productGenAll);
 }
 function* watchProductTrackList() {
   yield takeLatest(PRODUCT_TRACK_LIST_REQUEST, productTrackList);
@@ -626,6 +758,12 @@ function* watchProductTrackDetail() {
 function* watchProductTrackRecentList() {
   yield takeLatest(PRODUCT_TRACK_RECENT_REQUEST, productTrackRecentList);
 }
+function* watchProductCoverUpload() {
+  yield takeLatest(PRODUCT_COVER_UPLOAD_REQUEST, productCoverUpload);
+}
+function* watchProductAgreementUpload() {
+  yield takeLatest(PRODUCT_AGREEMENT_UPLOAD_REQUEST, productAgreementUpload);
+}
 
 //////////////////////////////////////////////////////////////
 export default function* productSaga() {
@@ -636,10 +774,12 @@ export default function* productSaga() {
     fork(watchCategoryDelete),
     fork(watchProductMyList),
     fork(watchProductList),
+    fork(watchProductCreate),
     fork(watchProductIng),
     fork(watchProductTop),
     fork(watchProductTag),
     fork(watchProductGen),
+    fork(watchProductGenAll),
     fork(watchProductTrackAllList),
     fork(watchProductTrackList),
     fork(watchCommonTagNew),
@@ -648,6 +788,8 @@ export default function* productSaga() {
     fork(watchCommonTagDelete),
     fork(watchProductTrackDetail),
     fork(watchProductTrackRecentList),
+    fork(watchProductCoverUpload),
+    fork(watchProductAgreementUpload),
     //
   ]);
 }
