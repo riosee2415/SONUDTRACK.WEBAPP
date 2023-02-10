@@ -1018,6 +1018,57 @@ router.post("/track/detail", async (req, res, next) => {
   }
 });
 
+router.post("/track/create", async (req, res, next) => {
+  const {
+    title,
+    thumbnail,
+    filename,
+    filepath,
+    author,
+    sPrice,
+    dPrice,
+    pPrice,
+    productId,
+  } = req.body;
+
+  const insertQ = `
+  INSERT INTO productTrack (
+    title,
+    thumbnail,
+    filename,
+    filepath,
+    author,
+    sPrice,
+    dPrice,
+    pPrice,
+    ProductId,
+    createdAt,
+    updatedAt
+  ) VALUES (
+    '${title}',
+    '${thumbnail}',
+    '${filename}',
+    '${filepath}',
+    '${author}',
+    ${sPrice},
+    ${dPrice},
+    ${pPrice},
+    ${productId},
+    NOW(),
+    NOW()
+  )
+`;
+
+  try {
+    await models.sequelize.query(insertQ);
+
+    return res.status(200).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("데이터를 생성 할 수 없습니다.");
+  }
+});
+
 ////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////COMMON TAG ///////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////

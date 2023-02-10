@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import ClientLayout from "../../../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../../../store/configureStore";
@@ -19,7 +19,7 @@ import {
 } from "../../../../components/commonComponents";
 import { Checkbox, Form, message, Modal, Switch } from "antd";
 import Theme from "../../../../components/Theme";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import styled from "styled-components";
 import { useState } from "react";
@@ -30,6 +30,12 @@ import {
   LeftOutlined,
 } from "@ant-design/icons";
 import Link from "next/dist/client/link";
+import {
+  PRODUCT_TRACK_CREATE_REQUEST,
+  PRODUCT_TRACK_FILE_RESET,
+  PRODUCT_TRACK_THUMBNAIL_UPLOAD_REQUEST,
+  PRODUCT_TRACK_UPLOAD_REQUEST,
+} from "../../../../reducers/product";
 
 const CustomForm = styled(Form)`
   width: 100%;
@@ -42,12 +48,37 @@ const CustomForm = styled(Form)`
 const Index = () => {
   ////// GLOBAL STATE //////
   const { me } = useSelector((state) => state.user);
+  const {
+    trackThumbnailPath,
+    trackUploadPath,
+    //
+    st_productTrackThumbnailUploadLoading,
+    st_productTrackThumbnailUploadError,
+    //
+    st_productTrackUploadLoading,
+    st_productTrackUploadError,
+    //
+    st_productTrackCreateLoading,
+    st_productTrackCreateDone,
+    st_productTrackCreateError,
+  } = useSelector((state) => state.product);
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const [isModal, setIsModal] = useState(false);
   const [isModal2, setIsModal2] = useState(false);
+
+  const [trackThumbnailName, setTrackThumbnailName] = useState(null);
+  const [trackName, setTrackName] = useState(null);
+
+  const [checkBox, setCheckBox] = useState(false);
+
+  const thumbnailRef = useRef();
+  const trackRef = useRef();
+
+  const [form] = Form.useForm();
 
   ////// REDUX //////
   ////// USEEFFECT //////
@@ -59,6 +90,45 @@ const Index = () => {
       return message.error(`로그인이 필요한 페이지입니다.`);
     }
   }, [me]);
+
+  // 트랙 생성
+  useEffect(() => {
+    if (st_productTrackCreateDone) {
+      modalToggle2();
+      setTrackThumbnailName("");
+      setTrackName("");
+
+      form.resetFields();
+
+      dispatch({
+        type: PRODUCT_TRACK_FILE_RESET,
+        data: {
+          trackThumbnailPath: null,
+          trackUploadPath: null,
+        },
+      });
+      return;
+    }
+
+    if (st_productTrackCreateError) {
+      return message.error(st_productTrackCreateError);
+    }
+  }, [st_productTrackCreateDone, st_productTrackCreateError]);
+
+  // 썸네일 업로드
+  useEffect(() => {
+    if (st_productTrackThumbnailUploadError) {
+      return message.error(st_productTrackThumbnailUploadError);
+    }
+  }, [st_productTrackThumbnailUploadError]);
+
+  // 트랙 업로드
+  useEffect(() => {
+    if (st_productTrackUploadError) {
+      return message.error(st_productTrackUploadError);
+    }
+  }, [st_productTrackUploadError]);
+
   ////// TOGGLE //////
   const modalToggle = useCallback(() => {
     setIsModal((prev) => !prev);
@@ -68,6 +138,97 @@ const Index = () => {
     setIsModal2((prev) => !prev);
   }, [isModal2]);
   ////// HANDLER //////
+
+  // 썸네일 업로드
+  const thumbnailRefClickHandler = useCallback(() => {
+    thumbnailRef.current.click();
+  }, []);
+
+  const thumbnailUploadHandler = useCallback(
+    (e) => {
+      const formData = new FormData();
+
+      [].forEach.call(e.target.files, (file) => {
+        setTrackThumbnailName(file.name);
+
+        formData.append("file", file);
+      });
+
+      if (e.target.files.length < 1) {
+        return;
+      }
+
+      dispatch({
+        type: PRODUCT_TRACK_THUMBNAIL_UPLOAD_REQUEST,
+        data: formData,
+      });
+    },
+    [trackThumbnailName]
+  );
+
+  // 트랙 등록
+  const trackRefClickHandler = useCallback(() => {
+    trackRef.current.click();
+  }, []);
+
+  const trackUploadHandler = useCallback(
+    (e) => {
+      const formData = new FormData();
+
+      [].forEach.call(e.target.files, (file) => {
+        setTrackName(file.name);
+
+        formData.append("file", file);
+      });
+
+      if (e.target.files.length < 1) {
+        return;
+      }
+
+      dispatch({
+        type: PRODUCT_TRACK_UPLOAD_REQUEST,
+        data: formData,
+      });
+    },
+    [trackName]
+  );
+
+  const checkBoxHandler = useCallback(() => {
+    setCheckBox((prev) => !prev);
+  }, [checkBox]);
+
+  const trackCreateHandler = useCallback(
+    (data) => {
+      if (!trackThumbnailPath) {
+        return message.info("썸네일을 업로드해주세요.");
+      }
+
+      if (!trackUploadPath) {
+        return message.info("트랙을 업로드해주세요.");
+      }
+
+      if (!checkBox) {
+        return message.info("필수항목에 체크해주세요.");
+      }
+
+      dispatch({
+        type: PRODUCT_TRACK_CREATE_REQUEST,
+        data: {
+          title: data.title,
+          thumbnail: trackThumbnailPath,
+          filename: trackName,
+          filepath: trackUploadPath,
+          author: me.nickname,
+          sPrice: data.sPrice,
+          dPrice: data.dPrice,
+          pPrice: data.pPrice,
+          productId: router.query.id,
+        },
+      });
+    },
+    [router.query, trackName, checkBox, me, trackThumbnailPath, trackUploadPath]
+  );
+
   ////// DATAVIEW //////
 
   return (
@@ -113,7 +274,7 @@ const Index = () => {
             </Wrapper>
 
             {/* ------------------ CUSTOM FORM ------------------ */}
-            <CustomForm>
+            <CustomForm form={form} onFinish={trackCreateHandler}>
               <Wrapper al={`flex-start`}>
                 <Text fontSize={`24px`} fontWeight={`600`} isHover>
                   <LeftOutlined style={{ margin: `0 15px 0 0` }} />
@@ -146,7 +307,6 @@ const Index = () => {
                   <Text>
                     모든 track은 곡제목과 함께 MP3, WAV 파일 모두 등록해주세요.
                   </Text>
-                  <Text>타이틀 곡이 앨범명이 됩니다.</Text>
                   <Text>
                     예) 봄이 와(타이틀곡).mp3, 봄이 와(타이틀곡).wav, 벚꽃.mp3,
                     벚꽃.wav
@@ -166,16 +326,62 @@ const Index = () => {
                     한 앨범에 등록 가능한 Track 수는 최소 1곡에서 최대 10곡
                     입니다.
                   </Text>
-                  <Text fontWeight={`500`}>
-                    모든 참여 인원의 동의서가 있어야 음원 판매가 가능합니다.
-                  </Text>
-                  <Text color={Theme.darkGrey_C}>
-                    (추후 뮤직템 등록시 동의서를 다운받을 수 있습니다.)
-                  </Text>
                 </Wrapper>
 
                 <Text>
-                  Title 등록
+                  썸네일
+                  <SpanText>*</SpanText>
+                </Text>
+
+                {trackThumbnailPath && (
+                  <Image
+                    margin={`10px 0 0`}
+                    width={`300px`}
+                    height={`300px`}
+                    radius={`10px`}
+                    src={trackThumbnailPath}
+                    alt="trackThumbnail"
+                  />
+                )}
+
+                <Wrapper
+                  dr={`row`}
+                  ju={`space-between`}
+                  margin={`12px 0 33px`}
+                  width={width < 700 ? `100%` : `440px`}
+                >
+                  <TextInput
+                    value={trackThumbnailName}
+                    width={`calc(100% - 110px)`}
+                    height={`50px`}
+                    readOnly
+                    border={`1px solid ${Theme.lightGrey_C}`}
+                    placeholder="썸네일을 업로드해주세요."
+                  />
+
+                  <input
+                    type="file"
+                    accept=".png, .jpg"
+                    hidden
+                    ref={thumbnailRef}
+                    onChange={thumbnailUploadHandler}
+                  />
+
+                  <CommonButton
+                    width={`100px`}
+                    height={`50px`}
+                    fontSize={width < 700 ? `14px` : `16px`}
+                    fontWeight={`bold`}
+                    kindOf={`subTheme2`}
+                    loading={st_productTrackThumbnailUploadLoading}
+                    onClick={thumbnailRefClickHandler}
+                  >
+                    파일등록
+                  </CommonButton>
+                </Wrapper>
+
+                <Text>
+                  제목
                   <SpanText>*</SpanText>
                 </Text>
                 <Wrapper
@@ -184,27 +390,104 @@ const Index = () => {
                   margin={`12px 0 10px`}
                   width={width < 700 ? `100%` : `440px`}
                 >
-                  <Wrapper width={`calc(100% - 110px)`}>
-                    <Form.Item>
-                      <TextInput
-                        width={`100%`}
-                        height={`50px`}
-                        readOnly
-                        border={`1px solid ${Theme.lightGrey_C}`}
-                        placeholder="1곡만 업로드할 수 있습니다."
-                      />
-                    </Form.Item>
-                  </Wrapper>
-                  <CommonButton
-                    width={`100px`}
-                    height={`50px`}
-                    fontSize={width < 700 ? `14px` : `16px`}
-                    fontWeight={`bold`}
-                    kindOf={`subTheme2`}
-                    margin={`0 0 23px`}
+                  <Form.Item
+                    name="title"
+                    rules={[{ required: true, message: "제목은 필수 입니다." }]}
                   >
-                    파일등록
-                  </CommonButton>
+                    <TextInput
+                      width={`100%`}
+                      height={`50px`}
+                      border={`1px solid ${Theme.lightGrey_C}`}
+                      placeholder="제목을 입력해주세요."
+                    />
+                  </Form.Item>
+                </Wrapper>
+
+                <Text>
+                  Standard Price
+                  <SpanText>*</SpanText>
+                </Text>
+                <Wrapper
+                  dr={`row`}
+                  ju={`space-between`}
+                  margin={`12px 0 10px`}
+                  width={width < 700 ? `100%` : `440px`}
+                >
+                  <Form.Item
+                    name="sPrice"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Standard Price는 필수 입니다.",
+                      },
+                    ]}
+                  >
+                    <TextInput
+                      type="number"
+                      width={`100%`}
+                      height={`50px`}
+                      border={`1px solid ${Theme.lightGrey_C}`}
+                      placeholder="Standard Price를 입력해주세요."
+                    />
+                  </Form.Item>
+                </Wrapper>
+
+                <Text>
+                  Deluxe Price
+                  <SpanText>*</SpanText>
+                </Text>
+                <Wrapper
+                  dr={`row`}
+                  ju={`space-between`}
+                  margin={`12px 0 10px`}
+                  width={width < 700 ? `100%` : `440px`}
+                >
+                  <Form.Item
+                    name="dPrice"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Deluxe Price는 필수 입니다.",
+                      },
+                    ]}
+                  >
+                    <TextInput
+                      type="number"
+                      width={`100%`}
+                      height={`50px`}
+                      border={`1px solid ${Theme.lightGrey_C}`}
+                      placeholder="Deluxe Price를 입력해주세요."
+                    />
+                  </Form.Item>
+                </Wrapper>
+
+                <Text>
+                  Platinum Price
+                  <SpanText>*</SpanText>
+                </Text>
+                <Wrapper
+                  dr={`row`}
+                  ju={`space-between`}
+                  margin={`12px 0 10px`}
+                  width={width < 700 ? `100%` : `440px`}
+                >
+                  <Form.Item
+                    name="pPrice"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Platinum Price는 필수 입니다.",
+                      },
+                    ]}
+                  >
+                    <TextInput
+                      type="number"
+                      width={`100%`}
+                      height={`50px`}
+                      border={`1px solid ${Theme.lightGrey_C}`}
+                      placeholder="Platinum Price를 입력해주세요."
+                    />
+                  </Form.Item>
                 </Wrapper>
 
                 <Text>
@@ -214,27 +497,33 @@ const Index = () => {
                 <Wrapper
                   dr={`row`}
                   ju={`space-between`}
-                  margin={`12px 0 10px`}
+                  margin={`12px 0 33px`}
                   width={width < 700 ? `100%` : `440px`}
                 >
-                  <Wrapper width={`calc(100% - 110px)`}>
-                    <Form.Item>
-                      <TextInput
-                        width={`100%`}
-                        height={`50px`}
-                        readOnly
-                        border={`1px solid ${Theme.lightGrey_C}`}
-                        placeholder="Track을 업로드해주세요."
-                      />
-                    </Form.Item>
-                  </Wrapper>
+                  <TextInput
+                    value={trackName}
+                    width={`calc(100% - 110px)`}
+                    height={`50px`}
+                    readOnly
+                    border={`1px solid ${Theme.lightGrey_C}`}
+                    placeholder="Track을 업로드해주세요."
+                  />
+
+                  <input
+                    type="file"
+                    accept=".wav, .mp3"
+                    hidden
+                    ref={trackRef}
+                    onChange={trackUploadHandler}
+                  />
                   <CommonButton
                     width={`100px`}
                     height={`50px`}
                     fontSize={width < 700 ? `14px` : `16px`}
                     fontWeight={`bold`}
                     kindOf={`subTheme2`}
-                    margin={`0 0 23px`}
+                    loading={st_productTrackUploadLoading}
+                    onClick={trackRefClickHandler}
                   >
                     파일등록
                   </CommonButton>
@@ -254,17 +543,20 @@ const Index = () => {
                   New Wave Sound에서 판매가 불가합니다.
                 </Text>
 
-                <Checkbox>
-                  <Text fontSize={width < 700 ? `14px` : `16px`}>
-                    (필수)네, 없습니다.
-                  </Text>
-                </Checkbox>
+                <Wrapper al={`flex-start`}>
+                  <Checkbox onChange={checkBoxHandler}>
+                    <Text fontSize={width < 700 ? `14px` : `16px`}>
+                      (필수)네, 없습니다.
+                    </Text>
+                  </Checkbox>
+                </Wrapper>
 
                 <CommonButton
                   width={`180px`}
                   height={`50px`}
                   margin={`50px 0 100px`}
-                  onClick={modalToggle2}
+                  htmlType="submit"
+                  loading={st_productTrackCreateLoading}
                 >
                   신청하기
                 </CommonButton>

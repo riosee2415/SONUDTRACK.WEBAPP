@@ -15,6 +15,8 @@ export const initailState = {
   myProducts: [],
   coverPath: null,
   agreementPath: null,
+  trackThumbnailPath: null,
+  trackUploadPath: null,
 
   st_categoryLoading: false,
   st_categoryDone: false,
@@ -99,6 +101,18 @@ export const initailState = {
   st_productAgreementUploadLoading: false,
   st_productAgreementUploadDone: false,
   st_productAgreementUploadError: null,
+  //
+  st_productTrackCreateLoading: false,
+  st_productTrackCreateDone: false,
+  st_productTrackCreateError: null,
+  //
+  st_productTrackThumbnailUploadLoading: false,
+  st_productTrackThumbnailUploadDone: false,
+  st_productTrackThumbnailUploadError: null,
+  //
+  st_productTrackUploadLoading: false,
+  st_productTrackUploadDone: false,
+  st_productTrackUploadError: null,
 };
 
 export const CATEGORY_LIST_REQUEST = "CATEGORY_LIST_REQUEST";
@@ -181,6 +195,10 @@ export const PRODUCT_TRACK_RECENT_REQUEST = "PRODUCT_TRACK_RECENT_REQUEST";
 export const PRODUCT_TRACK_RECENT_SUCCESS = "PRODUCT_TRACK_RECENT_SUCCESS";
 export const PRODUCT_TRACK_RECENT_FAILURE = "PRODUCT_TRACK_RECENT_FAILURE";
 
+export const PRODUCT_TRACK_CREATE_REQUEST = "PRODUCT_TRACK_CREATE_REQUEST";
+export const PRODUCT_TRACK_CREATE_SUCCESS = "PRODUCT_TRACK_CREATE_SUCCESS";
+export const PRODUCT_TRACK_CREATE_FAILURE = "PRODUCT_TRACK_CREATE_FAILURE";
+
 export const PRODUCT_COVER_UPLOAD_REQUEST = "PRODUCT_COVER_UPLOAD_REQUEST";
 export const PRODUCT_COVER_UPLOAD_SUCCESS = "PRODUCT_COVER_UPLOAD_SUCCESS";
 export const PRODUCT_COVER_UPLOAD_FAILURE = "PRODUCT_COVER_UPLOAD_FAILURE";
@@ -191,6 +209,19 @@ export const PRODUCT_AGREEMENT_UPLOAD_SUCCESS =
   "PRODUCT_AGREEMENT_UPLOAD_SUCCESS";
 export const PRODUCT_AGREEMENT_UPLOAD_FAILURE =
   "PRODUCT_AGREEMENT_UPLOAD_FAILURE";
+
+export const PRODUCT_TRACK_THUMBNAIL_UPLOAD_REQUEST =
+  "PRODUCT_TRACK_THUMBNAIL_UPLOAD_REQUEST";
+export const PRODUCT_TRACK_THUMBNAIL_UPLOAD_SUCCESS =
+  "PRODUCT_TRACK_THUMBNAIL_UPLOAD_SUCCESS";
+export const PRODUCT_TRACK_THUMBNAIL_UPLOAD_FAILURE =
+  "PRODUCT_TRACK_THUMBNAIL_UPLOAD_FAILURE";
+
+export const PRODUCT_TRACK_UPLOAD_REQUEST = "PRODUCT_TRACK_UPLOAD_REQUEST";
+export const PRODUCT_TRACK_UPLOAD_SUCCESS = "PRODUCT_TRACK_UPLOAD_SUCCESS";
+export const PRODUCT_TRACK_UPLOAD_FAILURE = "PRODUCT_TRACK_UPLOAD_FAILURE";
+
+export const PRODUCT_TRACK_FILE_RESET = "PRODUCT_TRACK_FILE_RESET";
 
 const reducer = (state = initailState, action) =>
   produce(state, (draft) => {
@@ -628,6 +659,27 @@ const reducer = (state = initailState, action) =>
 
       ////////////////////////////////////////////////////
       ////////////////////////////////////////////////////
+      case PRODUCT_TRACK_CREATE_REQUEST: {
+        draft.st_productTrackCreateLoading = true;
+        draft.st_productTrackCreateDone = false;
+        draft.st_productTrackCreateError = null;
+        break;
+      }
+      case PRODUCT_TRACK_CREATE_SUCCESS: {
+        draft.st_productTrackCreateLoading = false;
+        draft.st_productTrackCreateDone = true;
+        draft.st_productTrackCreateError = null;
+        break;
+      }
+      case PRODUCT_TRACK_CREATE_FAILURE: {
+        draft.st_productTrackCreateLoading = false;
+        draft.st_productTrackCreateDone = false;
+        draft.st_productTrackCreateError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////
       case PRODUCT_COVER_UPLOAD_REQUEST: {
         draft.st_productCoverUploadLoading = true;
         draft.st_productCoverUploadDone = false;
@@ -672,6 +724,56 @@ const reducer = (state = initailState, action) =>
 
       ////////////////////////////////////////////////////
       ////////////////////////////////////////////////////
+      case PRODUCT_TRACK_THUMBNAIL_UPLOAD_REQUEST: {
+        draft.st_productTrackThumbnailUploadLoading = true;
+        draft.st_productTrackThumbnailUploadDone = false;
+        draft.st_productTrackThumbnailUploadError = null;
+        break;
+      }
+      case PRODUCT_TRACK_THUMBNAIL_UPLOAD_SUCCESS: {
+        draft.st_productTrackThumbnailUploadLoading = false;
+        draft.st_productTrackThumbnailUploadDone = true;
+        draft.st_productTrackThumbnailUploadError = null;
+        draft.trackThumbnailPath = action.data.path;
+        break;
+      }
+      case PRODUCT_TRACK_THUMBNAIL_UPLOAD_FAILURE: {
+        draft.st_productTrackThumbnailUploadLoading = false;
+        draft.st_productTrackThumbnailUploadDone = false;
+        draft.st_productTrackThumbnailUploadError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////
+      case PRODUCT_TRACK_UPLOAD_REQUEST: {
+        draft.st_productTrackUploadLoading = true;
+        draft.st_productTrackUploadDone = false;
+        draft.st_productTrackUploadError = null;
+        break;
+      }
+      case PRODUCT_TRACK_UPLOAD_SUCCESS: {
+        draft.st_productTrackUploadLoading = false;
+        draft.st_productTrackUploadDone = true;
+        draft.st_productTrackUploadError = null;
+        draft.trackUploadPath = action.data.path;
+        break;
+      }
+      case PRODUCT_TRACK_UPLOAD_FAILURE: {
+        draft.st_productTrackUploadLoading = false;
+        draft.st_productTrackUploadDone = false;
+        draft.st_productTrackUploadError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////
+
+      case PRODUCT_TRACK_FILE_RESET: {
+        draft.trackThumbnailPath = action.data.trackThumbnailPath;
+        draft.trackUploadPath = action.data.trackUploadPath;
+        break;
+      }
 
       default:
         break;
