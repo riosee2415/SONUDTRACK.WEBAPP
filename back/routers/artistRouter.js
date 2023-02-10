@@ -72,6 +72,7 @@ SELECT	ROW_NUMBER()  OVER(ORDER  BY createdAt)   AS num,
         isVacation 
   FROM	artist
  WHERE	isPermm = 1
+   AND  isUpdate = 1
  ORDER  BY num DESC
   `;
 
@@ -415,6 +416,7 @@ SELECT	id,
         isVacation 
   FROM	artist
  WHERE	id = ${id}
+   AND  isUpdate = 1
   `;
 
   const selectCountryQuery = `
@@ -609,6 +611,7 @@ router.post("/info/update", isLoggedIn, async (req, res, next) => {
           question6 = "${question6}",
           question7 = "${question7}",
           question8 = "${question8}",
+          isUpdate = 1,
           updatedAt = NOW()
    WHERE  id = ${id}
   `;
