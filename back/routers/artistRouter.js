@@ -33,6 +33,131 @@ const upload = multer({
 });
 
 ////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////// ARTIST ///////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+/**
+ * SUBJECT : 아티스탬 페이지 아티스트 리스트 불러오기
+ * PARAMETERS : -
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 시니어 개발자 신태섭
+ * DEV DATE : 2023/02/10
+ */
+router.post("/user/allList", async (req, res, next) => {
+  const selectQuery = `
+SELECT	ROW_NUMBER()  OVER(ORDER  BY createdAt)   AS num,
+        id,
+        plan,
+        gen,
+        isPermm,
+        permmAt,
+        DATE_FORMAT(permmAt, "%Y년 %m월  %d일")		    AS viewPermmAt,
+        createdAt,
+        updatedAt,
+        DATE_FORMAT(createdAt , "%Y년 %m월 %d일") 	  AS	viewCreatedAt,
+        DATE_FORMAT(updatedAt , "%Y년 %m월 %d일") 	  AS	viewUpdatedAt,
+        UserId,
+        name,
+        businessNum,
+        artistname,
+        info,
+        question1,
+        question2,
+        question3,
+        question4,
+        question5,
+        question6,
+        question7,
+        question8,
+        isVacation 
+  FROM	artist
+ WHERE	isPermm = 1
+   AND  isUpdate = 1
+ ORDER  BY num DESC
+  `;
+
+  const selectCountryQuery = `
+  SELECT	ROW_NUMBER() OVER(ORDER	BY createdAt)	AS num,
+          id,
+          value,
+          createdAt,
+          updatedAt,
+          DATE_FORMAT(createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
+          DATE_FORMAT(updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt,
+          ArtistId 
+    FROM	artistCountry
+   ORDER	BY num ASC
+  `;
+
+  const selectFilmQuery = `
+SELECT	ROW_NUMBER()	OVER(ORDER	BY sort)	AS num,
+        id,
+        roleName,
+        comment,
+        name,
+        title,
+        musicFile,
+        coverImage,
+        sort,
+        createdAt,
+        updatedAt,
+        DATE_FORMAT(createdAt, "%Y년 %m월 %d일") 	AS	viewCreatedAt,
+        DATE_FORMAT(updatedAt, "%Y년 %m월 %d일") 	AS	viewUpdatedAt,
+        ArtistId 
+  FROM	artistFilm
+ ORDER	BY num ASC
+  `;
+
+  const selectTagQuery = `
+  SELECT  ROW_NUMBER()  OVER(ORDER  BY B.type ASC)  AS num,
+          B.value,
+          B.type
+    FROM  artistTags      A
+   INNER
+    JOIN  commonTag       B
+      ON  A.CommonTagId = B.id
+   ORDER  BY num ASC
+  `;
+
+  try {
+    const findArtistResult = await models.sequelize.query(selectQuery);
+
+    const artistCountries = await models.sequelize.query(selectCountryQuery);
+    const artistFilms = await models.sequelize.query(selectFilmQuery);
+    const tagDatum = await models.sequelize.query(selectTagQuery);
+
+    findArtistResult[0].map((data) => {
+      data["country"] = [];
+
+      artistCountries[0].map((innerItem) => {
+        data.country.push(innerItem);
+      });
+    });
+
+    findArtistResult[0].map((item) => {
+      item["film"] = [];
+
+      artistFilms[0].map((innerItem) => {
+        item.film.push(innerItem);
+      });
+    });
+
+    findArtistResult[0].map((element) => {
+      element["tag"] = [];
+
+      tagDatum[0].map((innerItem) => {
+        element.tag.push(innerItem);
+      });
+    });
+
+    return res.status(200).json(findArtistResult[0]);
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("아티스트 정보를 조회할 수 없습니다.");
+  }
+});
+
+////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////// SELLER ///////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
 /**
@@ -291,6 +416,7 @@ SELECT	id,
         isVacation 
   FROM	artist
  WHERE	id = ${id}
+   AND  isUpdate = 1
   `;
 
   const selectCountryQuery = `
@@ -485,6 +611,7 @@ router.post("/info/update", isLoggedIn, async (req, res, next) => {
           question6 = "${question6}",
           question7 = "${question7}",
           question8 = "${question8}",
+          isUpdate = 1,
           updatedAt = NOW()
    WHERE  id = ${id}
   `;

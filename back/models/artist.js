@@ -77,6 +77,11 @@ module.exports = class Artist extends Model {
           allowNull: false,
           defaultValue: false,
         },
+        isUpdate: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
       },
       {
         modelName: "Artist",
