@@ -17,6 +17,7 @@ export const initailState = {
   agreementPath: null,
   trackThumbnailPath: null,
   trackUploadPath: null,
+  trackTypeList: [],
 
   st_categoryLoading: false,
   st_categoryDone: false,
@@ -113,6 +114,18 @@ export const initailState = {
   st_productTrackUploadLoading: false,
   st_productTrackUploadDone: false,
   st_productTrackUploadError: null,
+  //
+  st_productTrackTypeListLoading: false,
+  st_productTrackTypeListDone: false,
+  st_productTrackTypeListError: null,
+  //
+  st_productTrackIsOkLoading: false,
+  st_productTrackIsOkDone: false,
+  st_productTrackIsOkError: null,
+  //
+  st_productTrackIsRejectLoading: false,
+  st_productTrackIsRejectDone: false,
+  st_productTrackIsRejectError: null,
 };
 
 export const CATEGORY_LIST_REQUEST = "CATEGORY_LIST_REQUEST";
@@ -220,6 +233,18 @@ export const PRODUCT_TRACK_THUMBNAIL_UPLOAD_FAILURE =
 export const PRODUCT_TRACK_UPLOAD_REQUEST = "PRODUCT_TRACK_UPLOAD_REQUEST";
 export const PRODUCT_TRACK_UPLOAD_SUCCESS = "PRODUCT_TRACK_UPLOAD_SUCCESS";
 export const PRODUCT_TRACK_UPLOAD_FAILURE = "PRODUCT_TRACK_UPLOAD_FAILURE";
+
+export const PRODUCT_TRACK_TYPELIST_REQUEST = "PRODUCT_TRACK_TYPELIST_REQUEST";
+export const PRODUCT_TRACK_TYPELIST_SUCCESS = "PRODUCT_TRACK_TYPELIST_SUCCESS";
+export const PRODUCT_TRACK_TYPELIST_FAILURE = "PRODUCT_TRACK_TYPELIST_FAILURE";
+
+export const PRODUCT_TRACK_ISOK_REQUEST = "PRODUCT_TRACK_ISOK_REQUEST";
+export const PRODUCT_TRACK_ISOK_SUCCESS = "PRODUCT_TRACK_ISOK_SUCCESS";
+export const PRODUCT_TRACK_ISOK_FAILURE = "PRODUCT_TRACK_ISOK_FAILURE";
+
+export const PRODUCT_TRACK_ISREJECT_REQUEST = "PRODUCT_TRACK_ISREJECT_REQUEST";
+export const PRODUCT_TRACK_ISREJECT_SUCCESS = "PRODUCT_TRACK_ISREJECT_SUCCESS";
+export const PRODUCT_TRACK_ISREJECT_FAILURE = "PRODUCT_TRACK_ISREJECT_FAILURE";
 
 export const PRODUCT_TRACK_FILE_RESET = "PRODUCT_TRACK_FILE_RESET";
 
@@ -763,6 +788,70 @@ const reducer = (state = initailState, action) =>
         draft.st_productTrackUploadLoading = false;
         draft.st_productTrackUploadDone = false;
         draft.st_productTrackUploadError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////
+      case PRODUCT_TRACK_TYPELIST_REQUEST: {
+        draft.st_productTrackTypeListLoading = true;
+        draft.st_productTrackTypeListDone = false;
+        draft.st_productTrackTypeListError = null;
+        break;
+      }
+      case PRODUCT_TRACK_TYPELIST_SUCCESS: {
+        draft.st_productTrackTypeListLoading = false;
+        draft.st_productTrackTypeListDone = true;
+        draft.st_productTrackTypeListError = null;
+        draft.trackTypeList = action.data.list;
+        break;
+      }
+      case PRODUCT_TRACK_TYPELIST_FAILURE: {
+        draft.st_productTrackTypeListLoading = false;
+        draft.st_productTrackTypeListDone = false;
+        draft.st_productTrackTypeListError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////
+      case PRODUCT_TRACK_ISOK_REQUEST: {
+        draft.st_productTrackIsOkLoading = true;
+        draft.st_productTrackIsOkDone = false;
+        draft.st_productTrackIsOkError = null;
+        break;
+      }
+      case PRODUCT_TRACK_ISOK_SUCCESS: {
+        draft.st_productTrackIsOkLoading = false;
+        draft.st_productTrackIsOkDone = true;
+        draft.st_productTrackIsOkError = null;
+        break;
+      }
+      case PRODUCT_TRACK_ISOK_FAILURE: {
+        draft.st_productTrackIsOkLoading = false;
+        draft.st_productTrackIsOkDone = false;
+        draft.st_productTrackIsOkError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////
+      case PRODUCT_TRACK_ISREJECT_REQUEST: {
+        draft.st_productTrackIsRejectLoading = true;
+        draft.st_productTrackIsRejectDone = false;
+        draft.st_productTrackIsRejectError = null;
+        break;
+      }
+      case PRODUCT_TRACK_ISREJECT_SUCCESS: {
+        draft.st_productTrackIsRejectLoading = false;
+        draft.st_productTrackIsRejectDone = true;
+        draft.st_productTrackIsRejectError = null;
+        break;
+      }
+      case PRODUCT_TRACK_ISREJECT_FAILURE: {
+        draft.st_productTrackIsRejectLoading = false;
+        draft.st_productTrackIsRejectDone = false;
+        draft.st_productTrackIsRejectError = action.error;
         break;
       }
 

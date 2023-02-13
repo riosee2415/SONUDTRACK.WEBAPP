@@ -100,6 +100,18 @@ import {
   PRODUCT_TRACK_UPLOAD_REQUEST,
   PRODUCT_TRACK_UPLOAD_SUCCESS,
   PRODUCT_TRACK_UPLOAD_FAILURE,
+  //
+  PRODUCT_TRACK_TYPELIST_REQUEST,
+  PRODUCT_TRACK_TYPELIST_SUCCESS,
+  PRODUCT_TRACK_TYPELIST_FAILURE,
+  //
+  PRODUCT_TRACK_ISOK_REQUEST,
+  PRODUCT_TRACK_ISOK_SUCCESS,
+  PRODUCT_TRACK_ISOK_FAILURE,
+  //
+  PRODUCT_TRACK_ISREJECT_REQUEST,
+  PRODUCT_TRACK_ISREJECT_SUCCESS,
+  PRODUCT_TRACK_ISREJECT_FAILURE,
 } from "../reducers/product";
 
 // ******************************************************************************************************************
@@ -790,6 +802,87 @@ function* productTrackUpload(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function productTrackTypeListAPI(data) {
+  return await axios.post("/api/product/track/typeList", data);
+}
+
+function* productTrackTypeList(action) {
+  try {
+    const result = yield call(productTrackTypeListAPI, action.data);
+
+    yield put({
+      type: PRODUCT_TRACK_TYPELIST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: PRODUCT_TRACK_TYPELIST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function productTrackIsOkAPI(data) {
+  return await axios.post("/api/product/track/isOk", data);
+}
+
+function* productTrackIsOk(action) {
+  try {
+    const result = yield call(productTrackIsOkAPI, action.data);
+
+    yield put({
+      type: PRODUCT_TRACK_ISOK_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: PRODUCT_TRACK_ISOK_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function productTrackIsRejectAPI(data) {
+  return await axios.post("/api/product/track/isReject", data);
+}
+
+function* productTrackIsReject(action) {
+  try {
+    const result = yield call(productTrackIsRejectAPI, action.data);
+
+    yield put({
+      type: PRODUCT_TRACK_ISREJECT_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: PRODUCT_TRACK_ISREJECT_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 function* watchCategoryList() {
   yield takeLatest(CATEGORY_LIST_REQUEST, categoryList);
@@ -869,6 +962,15 @@ function* watchProductTrackThumbnailUpload() {
 function* watchProductTrackUpload() {
   yield takeLatest(PRODUCT_TRACK_UPLOAD_REQUEST, productTrackUpload);
 }
+function* watchProductTrackTypeList() {
+  yield takeLatest(PRODUCT_TRACK_TYPELIST_REQUEST, productTrackTypeList);
+}
+function* watchProductTrackIsOk() {
+  yield takeLatest(PRODUCT_TRACK_ISOK_REQUEST, productTrackIsOk);
+}
+function* watchProductTrackIsReject() {
+  yield takeLatest(PRODUCT_TRACK_ISREJECT_REQUEST, productTrackIsReject);
+}
 
 //////////////////////////////////////////////////////////////
 export default function* productSaga() {
@@ -898,6 +1000,9 @@ export default function* productSaga() {
     fork(watchProductAgreementUpload),
     fork(watchProductTrackThumbnailUpload),
     fork(watchProductTrackUpload),
+    fork(watchProductTrackTypeList),
+    fork(watchProductTrackIsOk),
+    fork(watchProductTrackIsReject),
     //
   ]);
 }
