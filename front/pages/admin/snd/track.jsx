@@ -2,7 +2,17 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import AdminLayout from "../../../components/AdminLayout";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { Popover, message, Switch, Image, Button, Popconfirm } from "antd";
+import {
+  Popover,
+  message,
+  Switch,
+  Image,
+  Button,
+  Popconfirm,
+  Modal,
+  Form,
+  Input,
+} from "antd";
 import { useRouter, withRouter } from "next/router";
 import wrapper from "../../../store/configureStore";
 import { END } from "redux-saga";
@@ -16,16 +26,18 @@ import {
   GuideUl,
   GuideLi,
   CustomTable,
+  ModalBtn,
 } from "../../../components/commonComponents";
 import { LOAD_MY_INFO_REQUEST } from "../../../reducers/user";
 import Theme from "../../../components/Theme";
 import { items } from "../../../components/AdminLayout";
-import { HomeOutlined, RightOutlined } from "@ant-design/icons";
+import { CheckOutlined, HomeOutlined, RightOutlined } from "@ant-design/icons";
 import {
   PRODUCT_TRACK_ISOK_REQUEST,
   PRODUCT_TRACK_ISREJECT_REQUEST,
   PRODUCT_TRACK_TYPELIST_REQUEST,
 } from "../../../reducers/product";
+import { saveAs } from "file-saver";
 
 const PriceText = styled(Text)`
   font-weight: bold;
@@ -41,6 +53,10 @@ const CateBox = styled.span`
   background-color: ${(props) => props.theme.subTheme3_C};
   color: #fff;
   margin-right: 2px;
+`;
+
+const CheckIcon = styled(CheckOutlined)`
+  color: ${(props) => props.theme.naver_C};
 `;
 
 const Track = ({}) => {
@@ -86,6 +102,13 @@ const Track = ({}) => {
   /////////////////////////////////////////////////////////////////////////
 
   ////// HOOKS //////
+
+  const [rForm] = Form.useForm();
+
+  const [listType, setListType] = useState(3);
+
+  const [rModal, setRModal] = useState(false);
+  const [rData, setRData] = useState(false);
 
   ////// USEEFFECT //////
 
@@ -136,6 +159,8 @@ const Track = ({}) => {
         type: PRODUCT_TRACK_TYPELIST_REQUEST,
       });
 
+      rModalToggle(null);
+
       return message.success("거절되었습니다.");
     }
 
@@ -143,6 +168,32 @@ const Track = ({}) => {
       return message.error(st_productTrackIsRejectError);
     }
   }, [st_productTrackIsRejectDone, st_productTrackIsRejectError]);
+
+  useEffect(() => {
+    dispatch({
+      type: PRODUCT_TRACK_TYPELIST_REQUEST,
+      data: {
+        listType: listType,
+      },
+    });
+  }, [listType]);
+
+  ////// TOGGLE //////
+  const rModalToggle = useCallback(
+    (data) => {
+      if (data) {
+        setRData(data);
+        rForm.setFieldsValue({
+          rejectContent: data.rejectContent,
+        });
+      } else {
+        rForm.resetFields();
+        setRData(null);
+      }
+      setRModal((prev) => !prev);
+    },
+    [rData, rModal]
+  );
 
   ////// HANDLER //////
   // 승인하기
@@ -155,14 +206,41 @@ const Track = ({}) => {
     });
   });
   // 거절하기
-  const isRejectChangeHandler = useCallback((data) => {
-    dispatch({
-      type: PRODUCT_TRACK_ISREJECT_REQUEST,
-      data: {
-        id: data.id,
-        rejectContent: data.rejectContent,
-      },
-    });
+  const isRejectChangeHandler = useCallback(
+    (data) => {
+      dispatch({
+        type: PRODUCT_TRACK_ISREJECT_REQUEST,
+        data: {
+          id: rData.id,
+          rejectContent: data.rejectContent,
+        },
+      });
+    },
+    [rData]
+  );
+
+  // 승인하기
+  const listTypeChangeHandler = useCallback(
+    (type) => {
+      setListType(type);
+    },
+    [listType]
+  );
+
+  // 파일 다운로드
+  const fileDownloadHandler = useCallback(async (fileName, filePath) => {
+    let blob = await fetch(filePath).then((r) => r.blob());
+
+    const file = new Blob([blob]);
+
+    // const ext = filePath.substring(
+    //   filePath.lastIndexOf(".") + 1,
+    //   filePath.length
+    // );
+
+    const originName = `${fileName}`;
+
+    saveAs(file, originName);
   }, []);
   ////// DATAVIEW //////
 
@@ -214,7 +292,7 @@ const Track = ({}) => {
           size="small"
           type="primary"
           style={{ height: "20px", fontSize: "11px" }}
-          // onClick={() => fileDownloadHandler(data.filename, data.filepath)}
+          onClick={() => fileDownloadHandler(data.filename, data.filepath)}
         >
           내려받기
         </Button>
@@ -226,38 +304,40 @@ const Track = ({}) => {
     },
     {
       title: "승인/거절",
-      render: (data) => (
-        <>
-          <Popconfirm
-            title="승인하시겠습니까?"
-            okText="승인"
-            cancelText="취소"
-            onConfirm={() => isOkChangeHandler(data)}
-          >
-            <Button
-              size="small"
-              type="primary"
-              loading={st_productTrackIsOkLoading}
+      render: (data) =>
+        data.isOk ? (
+          <CheckIcon />
+        ) : data.isReject ? (
+          <Button onClick={() => rModalToggle(data)} size="small" type="danger">
+            거절사유
+          </Button>
+        ) : (
+          <>
+            <Popconfirm
+              title="승인하시겠습니까?"
+              okText="승인"
+              cancelText="취소"
+              onConfirm={() => isOkChangeHandler(data)}
             >
-              승인
-            </Button>
-          </Popconfirm>
-          <Popconfirm
-            title="거절하시겠습니까?"
-            okText="거절"
-            cancelText="취소"
-            onConfirm={() => isRejectChangeHandler(data)}
-          >
+              <Button
+                size="small"
+                type="primary"
+                loading={st_productTrackIsOkLoading}
+              >
+                승인
+              </Button>
+            </Popconfirm>
+
             <Button
+              onClick={() => rModalToggle(data)}
               size="small"
               type="danger"
               loading={st_productTrackIsRejectLoading}
             >
               거절
             </Button>
-          </Popconfirm>
-        </>
-      ),
+          </>
+        ),
     },
   ];
 
@@ -300,6 +380,31 @@ const Track = ({}) => {
         </GuideUl>
       </Wrapper>
 
+      {/* LIST TYPE */}
+      <Wrapper dr="row" ju={`flex-start`} padding="0px 20px 10px">
+        <Button
+          size="small"
+          type={listType === 3 && "primary"}
+          onClick={() => listTypeChangeHandler(3)}
+        >
+          미처리
+        </Button>
+        <Button
+          size="small"
+          type={listType === 1 && "primary"}
+          onClick={() => listTypeChangeHandler(1)}
+        >
+          승인
+        </Button>
+        <Button
+          size="small"
+          type={listType === 2 && "primary"}
+          onClick={() => listTypeChangeHandler(2)}
+        >
+          거절
+        </Button>
+      </Wrapper>
+
       <Wrapper padding="0px 20px">
         <CustomTable
           rowKey="id"
@@ -308,6 +413,40 @@ const Track = ({}) => {
           size="small"
         />
       </Wrapper>
+
+      {/* REJECT MODAL */}
+      <Modal
+        width={`600px`}
+        title="거절하기"
+        visible={rModal}
+        onCancel={() => rModalToggle(null)}
+        footer={null}
+      >
+        <Form form={rForm} onFinish={isRejectChangeHandler}>
+          <Form.Item
+            label="거절사유"
+            name="rejectContent"
+            rules={[{ required: true, message: "거절사유를 입력해주세요." }]}
+          >
+            <Input.TextArea
+              readOnly={rData && rData.isReject}
+              autoSize={{ minRows: 6, maxRows: 8 }}
+              placeholder="거절사유를 입력해주세요."
+            />
+          </Form.Item>
+
+          {rData && !rData.isReject && (
+            <Wrapper dr={`row`} ju={`flex-end`}>
+              <ModalBtn size="small" onClick={() => rModalToggle(null)}>
+                취소
+              </ModalBtn>
+              <ModalBtn size="small" type="primary" htmlType="submit">
+                거절
+              </ModalBtn>
+            </Wrapper>
+          )}
+        </Form>
+      </Modal>
     </AdminLayout>
   );
 };

@@ -581,8 +581,9 @@ router.post("/track/isOk", isAdminCheck, async (req, res, next) => {
   const findQ = `
   SELECT  id
     FROM  productTrack
-   WHERE  id = ${id}
+   WHERE  1 = 1
      AND  isOk = TRUE OR isReject = TRUE
+     AND  id = ${id}
   `;
 
   const updateQ = `
@@ -621,14 +622,15 @@ router.post("/track/isReject", isAdminCheck, async (req, res, next) => {
   const findQ = `
   SELECT  id
     FROM  productTrack
-   WHERE  id = ${id}
+   WHERE  1 = 1
      AND  isOk = TRUE OR isReject = TRUE
+     AND  id = ${id}
   `;
 
   const updateQ = `
   UPDATE  productTrack
-     SET  isReject = TRUE
-          rejectContent = ${rejectContent ? rejectContent : ""} 
+     SET  isReject = TRUE,
+          rejectContent = '${rejectContent ? rejectContent : ""}'
    WHERE  id = ${id}
   `;
 
