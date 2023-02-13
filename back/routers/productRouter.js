@@ -164,6 +164,92 @@ router.post("/ca/delete", async (req, res, next) => {
 ////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * SUBJECT : 상품 상세 정보 조회하기
+ * PARAMETERS : -
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 시니어 홍민기
+ * DEV DATE : 2023/02/13
+ */
+
+router.post("/pro/detail", async (req, res, next) => {
+  const { id } = req.body;
+
+  const selectQ = `
+  SELECT  A.id,
+          A.title,
+          A.subTitle,
+          A.content,
+          A.coverImage,
+          A.downloadCnt,
+          A.bitRate,
+          A.sampleRate,
+          A.isTop,
+          B.value,
+          C.nickname
+    FROM  product           A
+   INNER
+    JOIN  productCategory   B
+      ON  A.ProductCategoryId = B.id
+   INNER 
+    JOIN  users             C
+      ON  A.UserId = C.id
+   WHERE  A.id = ${id}
+  `;
+
+  const select2Q = `
+  SELECT  A.id,
+          A.title,
+          A.author,
+          A.thumbnail,
+          A.filename,
+          A.filepath,
+          A.downloadCnt,
+          FORMAT(A.downloadCnt, ",")					AS  viewDownLoadCnt,
+          FORMAT(A.sPrice , 0)   as viewsPrice,
+          FORMAT(A.dPrice , 0)   as viewdPrice,
+          FORMAT(A.pPrice , 0)   as viewpPrice,
+          A.ProductId,
+          A.createdAt,
+          DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
+          A.isOk,
+          A.isReject,
+          A.rejectContent
+    FROM  productTrack		A
+   WHERE  A.ProductId = ${id}
+     AND  isOk = TRUE   
+  `;
+
+  try {
+    const productDetail = await models.sequelize.query(selectQ);
+    const productTrackDetail = await models.sequelize.query(select2Q);
+
+    const selectGenQ = `
+    SELECT  A.id,
+        		B.value,
+        		A.createdAt,
+        		A.ProductId
+      FROM  productGenConnect   A
+     INNER
+      JOIN  productGen          B
+        ON  B.id = A.ProductGenId
+     WHERE  A.ProductId = ${id}
+    `;
+
+    const genList = await models.sequelize.query(selectGenQ);
+
+    return res.status(200).json({
+      ...productDetail[0][0],
+      genList: genList[0],
+      trackList: productTrackDetail[0],
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("데이터를 조회할 수 없습니다.");
+  }
+});
+
+/**
  * SUBJECT : 회원의 상품(앨범) 조회하기
  * PARAMETERS : -
  * ORDER BY : -

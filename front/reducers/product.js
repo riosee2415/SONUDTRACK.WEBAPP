@@ -18,6 +18,7 @@ export const initailState = {
   trackThumbnailPath: null,
   trackUploadPath: null,
   trackTypeList: [],
+  productDetail: null,
 
   st_categoryLoading: false,
   st_categoryDone: false,
@@ -126,6 +127,10 @@ export const initailState = {
   st_productTrackIsRejectLoading: false,
   st_productTrackIsRejectDone: false,
   st_productTrackIsRejectError: null,
+  //
+  st_productDetailLoading: false,
+  st_productDetailDone: false,
+  st_productDetailError: null,
 };
 
 export const CATEGORY_LIST_REQUEST = "CATEGORY_LIST_REQUEST";
@@ -245,6 +250,10 @@ export const PRODUCT_TRACK_ISOK_FAILURE = "PRODUCT_TRACK_ISOK_FAILURE";
 export const PRODUCT_TRACK_ISREJECT_REQUEST = "PRODUCT_TRACK_ISREJECT_REQUEST";
 export const PRODUCT_TRACK_ISREJECT_SUCCESS = "PRODUCT_TRACK_ISREJECT_SUCCESS";
 export const PRODUCT_TRACK_ISREJECT_FAILURE = "PRODUCT_TRACK_ISREJECT_FAILURE";
+
+export const PRODUCT_DETAIL_REQUEST = "PRODUCT_DETAIL_REQUEST";
+export const PRODUCT_DETAIL_SUCCESS = "PRODUCT_DETAIL_SUCCESS";
+export const PRODUCT_DETAIL_FAILURE = "PRODUCT_DETAIL_FAILURE";
 
 export const PRODUCT_TRACK_FILE_RESET = "PRODUCT_TRACK_FILE_RESET";
 
@@ -852,6 +861,28 @@ const reducer = (state = initailState, action) =>
         draft.st_productTrackIsRejectLoading = false;
         draft.st_productTrackIsRejectDone = false;
         draft.st_productTrackIsRejectError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////
+      case PRODUCT_DETAIL_REQUEST: {
+        draft.st_productDetailLoading = true;
+        draft.st_productDetailDone = false;
+        draft.st_productDetailError = null;
+        break;
+      }
+      case PRODUCT_DETAIL_SUCCESS: {
+        draft.st_productDetailLoading = false;
+        draft.st_productDetailDone = true;
+        draft.st_productDetailError = null;
+        draft.productDetail = action.data;
+        break;
+      }
+      case PRODUCT_DETAIL_FAILURE: {
+        draft.st_productDetailLoading = false;
+        draft.st_productDetailDone = false;
+        draft.st_productDetailError = action.error;
         break;
       }
 
