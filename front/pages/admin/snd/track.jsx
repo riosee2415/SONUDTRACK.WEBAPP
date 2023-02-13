@@ -373,9 +373,9 @@ const Track = ({}) => {
       {/* GUIDE */}
       <Wrapper margin={`10px 0px 0px 0px`}>
         <GuideUl>
-          <GuideLi>화면 가이드안내 문구를 입력하세요.</GuideLi>
+          <GuideLi>미처리, 승인, 거절로 조회할 수 있습니다.</GuideLi>
           <GuideLi isImpo={true}>
-            화면 가이드안내 문구를 입력하세요. (RED COLOR)
+            승인 또는 거절시 되돌릴 수 없어 신중한 작업을 필요로 합니다.
           </GuideLi>
         </GuideUl>
       </Wrapper>
