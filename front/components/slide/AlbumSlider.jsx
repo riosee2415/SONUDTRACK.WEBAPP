@@ -62,39 +62,41 @@ const AlbumSlider = ({ list }) => {
     <AlbumSliderWrapper>
       <Carousel
         slide="div"
-        slidesToShow={list.length > 6 ? 6 : list.length}
-        slidesToScroll={list.length > 6 ? 6 : list.length}
-        draggable={true}
-        responsive={[
-          {
-            breakpoint: 1670,
-            settings: {
-              slidesToShow: list.length > 5 ? 5 : list.length,
-              slidesToScroll: list.length > 5 ? 5 : list.length,
-            },
-          },
-          {
-            breakpoint: 1450,
-            settings: {
-              slidesToShow: list.length > 4 ? 4 : list.length,
-              slidesToScroll: list.length > 4 ? 4 : list.length,
-            },
-          },
-          {
-            breakpoint: 1050,
-            settings: {
-              slidesToShow: list.length > 3 ? 3 : list.length,
-              slidesToScroll: list.length > 3 ? 3 : list.length,
-            },
-          },
-          {
-            breakpoint: 700,
-            settings: {
-              slidesToShow: list.length > 2 ? 2 : list.length,
-              slidesToScroll: list.length > 2 ? 2 : list.length,
-            },
-          },
-        ]}
+        // slidesToShow={list.length > 6 ? 6 : list.length}
+        // slidesToScroll={list.length > 6 ? 6 : list.length}
+        // draggable={true}
+        // responsive={[
+        //   {
+        //     breakpoint: 1670,
+        //     settings: {
+        //       slidesToShow: list.length > 5 ? 5 : list.length,
+        //       slidesToScroll: list.length > 5 ? 5 : list.length,
+        //     },
+        //   },
+        //   {
+        //     breakpoint: 1450,
+        //     settings: {
+        //       slidesToShow: list.length > 4 ? 4 : list.length,
+        //       slidesToScroll: list.length > 4 ? 4 : list.length,
+        //     },
+        //   },
+        //   {
+        //     breakpoint: 1050,
+        //     settings: {
+        //       slidesToShow: list.length > 3 ? 3 : list.length,
+        //       slidesToScroll: list.length > 3 ? 3 : list.length,
+        //     },
+        //   },
+        //   {
+        //     breakpoint: 700,
+        //     settings: {
+        //       slidesToShow: list.length > 2 ? 2 : list.length,
+        //       slidesToScroll: list.length > 2 ? 2 : list.length,
+        //     },
+        //   },
+        // ]}
+        slidesToShow={6}
+        slidesToScroll={6}
       >
         {list &&
           list.map((data) => {
@@ -133,6 +135,20 @@ const AlbumSlider = ({ list }) => {
               </Wrapper>
             );
           })}
+
+        {/* LIST 가 6개 이상 없을 시 갯수 채우기위해 만듬 */}
+        {list &&
+          list.length < 6 &&
+          Array(6 - list.length)
+            .fill()
+            .map((data, idx) => {
+              return (
+                <Wrapper
+                  key={idx}
+                  width={width < 700 ? `150px !important` : `200px !important`}
+                ></Wrapper>
+              );
+            })}
       </Carousel>
     </AlbumSliderWrapper>
   );
