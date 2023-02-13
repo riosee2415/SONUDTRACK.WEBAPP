@@ -56,6 +56,23 @@ module.exports = class ProductTrack extends Model {
           allowNull: false,
           defaultValue: 0,
         },
+        isOk: {
+          // 관리자 승인
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
+        isReject: {
+          // 거절
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
+        rejectContent: {
+          // 거절 내용
+          type: DataTypes.STRING(500),
+          allowNull: true,
+        },
         isTop: {
           // 메인 리스트 여부
           type: DataTypes.BOOLEAN,
