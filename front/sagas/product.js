@@ -890,7 +890,7 @@ function* productTrackIsReject(action) {
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
 async function productDetailAPI(data) {
-  return await axios.post("/api/product/pro/detail", data);
+  return await axios.post("/api/product/pro/myDetail", data);
 }
 
 function* productDetail(action) {

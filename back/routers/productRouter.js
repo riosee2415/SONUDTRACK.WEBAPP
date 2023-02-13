@@ -172,7 +172,7 @@ router.post("/ca/delete", async (req, res, next) => {
  * DEV DATE : 2023/02/13
  */
 
-router.post("/pro/detail", async (req, res, next) => {
+router.post("/pro/myDetail", async (req, res, next) => {
   const { id } = req.body;
 
   const selectQ = `
@@ -217,7 +217,6 @@ router.post("/pro/detail", async (req, res, next) => {
           A.rejectContent
     FROM  productTrack		A
    WHERE  A.ProductId = ${id}
-     AND  isOk = TRUE   
   `;
 
   try {
