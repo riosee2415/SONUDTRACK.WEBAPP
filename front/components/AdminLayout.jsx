@@ -169,6 +169,11 @@ export const items = {
       useYn: true,
     },
     {
+      name: "음원승인관리",
+      link: "/admin/snd/track",
+      useYn: true,
+    },
+    {
       name: "아티스트관리",
       link: "/admin/snd/artist",
       useYn: true,
