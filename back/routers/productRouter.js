@@ -479,6 +479,174 @@ router.post("/gen/allList", async (req, res, next) => {
 ///////////////////////////////////// TRACK ////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
 /**
+ * SUBJECT : 뮤직탬 미처리 리스트 조회
+ * PARAMETERS : listType
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 시니어 홍민기
+ * DEV DATE : 2023/02/13
+ */
+
+router.post("/track/typeList", async (req, res, next) => {
+  const { listType } = req.body;
+
+  const _listType = listType ? listType : 3;
+
+  const selectQ = `
+  SELECT  ROW_NUMBER() OVER(ORDER BY A.createdAt DESC) AS num,
+          A.id,
+	  	    A.title,
+          A.author,
+          A.thumbnail,
+          A.filename,
+          A.filepath,
+          A.downloadCnt,
+          FORMAT(A.downloadCnt, ",")					AS  viewDownLoadCnt,
+          FORMAT(A.sPrice , 0)   as viewsPrice,
+          FORMAT(A.dPrice , 0)   as viewdPrice,
+          FORMAT(A.pPrice , 0)   as viewpPrice,
+          A.ProductId,
+          A.createdAt,
+          DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
+          A.isOk,
+          A.isReject,
+          A.rejectContent
+    FROM  productTrack		A
+   WHERE  1 = 1
+          ${
+            _listType === 1
+              ? `AND A.isOk = 1`
+              : _listType === 2
+              ? `AND A.isReject = 1`
+              : `AND A.isOk = 0
+                 AND A.isReject = 0`
+          }
+    `;
+
+  try {
+    const list = await models.sequelize.query(selectQ);
+
+    if (list[0].length > 0) {
+      const selectGenQ = `
+    SELECT  A.id,
+        		B.value,
+        		A.createdAt,
+        		A.ProductId 
+      FROM  productGenConnect   A
+     INNER
+      JOIN  productGen          B
+        ON  B.id = A.ProductGenId
+     WHERE  A.ProductId IN (${
+       list[0].map((data) => data.ProductId).length === 0
+         ? 0
+         : list[0].map((data) => data.ProductId)
+     })
+    `;
+
+      const genList = await models.sequelize.query(selectGenQ);
+      return res.status(200).json({
+        list: list[0].map((data) => ({
+          ...data,
+          genList: genList[0].filter(
+            (value) => value.ProductId === data.ProductId
+          ),
+        })),
+      });
+    } else {
+      return res.status(200).json({
+        list: list[0].map((data) => ({
+          ...data,
+          genList: [],
+        })),
+      });
+    }
+  } catch (e) {
+    console.error(e);
+    return res.status(400).send("음원을 조회할 수 없습니다.");
+  }
+});
+
+/**
+ * SUBJECT : 뮤직탬 승인하기
+ * PARAMETERS : id
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 시니어 홍민기
+ * DEV DATE : 2023/02/13
+ */
+
+router.post("/track/isOk", isAdminCheck, async (req, res, next) => {
+  const { id } = req.body;
+
+  const findQ = `
+  SELECT  id
+    FROM  productTrack
+   WHERE  id = ${id}
+     AND  isOk = TRUE OR isReject = TRUE
+  `;
+
+  const updateQ = `
+  UPDATE  productTrack
+     SET  isOK = TRUE
+   WHERE  id = ${id}
+  `;
+
+  try {
+    const findResult = await models.sequelize.query(findQ);
+
+    if (findResult[0][0]) {
+      return res.status(401).send("이미 처리된 음원 입니다.");
+    }
+
+    await models.sequelize.query(updateQ);
+
+    return res.status(200).json({ result: true });
+  } catch (error) {
+    return res.status(401).send("해당음원을 승인할 수 없습니다.");
+  }
+});
+
+/**
+ * SUBJECT : 뮤직탬 거절하기
+ * PARAMETERS : id
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 시니어 홍민기
+ * DEV DATE : 2023/02/13
+ */
+
+router.post("/track/isReject", isAdminCheck, async (req, res, next) => {
+  const { id, rejectContent } = req.body;
+
+  const findQ = `
+  SELECT  id
+    FROM  productTrack
+   WHERE  id = ${id}
+     AND  isOk = TRUE OR isReject = TRUE
+  `;
+
+  const updateQ = `
+  UPDATE  productTrack
+     SET  isReject = TRUE
+          rejectContent = ${rejectContent ? rejectContent : ""} 
+   WHERE  id = ${id}
+  `;
+
+  try {
+    const findResult = await models.sequelize.query(findQ);
+
+    if (findResult[0][0]) {
+      return res.status(401).send("이미 처리된 음원 입니다.");
+    }
+    await models.sequelize.query(updateQ);
+
+    return res.status(200).json({ result: true });
+  } catch (error) {
+    return res.status(401).send("해당음원을 승인할 수 없습니다.");
+  }
+});
+
+/**
  * SUBJECT : 뮤직탬 전체 조회
  * PARAMETERS : orderType
  * ORDER BY : -
@@ -584,12 +752,15 @@ router.post("/track/allList", async (req, res, next) => {
     const lengths = await models.sequelize.query(lengthQ);
 
     const selectGenQ = `
-    SELECT  id,
-        		value,
-        		createdAt,
-        		ProductId 
-      FROM  productGen
-     WHERE  ProductId IN (${
+    SELECT  A.id,
+        		B.value,
+        		A.createdAt,
+        		A.ProductId 
+      FROM  productGenConnect   A
+     INNER
+      JOIN  productGen          B
+        ON  B.id = A.ProductGenId
+     WHERE  A.ProductId IN (${
        list[0].map((data) => data.ProductId).length === 0
          ? 0
          : list[0].map((data) => data.ProductId)
@@ -644,12 +815,15 @@ router.post("/track/newList", async (req, res, next) => {
     const list = await models.sequelize.query(selectQ);
 
     const selectGenQ = `
-    SELECT  id,
-        		value,
-        		createdAt,
-        		ProductId 
-      FROM  productGen
-     WHERE  ProductId IN (${
+    SELECT  A.id,
+        		B.value,
+        		A.createdAt,
+        		A.ProductId 
+      FROM  productGenConnect   A
+     INNER
+      JOIN  productGen          B
+        ON  B.id = A.ProductGenId
+     WHERE  A.ProductId IN (${
        list[0].map((data) => data.ProductId).length === 0
          ? 0
          : list[0].map((data) => data.ProductId)
@@ -715,12 +889,15 @@ router.post("/track/recentList", async (req, res, next) => {
     const list = await models.sequelize.query(selectQ);
 
     const selectGenQ = `
-    SELECT  id,
-        		value,
-        		createdAt,
-        		ProductId 
-      FROM  productGen
-     WHERE  ProductId IN (${
+    SELECT  A.id,
+        		B.value,
+        		A.createdAt,
+        		A.ProductId 
+      FROM  productGenConnect   A
+     INNER
+      JOIN  productGen          B
+        ON  B.id = A.ProductGenId
+     WHERE  A.ProductId IN (${
        list[0].map((data) => data.ProductId).length === 0
          ? 0
          : list[0].map((data) => data.ProductId)
@@ -794,12 +971,15 @@ router.post("/track/sellDesc", async (req, res, next) => {
     const list = await models.sequelize.query(selectQ);
 
     const selectGenQ = `
-    SELECT  id,
-        		value,
-        		createdAt,
-        		ProductId 
-      FROM  productGen
-     WHERE  ProductId IN (${
+    SELECT  A.id,
+        		B.value,
+        		A.createdAt,
+        		A.ProductId 
+      FROM  productGenConnect   A
+     INNER
+      JOIN  productGen          B
+        ON  B.id = A.ProductGenId
+     WHERE  A.ProductId IN (${
        list[0].map((data) => data.ProductId).length === 0
          ? 0
          : list[0].map((data) => data.ProductId)
@@ -816,41 +996,6 @@ router.post("/track/sellDesc", async (req, res, next) => {
         ),
       }))
     );
-  } catch (error) {
-    console.error(error);
-    return res.status(400).send("데이터를 조회할 수 없습니다.");
-  }
-});
-
-router.post("/track/allList", async (req, res, next) => {
-  try {
-    const selectQ = `
-    SELECT	ROW_NUMBER() OVER(ORDER	BY A.createdAt)		AS num,
-            A.id,
-            A.title,
-            A.isTitle,
-            A.filename,
-            A.filepath,
-            A.author,
-            A.downloadCnt,
-            A.createdAt,
-            A.updatedAt,
-            A.ProductId,
-            DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
-            DATE_FORMAT(A.updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt,
-            A.sPrice,
-            A.dPrice,
-            A.pPrice,
-            FORMAT(A.sPrice , 0)   as viewsPrice,
-            FORMAT(A.dPrice , 0)   as viewdPrice,
-            FORMAT(A.pPrice , 0)   as viewpPrice
-      FROM	productTrack	A
-     LIMIT  ${LIMIT}
-    OFFSET  ${OFFSET}
-  `;
-    const list = await models.sequelize.query(selectQ);
-
-    return res.status(200).json(list[0]);
   } catch (error) {
     console.error(error);
     return res.status(400).send("데이터를 조회할 수 없습니다.");
