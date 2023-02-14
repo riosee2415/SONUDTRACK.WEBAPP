@@ -71,6 +71,8 @@ const Index = () => {
 
   useEffect(() => {
     if (router.query) {
+      window.scrollTo(0, 0);
+
       dispatch({
         type: PRODUCT_DETAIL_REQUEST,
         data: {
@@ -90,7 +92,11 @@ const Index = () => {
         for (let i = 0; i < productDetail.trackList.length; i++) {
           const trackId = document.getElementById(`audioTeg_${i}`);
 
-          allAudioTimeArr.push(moment(trackId.duration * 1000).format("mm:ss"));
+          if (trackId) {
+            allAudioTimeArr.push(
+              moment(trackId.duration * 1000).format("mm:ss")
+            );
+          }
         }
         setAllAudioTime(allAudioTimeArr);
       }, 2000);
@@ -389,6 +395,8 @@ const Index = () => {
                               />
                             </Wrapper>
                           </Wrapper>
+
+                          <Wrapper width={`auto`}></Wrapper>
 
                           {width < 900 ? (
                             <Wrapper
