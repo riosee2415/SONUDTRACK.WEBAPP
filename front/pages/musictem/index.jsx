@@ -65,8 +65,6 @@ const CustomSelect = styled(Wrapper)`
   }
 `;
 
-const Audio = styled.audio``;
-
 const Index = () => {
   ////// GLOBAL STATE //////
 
@@ -79,7 +77,9 @@ const Index = () => {
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const [playing, setPlaying] = useState(false);
+  const [playing1, setPlaying1] = useState(null);
+  const [playing2, setPlaying2] = useState(null);
+  const [playing3, setPlaying3] = useState(null);
   const [down, setDown] = useState(false);
   const [contact, setContact] = useState(false);
   const [listPage, setListPage] = useState(1);
@@ -141,9 +141,39 @@ const Index = () => {
   }, [trackRecentList]);
 
   ////// TOGGLE //////
-  const playingToggle = useCallback(() => {
-    setPlaying((prev) => !prev);
-  }, [playing]);
+  // 재생 버튼 1
+  const playing1Toggle = useCallback(
+    (id) => {
+      if (playing1 && playing1 === id) {
+        setPlaying1(null);
+      } else {
+        setPlaying1(id);
+      }
+    },
+    [playing1]
+  );
+  // 재생 버튼 2
+  const playing2Toggle = useCallback(
+    (id) => {
+      if (playing2 && playing2 === id) {
+        setPlaying2(null);
+      } else {
+        setPlaying2(id);
+      }
+    },
+    [playing2]
+  );
+  // 재생 버튼 3
+  const playing3Toggle = useCallback(
+    (id) => {
+      if (playing3 && playing3 === id) {
+        setPlaying3(null);
+      } else {
+        setPlaying3(id);
+      }
+    },
+    [playing3]
+  );
 
   const downToggle = useCallback(() => {
     setDown((prev) => !prev);
@@ -362,13 +392,13 @@ const Index = () => {
                             radius={`7px`}
                             shadow={`3px 3px 15px rgba(0, 0, 0, 0.15)`}
                           />
-                          {playing ? (
+                          {playing1 === data.id ? (
                             <Image
                               alt="pause icon"
                               src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/pause_purple.png`}
                               width={width < 700 ? `20px` : `24px`}
                               margin={width < 700 ? `0 15px` : `0 30px`}
-                              onClick={playingToggle}
+                              onClick={() => playing1Toggle(data.id)}
                               cursor={`pointer`}
                             />
                           ) : (
@@ -377,7 +407,7 @@ const Index = () => {
                               src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/play_purple.png`}
                               width={width < 700 ? `20px` : `24px`}
                               margin={width < 700 ? `0 15px` : `0 30px`}
-                              onClick={playingToggle}
+                              onClick={() => playing1Toggle(data.id)}
                               cursor={`pointer`}
                             />
                           )}
@@ -511,7 +541,7 @@ const Index = () => {
                               }}
                               volume={1}
                               zoom={2}
-                              playing={playing}
+                              playing={playing1 === data.id}
                               audioFile={data.filepath}
                             />
                           </Wrapper>
@@ -609,13 +639,13 @@ const Index = () => {
                     radius={`7px`}
                     shadow={`3px 3px 15px rgba(0, 0, 0, 0.15)`}
                   />
-                  {playing ? (
+                  {playing2 ? (
                     <Image
                       alt="pause icon"
                       src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/pause_purple.png`}
                       width={width < 700 ? `20px` : `24px`}
                       margin={width < 700 ? `0 15px` : `0 30px`}
-                      onClick={playingToggle}
+                      onClick={playing2Toggle}
                       cursor={`pointer`}
                     />
                   ) : (
@@ -624,7 +654,7 @@ const Index = () => {
                       src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/play_purple.png`}
                       width={width < 700 ? `20px` : `24px`}
                       margin={width < 700 ? `0 15px` : `0 30px`}
-                      onClick={playingToggle}
+                      onClick={playing2Toggle}
                       cursor={`pointer`}
                     />
                   )}
@@ -744,7 +774,7 @@ const Index = () => {
                       }}
                       volume={1}
                       zoom={2}
-                      playing={playing}
+                      playing={playing2}
                       audioFile={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/mp3/mp3_sample.mp3`}
                     />
                   </Wrapper>
@@ -979,13 +1009,13 @@ const Index = () => {
                             radius={`7px`}
                             shadow={`3px 3px 15px rgba(0, 0, 0, 0.15)`}
                           />
-                          {playing ? (
+                          {playing3 === data.id ? (
                             <Image
                               alt="pause icon"
                               src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/pause_purple.png`}
                               width={width < 700 ? `20px` : `24px`}
                               margin={width < 700 ? `0 15px` : `0 30px`}
-                              onClick={playingToggle}
+                              onClick={() => playing3Toggle(data.id)}
                               cursor={`pointer`}
                             />
                           ) : (
@@ -994,7 +1024,7 @@ const Index = () => {
                               src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/play_purple.png`}
                               width={width < 700 ? `20px` : `24px`}
                               margin={width < 700 ? `0 15px` : `0 30px`}
-                              onClick={playingToggle}
+                              onClick={() => playing3Toggle(data.id)}
                               cursor={`pointer`}
                             />
                           )}
@@ -1127,7 +1157,7 @@ const Index = () => {
                               }}
                               volume={1}
                               zoom={2}
-                              playing={playing}
+                              playing={playing3 === data.id}
                               audioFile={data.filepath}
                             />
                           </Wrapper>
