@@ -109,9 +109,16 @@ const Index = () => {
     setIsModal((prev) => !prev);
   }, [isModal]);
 
-  const playingToggle = useCallback(() => {
-    setPlaying((prev) => !prev);
-  }, [playing]);
+  const playingToggle = useCallback(
+    (id) => {
+      if (playing && playing === id) {
+        setPlaying(null);
+      } else {
+        setPlaying(id);
+      }
+    },
+    [playing]
+  );
 
   const downToggle = useCallback(() => {
     setDown((prev) => !prev);
@@ -299,13 +306,13 @@ const Index = () => {
                               shadow={`3px 3px 15px rgba(0, 0, 0, 0.15)`}
                               onClick={() => movelinkHandler(`/album/1`)}
                             />
-                            {playing ? (
+                            {playing === data.id ? (
                               <Image
                                 alt="pause icon"
                                 src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/pause_purple.png`}
                                 width={width < 700 ? `20px` : `24px`}
                                 margin={width < 700 ? `0 15px` : `0 30px`}
-                                onClick={playingToggle}
+                                onClick={() => playingToggle(data.id)}
                                 cursor={`pointer`}
                               />
                             ) : (
@@ -314,7 +321,7 @@ const Index = () => {
                                 src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/play_purple.png`}
                                 width={width < 700 ? `20px` : `24px`}
                                 margin={width < 700 ? `0 15px` : `0 30px`}
-                                onClick={playingToggle}
+                                onClick={() => playingToggle(data.id)}
                                 cursor={`pointer`}
                               />
                             )}
@@ -390,7 +397,7 @@ const Index = () => {
                                 }}
                                 volume={1}
                                 zoom={2}
-                                playing={playing}
+                                playing={playing === data.id}
                                 audioFile={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/mp3/mp3_sample.mp3`}
                               />
                             </Wrapper>
