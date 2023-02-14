@@ -403,12 +403,31 @@ const Index = () => {
                             </Wrapper>
                           </Wrapper>
 
-                          <Wrapper width={`auto`}></Wrapper>
+                          <Wrapper width={width < 900 ? `100%` : `auto`}>
+                            <Wrapper dr={`row`} ju={`space-between`}>
+                              <Text>Standard Price</Text>
+                              <Text margin={`0 0 0 10px`}>
+                                {data.viewsPrice}원
+                              </Text>
+                            </Wrapper>
+                            <Wrapper dr={`row`} ju={`space-between`}>
+                              <Text>Deluxe Price</Text>
+                              <Text margin={`0 0 0 10px`}>
+                                {data.viewdPrice}원
+                              </Text>
+                            </Wrapper>
+                            <Wrapper dr={`row`} ju={`space-between`}>
+                              <Text>Platinum Price</Text>
+                              <Text margin={`0 0 0 10px`}>
+                                {data.viewpPrice}원
+                              </Text>
+                            </Wrapper>
+                          </Wrapper>
 
                           {width < 900 ? (
                             <Wrapper
                               width={`auto`}
-                              margin={`0`}
+                              margin={`5px 0`}
                               dr={`row`}
                               al={`flex-start`}
                               ju={`center`}
