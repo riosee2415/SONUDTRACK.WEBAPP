@@ -27,7 +27,7 @@ import { useCallback } from "react";
 import { CloseOutlined } from "@ant-design/icons";
 import Link from "next/dist/client/link";
 import { PRODUCT_MYLIST_REQUEST } from "../../../reducers/product";
-import AlbumSlider from "../../../components/slide/Albumslider";
+import AlbumSlider from "../../../components/slide/AlbumSlider";
 
 const CustomForm = styled(Form)`
   width: 100%;
