@@ -121,7 +121,6 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
         		email,
         		title,
         		content,
-        		DATE_FORMAT(answerdAt, "%Y년 %m월 %d일")		AS viewAnswerdAt,  
         		createdAt,
         		DATE_FORMAT(createdAt, "%Y년 %m월 %d일")		AS viewCreatedAt,  
         		updatedAt,
