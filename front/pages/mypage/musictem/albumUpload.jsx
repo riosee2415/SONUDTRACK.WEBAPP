@@ -607,7 +607,8 @@ const Index = () => {
                   fontSize={width < 700 ? `14px` : `16px`}
                   al={`flex-start`}
                   bgColor={Theme.lightGrey2_C}
-                  margin={`12px 0 20px`}
+                  // margin={`12px 0 20px`}
+                  margin={`12px 0 0`}
                 >
                   <Text>
                     해당 음원 판매를 위하여 제작에 참여한 연주자, 보컬, 프로듀서
@@ -616,10 +617,10 @@ const Index = () => {
                   <Text>반드시 참여한 모든 인원에 서명을 받아 제출하세요.</Text>
                 </Wrapper>
 
-                <Text isHover td={`underLine`}>
+                {/* <Text isHover td={`underLine`}>
                   동의서 다운로드
                   <DownloadOutlined />
-                </Text>
+                </Text> */}
 
                 <Wrapper
                   dr={`row`}

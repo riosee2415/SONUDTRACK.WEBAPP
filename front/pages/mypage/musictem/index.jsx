@@ -45,6 +45,8 @@ const Index = () => {
   const width = useWidth();
   const router = useRouter();
 
+  const [mypageForm] = Form.useForm();
+
   const [isModal, setIsModal] = useState(false);
 
   ////// REDUX //////
@@ -55,8 +57,14 @@ const Index = () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
 
       return message.error(`로그인이 필요한 페이지입니다.`);
+    } else {
+      console.log(me);
+      mypageForm.setFieldsValue({
+        artistName: me.username,
+      });
     }
   }, [me]);
+
   ////// TOGGLE //////
   const modalToggle = useCallback(() => {
     setIsModal((prev) => !prev);
@@ -107,7 +115,7 @@ const Index = () => {
             </Wrapper>
 
             {/* ------------------ CUSTOM FORM ------------------ */}
-            <CustomForm>
+            <CustomForm form={mypageForm}>
               <Wrapper al={`flex-start`}>
                 <Text fontSize={`24px`} fontWeight={`600`} margin={`0 0 30px`}>
                   프로필 수정
@@ -140,7 +148,7 @@ const Index = () => {
                     margin={`0 0 30px`}
                   />
                 </Form.Item>
-                <Text
+                {/* <Text
                   fontSize={`16px`}
                   color={Theme.grey_C}
                   fontWeight={`500`}
@@ -174,14 +182,14 @@ const Index = () => {
                   >
                     파일등록
                   </CommonButton>
-                </Wrapper>
-                <Wrapper
+                </Wrapper> */}
+                {/* <Wrapper
                   width={width < 700 ? `100%` : `440px`}
                   dr={`row`}
                   ju={`space-between`}
                   padding={`16px 14px`}
                   bgColor={Theme.lightGrey2_C}
-                  margin={`0 0 60px`}
+                  margin={`0 0 30px`}
                 >
                   <Text fontSize={`16px`} color={Theme.grey_C}>
                     <Image
@@ -193,6 +201,16 @@ const Index = () => {
                     K-Pop.jpg
                   </Text>
                   <CloseOutlined />
+                </Wrapper> */}
+
+                <Wrapper al={`flex-start`} margin={`0 0 30px`}>
+                  <CommonButton
+                    width={`180px`}
+                    height={`50px`}
+                    htmlType="submit"
+                  >
+                    수정하기
+                  </CommonButton>
                 </Wrapper>
 
                 <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 30px`}>

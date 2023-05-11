@@ -31,6 +31,7 @@ import {
   ARTISTEM_NEAR_LIST_REQUEST,
   ARTISTEM_SLIDE_LIST_REQUEST,
 } from "../../reducers/artist";
+import { CATEGORY_LIST_REQUEST } from "../../reducers/product";
 
 const CustomSelect = styled(Wrapper)`
   width: 240px;
@@ -83,6 +84,8 @@ const Index = () => {
   const { allArtistemList, artistemNearList, artistemSlideList } = useSelector(
     (state) => state.artist
   );
+
+  const { categorys } = useSelector((state) => state.product);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -171,6 +174,14 @@ const Index = () => {
                 <CustomSelect>
                   <Select>
                     <Select.Option>ALL</Select.Option>
+                    {categorys &&
+                      categorys.map((data) => {
+                        return (
+                          <Select.Option key={data.id} value={data.id}>
+                            {data.value}
+                          </Select.Option>
+                        );
+                      })}
                   </Select>
                 </CustomSelect>
               </Wrapper>
@@ -612,6 +623,10 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: ARTISTEM_SLIDE_LIST_REQUEST,
+    });
+
+    context.store.dispatch({
+      type: CATEGORY_LIST_REQUEST,
     });
 
     // 구현부 종료
