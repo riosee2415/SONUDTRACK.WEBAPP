@@ -22,25 +22,12 @@ module.exports = class Question extends Model {
           type: DataTypes.TEXT,
           allowNull: false,
         },
-        isCompleted: {
-          type: DataTypes.BOOLEAN,
-          allowNull: false,
-          defaultValue: false,
-        },
         isDelete: {
           type: DataTypes.BOOLEAN,
           allowNull: false,
           defaultValue: false,
         },
         deletedAt: {
-          type: DataTypes.DATE,
-          allowNull: true,
-        },
-        answer: {
-          type: DataTypes.TEXT, // STRING, TEXT, BOOLEAN, INTEGER, FLOAT, DATETIME
-          allowNull: true,
-        },
-        answerdAt: {
           type: DataTypes.DATE,
           allowNull: true,
         },
