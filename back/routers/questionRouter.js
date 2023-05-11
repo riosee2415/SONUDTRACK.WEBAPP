@@ -2,6 +2,7 @@ const express = require("express");
 const isAdminCheck = require("../middlewares/isAdminCheck");
 const isLoggedIn = require("../middlewares/isLoggedIn");
 const { Question, QuestionType, User } = require("../models");
+const models = require("../models");
 
 const router = express.Router();
 
@@ -112,99 +113,61 @@ router.delete(
 );
 
 // QUESTION
-router.get(
-  ["/list/:listType", "/list"],
-  isAdminCheck,
-  async (req, res, next) => {
-    const { listType } = req.params;
-
-    let nanFlag = isNaN(listType);
-
-    if (!listType) {
-      nanFlag = false;
-    }
-
-    if (nanFlag) {
-      return res.status(400).send("잘못된 요청 입니다.");
-    }
-
-    let _listType = Number(listType);
-
-    if (_listType > 3 || !listType) {
-      _listType = 3;
-    }
-
-    try {
-      let questions = [];
-
-      switch (_listType) {
-        case 1:
-          questions = await Question.findAll({
-            where: { isCompleted: false },
-            include: [
-              {
-                model: User,
-                attributes: ["id", "email", "nickname"],
-              },
-              {
-                model: QuestionType,
-              },
-            ],
-            //
-          });
-          break;
-        case 2:
-          questions = await Question.findAll({
-            where: { isCompleted: true },
-            include: [
-              {
-                model: User,
-                attributes: ["id", "email", "nickname"],
-              },
-              {
-                model: QuestionType,
-              },
-            ],
-            //
-          });
-          break;
-        case 3:
-          questions = await Question.findAll({
-            include: [
-              {
-                model: User,
-                attributes: ["id", "email", "nickname"],
-              },
-              {
-                model: QuestionType,
-              },
-            ],
-          });
-          break;
-        default:
-          break;
-      }
-
-      return res.status(200).json(questions);
-    } catch (error) {
-      console.error(error);
-      return res
-        .status(401)
-        .send("문의 데이터를 가져올 수 없습니다. [CODE 036]");
-    }
-  }
-);
-
-router.post("/create", isLoggedIn, async (req, res, next) => {
-  const { title, type, content } = req.body;
+router.post("/list", isAdminCheck, async (req, res, next) => {
+  const selectQuery = `
+    SELECT  ROW_NUMBER() OVER(ORDER	BY createdAt)		AS num,
+        		id,
+        		name,
+        		email,
+        		title,
+        		content,
+        		DATE_FORMAT(answerdAt, "%Y년 %m월 %d일")		AS viewAnswerdAt,  
+        		createdAt,
+        		DATE_FORMAT(createdAt, "%Y년 %m월 %d일")		AS viewCreatedAt,  
+        		updatedAt,
+        		DATE_FORMAT(updatedAt, "%Y년 %m월 %d일")		AS viewUpdatedAt
+      FROM  questions q 
+     WHERE  isDelete = 0
+     ORDER  BY createdAt DESC
+    `;
 
   try {
-    const createResult = await Question.create({
-      title,
-      content,
-      QuestionTypeId: parseInt(type),
-      UserId: req.user.id,
-    });
+    const result = await models.sequelize.query(selectQuery);
+
+    return res.status(200).json(result[0]);
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("문의 데이터를 가져올 수 없습니다. [CODE 036]");
+  }
+});
+
+router.post("/create", isLoggedIn, async (req, res, next) => {
+  const { title, content, name, email } = req.body;
+
+  const insertQuery = `
+  INSERT INTO questions (
+    name,
+    email,
+    title,
+    content,
+    createdAt,
+    updatedAt,
+    UserId 
+  )
+  VALUES
+  (
+    "${name}",
+    "${email}",
+    "${title}",
+    "${content}",
+    NOW(),
+    NOW(),
+    ${req.user.id}
+  )
+  `;
+
+  try {
+    await models.sequelize.query(insertQuery);
 
     return res.status(201).json({ result: true });
   } catch (error) {
@@ -213,62 +176,36 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
   }
 });
 
-router.delete("/delete/:questionId", isAdminCheck, async (req, res, next) => {
-  const { questionId } = req.params;
+router.post("/delete", isAdminCheck, async (req, res, next) => {
+  const { questionId } = req.body;
+
+  const selectQuery = `
+  SELECT  id
+    FROM  questions
+   WHERE  isDelete = 0
+     AND  id = ${questionId}
+  `;
+
+  const updateQuery = `
+  UPDATE  questions
+     SET  isDelete = 1,
+          deletedAt = NOW()
+   WHERE  id = ${questionId}
+  `;
 
   try {
-    const exQuestion = await Question.findOne({
-      where: { id: parseInt(questionId) },
-    });
+    const question = await models.sequelize.query(selectQuery);
 
-    if (!exQuestion) {
-      return res.status(401).send("존재하지 않는 문의 입니다.");
+    if (question[0].length !== 0) {
+      return res.status(400).send("해당 문의 내용이 없습니다.");
     }
 
-    await Question.destroy({
-      where: { id: parseInt(questionId) },
-    });
+    await models.sequelize.query(updateQuery);
 
     return res.status(200).json({ result: true });
   } catch (error) {
     console.error(error);
     return res.status(401).send("문의내용을 삭제할 수 없습니다. [CODE 036]");
-  }
-});
-
-router.patch("/update", isAdminCheck, async (req, res, next) => {
-  const { id, title, content, answer } = req.body;
-
-  try {
-    const exQuestion = await Question.findOne({
-      where: { id: parseInt(id) },
-    });
-
-    if (!exQuestion) {
-      return res.status(401).send("존재하지 않는 문의 입니다.");
-    }
-
-    const updateResult = await Question.update(
-      {
-        title,
-        content,
-        answer,
-        answerdAt: new Date(),
-        isCompleted: true,
-      },
-      {
-        where: { id: parseInt(id) },
-      }
-    );
-
-    if (updateResult[0] > 0) {
-      return res.status(200).json({ result: true });
-    } else {
-      return res.status(200).json({ result: false });
-    }
-  } catch (error) {
-    console.error(error);
-    return res.status(401).send("문의내용을 수정할 수 없습니다. [CODE 035]");
   }
 });
 

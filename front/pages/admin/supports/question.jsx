@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import AdminLayout from "../../../components/AdminLayout";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Form, Input, Popconfirm, Popover, Table } from "antd";
+import { Button, Form, Input, Popconfirm, Popover, Table, message } from "antd";
 import { useRouter, withRouter } from "next/router";
 import wrapper from "../../../store/configureStore";
 import { END } from "redux-saga";
@@ -45,7 +45,7 @@ const InfoTitle = styled.div`
 const ViewStatusIcon = styled(EyeOutlined)`
   font-size: 18px;
   color: ${(props) =>
-    props.active ? props.theme.subTheme5_C : props.theme.lightGrey_C};
+    props.active ? props.theme.basicTheme_C : props.theme.lightGrey_C};
 `;
 
 const Question = ({}) => {
@@ -119,7 +119,6 @@ const Question = ({}) => {
 
       infoForm.setFieldsValue({
         name: record.name,
-        mobile: record.mobile,
         email: record.email,
         title: record.title,
         content: record.content,
@@ -212,7 +211,7 @@ const Question = ({}) => {
             style={{ width: "100%" }}
             rowKey="id"
             columns={col}
-            dataSource={questions}
+            dataSource={questions ? questions : []}
             size="small"
             onRow={(record, index) => {
               return {
@@ -242,10 +241,6 @@ const Question = ({}) => {
                 style={{ width: "100%", paddingRight: "20px" }}
               >
                 <Form.Item label="이름" name="name">
-                  <Input size="small" readOnly />
-                </Form.Item>
-
-                <Form.Item label="연락처" name="mobile">
                   <Input size="small" readOnly />
                 </Form.Item>
 

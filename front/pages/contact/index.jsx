@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ClientLayout from "../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../store/configureStore";
@@ -22,14 +22,22 @@ import { Checkbox, message } from "antd";
 import Link from "next/dist/client/link";
 import useInput from "../../hooks/useInput";
 import { FAQ_LIST_REQUEST } from "../../reducers/faq";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { QUESTION_CREATE_REQUEST } from "../../reducers/question";
 
 const Index = () => {
   ////// GLOBAL STATE //////
   const { faqList } = useSelector((state) => state.faq);
 
+  const {
+    st_questionCreateLoading,
+    st_questionCreateDone,
+    st_questionCreateError,
+  } = useSelector((state) => state.question);
+
   ////// HOOKS //////
   const width = useWidth();
+  const dispatch = useDispatch();
 
   const nameInput = useInput(``);
   const emailInput = useInput(``);
@@ -38,6 +46,21 @@ const Index = () => {
   const [terms, setTerms] = useState(false);
   ////// REDUX //////
   ////// USEEFFECT //////
+
+  useEffect(() => {
+    if (st_questionCreateDone) {
+      nameInput.setValue("");
+      emailInput.setValue("");
+      titleInput.setValue("");
+      contentInput.setValue("");
+      setTerms(false);
+      return message.success("문의가 접수 되었습니다.");
+    }
+
+    if (st_questionCreateError) {
+      return message.error(st_questionCreateError);
+    }
+  }, [st_questionCreateDone, st_questionCreateError]);
   ////// TOGGLE //////
 
   ////// HANDLER //////
@@ -63,6 +86,16 @@ const Index = () => {
     if (!terms) {
       return message.error("개인정보처리방침에 동의해주세요.");
     }
+
+    dispatch({
+      type: QUESTION_CREATE_REQUEST,
+      data: {
+        name: nameInput.value,
+        email: emailInput.value,
+        title: titleInput.value,
+        content: contentInput.value,
+      },
+    });
   }, [nameInput, emailInput, titleInput, contentInput, terms]);
 
   ////// DATAVIEW //////
@@ -180,6 +213,7 @@ const Index = () => {
                   fontSize={`18px`}
                   margin={`20px 0 0`}
                   onClick={contactHandler}
+                  loading={st_questionCreateLoading}
                 >
                   문의하기
                 </CommonButton>

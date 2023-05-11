@@ -5,6 +5,14 @@ module.exports = class Question extends Model {
   static init(sequelize) {
     return super.init(
       {
+        name: {
+          type: DataTypes.STRING(200), // 성함
+          allowNull: false,
+        },
+        email: {
+          type: DataTypes.STRING(200), // 이메일
+          allowNull: false,
+        },
         // id가 기본적으로 들어있다.
         title: {
           type: DataTypes.STRING(200), // STRING, TEXT, BOOLEAN, INTEGER, FLOAT, DATETIME
@@ -18,6 +26,15 @@ module.exports = class Question extends Model {
           type: DataTypes.BOOLEAN,
           allowNull: false,
           defaultValue: false,
+        },
+        isDelete: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
+        deletedAt: {
+          type: DataTypes.DATE,
+          allowNull: true,
         },
         answer: {
           type: DataTypes.TEXT, // STRING, TEXT, BOOLEAN, INTEGER, FLOAT, DATETIME
@@ -38,7 +55,6 @@ module.exports = class Question extends Model {
     );
   }
   static associate(db) {
-    db.Question.belongsTo(db.QuestionType);
     db.Question.belongsTo(db.User);
   }
 };
