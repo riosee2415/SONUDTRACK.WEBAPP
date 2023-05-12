@@ -40,7 +40,10 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { ARTISTEM_DETAIL_REQUEST } from "../../reducers/artist";
+import {
+  ARTISTEM_DETAIL_REQUEST,
+  ARTISTEM_LIST_REQUEST,
+} from "../../reducers/artist";
 
 const Index = () => {
   ////// GLOBAL STATE //////
@@ -48,8 +51,8 @@ const Index = () => {
     (state) => state.buyRequest
   );
   const { me } = useSelector((state) => state.user);
-  const { artistemDetail } = useSelector((state) => state.artist);
-  console.log(artistemDetail);
+  const { artistems } = useSelector((state) => state.artist);
+  console.log(artistems);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -89,9 +92,9 @@ const Index = () => {
   useEffect(() => {
     if (router.query.id) {
       dispatch({
-        type: ARTISTEM_DETAIL_REQUEST,
+        type: ARTISTEM_LIST_REQUEST,
         data: {
-          id: router.query.id,
+          ArtistId: router.query.id,
         },
       });
     }
@@ -201,7 +204,7 @@ const Index = () => {
             left={`0`}
             height={`640px`}
             zIndex={`-1`}
-            bgImg={`url("https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/example-img/artisttem.png")`}
+            bgImg={`url(${artistems && artistems[0].coverImage})`}
           >
             <Wrapper
               height={`100%`}
@@ -217,7 +220,7 @@ const Index = () => {
                   height={`214px`}
                   radius={`100%`}
                   shadow={`3px 3px 15px rgba(0, 0, 0, 0.1)`}
-                  src={artistemDetail && artistemDetail.artistImage}
+                  src={artistems && artistems[0].artistImage}
                   alt="thumbnail"
                 />
                 <Wrapper
@@ -267,7 +270,7 @@ const Index = () => {
                     fontWeight={`bold`}
                     margin={`0 14px 0 0`}
                   >
-                    {artistemDetail && artistemDetail.artistName}
+                    {artistems && artistems[0].artistName}
                   </Text>
                   <Image
                     alt="icon"
@@ -280,7 +283,7 @@ const Index = () => {
                   </Text>
                 </Wrapper>
                 <Text fontSize={width < 900 ? `16px` : `20px`}>
-                  {/* {artistemDetail && artistemDetail} */}
+                  {/* {artistems && artistems[0]} */}
                 </Text>
                 <Wrapper dr={`row`} ju={`flex-start`} margin={`16px 0 20px`}>
                   <CommonButton
