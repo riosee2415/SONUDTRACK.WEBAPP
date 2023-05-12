@@ -73,6 +73,10 @@ export const initailState = {
   st_filmoImgUploadLoading: false, // 필모 앨범 이미지
   st_filmoImgUploadDone: false,
   st_filmoImgUploadError: null,
+  //
+  st_artistVacaUpdateLoading: false, // artist 휴가중 정보수정
+  st_artistVacaUpdateDone: false,
+  st_artistVacaUpdateError: null,
 };
 
 export const PERMM_WAITING_LIST_REQUEST = "PERMM_WAITING_LIST_REQUEST";
@@ -134,6 +138,10 @@ export const FILMO_FILE_UPLOAD_FAILURE = "FILMO_FILE_UPLOAD_FAILURE";
 export const FILMO_IMG_UPLOAD_REQUEST = "FILMO_IMG_UPLOAD_REQUEST";
 export const FILMO_IMG_UPLOAD_SUCCESS = "FILMO_IMG_UPLOAD_SUCCESS";
 export const FILMO_IMG_UPLOAD_FAILURE = "FILMO_IMG_UPLOAD_FAILURE";
+
+export const ARTIST_VACA_UPDATE_REQUEST = "ARTIST_VACA_UPDATE_REQUEST";
+export const ARTIST_VACA_UPDATE_SUCCESS = "ARTIST_VACA_UPDATE_SUCCESS";
+export const ARTIST_VACA_UPDATE_FAILURE = "ARTIST_VACA_UPDATE_FAILURE";
 
 export const ARTIST_IMAGE_RESET = "ARTIST_IMAGE_RESET";
 
@@ -489,6 +497,27 @@ const reducer = (state = initailState, action) =>
         draft.st_filmoImgUploadLoading = false;
         draft.st_filmoImgUploadDone = false;
         draft.st_filmoImgUploadError = action.error;
+        break;
+      }
+
+      ///////////////////////////////////////////////////////
+
+      case ARTIST_VACA_UPDATE_REQUEST: {
+        draft.st_artistVacaUpdateLoading = true;
+        draft.st_artistVacaUpdateDone = false;
+        draft.st_artistVacaUpdateError = null;
+        break;
+      }
+      case ARTIST_VACA_UPDATE_SUCCESS: {
+        draft.st_artistVacaUpdateLoading = false;
+        draft.st_artistVacaUpdateDone = true;
+        draft.st_artistVacaUpdateError = null;
+        break;
+      }
+      case ARTIST_VACA_UPDATE_FAILURE: {
+        draft.st_artistVacaUpdateLoading = false;
+        draft.st_artistVacaUpdateDone = false;
+        draft.st_artistVacaUpdateError = action.error;
         break;
       }
 

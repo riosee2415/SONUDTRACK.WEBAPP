@@ -233,6 +233,8 @@ const Index = () => {
     }
   }, [st_artistInfoUpdateDone, st_artistInfoUpdateError]);
 
+  console.log(me);
+
   ////// TOGGLE //////
   const filmoToggle = useCallback(() => {
     setFilmo((prev) => !prev);

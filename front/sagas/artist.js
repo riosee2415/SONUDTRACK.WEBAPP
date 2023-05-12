@@ -60,6 +60,10 @@ import {
   FILMO_IMG_UPLOAD_REQUEST,
   FILMO_IMG_UPLOAD_SUCCESS,
   FILMO_IMG_UPLOAD_FAILURE,
+  //
+  ARTIST_VACA_UPDATE_REQUEST,
+  ARTIST_VACA_UPDATE_SUCCESS,
+  ARTIST_VACA_UPDATE_FAILURE,
 } from "../reducers/artist";
 
 // ******************************************************************************************************************
@@ -482,6 +486,34 @@ function* filmoImg(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function artistVacaUpdateAPI(data) {
+  return await axios.post(`/api/artist/info/vacation/update`, data);
+}
+
+function* artistVacaUpdate(action) {
+  try {
+    const result = yield call(artistVacaUpdateAPI, action.data);
+
+    yield put({
+      type: ARTIST_VACA_UPDATE_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: ARTIST_VACA_UPDATE_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 function* watchFaqTypeList() {
   yield takeLatest(PERMM_WAITING_LIST_REQUEST, permmWaitingList);
@@ -528,6 +560,9 @@ function* watchFilmoFileUpload() {
 function* watchFilmoImgUpload() {
   yield takeLatest(FILMO_IMG_UPLOAD_REQUEST, filmoImg);
 }
+function* watchArtistVacaUpdate() {
+  yield takeLatest(ARTIST_VACA_UPDATE_REQUEST, artistVacaUpdate);
+}
 
 //////////////////////////////////////////////////////////////
 export default function* artistSaga() {
@@ -547,6 +582,7 @@ export default function* artistSaga() {
     fork(watchArtistInfoUpdate),
     fork(watchFilmoFileUpload),
     fork(watchFilmoImgUpload),
+    fork(watchArtistVacaUpdate),
     //
   ]);
 }
