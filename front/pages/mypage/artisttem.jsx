@@ -211,7 +211,7 @@ const Index = () => {
       comNum.setValue("");
       setIsComNum(false);
       artistName.setValue("");
-      setProfileName.setValue("");
+      setProfileName("");
       artistInfo.setValue("");
       artCoun.setValue("");
       setUseArtCoun([]);
@@ -530,7 +530,7 @@ const Index = () => {
     dispatch({
       type: ARTIST_INFO_UPDATE_REQUEST,
       data: {
-        id: me.id,
+        id: me.ArtistId,
         name: comName.value,
         businessNum: comNum.value,
         artistname: artistName.value,

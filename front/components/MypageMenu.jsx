@@ -24,6 +24,7 @@ import { Checkbox, message, Modal } from "antd";
 import useInput from "../hooks/useInput";
 import {
   LOAD_MY_INFO_REQUEST,
+  LOGOUT_REQUEST,
   USER_IMAGE_RESET,
   USER_IMG_UPDATE_REQUEST,
   USER_UPLOAD_REQUEST,
@@ -74,6 +75,7 @@ const MypageMenu = ({}) => {
     st_userUploadLoading,
     st_userUploadDone,
     st_userUploadError,
+    st_logoutDone,
   } = useSelector((state) => state.user);
 
   const {
@@ -178,6 +180,14 @@ const MypageMenu = ({}) => {
     }
   }, [st_permmWaitingCreateDone, st_permmWaitingCreateError]);
 
+  useEffect(() => {
+    if (st_logoutDone) {
+      router.push(`/`);
+
+      return message.success("로그아웃 되었습니다.");
+    }
+  }, [st_logoutDone]);
+
   ///////////// - TOGGLE - ////////////
 
   const mypageMenuOpenToggle = useCallback(() => {
@@ -201,6 +211,12 @@ const MypageMenu = ({}) => {
   }, [isComplete]);
 
   ///////////// - EVENT HANDLER- ////////////
+  // 로그아웃
+  const logoutHandler = useCallback(() => {
+    dispatch({
+      type: LOGOUT_REQUEST,
+    });
+  }, []);
 
   const movelinkHandler = useCallback((link) => {
     router.push(link);
@@ -586,6 +602,8 @@ const MypageMenu = ({}) => {
             개인정보 관리
           </Menu>
         )}
+
+        <Menu onClick={logoutHandler}>로그아웃</Menu>
       </Wrapper>
 
       {/* 신청토글 */}
