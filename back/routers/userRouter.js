@@ -1307,6 +1307,22 @@ router.get(
   }
 );
 
+/**
+ * SUBJECT : 로그아웃
+ * PARAMETERS : -
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/05/12
+ */
+router.get("/logout", function (req, res) {
+  req.logout();
+  req.session.save(() => {
+    res.clearCookie("connect.sid");
+    res.redirect("/");
+  });
+});
+
 router.post("/exit/update/true", isAdminCheck, async (req, res, next) => {
   const { id } = req.body;
 
