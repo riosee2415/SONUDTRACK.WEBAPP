@@ -94,8 +94,6 @@ const MainSlider2 = ({ datum }) => {
 
   const aRef = useRef();
 
-  console.log(datum);
-
   // 오디오 시간조회
   // aRef && aRef.current && moment(aRef.current.duration * 1000).format("mm:ss")
 
