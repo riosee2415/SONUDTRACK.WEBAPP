@@ -40,6 +40,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
+import { ARTISTEM_DETAIL_REQUEST } from "../../reducers/artist";
 
 const Index = () => {
   ////// GLOBAL STATE //////
@@ -47,6 +48,8 @@ const Index = () => {
     (state) => state.buyRequest
   );
   const { me } = useSelector((state) => state.user);
+  const { artistemDetail } = useSelector((state) => state.artist);
+  console.log(artistemDetail);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -82,6 +85,17 @@ const Index = () => {
       return message.success("문의가 접수되었습니다.");
     }
   }, [st_buyRequestCreateDone]);
+
+  useEffect(() => {
+    if (router.query.id) {
+      dispatch({
+        type: ARTISTEM_DETAIL_REQUEST,
+        data: {
+          id: router.query.id,
+        },
+      });
+    }
+  }, [router.query.id]);
   ////// TOGGLE //////
   const modalToggle = useCallback(() => {
     setIsModal((prev) => !prev);
@@ -176,7 +190,7 @@ const Index = () => {
   return (
     <>
       <Head>
-        <title>NEW WAVE Sound | Artist</title>
+        <title>NEW WAVE Sound | Artisttem</title>
       </Head>
 
       <ClientLayout>
@@ -203,7 +217,7 @@ const Index = () => {
                   height={`214px`}
                   radius={`100%`}
                   shadow={`3px 3px 15px rgba(0, 0, 0, 0.1)`}
-                  src="https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png"
+                  src={artistemDetail && artistemDetail.artistImage}
                   alt="thumbnail"
                 />
                 <Wrapper
@@ -253,7 +267,7 @@ const Index = () => {
                     fontWeight={`bold`}
                     margin={`0 14px 0 0`}
                   >
-                    이차미
+                    {artistemDetail && artistemDetail.artistName}
                   </Text>
                   <Image
                     alt="icon"
@@ -262,11 +276,11 @@ const Index = () => {
                     margin={`0 4px 0 0`}
                   />
                   <Text color={Theme.darkGrey_C} fontSize={`12px`}>
-                    98
+                    00
                   </Text>
                 </Wrapper>
                 <Text fontSize={width < 900 ? `16px` : `20px`}>
-                  "아티스트를 소개하는 한 마디를 적어주세요."
+                  {/* {artistemDetail && artistemDetail} */}
                 </Text>
                 <Wrapper dr={`row`} ju={`flex-start`} margin={`16px 0 20px`}>
                   <CommonButton

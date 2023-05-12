@@ -1407,6 +1407,7 @@ router.post("/artistem/nearList", async (req, res, next) => {
   }
 });
 
+// 아티스트의 아이디로 아티스탬 조회 (아티스트의 아이디는 User의 아이디가 아닌 Artist모델의 아이디 인 듯 합니다.)
 router.post("/target/list", async (req, res, next) => {
   const { ArtistId } = req.body;
 

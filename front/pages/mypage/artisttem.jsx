@@ -205,6 +205,34 @@ const Index = () => {
     }
   }, [st_filmoImgUploadDone, st_filmoImgUploadError]);
 
+  useEffect(() => {
+    if (st_artistInfoUpdateDone) {
+      comName.setValue("");
+      comNum.setValue("");
+      setIsComNum(false);
+      artistName.setValue("");
+      setProfileName("");
+      artistInfo.setValue("");
+      artCoun.setValue("");
+      setUseArtCoun([]);
+      ques1.setValue("");
+      ques2.setValue("");
+      ques3.setValue("");
+      ques4.setValue("");
+      ques5.setValue("");
+      ques6.setValue("");
+      ques7.setValue("");
+      ques8.setValue("");
+      setFilmoArr([]);
+
+      return message.success("프로필이 수정되었습니다.");
+    }
+
+    if (st_artistInfoUpdateError) {
+      return message.error(st_artistInfoUpdateError);
+    }
+  }, [st_artistInfoUpdateDone, st_artistInfoUpdateError]);
+
   ////// TOGGLE //////
   const filmoToggle = useCallback(() => {
     setFilmo((prev) => !prev);
@@ -499,29 +527,30 @@ const Index = () => {
       return message.error("검색관리를 등록해주세요.");
     }
 
-    // dispatch({
-    //   type: ARTIST_INFO_UPDATE_REQUEST,
-    //   data: {
-    //     id,
-    //     name,
-    //     businessNum,
-    //     artistname,
-    //     info,
-    //     question1,
-    //     question2,
-    //     question3,
-    //     question4,
-    //     question5,
-    //     question6,
-    //     question7,
-    //     question8,
-    //     artistFilms,
-    //     artistCountries,
-    //     tags,
-    //   }
-    // })
+    dispatch({
+      type: ARTIST_INFO_UPDATE_REQUEST,
+      data: {
+        id: me.ArtistId,
+        name: comName.value,
+        businessNum: comNum.value,
+        artistname: artistName.value,
+        info: artistInfo.value,
+        question1: ques1.value,
+        question2: ques2.value,
+        question3: ques3.value,
+        question4: ques4.value,
+        question5: ques5.value,
+        question6: ques6.value,
+        question7: ques7.value,
+        question8: ques8.value,
+        artistFilms: filmoArr,
+        artistCountries: useArtCoun,
+        tags: tagArr,
+      },
+    });
   }, [
     comName.value,
+    comNum.value,
     artistName.value,
     artistInfo.value,
     useArtCoun,
