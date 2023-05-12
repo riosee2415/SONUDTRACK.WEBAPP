@@ -19,6 +19,8 @@ export const initailState = {
   trackUploadPath: null,
   trackTypeList: [],
   productDetail: null,
+  productAlbumList: [],
+  productTrackList: [],
 
   st_categoryLoading: false,
   st_categoryDone: false,
@@ -131,6 +133,10 @@ export const initailState = {
   st_productDetailLoading: false,
   st_productDetailDone: false,
   st_productDetailError: null,
+  //
+  st_productAlbumDetailLoading: false,
+  st_productAlbumDetailDone: false,
+  st_productAlbumDetailError: null,
 };
 
 export const CATEGORY_LIST_REQUEST = "CATEGORY_LIST_REQUEST";
@@ -250,6 +256,10 @@ export const PRODUCT_TRACK_ISOK_FAILURE = "PRODUCT_TRACK_ISOK_FAILURE";
 export const PRODUCT_TRACK_ISREJECT_REQUEST = "PRODUCT_TRACK_ISREJECT_REQUEST";
 export const PRODUCT_TRACK_ISREJECT_SUCCESS = "PRODUCT_TRACK_ISREJECT_SUCCESS";
 export const PRODUCT_TRACK_ISREJECT_FAILURE = "PRODUCT_TRACK_ISREJECT_FAILURE";
+
+export const PRODUCT_ALBUM_DETAIL_REQUEST = "PRODUCT_ALBUM_DETAIL_REQUEST";
+export const PRODUCT_ALBUM_DETAIL_SUCCESS = "PRODUCT_ALBUM_DETAIL_SUCCESS";
+export const PRODUCT_ALBUM_DETAIL_FAILURE = "PRODUCT_ALBUM_DETAIL_FAILURE";
 
 export const PRODUCT_DETAIL_REQUEST = "PRODUCT_DETAIL_REQUEST";
 export const PRODUCT_DETAIL_SUCCESS = "PRODUCT_DETAIL_SUCCESS";
@@ -861,6 +871,29 @@ const reducer = (state = initailState, action) =>
         draft.st_productTrackIsRejectLoading = false;
         draft.st_productTrackIsRejectDone = false;
         draft.st_productTrackIsRejectError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////
+      case PRODUCT_ALBUM_DETAIL_REQUEST: {
+        draft.st_productAlbumDetailLoading = true;
+        draft.st_productAlbumDetailDone = false;
+        draft.st_productAlbumDetailError = null;
+        break;
+      }
+      case PRODUCT_ALBUM_DETAIL_SUCCESS: {
+        draft.st_productAlbumDetailLoading = false;
+        draft.st_productAlbumDetailDone = true;
+        draft.st_productAlbumDetailError = null;
+        draft.productAlbumList = action.data.albumList;
+        draft.productTrackList = action.data.findProductTrack;
+        break;
+      }
+      case PRODUCT_ALBUM_DETAIL_FAILURE: {
+        draft.st_productAlbumDetailLoading = false;
+        draft.st_productAlbumDetailDone = false;
+        draft.st_productAlbumDetailError = action.error;
         break;
       }
 
