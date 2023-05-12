@@ -1250,6 +1250,104 @@ router.post("/track/detail", async (req, res, next) => {
   }
 });
 
+/**
+ * SUBJECT : 엘범 상세보기
+ * PARAMETERS : id
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 홍민기
+ * DEV DATE : 2023/02/27
+ */
+router.post("/album/detail", async (req, res, next) => {
+  const { id, orderType } = req.body;
+
+  const _orderType = orderType ? parseInt(orderType) : 3;
+
+  const findProductTrackQ = `
+  SELECT  A.id,
+          A.title,
+          A.isTitle,
+          A.filename,
+          A.filepath,
+          A.author,
+          A.downloadCnt,
+          A.createdAt,
+          A.updatedAt,
+          A.ProductId,
+          DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
+          DATE_FORMAT(A.updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt,
+          A.sPrice,
+          A.dPrice,
+          A.pPrice,
+          FORMAT(A.sPrice , 0)   as viewsPrice,
+          FORMAT(A.dPrice , 0)   as viewdPrice,
+          FORMAT(A.pPrice , 0)   as viewpPrice,
+          B.UserId
+    FROM	productTrack	A
+   INNER
+    JOIN  product       B
+      ON  A.ProductId = B.id
+   WHERE  B.id = ${id}
+  `;
+
+  try {
+    const findProductTrack = await models.sequelize.query(findProductTrackQ);
+
+    if (findProductTrack[0].length !== 0) {
+      const findAlbumList = `
+      SELECT  A.id,
+              B.username,
+              B.profileImage,
+              B.email,
+              C.title,
+              C.thumbnail,
+              (
+                SELECT  COUNT(D.id)
+                  FROM  userLike	D
+                 WHERE  C.id = D.ProductTrackId
+              )		                                        AS likeCnt,
+              CASE 
+                WHEN  (
+                       SELECT  COUNT(D.id)
+                         FROM  userLike	D
+                        WHERE  D.UserId = ${req.user ? req.user.id : 0}
+                      ) > 0
+                THEN  1
+                ELSE  0
+              END                                         AS isLike
+        FROM  product       A
+       INNER
+        JOIN  users         B
+          ON  A.UserId = B.id
+       INNER
+        JOIN  productTrack  C
+          ON  A.id = C.ProductId
+       WHERE  A.Userid = ${findProductTrack[0][0].UserId}
+         AND  isTop = 1
+              ${
+                _orderType === 1
+                  ? `ORDER  BY A.createdAt DESC`
+                  : _orderType === 2
+                  ? `ORDER  BY A.createdAt ASC`
+                  : ``
+              }
+      `;
+
+      const list = await models.sequelize.query({
+        albumList: findAlbumList,
+        findProductTrack: findProductTrack,
+      });
+
+      return res.status(400).send(list[0]);
+    } else {
+      return res.status(400).send("아티스트가 없습니다.");
+    }
+  } catch (e) {
+    console.error(e);
+    return res.status(400).send("엘범을 불러올 수 없습니다.");
+  }
+});
+
 router.post("/track/create", async (req, res, next) => {
   const {
     title,
