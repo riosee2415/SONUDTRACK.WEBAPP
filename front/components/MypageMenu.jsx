@@ -561,7 +561,7 @@ const MypageMenu = ({}) => {
                   }
                   isHover
                   margin={`0 0 22px`}
-                  onClick={() => movelinkHandler(`/`)}
+                  onClick={() => movelinkHandler(`/mypage/info`)}
                 >
                   회원정보 수정
                 </Text>

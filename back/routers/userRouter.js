@@ -237,7 +237,13 @@ router.post("/snsLogin", (req, res, next) => {
                       ) > 0
                 THEN  "아티스트"
                 ELSE  "일반"
-              END                    AS  isArtist
+              END                    AS  isArtist,
+              (
+                SELECT  B.id
+                  FROM  artist		B
+                 WHERE  B.isPermm = 1	 
+                   AND  B.UserId = A.id  
+              )                       AS ArtistId
         FROM	users     A
        WHERE  A.id = ${user.id}
 `;
@@ -365,7 +371,13 @@ router.post("/snsLogin", (req, res, next) => {
                       ) > 0
                 THEN  "아티스트"
                 ELSE  "일반"
-              END                    AS  isArtist
+              END                    AS  isArtist,
+              (
+                SELECT  B.id
+                  FROM  artist		B
+                 WHERE  B.isPermm = 1	 
+                   AND  B.UserId = A.id  
+              )                       AS ArtistId
         FROM	users     A
        WHERE  A.id = ${insertResult[0].insertId}
 `;
@@ -628,7 +640,13 @@ router.get("/signin", async (req, res, next) => {
                       ) > 0
                 THEN  "아티스트"
                 ELSE  "일반"
-              END                    AS  isArtist
+              END                    AS  isArtist,
+              (
+                SELECT  B.id
+                  FROM  artist		B
+                 WHERE  B.isPermm = 1	 
+                   AND  B.UserId = A.id  
+              )                       AS ArtistId
         FROM	users     A
        WHERE  A.id = ${req.user.id}
       `;
@@ -705,7 +723,13 @@ router.post("/signin", (req, res, next) => {
                       ) > 0
                 THEN  "아티스트"
                 ELSE  "일반"
-              END                    AS  isArtist
+              END                    AS  isArtist,
+              (
+                SELECT  B.id
+                  FROM  artist		B
+                 WHERE  B.isPermm = 1	 
+                   AND  B.UserId = A.id  
+              )                       AS ArtistId
         FROM	users     A
        WHERE  A.id = ${user.id}
       `;
