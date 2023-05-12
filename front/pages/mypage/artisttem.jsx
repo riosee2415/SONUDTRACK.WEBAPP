@@ -225,6 +225,8 @@ const Index = () => {
       ques8.setValue("");
       setFilmoArr([]);
 
+      router.push(`/artist/${me && me.ArtistId}`);
+
       return message.success("프로필이 수정되었습니다.");
     }
 
