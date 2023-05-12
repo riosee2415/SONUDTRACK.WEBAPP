@@ -1377,13 +1377,14 @@ router.post("/album/detail", async (req, res, next) => {
     JOIN  product       B
       ON  A.ProductId = B.id
    WHERE  B.id = ${id}
+   ORDER  BY downloadCnt DESC 
   `;
 
   try {
     const findProductTrack = await models.sequelize.query(findProductTrackQ);
 
     if (findProductTrack[0].length !== 0) {
-      const findAlbumList = `
+      const findAlbumListQ = `
       SELECT  A.id,
               B.username,
               B.profileImage,
@@ -1412,7 +1413,7 @@ router.post("/album/detail", async (req, res, next) => {
         JOIN  productTrack  C
           ON  A.id = C.ProductId
        WHERE  A.Userid = ${findProductTrack[0][0].UserId}
-         AND  isTop = 1
+         AND  A.isTop = 1
               ${
                 _orderType === 1
                   ? `ORDER  BY A.createdAt DESC`
@@ -1422,12 +1423,12 @@ router.post("/album/detail", async (req, res, next) => {
               }
       `;
 
-      const list = await models.sequelize.query({
-        albumList: findAlbumList,
-        findProductTrack: findProductTrack,
-      });
+      const findAlbumList = await models.sequelize.query(findAlbumListQ);
 
-      return res.status(400).send(list[0]);
+      return res.status(200).send({
+        albumList: findAlbumList[0],
+        findProductTrack: findProductTrack[0],
+      });
     } else {
       return res.status(400).send("아티스트가 없습니다.");
     }

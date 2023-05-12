@@ -116,7 +116,11 @@ const Index = () => {
         for (let i = 0; i < allTrackList.length; i++) {
           const trackId = document.getElementById(`audioTeg_${i}`);
 
-          allAudioTimeArr.push(moment(trackId.duration * 1000).format("mm:ss"));
+          if (trackId) {
+            allAudioTimeArr.push(
+              moment(trackId.duration * 1000).format("mm:ss")
+            );
+          }
         }
         setAllAudioTime(allAudioTimeArr);
       }, 2000);
@@ -133,7 +137,11 @@ const Index = () => {
         for (let i = 0; i < trackRecentList.length; i++) {
           const trackId = document.getElementById(`audioTeg_recent_${i}`);
 
-          allAudioTimeArr.push(moment(trackId.duration * 1000).format("mm:ss"));
+          if (trackId) {
+            allAudioTimeArr.push(
+              moment(trackId.duration * 1000).format("mm:ss")
+            );
+          }
         }
         setNewAudioTime(allAudioTimeArr);
       }, 2000);
@@ -424,7 +432,9 @@ const Index = () => {
                             </Text>
                             <Text
                               onClick={() =>
-                                movelinkHandler(`/musictem/artist/1`)
+                                movelinkHandler(
+                                  `/musictem/artist/${data.ProductId}`
+                                )
                               }
                               isHover
                               fontSize={width < 700 ? `14px` : `16px`}
@@ -1039,9 +1049,10 @@ const Index = () => {
                             >
                               {data.title}
                             </Text>
+                            {console.log(data)}
                             <Text
                               onClick={() =>
-                                movelinkHandler(`/musictem/artist/1`)
+                                movelinkHandler(`/musictem/artist/${ProductId}`)
                               }
                               isHover
                               fontSize={width < 700 ? `14px` : `16px`}
