@@ -260,109 +260,127 @@ const Index = () => {
               </Text>
             </Wrapper>
 
-            <Wrapper dr={`row`} ju={`space-between`} margin={`0 0 120px`}>
-              <Wrapper
-                width={width < 900 ? `100%` : `49%`}
-                dr={`row`}
-                ju={`space-between`}
-              >
-                {artistemNearList &&
-                  (artistemNearList.length === 0 ? (
-                    <Wrapper>
-                      <Empty description="새로운 아티스트가 없습니다." />
+            <Wrapper
+              dr={`row`}
+              ju={`space-between`}
+              margin={`0 0 120px`}
+              al={`flex-start`}
+            >
+              {artistemNearList &&
+                (artistemNearList.length === 0 ? (
+                  <Wrapper height={`300px`}>
+                    <Empty description="새로운 아티스트가 없습니다." />
+                  </Wrapper>
+                ) : (
+                  <>
+                    <Wrapper
+                      width={width < 900 ? `100%` : `49%`}
+                      dr={`row`}
+                      ju={`space-between`}
+                    >
+                      {artistemNearList.map((data, idx) => {
+                        return (
+                          <Box width={`48%`}>
+                            <Image
+                              className="thumb"
+                              key={idx}
+                              onClick={() => selectArtistHandler(data)}
+                              alt="image"
+                              radius={`7px`}
+                              src={data.artistImage}
+                              height={width < 700 ? `120px` : `236px`}
+                              width={`100%`}
+                              margin={`0 0 20px`}
+                            />
+                          </Box>
+                        );
+                      })}
                     </Wrapper>
-                  ) : (
-                    artistemNearList.map((data, idx) => {
-                      return (
-                        <Box width={`48%`}>
+                  </>
+                ))}
+
+              {artistemNearList && artistemNearList.length !== 0 && (
+                <Box
+                  width={width < 900 ? `100%` : `49%`}
+                  margin={width < 900 ? `20px 0 0` : `0`}
+                  onClick={() =>
+                    movelinkHandler(
+                      `/artisttem/${selectArtist && selectArtist.id}`
+                    )
+                  }
+                >
+                  <Wrapper position={`relative`}>
+                    <Wrapper
+                      position={`absolute`}
+                      bottom={`0`}
+                      left={`0`}
+                      bgColor={`rgba(0, 0, 0, 0.5)`}
+                      color={Theme.white_C}
+                      radius={`7px`}
+                      padding={`20px`}
+                      al={`flex-start`}
+                      zIndex={`2`}
+                    >
+                      <Wrapper dr={`row`} ju={`flex-start`}>
+                        <Text fontSize={`18px`} fontWeight={`bold`}>
+                          {selectArtist && selectArtist.title}
+                        </Text>
+                        <Wrapper
+                          width={`auto`}
+                          dr={`row`}
+                          margin={`0 0 0 14px`}
+                        >
                           <Image
-                            className="thumb"
-                            key={idx}
-                            onClick={() => selectArtistHandler(data)}
-                            alt="image"
-                            radius={`7px`}
-                            src={data.artistImage}
-                            height={width < 700 ? `120px` : `236px`}
-                            width={`100%`}
-                            margin={`0 0 20px`}
+                            alt="icon"
+                            width={`14px`}
+                            margin={`0 4px 0 0`}
+                            src={
+                              selectArtist && selectArtist.isLike
+                                ? `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`
+                                : `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`
+                            }
                           />
-                        </Box>
-                      );
-                    })
-                  ))}
-              </Wrapper>
-              <Box
-                width={width < 900 ? `100%` : `49%`}
-                margin={width < 900 ? `20px 0 0` : `0`}
-                onClick={() =>
-                  movelinkHandler(`/artist/${selectArtist && selectArtist.id}`)
-                }
-              >
-                <Wrapper position={`relative`}>
-                  <Wrapper
-                    position={`absolute`}
-                    bottom={`0`}
-                    left={`0`}
-                    bgColor={`rgba(0, 0, 0, 0.5)`}
-                    color={Theme.white_C}
-                    radius={`7px`}
-                    padding={`20px`}
-                    al={`flex-start`}
-                    zIndex={`2`}
-                  >
-                    <Wrapper dr={`row`} ju={`flex-start`}>
-                      <Text fontSize={`18px`} fontWeight={`bold`}>
-                        {selectArtist && selectArtist.title}
+                          <Text>{selectArtist && selectArtist.likeCnt}</Text>
+                        </Wrapper>
+                      </Wrapper>
+                      <Text fontSize={`16px`} margin={`12px 0 18px`}>
+                        {selectArtist && selectArtist.subTitle}
                       </Text>
-                      <Wrapper width={`auto`} dr={`row`} margin={`0 0 0 14px`}>
-                        <Image
-                          alt="icon"
-                          width={`14px`}
-                          margin={`0 4px 0 0`}
-                          src={
-                            selectArtist && selectArtist.isLike
-                              ? `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`
-                              : `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`
-                          }
-                        />
-                        <Text>{selectArtist && selectArtist.likeCnt}</Text>
+                      <Wrapper dr={`row`} ju={`flex-start`}>
+                        {selectArtist &&
+                          selectArtist.tags.map((data) => {
+                            return (
+                              <Wrapper
+                                width={`auto`}
+                                bgColor={Theme.white_C}
+                                color={Theme.darkGrey_C}
+                                radius={`30px`}
+                                height={`27px`}
+                                padding={`0 15px`}
+                                margin={`0 7px 5px 0`}
+                              >
+                                {data}
+                              </Wrapper>
+                            );
+                          })}
                       </Wrapper>
                     </Wrapper>
-                    <Text fontSize={`16px`} margin={`12px 0 18px`}>
-                      {selectArtist && selectArtist.subTitle}
-                    </Text>
-                    <Wrapper dr={`row`} ju={`flex-start`}>
-                      {selectArtist &&
-                        selectArtist.tags.map((data) => {
-                          return (
-                            <Wrapper
-                              width={`auto`}
-                              bgColor={Theme.white_C}
-                              color={Theme.darkGrey_C}
-                              radius={`30px`}
-                              height={`27px`}
-                              padding={`0 15px`}
-                              margin={`0 7px 5px 0`}
-                            >
-                              {data}
-                            </Wrapper>
-                          );
-                        })}
-                    </Wrapper>
+                    <Image
+                      height={width < 700 ? `240px` : `495px`}
+                      alt="image"
+                      radius={`7px`}
+                      src={selectArtist && selectArtist.artistImage}
+                      className="thumb"
+                    />
                   </Wrapper>
-                  <Image
-                    height={width < 700 ? `240px` : `495px`}
-                    alt="image"
-                    radius={`7px`}
-                    src={selectArtist && selectArtist.artistImage}
-                    className="thumb"
-                  />
-                </Wrapper>
-              </Box>
+                </Box>
+              )}
             </Wrapper>
 
             {/* 아티스트탬 슬라이드 */}
-            <MainSlider2 datum={artistemSlideList} />
+            {artistemSlideList.length !== 0 && (
+              <MainSlider2 datum={artistemSlideList} />
+            )}
 
             <Wrapper margin={`100px 0 45px`}>
               <Text
@@ -523,7 +541,7 @@ const Index = () => {
                   return (
                     <ArtWrapper
                       key={data.id}
-                      onClick={() => movelinkHandler(`/artist/${data.id}`)}
+                      onClick={() => movelinkHandler(`/artisttem/${data.id}`)}
                     >
                       <SquareBox>
                         <Image src={data.artistImage} alt="thumbnail" />
