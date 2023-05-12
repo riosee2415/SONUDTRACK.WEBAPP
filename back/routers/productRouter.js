@@ -874,6 +874,95 @@ router.post("/track/allList", async (req, res, next) => {
 });
 
 /**
+ * SUBJECT : 뮤직탬 전체 조회 (페이지네이션 X)
+ * PARAMETERS : orderType
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 시니어 개발자 신태섭
+ * DEV DATE : 2023/05/12
+ */
+router.post("/track/noPage/allList", async (req, res, next) => {
+  const { orderType } = req.body;
+
+  const _orderType = orderType ? parseInt(orderType) : 1;
+  // 1 추천순
+  // 2 최신순
+
+  const selectQ = `
+  SELECT  A.id,
+	  	    A.title,
+          A.author,
+          A.thumbnail,
+          A.filename,
+          A.filepath,
+          A.downloadCnt,
+          FORMAT(A.downloadCnt, ",")					AS  viewDownLoadCnt,
+          A.ProductId,
+          A.createdAt,
+          DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
+          (
+          	SELECT  COUNT(B.id)
+          	  FROM  userLike	B
+          	 WHERE  A.id = B.ProductTrackId
+          )		                                        AS likeCnt,
+          CASE 
+          	WHEN  (
+          			   SELECT  COUNT(B.id)
+          	  	  	 FROM  userLike	B
+          	 		    WHERE  B.UserId = ${req.user ? req.user.id : 0}
+          		    ) > 0
+          	THEN  1
+         		ELSE  0
+         	END                                         AS isLike
+    FROM  productTrack		A
+          ${
+            _orderType === 1
+              ? `ORDER  BY  (
+                              SELECT  COUNT(B.id)
+                                FROM  userLike	B
+                               WHERE  A.id = B.ProductTrackId
+                            ) DESC`
+              : `ORDER  BY  A.createdAt DESC`
+          }
+   LIMIT  5
+    `;
+
+  try {
+    const list = await models.sequelize.query(selectQ);
+
+    const selectGenQ = `
+    SELECT  A.id,
+        		B.value,
+        		A.createdAt,
+        		A.ProductId 
+      FROM  productGenConnect   A
+     INNER
+      JOIN  productGen          B
+        ON  B.id = A.ProductGenId
+     WHERE  A.ProductId IN (${
+       list[0].map((data) => data.ProductId).length === 0
+         ? 0
+         : list[0].map((data) => data.ProductId)
+     })
+    `;
+
+    const genList = await models.sequelize.query(selectGenQ);
+
+    return res.status(200).json({
+      list: list[0].map((data) => ({
+        ...data,
+        genList: genList[0].filter(
+          (value) => value.ProductId === data.ProductId
+        ),
+      })),
+    });
+  } catch (e) {
+    console.error(e);
+    return res.status(400).send("음원을 조회할 수 없습니다.");
+  }
+});
+
+/**
  * SUBJECT : 새로운 음원 불러오기
  * PARAMETERS : -
  * ORDER BY : createdAt DESC

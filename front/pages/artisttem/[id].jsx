@@ -40,6 +40,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
+import { ARTISTEM_DETAIL_REQUEST } from "../../reducers/artist";
 
 const Index = () => {
   ////// GLOBAL STATE //////
@@ -47,6 +48,8 @@ const Index = () => {
     (state) => state.buyRequest
   );
   const { me } = useSelector((state) => state.user);
+  const { artistemDetail } = useSelector((state) => state.artist);
+  console.log(artistemDetail);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -82,6 +85,17 @@ const Index = () => {
       return message.success("문의가 접수되었습니다.");
     }
   }, [st_buyRequestCreateDone]);
+
+  useEffect(() => {
+    if (router.query.id) {
+      dispatch({
+        type: ARTISTEM_DETAIL_REQUEST,
+        data: {
+          id: router.query.id,
+        },
+      });
+    }
+  }, [router.query.id]);
   ////// TOGGLE //////
   const modalToggle = useCallback(() => {
     setIsModal((prev) => !prev);
