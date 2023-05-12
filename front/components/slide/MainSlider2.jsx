@@ -94,6 +94,8 @@ const MainSlider2 = ({ datum }) => {
 
   const aRef = useRef();
 
+  console.log(datum);
+
   // 오디오 시간조회
   // aRef && aRef.current && moment(aRef.current.duration * 1000).format("mm:ss")
 
@@ -149,7 +151,7 @@ const MainSlider2 = ({ datum }) => {
           radius={`14px`}
           alt="thumnail"
           height={`100%`}
-          src={datum[status] && datum[status].artistImage}
+          src={datum[status] && datum[status].coverImage}
         />
       </LeftBox>
       <RightBox>
@@ -171,7 +173,7 @@ const MainSlider2 = ({ datum }) => {
               fontWeight={`500`}
               margin={`0 14px 0 0`}
             >
-              {datum[status] && datum[status].title}
+              {datum[status] && datum[status].artistName}
             </Text>
             <Image
               alt="icon"
@@ -232,10 +234,11 @@ const MainSlider2 = ({ datum }) => {
             wrap={`nowrap`}
             padding={`0 0 30px`}
           >
-            {datum[status] &&
-              datum[status].film.map((value) => {
+            {datum &&
+              datum.map((value) => {
                 return (
                   <Circle
+                    key={value.id}
                     bgImg={`url("${value.coverImage}")`}
                     onClick={() => musicToggle(value)}
                   >
@@ -278,13 +281,13 @@ const MainSlider2 = ({ datum }) => {
               width={`61px`}
               height={`61px`}
               radius={`100%`}
-              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png`}
+              src={musticData.coverImage}
             />
             <Wrapper width={`auto`} al={`flex-start`} padding={`0 0 0 14px`}>
               <Text fontSize={`20px`} fontWeight={`bold`}>
                 {musticData.title}
               </Text>
-              <Text>{musticData.name}</Text>
+              <Text>{musticData.artistName}</Text>
             </Wrapper>
           </Wrapper>
           <Wrapper width={`calc(100% - 540px)`} dr={`row`}>
@@ -331,7 +334,7 @@ const MainSlider2 = ({ datum }) => {
             fontWeight={`bold`}
             color={Theme.subTheme4_C}
             onClick={() =>
-              moveLinkHandler(`/artist/${datum[status] && datum[status].id}`)
+              moveLinkHandler(`/artisttem/${datum[status] && datum[status].id}`)
             }
           >
             <Text isHover>
