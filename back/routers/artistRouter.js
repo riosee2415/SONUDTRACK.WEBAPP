@@ -1334,7 +1334,8 @@ router.post("/artistem/nearList", async (req, res, next) => {
               SELECT  COUNT(id)
                 FROM  userLike
                WHERE  ArtistemId = A.id
-            )                                            AS likeCnt
+            )                                            AS likeCnt,
+            A.ArtistId
             ${
               req.user
                 ? `,

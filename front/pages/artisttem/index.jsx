@@ -305,7 +305,7 @@ const Index = () => {
                   margin={width < 900 ? `20px 0 0` : `0`}
                   onClick={() =>
                     movelinkHandler(
-                      `/artisttem/${selectArtist && selectArtist.id}`
+                      `/artisttem/${selectArtist && selectArtist.ArtistId}`
                     )
                   }
                 >
