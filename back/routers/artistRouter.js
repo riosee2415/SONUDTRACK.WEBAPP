@@ -285,6 +285,7 @@ router.post("/image", upload.single("image"), async (req, res, next) => {
  * DEVELOPMENT : 시니어 개발자 신태섭
  * DEV DATE : 2023/02/01
  */
+// 써야함
 router.post("/permm/create", isLoggedIn, async (req, res, next) => {
   const { plan, gen, imagePaths } = req.body;
 
@@ -529,6 +530,7 @@ SELECT	ROW_NUMBER()	OVER(ORDER	BY sort)	AS num,
  * DEVELOPMENT : 시니어 개발자 신태섭
  * DEV DATE : 2023/02/02
  */
+// 써야함
 router.post("/info/update", isLoggedIn, async (req, res, next) => {
   const {
     id,
@@ -753,6 +755,7 @@ router.post("/info/update", isLoggedIn, async (req, res, next) => {
  * DEVELOPMENT : 시니어 개발자 신태섭
  * DEV DATE : 2023/02/03
  */
+// 써야함
 router.post("/info/vacation/update", isLoggedIn, async (req, res, next) => {
   const { id, isVacation } = req.body;
 
@@ -1285,6 +1288,7 @@ router.post("/artistem/newList", async (req, res, next) => {
  * DEVELOPMENT : 신태섭
  * DEV DATE : 2023/01/30
  */
+// 써야함
 router.post("/artistem/nearList", async (req, res, next) => {
   const selectQ = `
     SELECT	ROW_NUMBER() OVER(ORDER BY A.title ASC) 	AS num,
@@ -1409,6 +1413,7 @@ router.post("/artistem/nearList", async (req, res, next) => {
 });
 
 // 아티스트의 아이디로 아티스탬 조회 (아티스트의 아이디는 User의 아이디가 아닌 Artist모델의 아이디 인 듯 합니다.)
+// 써야함
 router.post("/target/list", async (req, res, next) => {
   const { ArtistId } = req.body;
 
