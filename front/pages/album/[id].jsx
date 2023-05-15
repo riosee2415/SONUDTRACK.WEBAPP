@@ -104,6 +104,7 @@ const Index = () => {
   const [playing, setPlaying] = useState(null);
   const [down, setDown] = useState(false);
   const [newAudioTime, setNewAudioTime] = useState([]);
+  const [moreType, setMoreType] = useState(5);
   ////// REDUX //////
   ////// USEEFFECT //////
 
@@ -160,6 +161,14 @@ const Index = () => {
     },
     [playing]
   );
+
+  const movelinkHandler = useCallback((link) => {
+    router.push(link);
+  }, []);
+
+  const moreTypeChangeHandler = useCallback((data) => {
+    setMoreType(data);
+  }, []);
 
   ////// HANDLER //////
   ////// DATAVIEW //////
@@ -379,7 +388,7 @@ const Index = () => {
                     </Text>
                   </Wrapper>
                 ) : (
-                  albumDetail.trackList.map((data, idx) => {
+                  albumDetail.trackList.slice(0, moreType).map((data, idx) => {
                     return (
                       <Wrapper
                         key={idx}
@@ -620,9 +629,18 @@ const Index = () => {
                 ))}
             </Wrapper>
             <Wrapper margin={`60px 0 100px`}>
-              <CommonButton kindOf={`grey`} width={`150px`} height={`48px`}>
-                더보기 +
-              </CommonButton>
+              {albumDetail && albumDetail.trackList.length > moreType && (
+                <CommonButton
+                  kindOf={`grey`}
+                  width={`150px`}
+                  height={`48px`}
+                  onClick={() =>
+                    moreTypeChangeHandler(albumDetail.trackList.length)
+                  }
+                >
+                  더보기 +
+                </CommonButton>
+              )}
             </Wrapper>
 
             <Wrapper
@@ -643,83 +661,104 @@ const Index = () => {
               padding={`0 0 10px`}
               margin={`0 0 120px`}
             >
-              {albums.map((data) => {
-                return (
+              {albumDetail &&
+                (albumDetail.similarList.length === 0 ? (
                   <Wrapper
-                    key={data.id}
-                    width={width < 900 ? `150px` : `200px`}
-                    margin={width < 900 ? `0 20px 0 0` : `0 44px 0 0`}
-                    onClick={() => movelinkHandler(`/album/1`)}
+                    height={`400px`}
+                    borderBottom={`1px solid ${Theme.lightGrey_C}`}
                   >
-                    <AlbumWrapper>
-                      <Image
-                        height={`100%`}
-                        radius={`100%`}
-                        src={data.img}
-                        alt="thumbnail"
-                      />
-                      <Image
-                        className="playicon"
-                        width={`21px`}
-                        src="https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/play_purple.png"
-                        alt="play icon"
-                      />
-                    </AlbumWrapper>
+                    <Image
+                      alt="icon"
+                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/blank.png`}
+                      width={`76px`}
+                    />
                     <Text
-                      fontSize={`20px`}
-                      fontWeight={`bold`}
-                      color={Theme.darkGrey_C}
-                      margin={`20px 0 4px`}
+                      fontSize={width < 900 ? `18px` : `22px`}
+                      color={Theme.grey2_C}
+                      margin={`25px 0 0`}
                     >
-                      {data.title}
+                      음원이 존재하지 않습니다.
                     </Text>
-                    <Text fontSize={`16px`} color={Theme.subTheme4_C}>
-                      {data.name}
-                    </Text>
-                    <Wrapper
-                      width={`auto`}
-                      dr={`row`}
-                      al={`flex-start`}
-                      ju={`center`}
-                      margin={`20px 0 0`}
-                    >
-                      <Wrapper
-                        width={width < 900 ? `50px` : `65px`}
-                        cursor={`pointer`}
-                      >
-                        <Image
-                          alt="icon"
-                          width={`22px`}
-                          src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
-                        />
-                        <Text fontSize={`12px`} color={Theme.grey_C}>
-                          15,000
-                        </Text>
-                      </Wrapper>
-                      <Wrapper
-                        width={width < 900 ? `50px` : `65px`}
-                        cursor={`pointer`}
-                      >
-                        <Image
-                          alt="icon"
-                          width={`22px`}
-                          src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/cart.png`}
-                        />
-                      </Wrapper>
-                      <Wrapper width={width < 900 ? `50px` : `65px`}>
-                        <Image
-                          alt="icon"
-                          width={`22px`}
-                          src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
-                        />
-                        <Text fontSize={`12px`} color={Theme.grey_C}>
-                          {data.likeCnt}
-                        </Text>
-                      </Wrapper>
-                    </Wrapper>
                   </Wrapper>
-                );
-              })}
+                ) : (
+                  albumDetail.similarList.map((data) => {
+                    return (
+                      <Wrapper
+                        key={data.id}
+                        width={width < 900 ? `150px` : `200px`}
+                        margin={width < 900 ? `0 20px 0 0` : `0 44px 0 0`}
+                        onClick={() => movelinkHandler(`/album/${data.id}`)}
+                      >
+                        <AlbumWrapper>
+                          <Image
+                            height={`100%`}
+                            radius={`100%`}
+                            src={data.coverImage}
+                            alt="thumbnail"
+                          />
+                          <Image
+                            className="playicon"
+                            width={`21px`}
+                            src="https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/play_purple.png"
+                            alt="play icon"
+                          />
+                        </AlbumWrapper>
+                        <Text
+                          fontSize={`20px`}
+                          fontWeight={`bold`}
+                          color={Theme.darkGrey_C}
+                          margin={`20px 0 4px`}
+                        >
+                          {data.title}
+                        </Text>
+                        <Text fontSize={`16px`} color={Theme.subTheme4_C}>
+                          {data.nickname}
+                        </Text>
+                        <Wrapper
+                          width={`auto`}
+                          dr={`row`}
+                          al={`flex-start`}
+                          ju={`center`}
+                          margin={`20px 0 0`}
+                        >
+                          <Wrapper
+                            width={width < 900 ? `50px` : `65px`}
+                            cursor={`pointer`}
+                          >
+                            <Image
+                              alt="icon"
+                              width={`22px`}
+                              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
+                            />
+                            <Text fontSize={`12px`} color={Theme.grey_C}>
+                              {data.downloadCnt}
+                            </Text>
+                          </Wrapper>
+                          <Wrapper
+                            width={width < 900 ? `50px` : `65px`}
+                            cursor={`pointer`}
+                          >
+                            <Image
+                              alt="icon"
+                              width={`22px`}
+                              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/cart.png`}
+                            />
+                          </Wrapper>
+                          <Wrapper width={width < 900 ? `50px` : `65px`}>
+                            <Image
+                              alt="icon"
+                              width={`22px`}
+                              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
+                            />
+                            <Text fontSize={`12px`} color={Theme.grey_C}>
+                              {data.likeCnt}
+                            </Text>
+                          </Wrapper>
+                        </Wrapper>
+                      </Wrapper>
+                    );
+                  })
+                ))}
             </Wrapper>
           </RsWrapper>
           <Modal onCancel={downToggle} visible={down} footer={null}>

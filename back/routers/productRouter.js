@@ -781,6 +781,8 @@ router.post("/track/allList", async (req, res, next) => {
     FROM  productTrack		A
    WHERE  1 = 1
      AND  A.title LIKE "%${_searchTitle}%"
+     AND  A.isOk = 1
+     AND  A.isTop = 1
           ${
             _tagId
               ? `AND  ${_tagId} IN (
@@ -947,6 +949,8 @@ router.post("/track/newList", async (req, res, next) => {
           A.ProductId
     FROM  productTrack	A 
    WHERE  A.createdAt > DATE_SUB(NOW(), INTERVAL 7 DAY)
+     AND  A.isOK = 1
+     AND  A.isTop = 1
    ORDER  BY A.createdAt DESC
   `;
 
@@ -1026,6 +1030,8 @@ router.post("/track/recentList", async (req, res, next) => {
           END                                         AS isLike
    FROM  productTrack	A 
   WHERE  1 = 1
+    AND  A.isOK = 1
+    AND  A.isTop = 1
     AND  A.title LIKE "%${_searchTitle}%"
          ${
            _tagId
@@ -1125,7 +1131,9 @@ router.post("/track/sellDesc", async (req, res, next) => {
          }
    FROM  productTrack	A 
   WHERE  1 = 1
-         AND  A.title LIKE "%${_searchTitle}%"
+    AND  A.isOK = 1
+    AND  A.isTop = 1
+    AND  A.title LIKE "%${_searchTitle}%"
          ${
            _tagId
              ? `AND  ${_tagId} IN (
@@ -1198,6 +1206,7 @@ router.post("/track/list", async (req, res, next) => {
           FORMAT(A.pPrice , 0)   as viewpPrice
     FROM	productTrack	A
    WHERE  A.ProductId = ${ProductId}
+     AND  A.isOK = 1
   `;
 
   const selectQ2 = `
@@ -1380,6 +1389,7 @@ router.post("/artist/album/detail", async (req, res, next) => {
     JOIN  product       B
       ON  A.ProductId = B.id
    WHERE  B.id = ${id}
+     AND  A.isOK = 1
    ORDER  BY downloadCnt DESC 
   `;
 
@@ -1455,6 +1465,7 @@ router.post("/artist/album/detail", async (req, res, next) => {
                   FROM  productTrack  C
                  WHERE  C.ProductId = A.id
                    AND  C.isTop = 1
+                   AND  C.isOk = 1
               ) > 0
               ${
                 _orderType === 1
@@ -1556,7 +1567,8 @@ router.post("/album/detail", async (req, res, next) => {
     SELECT  A.id,
         		B.value,
         		A.createdAt,
-        		A.ProductId
+        		A.ProductId,
+            A.ProductGenId
       FROM  productGenConnect   A
      INNER
       JOIN  productGen          B
@@ -1610,7 +1622,8 @@ router.post("/album/detail", async (req, res, next) => {
     SELECT  A.id,
         		B.value,
         		A.createdAt,
-        		A.ProductId 
+        		A.ProductId,
+            A.ProductGenId
       FROM  productGenConnect   A
      INNER
       JOIN  productGen          B
@@ -1624,6 +1637,59 @@ router.post("/album/detail", async (req, res, next) => {
 
     const genList = await models.sequelize.query(selectGenQ2);
 
+    const similarQ = `
+    SELECT  A.id,
+		        A.title,
+		        A.subTitle,
+		        A.content,
+		        A.coverImage,
+		        A.downloadCnt,
+		        A.bitRate,
+		        A.sampleRate,
+		        A.isTop,
+		        A.ProductCategoryId,
+		        A.UserId,
+		        A.agreementPath,
+		        A.agreementName,
+            B.nickname,
+            (
+              SELECT  COUNT(B.id)
+                FROM  userLike	B
+               WHERE  A.id = B.ProductId
+            )		                                        AS likeCnt,
+            CASE 
+              WHEN  (
+                     SELECT  COUNT(B.id)
+                       FROM  userLike	B
+                       WHERE  B.UserId = ${req.user ? req.user.id : 0}
+                    ) > 0
+              THEN  1
+               ELSE  0
+             END                                         AS isLike
+      FROM  product             A
+     INNER
+      JOIN  users               B
+        ON  A.UserId = B.id
+     WHERE  A.id != ${id}
+       AND  (
+              SELECT  C.id
+                FROM  productTrack  C
+               WHERE  C.ProductId = A.id
+                 AND  C.isTop = 1
+                 AND  C.isOk = 1
+            ) > 0
+       AND  (
+              SELECT  COUNT(C.id)
+                FROM  productGenConnect			C
+               WHERE  C.ProductId = A.id
+                 AND  C.ProductGenId IN (${selectGen[0].map(
+                   (data) => data.ProductGenId
+                 )})
+            ) > 0
+    `;
+
+    const similar = await models.sequelize.query(similarQ);
+
     return res.status(200).json({
       ...selectProduct[0][0],
       genList: selectGen[0],
@@ -1633,6 +1699,7 @@ router.post("/album/detail", async (req, res, next) => {
           (value) => value.ProductId === data.ProductId
         ),
       })),
+      similarList: similar[0].map((data) => data),
     });
   } catch (e) {
     console.error(e);
