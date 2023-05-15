@@ -1518,21 +1518,39 @@ router.post("/album/detail", async (req, res, next) => {
 
   try {
     const selectProductQ = `
-    SELECT  id,
-		        title,
-		        subTitle,
-		        content,
-		        coverImage,
-		        downloadCnt,
-		        bitRate,
-		        sampleRate,
-		        isTop,
-		        ProductCategoryId,
-		        UserId,
-		        agreementPath,
-		        agreementName
-      FROM  product
-     WHERE  id = ${id}
+    SELECT  A.id,
+		        A.title,
+		        A.subTitle,
+		        A.content,
+		        A.coverImage,
+		        A.downloadCnt,
+		        A.bitRate,
+		        A.sampleRate,
+		        A.isTop,
+		        A.ProductCategoryId,
+		        A.UserId,
+		        A.agreementPath,
+		        A.agreementName,
+            B.nickname,
+            (
+              SELECT  COUNT(B.id)
+                FROM  userLike	B
+               WHERE  A.id = B.ProductId
+            )		                                        AS likeCnt,
+            CASE 
+              WHEN  (
+                     SELECT  COUNT(B.id)
+                       FROM  userLike	B
+                       WHERE  B.UserId = ${req.user ? req.user.id : 0}
+                    ) > 0
+              THEN  1
+               ELSE  0
+             END                                         AS isLike
+      FROM  product             A
+     INNER
+      JOIN  users               B
+        ON  A.UserId = B.id
+     WHERE  A.id = ${id}
     `;
     const selectGenQ = `
     SELECT  A.id,
@@ -1546,36 +1564,75 @@ router.post("/album/detail", async (req, res, next) => {
      WHERE  A.ProductId = ${id}
     `;
     const selectTrackQ = `
-    SELECT	id,
-            title,
-            isTitle,
-            filename,
-            filepath,
-            author,
-            downloadCnt,
-            createdAt,
-            updatedAt,
-            ProductId,
-            DATE_FORMAT(createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
-            DATE_FORMAT(updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt,
-            sPrice,
-            dPrice,
-            pPrice,
-            FORMAT(sPrice , 0)   as viewsPrice,
-            FORMAT(dPrice , 0)   as viewdPrice,
-            FORMAT(pPrice , 0)   as viewpPrice
-      FROM	productTrack
-     WHERE  id = ${id}
+    SELECT	A.id,
+            A.title,
+            A.isTitle,
+            A.thumbnail,
+            A.filename,
+            A.filepath,
+            A.author,
+            A.downloadCnt,
+            A.createdAt,
+            A.updatedAt,
+            A.ProductId,
+            DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
+            DATE_FORMAT(A.updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt,
+            A.sPrice,
+            A.dPrice,
+            A.pPrice,
+            FORMAT(A.sPrice , 0)   as viewsPrice,
+            FORMAT(A.dPrice , 0)   as viewdPrice,
+            FORMAT(A.pPrice , 0)   as viewpPrice,
+            (
+              SELECT  COUNT(B.id)
+                FROM  userLike	B
+               WHERE  A.id = B.ProductTrackId
+            )		                                        AS likeCnt,
+            CASE 
+              WHEN  (
+                     SELECT  COUNT(B.id)
+                       FROM  userLike	B
+                       WHERE  B.UserId = ${req.user ? req.user.id : 0}
+                         AND  B.ProductTrackId = A.id
+                    ) > 0
+              THEN  1
+               ELSE  0
+             END                                         AS isLike
+      FROM	productTrack        A
+     WHERE  ProductId = ${id}
        AND  isOk = 1`;
 
     const selectProduct = await models.sequelize.query(selectProductQ);
     const selectGen = await models.sequelize.query(selectGenQ);
     const selectTrack = await models.sequelize.query(selectTrackQ);
 
+    const selectGenQ2 = `
+    SELECT  A.id,
+        		B.value,
+        		A.createdAt,
+        		A.ProductId 
+      FROM  productGenConnect   A
+     INNER
+      JOIN  productGen          B
+        ON  B.id = A.ProductGenId
+     WHERE  A.ProductId IN (${
+       selectTrack[0].map((data) => data.ProductId).length === 0
+         ? 0
+         : selectTrack[0].map((data) => data.ProductId)
+     })
+    `;
+
+    const genList = await models.sequelize.query(selectGenQ2);
+
     return res.status(200).json({
       ...selectProduct[0][0],
       genList: selectGen[0],
-      trackList: selectTrack[0],
+      trackList: selectTrack[0].map((data) => ({
+        ...data,
+        genList: genList[0].filter(
+          (value) => value.ProductId === data.ProductId
+        ),
+      })),
     });
   } catch (e) {
     console.error(e);
