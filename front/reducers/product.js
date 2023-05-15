@@ -21,6 +21,7 @@ export const initailState = {
   productDetail: null,
   productAlbumList: [],
   productTrackList: [],
+  productTrackSellDesc: [],
 
   st_categoryLoading: false,
   st_categoryDone: false,
@@ -137,6 +138,10 @@ export const initailState = {
   st_productAlbumDetailLoading: false,
   st_productAlbumDetailDone: false,
   st_productAlbumDetailError: null,
+  //
+  st_productTrackSellDescLoading: false,
+  st_productTrackSellDescDone: false,
+  st_productTrackSellDescError: null,
 };
 
 export const CATEGORY_LIST_REQUEST = "CATEGORY_LIST_REQUEST";
@@ -264,6 +269,10 @@ export const PRODUCT_ALBUM_DETAIL_FAILURE = "PRODUCT_ALBUM_DETAIL_FAILURE";
 export const PRODUCT_DETAIL_REQUEST = "PRODUCT_DETAIL_REQUEST";
 export const PRODUCT_DETAIL_SUCCESS = "PRODUCT_DETAIL_SUCCESS";
 export const PRODUCT_DETAIL_FAILURE = "PRODUCT_DETAIL_FAILURE";
+
+export const PRODUCT_TRACK_SELLDESC_REQUEST = "PRODUCT_TRACK_SELLDESC_REQUEST";
+export const PRODUCT_TRACK_SELLDESC_SUCCESS = "PRODUCT_TRACK_SELLDESC_SUCCESS";
+export const PRODUCT_TRACK_SELLDESC_FAILURE = "PRODUCT_TRACK_SELLDESC_FAILURE";
 
 export const PRODUCT_TRACK_FILE_RESET = "PRODUCT_TRACK_FILE_RESET";
 
@@ -916,6 +925,28 @@ const reducer = (state = initailState, action) =>
         draft.st_productDetailLoading = false;
         draft.st_productDetailDone = false;
         draft.st_productDetailError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////
+      case PRODUCT_TRACK_SELLDESC_REQUEST: {
+        draft.st_productTrackSellDescLoading = true;
+        draft.st_productTrackSellDescDone = false;
+        draft.st_productTrackSellDescError = null;
+        break;
+      }
+      case PRODUCT_TRACK_SELLDESC_SUCCESS: {
+        draft.st_productTrackSellDescLoading = false;
+        draft.st_productTrackSellDescDone = true;
+        draft.st_productTrackSellDescError = null;
+        draft.productTrackSellDesc = action.data;
+        break;
+      }
+      case PRODUCT_TRACK_SELLDESC_FAILURE: {
+        draft.st_productTrackSellDescLoading = false;
+        draft.st_productTrackSellDescDone = false;
+        draft.st_productTrackSellDescError = action.error;
         break;
       }
 

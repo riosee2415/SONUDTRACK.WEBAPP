@@ -120,6 +120,10 @@ import {
   PRODUCT_ALBUM_DETAIL_REQUEST,
   PRODUCT_ALBUM_DETAIL_SUCCESS,
   PRODUCT_ALBUM_DETAIL_FAILURE,
+  //
+  PRODUCT_TRACK_SELLDESC_REQUEST,
+  PRODUCT_TRACK_SELLDESC_SUCCESS,
+  PRODUCT_TRACK_SELLDESC_FAILURE,
 } from "../reducers/product";
 
 // ******************************************************************************************************************
@@ -945,6 +949,33 @@ function* productAlbumDetail(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function productTrackSellDescAPI(data) {
+  return await axios.post("/api/product/track/sellDesc", data);
+}
+
+function* productTrackSellDesc(action) {
+  try {
+    const result = yield call(productTrackSellDescAPI, action.data);
+
+    yield put({
+      type: PRODUCT_TRACK_SELLDESC_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: PRODUCT_TRACK_SELLDESC_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 function* watchCategoryList() {
   yield takeLatest(CATEGORY_LIST_REQUEST, categoryList);
@@ -1039,6 +1070,9 @@ function* watchProductDetail() {
 function* watchProductAlbumDetail() {
   yield takeLatest(PRODUCT_ALBUM_DETAIL_REQUEST, productAlbumDetail);
 }
+function* watchProductTrackSellDesc() {
+  yield takeLatest(PRODUCT_TRACK_SELLDESC_REQUEST, productTrackSellDesc);
+}
 
 //////////////////////////////////////////////////////////////
 export default function* productSaga() {
@@ -1073,6 +1107,7 @@ export default function* productSaga() {
     fork(watchProductTrackIsReject),
     fork(watchProductDetail),
     fork(watchProductAlbumDetail),
+    fork(watchProductTrackSellDesc),
     //
   ]);
 }
