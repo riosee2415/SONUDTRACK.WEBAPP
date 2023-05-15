@@ -1066,7 +1066,9 @@ router.post("/artistem/slideList", async (req, res, next) => {
       });
     });
 
-    return res.status(200).json(list[0]);
+    return res.status(200).json({
+      artistemList: list[0],
+    });
   } catch (error) {
     console.error(error);
     return res
