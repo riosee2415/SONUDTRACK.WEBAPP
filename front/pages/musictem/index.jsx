@@ -24,12 +24,15 @@ import { Empty, message, Modal, Select } from "antd";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import {
+  PRODUCT_TAG_REQUEST,
   PRODUCT_TRACK_ALL_LIST_REQUEST,
   PRODUCT_TRACK_RECENT_REQUEST,
   PRODUCT_TRACK_SELLDESC_REQUEST,
 } from "../../reducers/product";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
+import { COMMON_TAG_LIST_REQUEST } from "../../reducers/product";
+import useInput from "../../hooks/useInput";
 
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
@@ -69,7 +72,7 @@ const CustomSelect = styled(Wrapper)`
 const Index = () => {
   ////// GLOBAL STATE //////
 
-  const { productTrackSellDesc, trackAllList, trackLength, trackRecentList } =
+  const { productTrackSellDesc, trackAllList, trackRecentList, commonTags } =
     useSelector((state) => state.product);
 
   ////// HOOKS //////
@@ -82,27 +85,52 @@ const Index = () => {
   const [playing3, setPlaying3] = useState(null);
   const [down, setDown] = useState(false);
   const [contact, setContact] = useState(false);
-  const [listPage, setListPage] = useState(1);
+  const [listPage, setListPage] = useState(5);
   // 더보기 리스트
   const [allTrackList, setAllTrackList] = useState([]);
   const [allAudioTime, setAllAudioTime] = useState([]);
   const [newAudioTime, setNewAudioTime] = useState([]);
   const [selectOrderType, setSelectOrderType] = useState(1);
+
+  const [searchBigTag, setSearchBigTag] = useState(null);
+  const [searchSmallTag, setSearchSmallTag] = useState(null);
+
+  const searchValue = useInput("");
   // {allAudioTime[idx]}
 
   ////// REDUX //////
   ////// USEEFFECT //////
 
+  useEffect(() => {
+    dispatch({
+      type: PRODUCT_TRACK_ALL_LIST_REQUEST,
+      data: {
+        tagId: searchSmallTag,
+        searchTitle: searchValue.value,
+      },
+    });
+
+    dispatch({
+      type: PRODUCT_TRACK_RECENT_REQUEST,
+      data: {
+        tagId: searchSmallTag,
+        searchTitle: searchValue.value,
+      },
+    });
+
+    dispatch({
+      type: PRODUCT_TRACK_SELLDESC_REQUEST,
+      data: {
+        tagId: searchSmallTag,
+        searchTitle: searchValue.value,
+      },
+    });
+  }, [searchSmallTag, searchValue.value]);
+
   // 더보기 후 처리
   useEffect(() => {
     if (trackAllList) {
-      let allTrackArr = allTrackList ? allTrackList.map((data) => data) : [];
-
-      trackAllList.map((data) => {
-        return allTrackArr.push(data);
-      });
-
-      setAllTrackList(allTrackArr);
+      setAllTrackList(trackAllList.map((data) => data));
     }
   }, [trackAllList]);
 
@@ -190,7 +218,20 @@ const Index = () => {
   const contactToggle = useCallback(() => {
     setContact((prev) => !prev);
   }, [contact]);
+
   ////// HANDLER //////
+  const searchBigTagChangeHandler = useCallback(
+    (data) => {
+      setSearchBigTag(data);
+    },
+    [searchBigTag]
+  );
+  const searchSmallTagChangeHandler = useCallback(
+    (data) => {
+      setSearchSmallTag(data);
+    },
+    [searchSmallTag]
+  );
 
   const movelinkHandler = useCallback((link) => {
     router.push(link);
@@ -198,35 +239,33 @@ const Index = () => {
   }, []);
 
   const productListHandler = useCallback(() => {
-    const page = listPage + 1;
+    // const page = listPage + 1;
 
-    dispatch({
-      type: PRODUCT_TRACK_ALL_LIST_REQUEST,
-      data: {
-        page,
-        orderType: selectOrderType,
-      },
-    });
+    // dispatch({
+    //   type: PRODUCT_TRACK_ALL_LIST_REQUEST,
+    //   data: {
+    //     page,
+    //     orderType: selectOrderType,
+    //   },
+    // });
 
-    setListPage(page);
-  }, [listPage, selectOrderType]);
+    setListPage(allTrackList.length);
+  }, [allTrackList, listPage]);
 
   const selectOrderTypeHandler = useCallback(
     (type) => {
       setSelectOrderType(type);
 
-      setAllTrackList([]);
-      setListPage(1);
-
       dispatch({
         type: PRODUCT_TRACK_ALL_LIST_REQUEST,
         data: {
-          page: 1,
           orderType: type,
+          tagId: searchSmallTag,
+          searchTitle: searchValue.value,
         },
       });
     },
-    [selectOrderType, listPage]
+    [selectOrderType, listPage, searchSmallTag, searchValue.value]
   );
 
   ////// DATAVIEW //////
@@ -253,7 +292,7 @@ const Index = () => {
             </Wrapper>
 
             <Wrapper dr={`row`} ju={`flex-start`}>
-              <Wrapper width={`auto`} al={`flex-start`}>
+              {/* <Wrapper width={`auto`} al={`flex-start`}>
                 <Text
                   fontSize={width < 900 ? `16px` : `20px`}
                   fontWeight={`bold`}
@@ -267,11 +306,11 @@ const Index = () => {
                     <Select.Option>ALL</Select.Option>
                   </Select>
                 </CustomSelect>
-              </Wrapper>
+              </Wrapper> */}
               <Wrapper
                 width={`auto`}
                 al={`flex-start`}
-                margin={width < 900 ? `10px 0` : `0 50px`}
+                margin={width < 900 ? `0 0 10px 0` : `0 50px 0 0`}
               >
                 <Text
                   fontSize={width < 900 ? `16px` : `20px`}
@@ -283,13 +322,38 @@ const Index = () => {
                 </Text>
                 <Wrapper dr={`row`} width={`auto`}>
                   <CustomSelect margin={`0 14px 0 0`}>
-                    <Select>
-                      <Select.Option>ALL</Select.Option>
+                    <Select
+                      onChange={searchBigTagChangeHandler}
+                      placeholder="태그유형을 선택해주세요."
+                    >
+                      {commonTags &&
+                        [...new Set(commonTags.map((data) => data.type))].map(
+                          (data, idx) => {
+                            return (
+                              <Select.Option key={idx} value={data}>
+                                {data}
+                              </Select.Option>
+                            );
+                          }
+                        )}
                     </Select>
                   </CustomSelect>
                   <CustomSelect>
-                    <Select>
-                      <Select.Option>ALL</Select.Option>
+                    <Select
+                      onChange={searchSmallTagChangeHandler}
+                      placeholder="태그를 선택해주세요."
+                    >
+                      {commonTags &&
+                        searchBigTag &&
+                        commonTags
+                          .filter((data) => data.type === searchBigTag)
+                          .map((data) => {
+                            return (
+                              <Select.Option key={data.id} value={data.id}>
+                                {data.value}
+                              </Select.Option>
+                            );
+                          })}
                     </Select>
                   </CustomSelect>
                 </Wrapper>
@@ -321,6 +385,7 @@ const Index = () => {
                     <SearchOutlined />
                   </Wrapper>
                   <TextInput
+                    {...searchValue}
                     width={`100%`}
                     height={`100%`}
                     placeholder="검색어를 입력해주세요."
@@ -1069,7 +1134,7 @@ const Index = () => {
                     </Text>
                   </Wrapper>
                 ) : (
-                  allTrackList.map((data, idx) => {
+                  allTrackList.slice(0, listPage).map((data, idx) => {
                     return (
                       <Wrapper
                         borderBottom={`1px solid ${Theme.lightGrey_C}`}
@@ -1128,7 +1193,6 @@ const Index = () => {
                             >
                               {data.title}
                             </Text>
-                            {console.log(data)}
                             <Text
                               onClick={() =>
                                 movelinkHandler(`/musictem/artist/${ProductId}`)
@@ -1305,7 +1369,7 @@ const Index = () => {
             </Wrapper>
 
             <Wrapper margin={`60px 0`}>
-              {allTrackList.length && trackLength !== allTrackList.length && (
+              {allTrackList.length && allTrackList.length > 5 && (
                 <CommonButton
                   kindOf={`grey`}
                   width={`150px`}
@@ -1469,6 +1533,10 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: PRODUCT_TRACK_SELLDESC_REQUEST,
+    });
+
+    context.store.dispatch({
+      type: COMMON_TAG_LIST_REQUEST,
     });
 
     // 구현부 종료

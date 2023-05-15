@@ -9,7 +9,6 @@ export const initailState = {
   trackList: [],
   trackAllList: [],
   trackRecentList: [],
-  trackLength: 0,
   commonTags: [],
   trackDetail: null,
   myProducts: [],
@@ -571,7 +570,6 @@ const reducer = (state = initailState, action) =>
         draft.st_productTrackAllListDone = true;
         draft.st_productTrackAllListError = null;
         draft.trackAllList = action.data.list;
-        draft.trackLength = action.data.length;
         break;
       }
       case PRODUCT_TRACK_ALL_LIST_FAILURE: {

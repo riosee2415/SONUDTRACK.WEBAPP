@@ -743,56 +743,14 @@ router.post("/track/isReject", isAdminCheck, async (req, res, next) => {
  */
 
 router.post("/track/allList", async (req, res, next) => {
-  const { page, orderType } = req.body;
+  const { orderType, tagId, searchTitle } = req.body;
 
   const _orderType = orderType ? parseInt(orderType) : 1;
   // 1 추천순
   // 2 최신순
 
-  const LIMIT = 5;
-
-  const _page = page ? page : 1;
-
-  const __page = _page - 1;
-  const OFFSET = __page * 5;
-
-  const lengthQ = `
-  SELECT  A.id,
-	  	    A.title,
-          A.author,
-          A.thumbnail,
-          A.filename,
-          A.filepath,
-          A.downloadCnt,
-          FORMAT(A.downloadCnt, ",")					AS  viewDownLoadCnt,
-          A.ProductId,
-          A.createdAt,
-          DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
-          (
-          	SELECT  COUNT(B.id)
-          	  FROM  userLike	B
-          	 WHERE  A.id = B.ProductTrackId
-          )		                                        AS likeCnt,
-          CASE 
-          	WHEN  (
-          			   SELECT  COUNT(B.id)
-          	  	  	 FROM  userLike	B
-          	 		    WHERE  B.UserId = ${req.user ? req.user.id : 0}
-          		    ) > 0
-          	THEN  1
-         		ELSE  0
-         	END                                         AS isLike
-    FROM  productTrack		A
-          ${
-            _orderType === 1
-              ? `ORDER  BY (
-                             SELECT  COUNT(B.id)
-                               FROM  userLike	B
-                              WHERE  A.id = B.ProductTrackId
-                           ) DESC`
-              : `ORDER  BY  A.createdAt DESC`
-          }
-    `;
+  const _tagId = tagId ? parseInt(tagId) : null;
+  const _searchTitle = searchTitle ? searchTitle : "";
 
   const selectQ = `
   SELECT  A.id,
@@ -821,6 +779,17 @@ router.post("/track/allList", async (req, res, next) => {
          		ELSE  0
          	END                                         AS isLike
     FROM  productTrack		A
+   WHERE  1 = 1
+     AND  A.title LIKE "%${_searchTitle}%"
+          ${
+            _tagId
+              ? `AND  ${_tagId} IN (
+                                      SELECT  D.id
+                                        FROM  productTag D
+                                      WHERE  D.ProductId = A.ProductId
+                                  )`
+              : ``
+          }
           ${
             _orderType === 1
               ? `ORDER  BY  (
@@ -830,13 +799,10 @@ router.post("/track/allList", async (req, res, next) => {
                             ) DESC`
               : `ORDER  BY  A.createdAt DESC`
           }
-   LIMIT  ${LIMIT}
-  OFFSET  ${OFFSET}
     `;
 
   try {
     const list = await models.sequelize.query(selectQ);
-    const lengths = await models.sequelize.query(lengthQ);
 
     const selectGenQ = `
     SELECT  A.id,
@@ -856,8 +822,6 @@ router.post("/track/allList", async (req, res, next) => {
 
     const genList = await models.sequelize.query(selectGenQ);
 
-    const trackLen = lengths[0].length;
-
     return res.status(200).json({
       list: list[0].map((data) => ({
         ...data,
@@ -865,7 +829,6 @@ router.post("/track/allList", async (req, res, next) => {
           (value) => value.ProductId === data.ProductId
         ),
       })),
-      length: trackLen,
     });
   } catch (e) {
     console.error(e);
@@ -1024,13 +987,18 @@ router.post("/track/newList", async (req, res, next) => {
 
 /**
  * SUBJECT : 최신음원트랙 5개불러오기
- * PARAMETERS : -
+ * PARAMETERS : tagId, searchTitle
  * ORDER BY : -
  * STATEMENT : -
  * DEVELOPMENT : 팀장 송재홍
  * DEV DATE : 2023/01/30
  */
 router.post("/track/recentList", async (req, res, next) => {
+  const { tagId, searchTitle } = req.body;
+
+  const _tagId = tagId ? parseInt(tagId) : null;
+  const _searchTitle = searchTitle ? searchTitle : "";
+
   const selectQ = `
  SELECT  A.id,
          A.title,
@@ -1057,8 +1025,20 @@ router.post("/track/recentList", async (req, res, next) => {
            ELSE  0
           END                                         AS isLike
    FROM  productTrack	A 
+  WHERE  1 = 1
+    AND  A.title LIKE "%${_searchTitle}%"
+         ${
+           _tagId
+             ? `AND  ${_tagId} IN (
+                                     SELECT  D.id
+                                       FROM  productTag D
+                                     WHERE  D.ProductId = A.ProductId
+                                 )`
+             : ``
+         }
   ORDER  BY A.createdAt DESC 
   LIMIT  5
+  
   `;
 
   try {
@@ -1098,13 +1078,18 @@ router.post("/track/recentList", async (req, res, next) => {
 
 /**
  * SUBJECT : 뮤직탬 판매량 많은 순 (다운로드 횟수 많은 순)
- * PARAMETERS : -
+ * PARAMETERS : tagId, searchTitle
  * ORDER BY : -
  * STATEMENT : -
  * DEVELOPMENT : 시니어 개발자 신태섭
  * DEV DATE : 2023/02/07
  */
 router.post("/track/sellDesc", async (req, res, next) => {
+  const { tagId, searchTitle } = req.body;
+
+  const _tagId = tagId ? parseInt(tagId) : null;
+  const _searchTitle = searchTitle ? searchTitle : "";
+
   const selectQ = `
  SELECT  A.id,
          A.title,
@@ -1139,6 +1124,17 @@ router.post("/track/sellDesc", async (req, res, next) => {
           `
          }
    FROM  productTrack	A 
+  WHERE  1 = 1
+         AND  A.title LIKE "%${_searchTitle}%"
+         ${
+           _tagId
+             ? `AND  ${_tagId} IN (
+                                     SELECT  D.id
+                                       FROM  productTag D
+                                     WHERE  D.ProductId = A.ProductId
+                                 )`
+             : ``
+         }
   ORDER  BY A.downloadCnt DESC 
   LIMIT  5
   `;
