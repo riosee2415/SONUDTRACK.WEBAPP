@@ -259,7 +259,7 @@ const reducer = (state = initailState, action) =>
         draft.st_artistemListLoading = false;
         draft.st_artistemListDone = true;
         draft.st_artistemListError = null;
-        draft.artistems = action.data.artistemList;
+        draft.artistems = action.data;
         break;
       }
 
@@ -378,7 +378,7 @@ const reducer = (state = initailState, action) =>
         draft.st_ArtistemNearListLoading = false;
         draft.st_ArtistemNearListDone = true;
         draft.st_ArtistemNearListError = null;
-        draft.artistemNearList = action.data.artistemList;
+        draft.artistemNearList = action.data;
         break;
       }
 

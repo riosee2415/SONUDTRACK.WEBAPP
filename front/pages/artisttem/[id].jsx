@@ -52,7 +52,6 @@ const Index = () => {
   );
   const { me } = useSelector((state) => state.user);
   const { artistems } = useSelector((state) => state.artist);
-  console.log(artistems);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -204,7 +203,9 @@ const Index = () => {
             left={`0`}
             height={`640px`}
             zIndex={`-1`}
-            bgImg={`url(${artistems && artistems[0].coverImage})`}
+            bgImg={`url(${
+              artistems && artistems[0] && artistems[0].profileImage
+            })`}
           >
             <Wrapper
               height={`100%`}
@@ -220,7 +221,7 @@ const Index = () => {
                   height={`214px`}
                   radius={`100%`}
                   shadow={`3px 3px 15px rgba(0, 0, 0, 0.1)`}
-                  src={artistems && artistems[0].artistImage}
+                  src={artistems && artistems[0] && artistems[0].profileImage}
                   alt="thumbnail"
                 />
                 <Wrapper
@@ -270,7 +271,7 @@ const Index = () => {
                     fontWeight={`bold`}
                     margin={`0 14px 0 0`}
                   >
-                    {artistems && artistems[0].artistName}
+                    {artistems && artistems[0] && artistems[0].artistname}
                   </Text>
                   <Image
                     alt="icon"
@@ -283,7 +284,7 @@ const Index = () => {
                   </Text>
                 </Wrapper>
                 <Text fontSize={width < 900 ? `16px` : `20px`}>
-                  {/* {artistems && artistems[0]} */}
+                  {artistems && artistems[0] && artistems[0].info}
                 </Text>
                 <Wrapper dr={`row`} ju={`flex-start`} margin={`16px 0 20px`}>
                   <CommonButton
@@ -305,28 +306,23 @@ const Index = () => {
                 </Wrapper>
                 <Text color={Theme.darkGrey_C}>TAG</Text>
                 <Wrapper dr={`row`} ju={`flex-start`} margin={`5px 0 0`}>
-                  <Wrapper
-                    width={`auto`}
-                    border={`1px solid ${Theme.lightGrey_C}`}
-                    bgColor={Theme.white_C}
-                    radius={`30px`}
-                    height={`27px`}
-                    padding={`0 15px`}
-                    margin={`0 4px 0 0`}
-                  >
-                    Vocal
-                  </Wrapper>
-                  <Wrapper
-                    width={`auto`}
-                    border={`1px solid ${Theme.lightGrey_C}`}
-                    bgColor={Theme.white_C}
-                    radius={`30px`}
-                    height={`27px`}
-                    padding={`0 15px`}
-                    margin={`0 4px 0 0`}
-                  >
-                    Beat Maker
-                  </Wrapper>
+                  {artistems &&
+                    artistems[0] &&
+                    artistems[0].tags.map((data) => {
+                      return (
+                        <Wrapper
+                          width={`auto`}
+                          border={`1px solid ${Theme.lightGrey_C}`}
+                          bgColor={Theme.white_C}
+                          radius={`30px`}
+                          height={`27px`}
+                          padding={`0 15px`}
+                          margin={`0 4px 0 0`}
+                        >
+                          {data.value}
+                        </Wrapper>
+                      );
+                    })}
                 </Wrapper>
               </Wrapper>
             </Wrapper>
@@ -338,43 +334,49 @@ const Index = () => {
             >
               필모그래피
             </Wrapper>
-            <Wrapper dr={`row`} ju={`flex-start`} al={`flex-start`}>
-              <ArtWrapper>
-                <SquareBox>
-                  <Image
-                    src="https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png"
-                    alt="thumbnail"
-                  />
-                </SquareBox>
-                <Text
-                  fontSize={`18px`}
-                  fontWeight={`bold`}
-                  margin={`20px 0 7px`}
-                >
-                  성시경 / 영원히
-                </Text>
-                <Wrapper dr={`row`} ju={`flex-start`}>
-                  <Wrapper
-                    width={`auto`}
-                    border={`1px solid ${Theme.lightGrey_C}`}
-                    radius={`30px`}
-                    height={`27px`}
-                    padding={`0 15px`}
-                    margin={`0 7px 5px 0`}
-                  >
-                    Vocal
-                  </Wrapper>
-                </Wrapper>
-                <Text color={Theme.grey_C}>
-                  Comment : 저는 이곡의 가이드 보컬입니다!
-                </Text>
-              </ArtWrapper>
+            <Wrapper
+              dr={`row`}
+              ju={`flex-start`}
+              al={`flex-start`}
+              margin={`0 0 60px`}
+            >
+              {artistems &&
+                artistems[0] &&
+                artistems[0].films.map((data) => {
+                  return (
+                    <ArtWrapper key={data.id}>
+                      <SquareBox>
+                        <Image src={data.coverImage} alt="thumbnail" />
+                      </SquareBox>
+                      <Text
+                        fontSize={`18px`}
+                        fontWeight={`bold`}
+                        margin={`20px 0 7px`}
+                      >
+                        {data.title} / {data.name}
+                      </Text>
+                      <Wrapper dr={`row`} ju={`flex-start`}>
+                        <Wrapper
+                          width={`auto`}
+                          border={`1px solid ${Theme.lightGrey_C}`}
+                          radius={`30px`}
+                          height={`27px`}
+                          padding={`0 15px`}
+                          margin={`0 7px 5px 0`}
+                        >
+                          {data.roleName}
+                        </Wrapper>
+                      </Wrapper>
+                      <Text color={Theme.grey_C}>Comment : {data.comment}</Text>
+                    </ArtWrapper>
+                  );
+                })}
             </Wrapper>
-            <Wrapper margin={`60px 0`}>
+            {/* <Wrapper margin={`60px 0`}>
               <CommonButton kindOf={`grey`} width={`150px`} height={`48px`}>
                 더보기 +
               </CommonButton>
-            </Wrapper>
+            </Wrapper> */}
 
             <Wrapper
               al={`flex-start`}
@@ -392,7 +394,7 @@ const Index = () => {
               <Wrapper dr={`row`} ju={`flex-start`}>
                 <Image
                   alt="thumbnail"
-                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png`}
+                  src={me && me.profileImage ? me.profileImage : ""}
                   width={`36px`}
                   height={`36px`}
                   radius={`100%`}
@@ -403,7 +405,7 @@ const Index = () => {
                   color={Theme.grey_C}
                   margin={`0 0 0 8px`}
                 >
-                  작성자 : 게스트
+                  작성자 : {me ? me.nickname : "게스트"}
                 </Text>
               </Wrapper>
               <TextArea
@@ -430,8 +432,29 @@ const Index = () => {
               </Wrapper>
             </Wrapper>
 
-            <Wrapper borderTop={`1px solid ${Theme.lightGrey_C}`}>
+            <Wrapper
+              borderTop={`1px solid ${Theme.lightGrey_C}`}
+              margin={`0 0 100px`}
+            >
               <Wrapper
+                height={`400px`}
+                borderBottom={`1px solid ${Theme.lightGrey_C}`}
+              >
+                <Image
+                  alt="icon"
+                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/blank.png`}
+                  width={`76px`}
+                />
+                <Text
+                  fontSize={width < 900 ? `18px` : `22px`}
+                  color={Theme.grey2_C}
+                  margin={`25px 0 0`}
+                >
+                  아직 댓글이 없습니다.
+                </Text>
+              </Wrapper>
+
+              {/* <Wrapper
                 padding={width < 900 ? `20px 10px` : `30px`}
                 borderBottom={`1px solid ${Theme.lightGrey_C}`}
               >
@@ -538,14 +561,14 @@ const Index = () => {
                     <Text color={Theme.darkGrey_C}>98</Text>
                   </Wrapper>
                 </Wrapper>
-              </Wrapper>
+              </Wrapper> */}
             </Wrapper>
 
-            <Wrapper margin={`60px 0 100px`}>
+            {/* <Wrapper margin={`60px 0 100px`}>
               <CommonButton kindOf={`grey`} width={`150px`} height={`48px`}>
                 더보기 +
               </CommonButton>
-            </Wrapper>
+            </Wrapper> */}
           </RsWrapper>
 
           <Modal onCancel={modalToggle} visible={isModal} footer={null}>
@@ -600,7 +623,8 @@ const Index = () => {
                 color={Theme.basicTheme_C}
                 margin={`0 0 16px`}
               >
-                이차미는 어떤 아티스트인가요?
+                {artistems && artistems[0] && artistems[0].artistname}는 어떤
+                아티스트인가요?
               </Text>
               <Wrapper
                 overflow={`auto`}
@@ -620,7 +644,85 @@ const Index = () => {
                   Q. 주로 하는 역할(기술)과 장르는 무엇인가요?
                 </Text>
                 <Text fontSize={`16px`} margin={`0 0 28px`}>
-                  A. 주로 Pop을 하고 노래와 탑라인을 합니다.
+                  A. {artistems && artistems[0] && artistems[0].question1}
+                </Text>
+                <Text
+                  fontSize={`18px`}
+                  fontWeight={`600`}
+                  color={Theme.grey_C}
+                  margin={`0 0 12px`}
+                >
+                  Q. Q. 보통의 작업 시간은 몇 일인가요?
+                </Text>
+                <Text fontSize={`16px`} margin={`0 0 28px`}>
+                  A. {artistems && artistems[0] && artistems[0].question2}
+                </Text>
+                <Text
+                  fontSize={`18px`}
+                  fontWeight={`600`}
+                  color={Theme.grey_C}
+                  margin={`0 0 12px`}
+                >
+                  Q. 녹음 환경과 장비 유무는 무엇인가요?
+                </Text>
+                <Text fontSize={`16px`} margin={`0 0 28px`}>
+                  A. {artistems && artistems[0] && artistems[0].question3}
+                </Text>
+                <Text
+                  fontSize={`18px`}
+                  fontWeight={`600`}
+                  color={Theme.grey_C}
+                  margin={`0 0 12px`}
+                >
+                  Q. 평균 비용은 어떻게 되나요?
+                </Text>
+                <Text fontSize={`16px`} margin={`0 0 28px`}>
+                  A. {artistems && artistems[0] && artistems[0].question4}
+                </Text>
+                <Text
+                  fontSize={`18px`}
+                  fontWeight={`600`}
+                  color={Theme.grey_C}
+                  margin={`0 0 12px`}
+                >
+                  Q. 만약 정식 음원이 출판되거나, 광고나 라이브러리로 판매된다면
+                  어떤 음악을 추구하나요?
+                </Text>
+                <Text fontSize={`16px`} margin={`0 0 28px`}>
+                  A. {artistems && artistems[0] && artistems[0].question5}
+                </Text>
+                <Text
+                  fontSize={`18px`}
+                  fontWeight={`600`}
+                  color={Theme.grey_C}
+                  margin={`0 0 12px`}
+                >
+                  Q. 어떤 뮤지션을 좋아하고, 어떤 음악을 추구하나요?
+                </Text>
+                <Text fontSize={`16px`} margin={`0 0 28px`}>
+                  A. {artistems && artistems[0] && artistems[0].question6}
+                </Text>
+                <Text
+                  fontSize={`18px`}
+                  fontWeight={`600`}
+                  color={Theme.grey_C}
+                  margin={`0 0 12px`}
+                >
+                  Q. 이 일을 한지는 얼마나 되었고, 보통 어떤 작업을 하나요?
+                </Text>
+                <Text fontSize={`16px`} margin={`0 0 28px`}>
+                  A. {artistems && artistems[0] && artistems[0].question7}
+                </Text>
+                <Text
+                  fontSize={`18px`}
+                  fontWeight={`600`}
+                  color={Theme.grey_C}
+                  margin={`0 0 12px`}
+                >
+                  Q. 그 외 하고싶은 말이 있나요?
+                </Text>
+                <Text fontSize={`16px`} margin={`0 0 28px`}>
+                  A. {artistems && artistems[0] && artistems[0].question8}
                 </Text>
               </Wrapper>
             </Wrapper>

@@ -103,6 +103,10 @@ const MypageMenu = ({}) => {
   const [mypageOpen2, setMypageOpen2] = useState(false);
   const [mypageOpen3, setMypageOpen3] = useState(false);
 
+  // 판매자로 변환
+  const [isMusic, setIsMusic] = useState(false); // 뮤직템 판매
+  const [isArtist, setIsArtist] = useState(false); // 아티스트로서 활동
+
   const plan = useInput("");
   const techGenre = useInput("");
   const [fileName, setFileName] = useState("");
@@ -297,15 +301,23 @@ const MypageMenu = ({}) => {
       return message.error("작업물을 등록해주세요.");
     }
 
+    if (!isArtist && !isMusic) {
+      return message.error(
+        "Musictem 판매 혹은 Artist로서 활동 둘 중 한가지는 필수 선택입니다."
+      );
+    }
+
     dispatch({
       type: PERMM_WAITING_CREATE_REQUEST,
       data: {
         plan: plan.value,
         gen: techGenre.value,
         imagePaths: files,
+        isArtist: isArtist,
+        isMusictem: isMusic,
       },
     });
-  }, [files, plan, techGenre]);
+  }, [files, plan, techGenre, isArtist, isMusic]);
 
   return (
     <WholeWrapper height={`calc(100vh - 166px)`} ju={`flex-start`}>
@@ -637,12 +649,15 @@ const MypageMenu = ({}) => {
               New Wave Sound에서 주 활동 계획은 어떻게 되시나요?
             </Text>
             <Wrapper dr={`row`} ju={`flex-start`} margin={`14px 0 12px`}>
-              <Checkbox>
+              <Checkbox checked={isMusic} onChange={() => setIsMusic(!isMusic)}>
                 <Text fontSize={`16px`} color={Theme.grey_C}>
                   Musictem 판매
                 </Text>
               </Checkbox>
-              <Checkbox>
+              <Checkbox
+                checked={isArtist}
+                onChange={() => setIsArtist(!isArtist)}
+              >
                 <Text fontSize={`16px`} color={Theme.grey_C}>
                   Artist로서 활동
                 </Text>
@@ -689,6 +704,7 @@ const MypageMenu = ({}) => {
                 type="type"
                 border={`1px solid ${Theme.lightGrey_C}`}
                 placeholder="파일을 등록해주세요."
+                readOnly={true}
               />
               <input
                 type="file"

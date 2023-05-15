@@ -99,6 +99,12 @@ const Index = () => {
   ////// USEEFFECT //////
 
   useEffect(() => {
+    if (artistemNearList.length !== 0) {
+      setSelectArtist(artistemNearList[0]);
+    }
+  }, [artistemNearList]);
+
+  useEffect(() => {
     dispatch({
       type: ALL_ARTISTEM_LIST_REQUEST,
       data: {
@@ -106,12 +112,6 @@ const Index = () => {
       },
     });
   }, [orderType]);
-
-  useEffect(() => {
-    if (artistemNearList) {
-      setSelectArtist(artistemNearList[0]);
-    }
-  }, [artistemNearList]);
 
   ////// TOGGLE //////
 
@@ -279,19 +279,25 @@ const Index = () => {
                       ju={`space-between`}
                     >
                       {artistemNearList.map((data, idx) => {
+                        console.log(data);
                         return (
                           <Box width={`48%`}>
-                            <Image
-                              className="thumb"
-                              key={idx}
-                              onClick={() => selectArtistHandler(data)}
-                              alt="image"
-                              radius={`7px`}
-                              src={data.artistImage}
+                            <Wrapper
                               height={width < 700 ? `120px` : `236px`}
-                              width={`100%`}
+                              overflow={`hidden`}
                               margin={`0 0 20px`}
-                            />
+                              radius={`7px`}
+                            >
+                              <Image
+                                className="thumb"
+                                key={idx}
+                                onClick={() => selectArtistHandler(data)}
+                                alt="image"
+                                src={data.profileImage}
+                                width={`100%`}
+                                height={`100%`}
+                              />
+                            </Wrapper>
                           </Box>
                         );
                       })}
@@ -305,7 +311,7 @@ const Index = () => {
                   margin={width < 900 ? `20px 0 0` : `0`}
                   onClick={() =>
                     movelinkHandler(
-                      `/artisttem/${selectArtist && selectArtist.ArtistId}`
+                      `/artisttem/${selectArtist && selectArtist.id}`
                     )
                   }
                 >
@@ -323,9 +329,9 @@ const Index = () => {
                     >
                       <Wrapper dr={`row`} ju={`flex-start`}>
                         <Text fontSize={`18px`} fontWeight={`bold`}>
-                          {selectArtist && selectArtist.title}
+                          {selectArtist && selectArtist.artistname}
                         </Text>
-                        <Wrapper
+                        {/* <Wrapper
                           width={`auto`}
                           dr={`row`}
                           margin={`0 0 0 14px`}
@@ -341,10 +347,10 @@ const Index = () => {
                             }
                           />
                           <Text>{selectArtist && selectArtist.likeCnt}</Text>
-                        </Wrapper>
+                        </Wrapper> */}
                       </Wrapper>
                       <Text fontSize={`16px`} margin={`12px 0 18px`}>
-                        {selectArtist && selectArtist.subTitle}
+                        {selectArtist && selectArtist.info}
                       </Text>
                       <Wrapper dr={`row`} ju={`flex-start`}>
                         {selectArtist &&
@@ -359,7 +365,7 @@ const Index = () => {
                                 padding={`0 15px`}
                                 margin={`0 7px 5px 0`}
                               >
-                                {data}
+                                {data.value}
                               </Wrapper>
                             );
                           })}
@@ -369,7 +375,7 @@ const Index = () => {
                       height={width < 700 ? `240px` : `495px`}
                       alt="image"
                       radius={`7px`}
-                      src={selectArtist && selectArtist.artistImage}
+                      src={selectArtist && selectArtist.profileImage}
                       className="thumb"
                     />
                   </Wrapper>
