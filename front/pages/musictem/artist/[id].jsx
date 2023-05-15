@@ -22,7 +22,7 @@ import { Modal, Popover, Rate, Select } from "antd";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
-import { PRODUCT_ALBUM_DETAIL_REQUEST } from "../../../reducers/product";
+import { PRODUCT_ARTIST_ALBUM_DETAIL_REQUEST } from "../../../reducers/product";
 import moment from "moment";
 
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
@@ -88,7 +88,7 @@ const Index = () => {
 
   useEffect(() => {
     dispatch({
-      type: PRODUCT_ALBUM_DETAIL_REQUEST,
+      type: PRODUCT_ARTIST_ALBUM_DETAIL_REQUEST,
       data: {
         id: router.query.id,
         orderType: orderSort,

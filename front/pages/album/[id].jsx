@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ClientLayout from "../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../store/configureStore";
@@ -19,6 +19,9 @@ import Theme from "../../components/Theme";
 import styled from "styled-components";
 import { Modal, Popover, Rate, Select } from "antd";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/router";
+import { useDispatch, useSelector } from "react-redux";
+import { PRODUCT_ALBUM_DETAIL_REQUEST } from "../../reducers/product";
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
 });
@@ -86,13 +89,33 @@ const AlbumWrapper = styled(Wrapper)`
 
 const Index = () => {
   ////// GLOBAL STATE //////
+
+  const { albumDetail } = useSelector((state) => state.product);
+
+  console.log(albumDetail);
+
+  ////// HOOKS //////
+  const width = useWidth();
+  const router = useRouter();
+  const dispatch = useDispatch();
+
   const [isModal, setIsModal] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [down, setDown] = useState(false);
-  ////// HOOKS //////
-  const width = useWidth();
   ////// REDUX //////
   ////// USEEFFECT //////
+
+  useEffect(() => {
+    if (router.query) {
+      dispatch({
+        type: PRODUCT_ALBUM_DETAIL_REQUEST,
+        data: {
+          id: router.query.id,
+        },
+      });
+    }
+  }, [router.query]);
+
   ////// TOGGLE //////
   // 프리미엄일때 나오는 모달
   const modalToggle = useCallback(() => {
