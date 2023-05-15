@@ -285,8 +285,9 @@ router.post("/image", upload.single("image"), async (req, res, next) => {
  * DEVELOPMENT : 시니어 개발자 신태섭
  * DEV DATE : 2023/02/01
  */
+// 써야함 (수정완료)
 router.post("/permm/create", isLoggedIn, async (req, res, next) => {
-  const { plan, gen, imagePaths } = req.body;
+  const { plan, gen, imagePaths, isArtist, isMusictem } = req.body;
 
   if (!Array.isArray(imagePaths)) {
     return res.status(401).send("잘못된 요청입니다.");
@@ -323,6 +324,8 @@ router.post("/permm/create", isLoggedIn, async (req, res, next) => {
   (
     plan,
     gen,
+    isArtist,
+    isMusictem,
     UserId,
     createdAt,
     updatedAt
@@ -331,6 +334,8 @@ router.post("/permm/create", isLoggedIn, async (req, res, next) => {
   (
     "${plan}",
     "${gen}",
+    ${isArtist},
+    ${isMusictem},
     ${req.user.id},
     NOW(),
     NOW()
@@ -529,6 +534,7 @@ SELECT	ROW_NUMBER()	OVER(ORDER	BY sort)	AS num,
  * DEVELOPMENT : 시니어 개발자 신태섭
  * DEV DATE : 2023/02/02
  */
+// 써야함 (이미 개발되어있음 수정할 필요 X)
 router.post("/info/update", isLoggedIn, async (req, res, next) => {
   const {
     id,
@@ -547,6 +553,8 @@ router.post("/info/update", isLoggedIn, async (req, res, next) => {
     artistFilms,
     artistCountries,
     tags,
+    repSongFilePath,
+    repSongFileName,
   } = req.body;
 
   if (!Array.isArray(artistFilms)) {
@@ -611,6 +619,8 @@ router.post("/info/update", isLoggedIn, async (req, res, next) => {
           question6 = "${question6}",
           question7 = "${question7}",
           question8 = "${question8}",
+          repSongFilePath = "${repSongFilePath}",
+          repSongFileName = "${repSongFileName}",
           isUpdate = 1,
           updatedAt = NOW()
    WHERE  id = ${id}
@@ -753,6 +763,7 @@ router.post("/info/update", isLoggedIn, async (req, res, next) => {
  * DEVELOPMENT : 시니어 개발자 신태섭
  * DEV DATE : 2023/02/03
  */
+// 써야함 (이미 개발되어있음 수정할 필요 X)
 router.post("/info/vacation/update", isLoggedIn, async (req, res, next) => {
   const { id, isVacation } = req.body;
 
@@ -1285,121 +1296,60 @@ router.post("/artistem/newList", async (req, res, next) => {
  * DEVELOPMENT : 신태섭
  * DEV DATE : 2023/01/30
  */
+// 써야함 (수정완료)
 router.post("/artistem/nearList", async (req, res, next) => {
-  const selectQ = `
-    SELECT	ROW_NUMBER() OVER(ORDER BY A.title ASC) 	AS num,
+  const selectQuery = `
+    SELECT  ROW_NUMBER()  OVER(ORDER  BY A.createdAt)     AS num,
             A.id,
-            A.title,
-            A.subTitle,
-            A.content,
-            A.coverImage,
-            A.isIng,
-            A.isTop,
-            A.sampleRate,
-            A.bitRate,
-            A.downloadCnt,
-            FORMAT(A.downloadCnt, 0)                    AS  viewDownloadCnt,
-            A.createdAt,
-            A.updatedAt,
-            DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
-            DATE_FORMAT(A.updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt,
-            B.value AS caValue,
-            A.sPrice,
-            A.dPrice,
-            A.pPrice,
-            A.filename,
-            A.filepath,
-            FORMAT(A.sPrice , 0)   as viewsPrice,
-            FORMAT(A.dPrice , 0)   as viewdPrice,
-            FORMAT(A.pPrice , 0)   as viewpPrice,
-            (
-              SELECT  US.username
-                FROM  artist      AR
-               INNER
-                JOIN  users       US
-                  ON  AR.UserId = US.id
-               WHERE  A.ArtistId = AR.id
-                 AND  AR.isPermm = 1
-            )                                            AS artistName,
-            (
-              SELECT  US.profileImage
-                FROM  artist      AR
-               INNER
-                JOIN  users       US
-                  ON  AR.UserId = US.id
-               WHERE  A.ArtistId = AR.id
-                 AND  AR.isPermm = 1
-            )                                            AS artistImage,
-            (
-              SELECT  COUNT(id)
-                FROM  userLike
-               WHERE  ArtistemId = A.id
-            )                                            AS likeCnt,
-            A.ArtistId
-            ${
-              req.user
-                ? `,
-              CASE
-                  WHEN  (
-                          SELECT  COUNT(id)
-                            FROM  userLike
-                           WHERE  ArtistemId = A.id
-                             AND  UserId = ${req.user.id}
-                        ) > 0 THEN                       1
-                  ELSE                                   0
-              END                                        AS isLike
-              `
-                : `,
-              0                                          AS isLike
-              `
-            }
-      FROM	artistem	A
-     INNER
-      JOIN  productCategory B
-        ON  A.ProductCategoryId = B.id
-     WHERE  A.isIng = 0
-     ORDER  BY A.createdAt DESC
+            A.username,
+            A.profileImage,
+            B.artistname,
+            B.info,
+            B.repSongFilePath,
+            B.repSongFileName,
+            B.id                                          AS artistRequestId
+      FROM  users       A
+      LEFT
+     OUTER
+      JOIN  artist      B
+        ON  A.id = B.UserId
+     WHERE  0 < (
+                  SELECT  COUNT(at.id)
+                    FROM  artist		at
+                   WHERE  at.isPermm = 1	 
+                     AND  at.isUpdate = 1
+                     AND  at.UserId = A.id
+                )
+     ORDER  BY num DESC
      LIMIT  4
     `;
 
-  const selectQ2 = `
-    SELECT	value,
-            ArtistemId
-      FROM	artistTemTag
-      `;
-
-  const selectQ3 = `
-    SELECT	value,
-            ArtistemId
-      FROM	artistTemGen
+  const tagQuery = `
+    SELECT  A.ArtistId,
+            B.type,
+            B.value
+      FROM  artistTags        A
+     INNER
+      JOIN  commonTag         B
+        ON  A.CommonTagId = B.id
     `;
 
   try {
-    const list = await models.sequelize.query(selectQ);
-    const tags = await models.sequelize.query(selectQ2);
-    const gens = await models.sequelize.query(selectQ3);
+    const list = await models.sequelize.query(selectQuery);
 
-    const tems = list[0];
+    const tags = await models.sequelize.query(tagQuery);
 
-    tems.map((data) => {
-      data["tags"] = [];
-      data["gens"] = [];
+    list[0].map((item) => {
+      item["tags"] = [];
 
-      tags[0].map((tag) => {
-        if (data.id === tag.ArtistemId) {
-          data["tags"].push(tag.value);
-        }
-      });
-      gens[0].map((gen) => {
-        if (data.id === gen.ArtistemId) {
-          data["gens"].push(gen.value);
+      tags[0].map((innerItem) => {
+        if (parseInt(item.artistRequestId) === parseInt(innerItem.ArtistId)) {
+          item.tags.push(innerItem);
         }
       });
     });
 
-    return res.status(200).json({
-      artistemList: tems,
-    });
+    return res.status(200).json(list[0]);
   } catch (error) {
     console.error(error);
     return res
@@ -1409,80 +1359,108 @@ router.post("/artistem/nearList", async (req, res, next) => {
 });
 
 // 아티스트의 아이디로 아티스탬 조회 (아티스트의 아이디는 User의 아이디가 아닌 Artist모델의 아이디 인 듯 합니다.)
+// 써야함 (수정완료)
 router.post("/target/list", async (req, res, next) => {
   const { ArtistId } = req.body;
 
-  const selectQ = `
-  SELECT	ROW_NUMBER() OVER(ORDER BY A.title ASC) 	AS num,
-          A.id,
-          A.title,
-          A.subTitle,
-          A.content,
-          A.coverImage,
-          A.isIng,
-          A.isTop,
-          A.sampleRate,
-          A.bitRate,
-          A.downloadCnt,
-          FORMAT(A.downloadCnt, 0)                    AS  viewDownloadCnt,
-          A.createdAt,
-          A.updatedAt,
-          DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
-          DATE_FORMAT(A.updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt,
-          B.value AS caValue,
-          A.sPrice,
-          A.dPrice,
-          A.pPrice,
-          A.filename,
-          A.filepath,
-          FORMAT(A.sPrice , 0)   as viewsPrice,
-          FORMAT(A.dPrice , 0)   as viewdPrice,
-          FORMAT(A.pPrice , 0)   as viewpPrice
-    FROM	artistem	A
-   INNER
-    JOIN  productCategory B
-      ON  A.ProductCategoryId = B.id
-   WHERE  A.ArtistId = ${ArtistId}
-  `;
-
-  const selectQ2 = `
-  SELECT	value,
-          ArtistemId
-    FROM	artistTemTag
+  const selectQuery = `
+    SELECT  ROW_NUMBER()  OVER(ORDER  BY A.createdAt)     AS num,
+            A.id,
+            A.username,
+            A.profileImage,
+            B.id                                          AS artistRequestId,
+            B.plan,
+            B.gen,
+            B.isArtist,
+            B.isMusictem,
+            B.repSongFilePath,
+            B.repSongFileName,
+            B.name,
+            B.businessNum,
+            B.artistname,
+            B.info,
+            B.question1,
+            B.question2,
+            B.question3,
+            B.question4,
+            B.question5,
+            B.question6,
+            B.question7,
+            B.question8,
+            B.isVacation
+      FROM  users       A
+      LEFT
+     OUTER
+      JOIN  artist      B
+        ON  A.id = B.UserId
+     WHERE  0 < (
+                  SELECT  COUNT(at.id)
+                    FROM  artist		at
+                   WHERE  at.isPermm = 1	 
+                     AND  at.isUpdate = 1
+                     AND  at.UserId = A.id
+                )
+       AND  B.id = ${ArtistId}
     `;
 
-  const selectQ3 = `
-  SELECT	value,
-          ArtistemId
-    FROM	artistTemGen
+  const tagQuery = `
+    SELECT  A.ArtistId,
+            B.type,
+            B.value
+      FROM  artistTags        A
+     INNER
+      JOIN  commonTag         B
+        ON  A.CommonTagId = B.id
+     WHERE  A.ArtistId = ${ArtistId}
+    `;
+
+  const filmQuery = `
+SELECT	ROW_NUMBER()	OVER(ORDER	BY sort)	AS num,
+        id,
+        roleName,
+        comment,
+        name,
+        title,
+        musicFile,
+        coverImage,
+        sort,
+        createdAt,
+        updatedAt,
+        DATE_FORMAT(createdAt, "%Y년 %m월 %d일") 	AS	viewCreatedAt,
+        DATE_FORMAT(updatedAt, "%Y년 %m월 %d일") 	AS	viewUpdatedAt,
+        ArtistId 
+  FROM	artistFilm
+ WHERE  ArtistId = ${ArtistId}
+ ORDER	BY num ASC
   `;
 
   try {
-    const list = await models.sequelize.query(selectQ);
-    const tags = await models.sequelize.query(selectQ2);
-    const gens = await models.sequelize.query(selectQ3);
+    const list = await models.sequelize.query(selectQuery);
 
-    const tems = list[0];
+    const tags = await models.sequelize.query(tagQuery);
+    const films = await models.sequelize.query(filmQuery);
 
-    tems.map((data) => {
-      data["tags"] = [];
-      data["gens"] = [];
+    list[0].map((item) => {
+      item["tags"] = [];
 
-      tags[0].map((tag) => {
-        if (data.id === tag.ArtistemId) {
-          data["tags"].push(tag.value);
-        }
-      });
-      gens[0].map((gen) => {
-        if (data.id === gen.ArtistemId) {
-          data["gens"].push(gen.value);
+      tags[0].map((innerItem) => {
+        if (parseInt(item.artistRequestId) === parseInt(innerItem.ArtistId)) {
+          item.tags.push(innerItem);
         }
       });
     });
 
-    return res.status(200).json({
-      artistemList: tems,
+    list[0].map((item) => {
+      item["films"] = [];
+
+      films[0].map((innerItem) => {
+        if (parseInt(item.artistRequestId) === parseInt(innerItem.ArtistId)) {
+          item.films.push(innerItem);
+        }
+      });
     });
+
+    return res.status(200).json(list[0]);
   } catch (error) {
     console.error(error);
     return res
