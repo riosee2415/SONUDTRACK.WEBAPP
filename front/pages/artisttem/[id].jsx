@@ -146,10 +146,11 @@ const Index = () => {
         filename: fileName,
         filepath: buyRequestFile,
         sendUserId: me && me.id,
-        artistId: me && me.ArtistId,
+        artistId: router.query.id,
       },
     });
   }, [
+    router.query,
     me,
     router,
     contentInput,

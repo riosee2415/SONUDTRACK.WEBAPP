@@ -148,7 +148,7 @@ const Index = () => {
   }, [me]);
 
   useEffect(() => {
-    if (router.query) {
+    if (me) {
       dispatch({
         type: BUYREQUEST_MY_LIST_REQUEST,
         data: {
@@ -157,7 +157,7 @@ const Index = () => {
         },
       });
     }
-  }, [router.query, currentPage]);
+  }, [me, currentPage]);
 
   // 삭제 후처리
   useEffect(() => {
