@@ -15,6 +15,16 @@ module.exports = class Artist extends Model {
           type: DataTypes.STRING(3000),
           allowNull: false,
         },
+        isArtist: {
+          type: DataTypes.BOOLEAN, // 아티스트로서 활동
+          allowNull: false,
+          defaultValue: false,
+        },
+        isMusictem: {
+          type: DataTypes.BOOLEAN, // 뮤직탬 판매
+          allowNull: false,
+          defaultValue: false,
+        },
         isPermm: {
           type: DataTypes.BOOLEAN,
           allowNull: false,
@@ -22,6 +32,14 @@ module.exports = class Artist extends Model {
         },
         permmAt: {
           type: DataTypes.DATE,
+          allowNull: true,
+        },
+        repSongFilePath: {
+          type: DataTypes.STRING(600), // 대표곡 파일
+          allowNull: true,
+        },
+        repSongFileName: {
+          type: DataTypes.STRING(2000), // 대표곡 파일명
           allowNull: true,
         },
         name: {
