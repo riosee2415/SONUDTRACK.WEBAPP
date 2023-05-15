@@ -1354,6 +1354,7 @@ router.post("/album/detail", async (req, res, next) => {
 
   const findProductTrackQ = `
   SELECT  A.id,
+          A.thumbnail,
           A.title,
           A.isTitle,
           A.filename,
@@ -1371,6 +1372,12 @@ router.post("/album/detail", async (req, res, next) => {
           FORMAT(A.sPrice , 0)   as viewsPrice,
           FORMAT(A.dPrice , 0)   as viewdPrice,
           FORMAT(A.pPrice , 0)   as viewpPrice,
+          FORMAT(A.downloadCnt, ",")					AS  viewDownLoadCnt,
+          (
+          	SELECT  COUNT(B.id)
+          	  FROM  userLike	B
+          	 WHERE  A.id = B.ProductTrackId
+          )		                                        AS likeCnt,
           B.UserId
     FROM	productTrack	A
    INNER
@@ -1389,18 +1396,43 @@ router.post("/album/detail", async (req, res, next) => {
               B.username,
               B.profileImage,
               B.email,
-              C.title,
-              C.thumbnail,
+              (
+                SELECT  C.title
+                  FROM  productTrack  C
+                 WHERE  C.ProductId = A.id
+                   AND  C.isTop = 1
+                 LIMIT  1
+              )                                           AS title,
+              (
+                SELECT  C.thumbnail
+                  FROM  productTrack  C
+                 WHERE  C.ProductId = A.id
+                   AND  C.isTop = 1
+                 LIMIT  1
+              )                                           AS thumbnail,
               (
                 SELECT  COUNT(D.id)
                   FROM  userLike	D
-                 WHERE  C.id = D.ProductTrackId
+                 WHERE  D.ProductTrackId =  (
+                                              SELECT  C.id
+                                                FROM  productTrack  C
+                                               WHERE  C.ProductId = A.id
+                                                 AND  C.isTop = 1
+                                               LIMIT  1
+                                            )
               )		                                        AS likeCnt,
               CASE 
                 WHEN  (
                        SELECT  COUNT(D.id)
                          FROM  userLike	D
                         WHERE  D.UserId = ${req.user ? req.user.id : 0}
+                          AND  D.ProductTrackId =  (
+                                                     SELECT  C.id
+                                                       FROM  productTrack  C
+                                                      WHERE  C.ProductId = A.id
+                                                        AND  C.isTop = 1
+                                                      LIMIT  1
+                                                   )
                       ) > 0
                 THEN  1
                 ELSE  0
@@ -1409,11 +1441,13 @@ router.post("/album/detail", async (req, res, next) => {
        INNER
         JOIN  users         B
           ON  A.UserId = B.id
-       INNER
-        JOIN  productTrack  C
-          ON  A.id = C.ProductId
        WHERE  A.Userid = ${findProductTrack[0][0].UserId}
-         AND  A.isTop = 1
+         AND  (
+                SELECT  C.id
+                  FROM  productTrack  C
+                 WHERE  C.ProductId = A.id
+                   AND  C.isTop = 1
+              ) > 0
               ${
                 _orderType === 1
                   ? `ORDER  BY A.createdAt DESC`
@@ -1425,9 +1459,32 @@ router.post("/album/detail", async (req, res, next) => {
 
       const findAlbumList = await models.sequelize.query(findAlbumListQ);
 
+      const selectGenQ = `
+      SELECT  A.id,
+              B.value,
+              A.createdAt,
+              A.ProductId 
+        FROM  productGenConnect   A
+       INNER
+        JOIN  productGen          B
+          ON  B.id = A.ProductGenId
+       WHERE  A.ProductId IN (${
+         findProductTrack[0].map((data) => data.ProductId).length === 0
+           ? 0
+           : findProductTrack[0].map((data) => data.ProductId)
+       })
+      `;
+
+      const genList = await models.sequelize.query(selectGenQ);
+
       return res.status(200).send({
         albumList: findAlbumList[0],
-        findProductTrack: findProductTrack[0],
+        findProductTrack: findProductTrack[0].map((data) => ({
+          ...data,
+          genList: genList[0].filter(
+            (value) => value.ProductId === data.ProductId
+          ),
+        })),
       });
     } else {
       return res.status(400).send("아티스트가 없습니다.");
