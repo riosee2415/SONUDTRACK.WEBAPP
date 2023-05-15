@@ -13,6 +13,8 @@ export const initailState = {
 
   filmoFile: null, // 필모 음원
   filmoImg: null, // 필모 앨범 이미지
+
+  repSongFile: null, // 대표곡 음원
   //
   st_permmWaitingLoading: false,
   st_permmWaitingDone: false,
@@ -77,6 +79,10 @@ export const initailState = {
   st_artistVacaUpdateLoading: false, // artist 휴가중 정보수정
   st_artistVacaUpdateDone: false,
   st_artistVacaUpdateError: null,
+  //
+  st_repSongFileUploadLoading: false, // 대표곡 음원
+  st_repSongFileUploadDone: false,
+  st_repSongFileUploadError: null,
 };
 
 export const PERMM_WAITING_LIST_REQUEST = "PERMM_WAITING_LIST_REQUEST";
@@ -143,11 +149,17 @@ export const ARTIST_VACA_UPDATE_REQUEST = "ARTIST_VACA_UPDATE_REQUEST";
 export const ARTIST_VACA_UPDATE_SUCCESS = "ARTIST_VACA_UPDATE_SUCCESS";
 export const ARTIST_VACA_UPDATE_FAILURE = "ARTIST_VACA_UPDATE_FAILURE";
 
+export const REP_SONG_FILE_UPLOAD_REQUEST = "REP_SONG_FILE_UPLOAD_REQUEST";
+export const REP_SONG_FILE_UPLOAD_SUCCESS = "REP_SONG_FILE_UPLOAD_SUCCESS";
+export const REP_SONG_FILE_UPLOAD_FAILURE = "REP_SONG_FILE_UPLOAD_FAILURE";
+
 export const ARTIST_IMAGE_RESET = "ARTIST_IMAGE_RESET";
 
 export const FILMO_FILE_RESET = "FILMO_FILE_RESET";
 
 export const FILMO_IMAGE_RESET = "FILMO_IMAGE_RESET";
+
+export const REP_SONG_FILE_RESET = "REP_SONG_FILE_RESET";
 
 const reducer = (state = initailState, action) =>
   produce(state, (draft) => {
@@ -523,8 +535,35 @@ const reducer = (state = initailState, action) =>
 
       ///////////////////////////////////////////////////////
 
+      case REP_SONG_FILE_UPLOAD_REQUEST: {
+        draft.st_repSongFileUploadLoading = true;
+        draft.st_repSongFileUploadDone = false;
+        draft.st_repSongFileUploadError = null;
+        break;
+      }
+      case REP_SONG_FILE_UPLOAD_SUCCESS: {
+        draft.st_repSongFileUploadLoading = false;
+        draft.st_repSongFileUploadDone = true;
+        draft.st_repSongFileUploadError = null;
+        draft.repSongFile = action.data.path;
+        break;
+      }
+      case REP_SONG_FILE_UPLOAD_FAILURE: {
+        draft.st_repSongFileUploadLoading = false;
+        draft.st_repSongFileUploadDone = false;
+        draft.st_repSongFileUploadError = action.error;
+        break;
+      }
+
+      ///////////////////////////////////////////////////////
+
       case ARTIST_IMAGE_RESET: {
         draft.artistPath = null;
+        break;
+      }
+
+      case REP_SONG_FILE_RESET: {
+        draft.repSongFile = null;
         break;
       }
 

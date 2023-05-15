@@ -38,6 +38,8 @@ import {
   FILMO_FILE_UPLOAD_REQUEST,
   FILMO_IMAGE_RESET,
   FILMO_IMG_UPLOAD_REQUEST,
+  REP_SONG_FILE_RESET,
+  REP_SONG_FILE_UPLOAD_REQUEST,
 } from "../../reducers/artist";
 
 const Box = styled(Wrapper)`
@@ -118,6 +120,11 @@ const Index = () => {
 
     st_artistInfoUpdateDone,
     st_artistInfoUpdateError,
+
+    repSongFile,
+    st_repSongFileUploadLoading,
+    st_repSongFileUploadDone,
+    st_repSongFileUploadError,
   } = useSelector((state) => state.artist);
 
   ////// HOOKS //////
@@ -128,6 +135,7 @@ const Index = () => {
   const imgRef = useRef(); // 프로필 변경
   const filmoFileRef = useRef(); // 필모 음원
   const filmoImgRef = useRef(); // 필모 앨범이미지
+  const repSongFileRef = useRef(); // 대표음원
 
   const comName = useInput(""); // 담당자명
   const comNum = useInput(""); // 사업자번호
@@ -145,6 +153,7 @@ const Index = () => {
   const ques6 = useInput(""); // 질문6
   const ques7 = useInput(""); // 질문7
   const ques8 = useInput(""); // 그 외 질문8
+  const repSongName = useInput(""); // 대표음원이름
 
   const roleName = useInput(""); // 필모 역활
   const comment = useInput(""); // 필모 코멘트
@@ -224,6 +233,11 @@ const Index = () => {
       ques7.setValue("");
       ques8.setValue("");
       setFilmoArr([]);
+      repSongName.setValue("");
+
+      dispatch({
+        type: REP_SONG_FILE_RESET,
+      });
 
       router.push(`/artisttem/${me && me.ArtistId}`);
 
@@ -468,6 +482,30 @@ const Index = () => {
     [tagArr]
   );
 
+  // 대표은원 등록
+  const repSongFileClickHandler = useCallback(() => {
+    repSongFileRef.current.click();
+  }, [repSongFileRef]);
+
+  const repSongFileUploadHandler = useCallback((e) => {
+    repSongName.setValue(e.target.files[0].name);
+
+    const formData = new FormData();
+
+    [].forEach.call(e.target.files, (file) => {
+      formData.append("image", file);
+    });
+
+    if (e.target.files.length < 1) {
+      return;
+    }
+
+    dispatch({
+      type: REP_SONG_FILE_UPLOAD_REQUEST,
+      data: formData,
+    });
+  }, []);
+
   const saveHandler = useCallback(() => {
     if (!comName.value || comName.value.trim() === "") {
       return message.error("담당자 성함을 입력해주세요.");
@@ -487,6 +525,10 @@ const Index = () => {
 
     if (useArtCoun.length === 0) {
       return message.error("사용 가능한 언어/국가를 등록해주세요.");
+    }
+
+    if (!repSongFile) {
+      return message.error("대표음원을 등록해주세요.");
     }
 
     if (!ques1.value || ques1.value.trim() === "") {
@@ -548,6 +590,8 @@ const Index = () => {
         artistFilms: filmoArr,
         artistCountries: useArtCoun,
         tags: tagArr,
+        repSongFilePath: repSongFile,
+        repSongFileName: repSongName.value,
       },
     });
   }, [
@@ -568,6 +612,8 @@ const Index = () => {
     filmoArr,
     tagArr,
     me,
+    repSongFile,
+    repSongName.value,
   ]);
 
   ////// DATAVIEW //////
@@ -824,6 +870,7 @@ const Index = () => {
                 dr={`row`}
                 ju={`flex-start`}
                 width={width < 700 ? `100%` : `440px`}
+                margin={`0 0 30px`}
               >
                 {useArtCoun &&
                   useArtCoun.map((data, idx) => {
@@ -846,6 +893,52 @@ const Index = () => {
                     );
                   })}
               </Wrapper>
+              <Text
+                fontSize={`16px`}
+                color={Theme.grey_C}
+                fontWeight={`500`}
+                margin={`0 0 12px`}
+              >
+                <SpanText fontWeight={`bold`} margin={`0 4px 0 0`}>
+                  Q5.
+                </SpanText>
+                대표음원
+              </Text>
+              <Wrapper
+                width={width < 700 ? `100%` : `440px`}
+                dr={`row`}
+                ju={`space-between`}
+                margin={`0 0 10px`}
+              >
+                <TextInput
+                  width={`calc(100% - 108px)`}
+                  height={`50px`}
+                  placeholder="대표음원을 등록해주세요.(MP3로만 등록해주세요)"
+                  tyoe="text"
+                  border={`1px solid ${Theme.lightGrey_C}`}
+                  readOnly={true}
+                  value={repSongName.value ? repSongName.value : ""}
+                />
+                <input
+                  ref={repSongFileRef}
+                  type={`file`}
+                  accept={`.mp3`}
+                  hidden
+                  onChange={repSongFileUploadHandler}
+                />
+                <CommonButton
+                  width={`100px`}
+                  height={`50px`}
+                  fontSize={`18px`}
+                  fontWeight={`600`}
+                  kindOf={`subTheme2`}
+                  onClick={repSongFileClickHandler}
+                  loading={st_repSongFileUploadLoading}
+                >
+                  파일등록
+                </CommonButton>
+              </Wrapper>
+
               <Text fontSize={`24px`} fontWeight={`600`} margin={`60px 0 30px`}>
                 상세 프로필 수정
               </Text>

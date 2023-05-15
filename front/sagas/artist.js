@@ -64,6 +64,10 @@ import {
   ARTIST_VACA_UPDATE_REQUEST,
   ARTIST_VACA_UPDATE_SUCCESS,
   ARTIST_VACA_UPDATE_FAILURE,
+  //
+  REP_SONG_FILE_UPLOAD_REQUEST,
+  REP_SONG_FILE_UPLOAD_SUCCESS,
+  REP_SONG_FILE_UPLOAD_FAILURE,
 } from "../reducers/artist";
 
 // ******************************************************************************************************************
@@ -514,6 +518,34 @@ function* artistVacaUpdate(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function repSongFileAPI(data) {
+  return await axios.post(`/api/artist/image`, data);
+}
+
+function* repSongFile(action) {
+  try {
+    const result = yield call(repSongFileAPI, action.data);
+
+    yield put({
+      type: REP_SONG_FILE_UPLOAD_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: REP_SONG_FILE_UPLOAD_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 function* watchFaqTypeList() {
   yield takeLatest(PERMM_WAITING_LIST_REQUEST, permmWaitingList);
@@ -563,6 +595,9 @@ function* watchFilmoImgUpload() {
 function* watchArtistVacaUpdate() {
   yield takeLatest(ARTIST_VACA_UPDATE_REQUEST, artistVacaUpdate);
 }
+function* watchRepSongFileUpload() {
+  yield takeLatest(REP_SONG_FILE_UPLOAD_REQUEST, repSongFile);
+}
 
 //////////////////////////////////////////////////////////////
 export default function* artistSaga() {
@@ -583,6 +618,7 @@ export default function* artistSaga() {
     fork(watchFilmoFileUpload),
     fork(watchFilmoImgUpload),
     fork(watchArtistVacaUpdate),
+    fork(watchRepSongFileUpload),
     //
   ]);
 }
