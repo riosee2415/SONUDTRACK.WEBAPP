@@ -116,6 +116,6 @@ module.exports = class BuyRequest extends Model {
     // 발신자
     db.BuyRequest.belongsTo(db.User, { as: "sendUser" });
     // 수신자 아티스트 탬
-    db.BuyRequest.belongsTo(db.Artistem, { as: "artistem" });
+    db.BuyRequest.belongsTo(db.Artist, { as: "artist" });
   }
 };

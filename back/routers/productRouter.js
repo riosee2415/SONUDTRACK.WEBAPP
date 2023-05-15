@@ -1336,14 +1336,14 @@ router.post("/track/detail", async (req, res, next) => {
 });
 
 /**
- * SUBJECT : 엘범 상세보기
+ * SUBJECT : 아티스트 엘범 상세보기
  * PARAMETERS : id
  * ORDER BY : -
  * STATEMENT : -
  * DEVELOPMENT : 홍민기
  * DEV DATE : 2023/02/27
  */
-router.post("/album/detail", async (req, res, next) => {
+router.post("/artist/album/detail", async (req, res, next) => {
   const { id, orderType } = req.body;
 
   const _orderType = orderType ? parseInt(orderType) : 3;
@@ -1501,6 +1501,142 @@ router.post("/album/detail", async (req, res, next) => {
   } catch (e) {
     console.error(e);
     return res.status(400).send("엘범을 불러올 수 없습니다.");
+  }
+});
+
+/**
+ * SUBJECT : 엘범 상세보기
+ * PARAMETERS : id
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 홍민기
+ * DEV DATE : 2023/02/27
+ */
+
+router.post("/album/detail", async (req, res, next) => {
+  const { id } = req.body;
+
+  try {
+    const selectProductQ = `
+    SELECT  A.id,
+		        A.title,
+		        A.subTitle,
+		        A.content,
+		        A.coverImage,
+		        A.downloadCnt,
+		        A.bitRate,
+		        A.sampleRate,
+		        A.isTop,
+		        A.ProductCategoryId,
+		        A.UserId,
+		        A.agreementPath,
+		        A.agreementName,
+            B.nickname,
+            (
+              SELECT  COUNT(B.id)
+                FROM  userLike	B
+               WHERE  A.id = B.ProductId
+            )		                                        AS likeCnt,
+            CASE 
+              WHEN  (
+                     SELECT  COUNT(B.id)
+                       FROM  userLike	B
+                       WHERE  B.UserId = ${req.user ? req.user.id : 0}
+                    ) > 0
+              THEN  1
+               ELSE  0
+             END                                         AS isLike
+      FROM  product             A
+     INNER
+      JOIN  users               B
+        ON  A.UserId = B.id
+     WHERE  A.id = ${id}
+    `;
+    const selectGenQ = `
+    SELECT  A.id,
+        		B.value,
+        		A.createdAt,
+        		A.ProductId
+      FROM  productGenConnect   A
+     INNER
+      JOIN  productGen          B
+        ON  B.id = A.ProductGenId
+     WHERE  A.ProductId = ${id}
+    `;
+    const selectTrackQ = `
+    SELECT	A.id,
+            A.title,
+            A.isTitle,
+            A.thumbnail,
+            A.filename,
+            A.filepath,
+            A.author,
+            A.downloadCnt,
+            A.createdAt,
+            A.updatedAt,
+            A.ProductId,
+            DATE_FORMAT(A.createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
+            DATE_FORMAT(A.updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt,
+            A.sPrice,
+            A.dPrice,
+            A.pPrice,
+            FORMAT(A.sPrice , 0)   as viewsPrice,
+            FORMAT(A.dPrice , 0)   as viewdPrice,
+            FORMAT(A.pPrice , 0)   as viewpPrice,
+            (
+              SELECT  COUNT(B.id)
+                FROM  userLike	B
+               WHERE  A.id = B.ProductTrackId
+            )		                                        AS likeCnt,
+            CASE 
+              WHEN  (
+                     SELECT  COUNT(B.id)
+                       FROM  userLike	B
+                       WHERE  B.UserId = ${req.user ? req.user.id : 0}
+                         AND  B.ProductTrackId = A.id
+                    ) > 0
+              THEN  1
+               ELSE  0
+             END                                         AS isLike
+      FROM	productTrack        A
+     WHERE  ProductId = ${id}
+       AND  isOk = 1`;
+
+    const selectProduct = await models.sequelize.query(selectProductQ);
+    const selectGen = await models.sequelize.query(selectGenQ);
+    const selectTrack = await models.sequelize.query(selectTrackQ);
+
+    const selectGenQ2 = `
+    SELECT  A.id,
+        		B.value,
+        		A.createdAt,
+        		A.ProductId 
+      FROM  productGenConnect   A
+     INNER
+      JOIN  productGen          B
+        ON  B.id = A.ProductGenId
+     WHERE  A.ProductId IN (${
+       selectTrack[0].map((data) => data.ProductId).length === 0
+         ? 0
+         : selectTrack[0].map((data) => data.ProductId)
+     })
+    `;
+
+    const genList = await models.sequelize.query(selectGenQ2);
+
+    return res.status(200).json({
+      ...selectProduct[0][0],
+      genList: selectGen[0],
+      trackList: selectTrack[0].map((data) => ({
+        ...data,
+        genList: genList[0].filter(
+          (value) => value.ProductId === data.ProductId
+        ),
+      })),
+    });
+  } catch (e) {
+    console.error(e);
+    return res.status(400).send("엘범의 상세정보를 불러올 수 없습니다.");
   }
 });
 

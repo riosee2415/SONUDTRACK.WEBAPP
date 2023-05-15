@@ -119,7 +119,6 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
           B.nickname									                AS sendNickname,
           B.mobile									                  AS sendMobile,
           B.email									                    AS sendEmail,
-          C.subTitle,
           E.profileImage                              AS receptionProfileImage,
           E.id										                    AS receptionUserId,
           E.username									                AS receptionUsername,
@@ -135,11 +134,8 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
     JOIN  users			B
       ON  B.id = A.sendUserId
    INNER
-    JOIN  artistem		C
-      ON  C.id = A.artistemId
-   INNER
     JOIN  artist 			D
-      ON  D.id = C.ArtistId 
+      ON  D.id = A.artistId 
    INNER 
     JOIN  users			E
       ON  E.id = D.UserId 
@@ -241,7 +237,6 @@ router.post("/my/list", isLoggedIn, async (req, res, next) => {
               B.nickname									                AS sendNickname,
               B.mobile									                  AS sendMobile,
               B.email									                    AS sendEmail,
-              C.subTitle,
               E.profileImage                              AS receptionProfileImage,
               E.id										                    AS receptionUserId,
               E.username									                AS receptionUsername,
@@ -258,11 +253,8 @@ router.post("/my/list", isLoggedIn, async (req, res, next) => {
         JOIN  users			    B
           ON  B.id = A.sendUserId
        INNER
-        JOIN  artistem		C
-          ON  C.id = A.artistemId
-       INNER
         JOIN  artist 			D
-          ON  D.id = C.ArtistId 
+          ON  D.id = A.artistId 
        INNER 
         JOIN  users			E
           ON  E.id = D.UserId 
@@ -323,7 +315,6 @@ router.post("/my/list", isLoggedIn, async (req, res, next) => {
               B.nickname									                AS sendNickname,
               B.mobile									                  AS sendMobile,
               B.email									                    AS sendEmail,
-              C.subTitle,
               E.profileImage                              AS receptionProfileImage,
               E.id										                    AS receptionUserId,
               E.username									                AS receptionUsername,
@@ -340,11 +331,8 @@ router.post("/my/list", isLoggedIn, async (req, res, next) => {
         JOIN  users			    B
           ON  B.id = A.sendUserId
        INNER
-        JOIN  artistem		C
-          ON  C.id = A.artistemId
-       INNER
         JOIN  artist 			D
-          ON  D.id = C.ArtistId 
+          ON  D.id = A.artistId 
        INNER 
         JOIN  users			E
           ON  E.id = D.UserId 
@@ -411,7 +399,6 @@ router.post("/my/list", isLoggedIn, async (req, res, next) => {
               B.nickname									                AS sendNickname,
               B.mobile									                  AS sendMobile,
               B.email									                    AS sendEmail,
-              C.subTitle,
               E.profileImage                              AS receptionProfileImage,
               E.id										                    AS receptionUserId,
               E.username									                AS receptionUsername,
@@ -428,11 +415,8 @@ router.post("/my/list", isLoggedIn, async (req, res, next) => {
         JOIN  users			    B
           ON  B.id = A.sendUserId
        INNER
-        JOIN  artistem		C
-          ON  C.id = A.artistemId
-       INNER
         JOIN  artist 			D
-          ON  D.id = C.ArtistId 
+          ON  D.id = A.artistId 
        INNER 
         JOIN  users			E
           ON  E.id = D.UserId 
@@ -492,7 +476,6 @@ router.post("/my/list", isLoggedIn, async (req, res, next) => {
               B.nickname									                AS sendNickname,
               B.mobile									                  AS sendMobile,
               B.email									                    AS sendEmail,
-              C.subTitle,
               E.profileImage                              AS receptionProfileImage,
               E.id										                    AS receptionUserId,
               E.username									                AS receptionUsername,
@@ -509,11 +492,8 @@ router.post("/my/list", isLoggedIn, async (req, res, next) => {
         JOIN  users			    B
           ON  B.id = A.sendUserId
        INNER
-        JOIN  artistem		C
-          ON  C.id = A.artistemId
-       INNER
         JOIN  artist 			D
-          ON  D.id = C.ArtistId 
+          ON  D.id = A.artistId 
        INNER 
         JOIN  users			E
           ON  E.id = D.UserId 
@@ -560,7 +540,7 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
     filename,
     filepath,
     sendUserId,
-    artistemId,
+    artistId,
   } = req.body;
 
   const insertQ = `
@@ -573,7 +553,7 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
         filepath,
  	      rejectMessage,
  	      sendUserId,
- 	      artistemId,
+ 	      artistId,
  	      createdAt,
  	      updatedAt
       )
@@ -586,7 +566,7 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
         ${filepath ? `"${filepath}"` : null},
       	NULL,
       	${sendUserId},
-      	${artistemId},
+      	${artistId},
       	NOW(),
       	NOW()
       );
@@ -619,11 +599,8 @@ router.post("/isOk", isLoggedIn, async (req, res, next) => {
           A.isDelete
     FROM  buyRequest    A
    INNER
-    JOIN  artistem		  B
-      ON  B.id = A.artistemId
-   INNER
     JOIN  artist 			  C
-      ON  C.id = B.ArtistId 
+      ON  C.id = A.artistId 
    WHERE  A.id = ${id}
   `;
 
@@ -671,11 +648,8 @@ router.post("/isReject", isLoggedIn, async (req, res, next) => {
           A.isDelete
     FROM  buyRequest    A
    INNER
-    JOIN  artistem		  B
-      ON  B.id = A.artistemId
-   INNER
     JOIN  artist 			  C
-      ON  C.id = B.ArtistId 
+      ON  C.id = A.artistId 
    WHERE  A.id = ${id}
   `;
 
