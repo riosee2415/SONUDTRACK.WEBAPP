@@ -1336,14 +1336,14 @@ router.post("/track/detail", async (req, res, next) => {
 });
 
 /**
- * SUBJECT : 엘범 상세보기
+ * SUBJECT : 아티스트 엘범 상세보기
  * PARAMETERS : id
  * ORDER BY : -
  * STATEMENT : -
  * DEVELOPMENT : 홍민기
  * DEV DATE : 2023/02/27
  */
-router.post("/album/detail", async (req, res, next) => {
+router.post("/artist/album/detail", async (req, res, next) => {
   const { id, orderType } = req.body;
 
   const _orderType = orderType ? parseInt(orderType) : 3;
@@ -1501,6 +1501,85 @@ router.post("/album/detail", async (req, res, next) => {
   } catch (e) {
     console.error(e);
     return res.status(400).send("엘범을 불러올 수 없습니다.");
+  }
+});
+
+/**
+ * SUBJECT : 엘범 상세보기
+ * PARAMETERS : id
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 홍민기
+ * DEV DATE : 2023/02/27
+ */
+
+router.post("/album/detail", async (req, res, next) => {
+  const { id } = req.body;
+
+  try {
+    const selectProductQ = `
+    SELECT  id,
+		        title,
+		        subTitle,
+		        content,
+		        coverImage,
+		        downloadCnt,
+		        bitRate,
+		        sampleRate,
+		        isTop,
+		        ProductCategoryId,
+		        UserId,
+		        agreementPath,
+		        agreementName
+      FROM  product
+     WHERE  id = ${id}
+    `;
+    const selectGenQ = `
+    SELECT  A.id,
+        		B.value,
+        		A.createdAt,
+        		A.ProductId
+      FROM  productGenConnect   A
+     INNER
+      JOIN  productGen          B
+        ON  B.id = A.ProductGenId
+     WHERE  A.ProductId = ${id}
+    `;
+    const selectTrackQ = `
+    SELECT	id,
+            title,
+            isTitle,
+            filename,
+            filepath,
+            author,
+            downloadCnt,
+            createdAt,
+            updatedAt,
+            ProductId,
+            DATE_FORMAT(createdAt , "%Y년 %m월 %d일") 	AS	viewCreatedAt,
+            DATE_FORMAT(updatedAt , "%Y년 %m월 %d일") 	AS	viewUpdatedAt,
+            sPrice,
+            dPrice,
+            pPrice,
+            FORMAT(sPrice , 0)   as viewsPrice,
+            FORMAT(dPrice , 0)   as viewdPrice,
+            FORMAT(pPrice , 0)   as viewpPrice
+      FROM	productTrack
+     WHERE  id = ${id}
+       AND  isOk = 1`;
+
+    const selectProduct = await models.sequelize.query(selectProductQ);
+    const selectGen = await models.sequelize.query(selectGenQ);
+    const selectTrack = await models.sequelize.query(selectTrackQ);
+
+    return res.status(200).json({
+      ...selectProduct[0][0],
+      genList: selectGen[0],
+      trackList: selectTrack[0],
+    });
+  } catch (e) {
+    console.error(e);
+    return res.status(400).send("엘범의 상세정보를 불러올 수 없습니다.");
   }
 });
 

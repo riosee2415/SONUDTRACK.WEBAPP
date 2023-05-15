@@ -925,7 +925,7 @@ function* productDetail(action) {
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
 async function productAlbumDetailAPI(data) {
-  return await axios.post("/api/product/album/detail", data);
+  return await axios.post("/api/product/artist/album/detail", data);
 }
 
 function* productAlbumDetail(action) {
