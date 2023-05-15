@@ -193,7 +193,6 @@ const Index = () => {
                   />
                 )}
 
-                {/* {console.log(productAlbumList)} */}
                 <Wrapper bgColor={Theme.lightGrey2_C} padding={`20px 0`}>
                   <Text
                     fontSize={`26px`}
@@ -209,11 +208,8 @@ const Index = () => {
                     fontSize={`16px`}
                     margin={`6px 0 0`}
                   >
-                    <StarFilled />
-                    <StarFilled />
-                    <StarFilled />
-                    <StarFilled />
-                    <StarFilled />
+                    <Rate size="small" disabled />
+
                     <Text
                       color={Theme.darkGrey_C}
                       fontSize={`14px`}
