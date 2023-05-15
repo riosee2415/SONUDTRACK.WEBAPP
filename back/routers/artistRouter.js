@@ -553,6 +553,8 @@ router.post("/info/update", isLoggedIn, async (req, res, next) => {
     artistFilms,
     artistCountries,
     tags,
+    repSongFilePath,
+    repSongFileName,
   } = req.body;
 
   if (!Array.isArray(artistFilms)) {
@@ -617,6 +619,8 @@ router.post("/info/update", isLoggedIn, async (req, res, next) => {
           question6 = "${question6}",
           question7 = "${question7}",
           question8 = "${question8}",
+          repSongFilePath = "${repSongFilePath}",
+          repSongFileName = "${repSongFileName}",
           isUpdate = 1,
           updatedAt = NOW()
    WHERE  id = ${id}
