@@ -112,7 +112,7 @@ const Index = () => {
       return message.error("로그인 후 이용가능합니다.");
     }
     setIsContact((prev) => !prev);
-  }, [isContact]);
+  }, [isContact, me]);
   ////// HANDLER //////
 
   // 문의하기
@@ -394,7 +394,11 @@ const Index = () => {
               <Wrapper dr={`row`} ju={`flex-start`}>
                 <Image
                   alt="thumbnail"
-                  src={me && me.profileImage ? me.profileImage : ""}
+                  src={
+                    me && me.profileImage
+                      ? me.profileImage
+                      : "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/header-icon/avatar.png"
+                  }
                   width={`36px`}
                   height={`36px`}
                   radius={`100%`}
