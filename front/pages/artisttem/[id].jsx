@@ -146,7 +146,7 @@ const Index = () => {
         filename: fileName,
         filepath: buyRequestFile,
         sendUserId: me && me.id,
-        artistemId: router.query.id,
+        artistId: me && me.ArtistId,
       },
     });
   }, [
@@ -296,13 +296,18 @@ const Index = () => {
                   >
                     상세 프로필
                   </CommonButton>
-                  <CommonButton
-                    width={`146px`}
-                    height={`46px`}
-                    onClick={contactToggle}
-                  >
-                    Contact
-                  </CommonButton>
+                  {(me && me.ArtistId) !==
+                    (artistems &&
+                      artistems[0] &&
+                      artistems[0].artistRequestId) && (
+                    <CommonButton
+                      width={`146px`}
+                      height={`46px`}
+                      onClick={contactToggle}
+                    >
+                      Contact
+                    </CommonButton>
+                  )}
                 </Wrapper>
                 <Text color={Theme.darkGrey_C}>TAG</Text>
                 <Wrapper dr={`row`} ju={`flex-start`} margin={`5px 0 0`}>
