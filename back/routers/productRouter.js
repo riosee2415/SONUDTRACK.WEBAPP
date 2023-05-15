@@ -1391,6 +1391,18 @@ router.post("/album/detail", async (req, res, next) => {
     const findProductTrack = await models.sequelize.query(findProductTrackQ);
 
     if (findProductTrack[0].length !== 0) {
+      const userDataQ = `
+      SELECT  A.id,
+              A.profileImage,
+              A.email,
+              A.username,
+              A.nickname
+        FROM  users           A
+       WHERE  A.id = ${findProductTrack[0][0].UserId}
+      `;
+
+      const userData = await models.sequelize.query(userDataQ);
+
       const findAlbumListQ = `
       SELECT  A.id,
               B.username,
@@ -1477,7 +1489,8 @@ router.post("/album/detail", async (req, res, next) => {
 
       const genList = await models.sequelize.query(selectGenQ);
 
-      return res.status(200).send({
+      return res.status(200).json({
+        ...userData[0][0],
         albumList: findAlbumList[0],
         findProductTrack: findProductTrack[0].map((data) => ({
           ...data,

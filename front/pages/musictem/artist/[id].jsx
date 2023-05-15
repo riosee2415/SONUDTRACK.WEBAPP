@@ -67,7 +67,7 @@ const CdWrapper = styled(Wrapper)`
 
 const Index = () => {
   ////// GLOBAL STATE //////
-  const { productAlbumList, productTrackList } = useSelector(
+  const { productAlbumList, productTrackList, productArtist } = useSelector(
     (state) => state.product
   );
   ////// HOOKS //////
@@ -182,21 +182,25 @@ const Index = () => {
                     Musictem
                   </Text>
                 </Wrapper>
-                <Image
-                  width={`180px`}
-                  height={`180px`}
-                  radius={`100%`}
-                  margin={`0 0 20px`}
-                  src="https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png"
-                  alt="thumbnail"
-                />
+                {productArtist && (
+                  <Image
+                    width={`180px`}
+                    height={`180px`}
+                    radius={`100%`}
+                    margin={`0 0 20px`}
+                    src={productArtist.profileImage}
+                    alt="thumbnail"
+                  />
+                )}
+
+                {/* {console.log(productAlbumList)} */}
                 <Wrapper bgColor={Theme.lightGrey2_C} padding={`20px 0`}>
                   <Text
                     fontSize={`26px`}
                     fontWeight={`bold`}
                     color={Theme.darkGrey_C}
                   >
-                    이차미
+                    {productArtist && productArtist.nickname}
                   </Text>
                   <Wrapper
                     dr={`row`}

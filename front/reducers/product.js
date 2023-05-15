@@ -19,6 +19,7 @@ export const initailState = {
   trackUploadPath: null,
   trackTypeList: [],
   productDetail: null,
+  productArtist: null,
   productAlbumList: [],
   productTrackList: [],
   productTrackSellDesc: [],
@@ -895,6 +896,7 @@ const reducer = (state = initailState, action) =>
         draft.st_productAlbumDetailLoading = false;
         draft.st_productAlbumDetailDone = true;
         draft.st_productAlbumDetailError = null;
+        draft.productArtist = action.data;
         draft.productAlbumList = action.data.albumList;
         draft.productTrackList = action.data.findProductTrack;
         break;
