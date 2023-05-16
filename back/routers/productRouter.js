@@ -667,7 +667,7 @@ router.post("/track/isOk", isAdminCheck, async (req, res, next) => {
   SELECT  id
     FROM  productTrack
    WHERE  1 = 1
-     AND  isOk = TRUE OR isReject = TRUE
+     AND  (isOk = TRUE OR isReject = TRUE)
      AND  id = ${id}
   `;
 
@@ -708,7 +708,7 @@ router.post("/track/isReject", isAdminCheck, async (req, res, next) => {
   SELECT  id
     FROM  productTrack
    WHERE  1 = 1
-     AND  isOk = TRUE OR isReject = TRUE
+     AND  (isOk = TRUE OR isReject = TRUE)
      AND  id = ${id}
   `;
 

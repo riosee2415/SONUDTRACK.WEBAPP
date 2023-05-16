@@ -204,7 +204,7 @@ const Track = ({}) => {
         id: data.id,
       },
     });
-  });
+  }, []);
   // 거절하기
   const isRejectChangeHandler = useCallback(
     (data) => {
