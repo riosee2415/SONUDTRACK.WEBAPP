@@ -407,6 +407,38 @@ const Index = () => {
     [rData]
   );
 
+  // 결제하기
+  const buyHandler = useCallback(() => {
+    if (!orderData) {
+      return message.error("잠시후 다시 시도해주세요.");
+    }
+
+    const orderPK = "ORD" + moment().format("YYYYMMDDHHmmssms");
+
+    IMP.init("imp61303582");
+
+    IMP.request_pay(
+      {
+        pg: `danal_tpay`,
+        pay_method: "card",
+        merchant_uid: orderPK,
+        name: "컨택결제",
+        buyer_name: me.username,
+        biz_num: me.mobile,
+        amount: orderData.totalPrice,
+      },
+      async (rsp) => {
+        if (rsp.success) {
+          console.log(rsp);
+          console.log("결제 성공");
+        } else {
+          console.log(rsp.error_msg);
+          console.log("결제 실패");
+        }
+      }
+    );
+  }, [orderData, me]);
+
   ////// DATAVIEW //////
 
   return (
@@ -1085,6 +1117,7 @@ const Index = () => {
                     width={width < 900 ? `150px` : `180px`}
                     height={`50px`}
                     fontSize={width < 900 ? `15px` : `18px`}
+                    onClick={buyHandler}
                   >
                     결제하기
                   </CommonButton>
