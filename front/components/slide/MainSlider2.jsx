@@ -149,7 +149,7 @@ const MainSlider2 = ({ datum }) => {
           radius={`14px`}
           alt="thumnail"
           height={`100%`}
-          src={datum[status] && datum[status].coverImage}
+          src={datum[status] && datum[status].profileImage}
         />
       </LeftBox>
       <RightBox>
@@ -216,7 +216,7 @@ const MainSlider2 = ({ datum }) => {
                     padding={`0 15px`}
                     margin={`0 4px 0 0`}
                   >
-                    {data}
+                    {data.value}
                   </Wrapper>
                 );
               })}
@@ -237,7 +237,7 @@ const MainSlider2 = ({ datum }) => {
                 return (
                   <Circle
                     key={value.id}
-                    bgImg={`url("${value.coverImage}")`}
+                    bgImg={`url("${value.profileImage}")`}
                     onClick={() => musicToggle(value)}
                   >
                     <Wrapper bgColor={`rgba(0, 0, 0, 0.4)`} height={`100%`}>

@@ -279,7 +279,6 @@ const Index = () => {
                       ju={`space-between`}
                     >
                       {artistemNearList.map((data, idx) => {
-                        console.log(data);
                         return (
                           <Box width={`48%`}>
                             <Wrapper
@@ -387,6 +386,8 @@ const Index = () => {
             {artistemSlideList.length !== 0 && (
               <MainSlider2 datum={artistemSlideList} />
             )}
+
+            {console.log(artistemSlideList)}
 
             <Wrapper margin={`100px 0 45px`}>
               <Text
