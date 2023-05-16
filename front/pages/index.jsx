@@ -218,7 +218,7 @@ const Home = ({}) => {
               </Wrapper>
             </Wrapper>
 
-            {artistemSlideList && <MainSlider2 datum={artistemSlideList} />}
+            {/* {artistemSlideList && <MainSlider2 datum={artistemSlideList} />} */}
 
             <Wrapper dr={`row`} ju={`space-between`} margin={`80px 0 40px`}>
               <Wrapper
