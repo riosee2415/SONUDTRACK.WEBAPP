@@ -412,7 +412,7 @@ const MypageMenu = ({}) => {
               ? `4px solid ${Theme.subTheme_C}`
               : `4px solid ${Theme.white_C}`
           }
-          onClick={() => movelinkHandler(`/`)}
+          onClick={() => movelinkHandler(`/mypage`)}
         >
           메인으로
         </Menu>
