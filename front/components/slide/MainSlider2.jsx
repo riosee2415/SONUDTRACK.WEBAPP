@@ -4,7 +4,6 @@ import { useState } from "react";
 import {
   CaretLeftFilled,
   CaretRightFilled,
-  CaretRightOutlined,
   PlusOutlined,
   StarFilled,
 } from "@ant-design/icons";
@@ -22,8 +21,8 @@ const LeftBox = styled(Wrapper)`
 
   @media (max-width: 900px) {
     width: 100%;
-    height: auto;
-    padding: 55px 0;
+    height: 350px;
+    padding: 40px 0;
   }
 `;
 
@@ -171,7 +170,7 @@ const MainSlider2 = ({ datum }) => {
               fontWeight={`500`}
               margin={`0 14px 0 0`}
             >
-              {datum[status] && datum[status].artistName}
+              {datum[status] && datum[status].artistname}
             </Text>
             <Image
               alt="icon"
@@ -201,7 +200,7 @@ const MainSlider2 = ({ datum }) => {
             </Wrapper>
           </Wrapper>
           <Text fontSize={width < 900 ? `14px` : `16px`}>
-            {datum[status] && datum[status].subTitle}
+            "{datum[status] && datum[status].info}"
           </Text>
 
           <Wrapper dr={`row`} ju={`flex-start`} margin={`20px 0 0`}>
@@ -279,17 +278,17 @@ const MainSlider2 = ({ datum }) => {
               width={`61px`}
               height={`61px`}
               radius={`100%`}
-              src={musticData.coverImage}
+              src={musticData.profileImage}
             />
             <Wrapper width={`auto`} al={`flex-start`} padding={`0 0 0 14px`}>
               <Text fontSize={`20px`} fontWeight={`bold`}>
                 {musticData.title}
               </Text>
-              <Text>{musticData.artistName}</Text>
+              <Text>{musticData.artistname}</Text>
             </Wrapper>
           </Wrapper>
           <Wrapper width={`calc(100% - 540px)`} dr={`row`}>
-            <Audio ref={aRef} controls src={musticData.musicFile}></Audio>
+            <Audio ref={aRef} controls src={musticData.repSongFilePath}></Audio>
             <Wrapper
               width={`150px`}
               dr={`row`}

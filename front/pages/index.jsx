@@ -81,8 +81,6 @@ const Home = ({}) => {
   const { trackRecentList } = useSelector((state) => state.product);
 
   const [playing1, setPlaying1] = useState(null);
-  const [playing2, setPlaying2] = useState(null);
-  const [playing3, setPlaying3] = useState(null);
   const [down, setDown] = useState(false);
 
   const [newAudioTime, setNewAudioTime] = useState([]);
