@@ -51,23 +51,26 @@ const Fourleaf = ({ Component, pageProps: { session, ...pageProps } }) => {
       <ThemeProvider theme={Theme}>
         <GlobalStyles />
         <Head>
-          <title>[[**4LEAF GEAR SAMPLE**]] | administrator</title>
+          <title>NEW WAVE Sound | administrator</title>
 
           <meta name="author" content="4LEAF SOFTWARE <4leaf.ysh@gmail.com>" />
           {/* <!-- OG tag  --> */}
           <meta property="og:type" content="website" />
-          <meta property="og:url" content="https://www.sample.com/" />
+          <meta property="og:url" content="https://nwsound1.com/" />
+          <meta name="subject" content="NEW WAVE Sound" />
+          <meta name="title" content="NEW WAVE Sound" />
+          <meta property="og:title" content="NEW WAVE Sound"></meta>
           <meta property="og:image:width" content="800" />
           <meta property="og:image:height" content="400" />
           <meta property="og:image" content="./og_img.png" />
           <link rel="shortcut icon" href="/favicon.ico" />
-          <link rel="canonical" href="https://www.sample.com" />
+          <link rel="canonical" href="https://nwsound1.com" />
 
-          <meta name="keywords" content="[[**4LEAF GEAR SAMPLE**]]" />
-          <meta property="og:keywords" content="[[**4LEAF GEAR SAMPLE**]]" />
+          <meta name="keywords" content="NEW WAVE Sound" />
+          <meta property="og:keywords" content="NEW WAVE Sound" />
 
-          <meta property="og:description" content="[[**4LEAF GEAR SAMPLE**]]" />
-          <meta name="description" content="[[**4LEAF GEAR SAMPLE**]]" />
+          <meta property="og:description" content="NEW WAVE Sound" />
+          <meta name="description" content="NEW WAVE Sound" />
 
           {/* 프리텐다드 폰트 */}
           <link
