@@ -286,28 +286,51 @@ router.post("/detail", async (req, res, next) => {
   }
 });
 
+/**
+ * SUBJECT : 공지사항 등록하기
+ * PARAMETERS : -
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 장혜정
+ * DEV DATE : 2023/05/22
+ */
 router.post("/create", isAdminCheck, async (req, res, next) => {
-  const { type } = req.body;
-
   const insertQuery1 = `
-      INSERT INTO notices (title, type, content, author, updator, createdAt, updatedAt)
-      VALUES
-      (
-        "임시 공지사항",
-        "${type}",
-        "임시 공지사항 입니다. 데이터를 입력해주세요.",
-        "관리자",
-        ${req.user.id},
-        now(),
-        now()
-      )
-    `;
+  INSERT INTO notices 
+  (
+    title, 
+    content, 
+    imagePath, 
+    author, 
+    updator, 
+    createdAt, 
+    updatedAt
+  )
+  VALUES
+  (
+    "임시 공지사항",
+    "임시 공지사항 입니다. 데이터를 입력해주세요.",
+  
+    "관리자",
+    ${req.user.id},
+    now(),
+    now()
+  )
+`;
 
   const insertQuery2 = `
-  INSERT INTO noticeHistory (content, title, updator, createdAt, updatedAt) VALUES 
+  INSERT INTO noticeHistory 
   (
-    "데이터 생성",
+     title,
+     content, 
+     updator, 
+     createdAt, 
+     updatedAt
+  ) 
+  VALUES 
+  (
     "임시 공지사항",
+    "데이터 생성",
     ${req.user.id},
     now(),
     now()
@@ -321,7 +344,7 @@ router.post("/create", isAdminCheck, async (req, res, next) => {
     return res.status(201).json({ result: true });
   } catch (error) {
     console.error(error);
-    return res.status(401).send("게시글을 등록할 수 없습니다. [CODE 077]");
+    return res.status(401).send("공지사항을 등록할 수 없습니다.");
   }
 });
 
