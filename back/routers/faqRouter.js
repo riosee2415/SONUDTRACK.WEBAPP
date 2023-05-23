@@ -61,17 +61,17 @@ const upload = multer({
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * SUBJECT : 공지사항 리스트
- * PARAMETERS : title, page
+ * SUBJECT : FAQ 목록
+ * PARAMETERS : question, page
  * ORDER BY : -
  * STATEMENT : -
  * DEVELOPMENT : 장혜정
  * DEV DATE : 2023/05/23
  */
 router.post("/list", async (req, res, next) => {
-  const { title, page } = req.body;
+  const { question, page } = req.body;
 
-  const _title = title ? title : "";
+  const _question = question ? question : "";
 
   const LIMIT = 10;
 
@@ -81,188 +81,126 @@ router.post("/list", async (req, res, next) => {
   const OFFSET = __page * 10;
 
   const lengthQuery = `
-  SELECT ROW_NUMBER() OVER(ORDER BY A.createdAt)	AS num,
-         A.id,
-         A.title,
-         A.imagePath,
-         A.hit,
-         A.createdAt,
-         A.updatedAt,
-         DATE_FORMAT(A.createdAt, "%Y. %m. %d")	AS viewCreatedAt,
-         DATE_FORMAT(A.updatedAt, "%Y. %m. %d")	AS viewUpdatedAt,
-         B.username								              AS updator
-    FROM notices	A
+  SELECT    ROW_NUMBER() OVER(ORDER BY A.createdAt)	    AS num,
+            A.id,
+            A.question,
+            A.answer,
+            A.createdAt,
+            A.updatedAt,
+            DATE_FORMAT(A.createdAt, "%Y.%m.%d")		AS viewCreatedAt,
+            DATE_FORMAT(A.updatedAt, "%Y.%m.%d")        AS viewUpdatedAt,
+            B.username								    AS updator
+    FROM    faq	        A
    INNER  
-    JOIN  users	  B 
-      ON  A.updator = B.id 
-   WHERE  A.isDelete = 0
-     AND  A.title LIKE "%${_title}%"
+    JOIN    users	    B 
+      ON    A.updator = B.id 
+   WHERE    A.isDelete = 0
+     AND    A.question LIKE "%${_question}%"
   `;
 
   const selectQuery = `
-  SELECT ROW_NUMBER() OVER(ORDER BY A.createdAt)	AS num,
-         A.id,
-         A.title,
-         A.imagePath,
-         A.hit,
-         A.createdAt,
-         A.updatedAt,
-         DATE_FORMAT(A.createdAt, "%Y. %m. %d")	AS viewCreatedAt,
-         DATE_FORMAT(A.updatedAt, "%Y. %m. %d")	AS viewUpdatedAt,
-         B.username								              AS updator
-    FROM notices	A
+  SELECT    ROW_NUMBER() OVER(ORDER BY A.createdAt)	    AS num,
+            A.id,
+            A.question,
+            A.answer,
+            A.createdAt,
+            A.updatedAt,
+            DATE_FORMAT(A.createdAt, "%Y.%m.%d")		AS viewCreatedAt,
+            DATE_FORMAT(A.updatedAt, "%Y.%m.%d")        AS viewUpdatedAt,
+            B.username								    AS updator
+    FROM    faq	        A
    INNER  
-    JOIN  users	  B 
-      ON  A.updator = B.id 
-   WHERE  A.isDelete = 0
-     AND  A.title LIKE "%${_title}%"
-   ORDER  BY num DESC 
-   LIMIT  ${LIMIT}
-  OFFSET  ${OFFSET}
+    JOIN    users	    B 
+      ON    A.updator = B.id 
+   WHERE    A.isDelete = 0
+     AND    A.question LIKE "%${_question}%"
+   ORDER    BY num DESC 
+   LIMIT    ${LIMIT}
+  OFFSET    ${OFFSET}
   `;
 
   try {
     const lengths = await models.sequelize.query(lengthQuery);
-    const notice = await models.sequelize.query(selectQuery);
+    const faq = await models.sequelize.query(selectQuery);
 
-    const noticeLen = lengths[0].length;
+    const faqLen = lengths[0].length;
 
-    const lastPage =
-      noticeLen % LIMIT > 0 ? noticeLen / LIMIT + 1 : noticeLen / LIMIT;
+    const lastPage = faqLen % LIMIT > 0 ? faqLen / LIMIT + 1 : faqLen / LIMIT;
 
     return res.status(200).json({
-      notices: notice[0],
+      faqs: faq[0],
       lastPage: parseInt(lastPage),
     });
   } catch (error) {
     console.error(error);
-    return res.status(400).send("공지사항 데이터를 불러올 수 없습니다.");
+    return res.status(400).send("FAQ 데이터를 불러올 수 없습니다.");
   }
 });
 
 /**
- * SUBJECT : 공지사항 리스트[관리자]
- * PARAMETERS : title
+ * SUBJECT : faq 리스트[관리자]
+ * PARAMETERS : question
  * ORDER BY : -
  * STATEMENT : -
  * DEVELOPMENT : 장혜정
  * DEV DATE : 2023/05/23
  */
 router.post("/admin/list", isAdminCheck, async (req, res, nex) => {
-  const { title } = req.body;
+  const { question } = req.body;
 
-  const _title = title ? title : "";
+  const _question = question ? question : "";
 
   const selectQuery = `
-  SELECT	ROW_NUMBER() OVER(ORDER BY A.createdAt)		  AS num, 
-          A.id,
-          A.title,
-          A.content,
-          A.hit,
-          A.imagePath,
-          A.createdAt,
-          A.updatedAt,
-          DATE_FORMAT(A.createdAt, "%Y. %m. %d") 		AS viewCreatedAt,
-          DATE_FORMAT(A.updatedAt, "%Y. %m. %d") 	  AS viewUpdatedAt,
-          B.username									                AS updator 
-    FROM	notice		  A
-   INNER
-    JOIN	users		    B
-      ON	A.updator = B.id
-   WHERE	A.isDelete = 0
-     AND	A.title LIKE "%${_title}%"
-   ORDER	BY num DESC
-
-  `;
-  try {
-    const notice = await models.sequelize.query(selectQuery);
-
-    return res.status(200).json(notice[0]);
-  } catch (error) {
-    console.error(error);
-    return res.status(400).send("공지사항을 조회할 수 없습니다.");
-  }
-});
-
-/**
- * SUBJECT : 공지사항 상세
- * PARAMETERS : id
- * ORDER BY : -
- * STATEMENT : -
- * DEVELOPMENT : 장헤정
- * DEV DATE : 2023/05/23
- */
-router.post("/detail", async (req, res, next) => {
-  const { id } = req.body;
-
-  const detailQuery = `
-  SELECT	A.id,
-          A.title,
-          A.imagePath,
-          A.content,
-          A.author,
-          A.hit,
-          A.createdAt,
-          A.updatedAt,
-          DATE_FORMAT(A.createdAt, "%Y.%m.%d") 		AS viewCreatedAt,
-          DATE_FORMAT(A.updatedAt, "%Y.%m.%d") 		AS viewUpdatedAt,
-          B.username 										          AS updator 
-    FROM	notices		A
+  SELECT    ROW_NUMBER() OVER(ORDER BY A.createdAt)		AS num, 
+            A.id,
+            A.question,
+            A.answer,
+            A.createdAt,
+            A.updatedAt,
+            DATE_FORMAT(A.createdAt, "%Y.%m.%d")		AS viewCreatedAt,
+            DATE_FORMAT(A.updatedAt, "%Y.%m.%d")        AS viewUpdatedAt,
+            B.username								    AS updator				
+    FROM	faq		    A
    INNER
     JOIN	users		B
       ON	A.updator = B.id
    WHERE	A.isDelete = 0
-     AND	A.id = ${id}
+     AND	A.title LIKE "%${_question}%"
+   ORDER	BY num DESC
+
   `;
-
   try {
-    const detailData = await models.sequelize.query(detailQuery);
+    const faq = await models.sequelize.query(selectQuery);
 
-    if (detailData[0].length === 0) {
-      return res.status(401).send("존재하지 않는 공지사항 데이터입니다.");
-    }
-
-    const updateQuery = `
-    UPDATE  notices
-       SET  hit = ${detailData[0][0].hit + 1}
-     WHERE  id = ${id}
-    `;
-
-    await models.sequelize.query(updateQuery);
-
-    return res.status(200).json(detailData[0][0]);
+    return res.status(200).json(faq[0]);
   } catch (error) {
     console.error(error);
-    return res.status(400).send("공지사항 데이터를 불러올 수 없습니다.");
+    return res.status(400).send("FAQ를 조회할 수 없습니다.");
   }
 });
 
 /**
- * SUBJECT : 공지사항 등록하기
+ * SUBJECT : faq 등록하기
  * PARAMETERS : -
  * ORDER BY : -
  * STATEMENT : -
  * DEVELOPMENT : 장혜정
- * DEV DATE : 2023/05/22
+ * DEV DATE : 2023/05/23
  */
 router.post("/create", isAdminCheck, async (req, res, next) => {
   const createQuery1 = `
-  INSERT INTO notices 
+  INSERT INTO faq 
   (
-    title, 
-    content, 
-    imagePath, 
-    author, 
+    quesiton,
+    answer,
     updator, 
     createdAt, 
     updatedAt
   )
   VALUES
   (
-    "임시 공지사항",
-    "임시 공지사항 입니다. 데이터를 입력해주세요.",
-  
-    "관리자",
+    "임시 FAQ",
+    "임시 FAQ 답변입니다. 내용을 입력해주세요.",
     ${req.user.id},
     now(),
     now()
@@ -270,18 +208,18 @@ router.post("/create", isAdminCheck, async (req, res, next) => {
 `;
 
   const createQuery2 = `
-  INSERT INTO noticeHistory 
+  INSERT INTO faqHistory 
   (
-     title,
-     content, 
-     updator, 
-     createdAt, 
-     updatedAt
+    quesiton,
+    answer,
+    updator, 
+    createdAt, 
+    updatedAt
   ) 
   VALUES 
   (
-    "임시 공지사항",
-    "데이터 생성",
+    "FAQ 데이터 생성",
+    "임시 FAQ",
     ${req.user.id},
     now(),
     now()
@@ -295,7 +233,7 @@ router.post("/create", isAdminCheck, async (req, res, next) => {
     return res.status(201).json({ result: true });
   } catch (error) {
     console.error(error);
-    return res.status(401).send("공지사항을 등록할 수 없습니다.");
+    return res.status(401).send("FAQ를 등록할 수 없습니다.");
   }
 });
 /**
@@ -307,13 +245,12 @@ router.post("/create", isAdminCheck, async (req, res, next) => {
  * DEV DATE : 2023/05/23
  */
 router.post("/update", isAdminCheck, async (req, res, next) => {
-  const { id, title, content, imagePath } = req.body;
+  const { id, question, answer } = req.body;
 
   const updateQuery = `
   UPDATE  notices 
-     SET  title = "${title}",
-          content = "${content}",
-          imagePath = "${imagePath}",
+     SET  question = "${question}",
+          answer = "${answer}",
           updatedAt = now(),
           updator =${req.user.id}
    WHERE  id = ${id}
@@ -322,16 +259,16 @@ router.post("/update", isAdminCheck, async (req, res, next) => {
   const insertQuery2 = `
   INSERT INTO noticeHistory 
   (
-    title, 
-    content, 
+    question, 
+    answer, 
     updator, 
     createdAt, 
     updatedAt
   )
   VALUES
   (
-  	"${title}",
-  	"데이터 수정",
+  	"${question}",
+  	"FAQ 데이터 수정",
   	${req.user.id},
   	now(),
   	now(),
@@ -345,23 +282,23 @@ router.post("/update", isAdminCheck, async (req, res, next) => {
     return res.status(200).json({ result: true });
   } catch (error) {
     console.error(error);
-    return res.status(401).send("공지사항을 수정할 수 없습니다. [CODE 087]");
+    return res.status(401).send("FAQ를 수정할 수 없습니다. [CODE 087]");
   }
 });
 
 /**
- * SUBJECT : 공지사항 삭제하기
- * PARAMETERS : id, title
+ * SUBJECT : FAQ 삭제하기
+ * PARAMETERS : id, quetion
  * ORDER BY : -
  * STATEMENT : -
  * DEVELOPMENT : 장혜정
  * DEV DATE : 2023/05/23
  */
 router.post("/delete", isAdminCheck, async (req, res, next) => {
-  const { id, title } = req.body;
+  const { id, question } = req.body;
 
   const deleteQuery = `
-  UPDATE  notices
+  UPDATE  faq
      SET  isDelete = 1,
           deletedAt = NOW(),
           updator = ${req.user.id}
@@ -371,8 +308,7 @@ router.post("/delete", isAdminCheck, async (req, res, next) => {
   const historyInsertQuery = `
   INSERT INTO noticeHistory 
   (
-    content, 
-    title, 
+    question, 
     updator, 
     createdAt, 
     updatedAt
@@ -380,7 +316,7 @@ router.post("/delete", isAdminCheck, async (req, res, next) => {
   VALUES 
   (
     "데이터 삭제",
-    "${title}",
+    "${question}",
     ${req.user.id},
     now(),
     now()
@@ -394,7 +330,7 @@ router.post("/delete", isAdminCheck, async (req, res, next) => {
     return res.status(200).json({ result: true });
   } catch (error) {
     console.error(error);
-    return res.status(401).send("게시글을 삭제할 수 없습니다. [CODE 097]");
+    return res.status(401).send("FAQ를 삭제할 수 없습니다. [CODE 097]");
   }
 });
 
@@ -406,10 +342,10 @@ router.post("/history/list", isAdminCheck, async (req, res, next) => {
   const selectQuery = `
     SELECT 	A.id,
             A.content,
-            A.title,
+            A.question,
             B.username,
             DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일 %H:%i:%s")	AS  createdAt
-      FROM 	noticeHistory		A
+      FROM 	faqHistory		A
      INNER
       JOIN	users 			B
         ON	A.updator = B.id

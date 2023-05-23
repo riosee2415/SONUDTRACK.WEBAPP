@@ -31,6 +31,11 @@ module.exports = class Question extends Model {
           type: DataTypes.DATE,
           allowNull: true,
         },
+        isConfirmed: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
       },
       {
         modelName: "Question",
