@@ -6,7 +6,7 @@ module.exports = class CateType extends Model {
     return super.init(
       {
         category: {
-          type: DataTypes.STRING(20),
+          type: DataTypes.STRING(30),
           allowNull: false, //필수
           validate: {
             isIn: [["아티스템, 뮤직템"]],
