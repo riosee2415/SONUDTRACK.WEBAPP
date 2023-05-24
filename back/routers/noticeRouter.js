@@ -357,7 +357,7 @@ router.post("/update", isAdminCheck, async (req, res, next) => {
   	"데이터 수정",
   	${req.user.id},
   	now(),
-  	now(),
+  	now()
   )
   `;
 
