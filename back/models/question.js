@@ -36,6 +36,10 @@ module.exports = class Question extends Model {
           allowNull: false,
           defaultValue: false,
         },
+        confirmedAt: {
+          type: DataTypes.DATE,
+          allowNull: true,
+        },
       },
       {
         modelName: "Question",
