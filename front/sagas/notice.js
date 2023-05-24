@@ -5,6 +5,10 @@ import {
   NOTICE_LIST_SUCCESS,
   NOTICE_LIST_FAILURE,
   //
+  ADMIN_NOTICE_LIST_REQUEST,
+  ADMIN_NOTICE_LIST_SUCCESS,
+  ADMIN_NOTICE_LIST_FAILURE,
+  //
   NOTICE_CREATE_REQUEST,
   NOTICE_CREATE_SUCCESS,
   NOTICE_CREATE_FAILURE,
@@ -60,6 +64,33 @@ function* noticeList(action) {
     console.error(err);
     yield put({
       type: NOTICE_LIST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function adminNoticeListAPI(data) {
+  return await axios.post(`/api/notice/admin/list`, data);
+}
+
+function* adminNoticeList(action) {
+  try {
+    const result = yield call(adminNoticeListAPI, action.data);
+
+    yield put({
+      type: ADMIN_NOTICE_LIST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: ADMIN_NOTICE_LIST_FAILURE,
       error: err.response.data,
     });
   }
@@ -180,7 +211,7 @@ function* noticeUpdateTop(action) {
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
 async function noticeFileAPI(data) {
-  return await axios.post(`/api/notice/file`, data);
+  return await axios.post(`/api/notice/image`, data);
 }
 
 function* noticeFile(action) {
@@ -317,6 +348,10 @@ function* watchNoticeList() {
   yield takeLatest(NOTICE_LIST_REQUEST, noticeList);
 }
 
+function* watchAdminNoticeList() {
+  yield takeLatest(ADMIN_NOTICE_LIST_REQUEST, adminNoticeList);
+}
+
 function* watchNoticeCreate() {
   yield takeLatest(NOTICE_CREATE_REQUEST, noticeCreate);
 }
@@ -356,6 +391,7 @@ function* watchNoticeDetail() {
 //////////////////////////////////////////////////////////////
 export default function* noticeSaga() {
   yield all([
+    fork(watchAdminNoticeList),
     fork(watchNoticeList),
     fork(watchNoticeCreate),
     fork(watchNoticeUpdate),

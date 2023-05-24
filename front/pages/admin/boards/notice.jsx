@@ -30,7 +30,7 @@ import {
 } from "../../../components/commonComponents";
 import { LOAD_MY_INFO_REQUEST } from "../../../reducers/user";
 import {
-  NOTICE_LIST_REQUEST,
+  ADMIN_NOTICE_LIST_REQUEST,
   NOTICE_UPDATE_REQUEST,
   NOTICE_UPDATE_TOP_REQUEST,
   NOTICE_FILE_REQUEST,
@@ -73,7 +73,7 @@ const ViewStatusIcon = styled(EyeOutlined)`
 const Notice = ({}) => {
   const { st_loadMyInfoDone, me } = useSelector((state) => state.user);
   const {
-    notices,
+    adminNotices,
     st_noticeUpdateDone,
     st_noticeUpdateError,
     st_noticeUpdateTopDone,
@@ -87,7 +87,10 @@ const Notice = ({}) => {
     st_noticeCreateError,
     st_noticeDeleteDone,
     st_noticeDeleteError,
+    st_noticeFileError,
   } = useSelector((state) => state.notice);
+
+  console.log(adminNotices);
 
   const router = useRouter();
   const dispatch = useDispatch();
@@ -149,30 +152,8 @@ const Notice = ({}) => {
     if (st_noticeCreateDone) {
       message.success("정보가 업데이트 되었습니다.");
 
-      let sendType = "";
-
-      switch (tab) {
-        case 0:
-          sendType = "";
-          break;
-
-        case 1:
-          sendType = "공지사항";
-          break;
-
-        case 2:
-          sendType = "새소식";
-          break;
-
-        default:
-          break;
-      }
-
       dispatch({
-        type: NOTICE_LIST_REQUEST,
-        data: {
-          type: sendType,
-        },
+        type: ADMIN_NOTICE_LIST_REQUEST,
       });
     }
   }, [st_noticeCreateDone]);
@@ -181,37 +162,18 @@ const Notice = ({}) => {
     if (st_noticeCreateError) {
       return message.error(st_noticeCreateError);
     }
-  }, [st_noticeCreateError]);
+    if (st_noticeFileError) {
+      return message.error(st_noticeFileError);
+    }
+  }, [st_noticeCreateError, st_noticeFileError]);
 
   // ********************** 공지사항 수정 *************************
   useEffect(() => {
     if (st_noticeUpdateDone) {
       message.success("정보가 업데이트 되었습니다.");
 
-      let sendType = "";
-
-      switch (tab) {
-        case 0:
-          sendType = "";
-          break;
-
-        case 1:
-          sendType = "공지사항";
-          break;
-
-        case 2:
-          sendType = "새소식";
-          break;
-
-        default:
-          break;
-      }
-
       dispatch({
-        type: NOTICE_LIST_REQUEST,
-        data: {
-          type: sendType,
-        },
+        type: ADMIN_NOTICE_LIST_REQUEST,
       });
     }
   }, [st_noticeUpdateDone]);
@@ -225,30 +187,8 @@ const Notice = ({}) => {
   // ********************** 공지사항 상단고정 수정 *************************
   useEffect(() => {
     if (st_noticeUpdateTopDone) {
-      let sendType = "";
-
-      switch (tab) {
-        case 0:
-          sendType = "";
-          break;
-
-        case 1:
-          sendType = "공지사항";
-          break;
-
-        case 2:
-          sendType = "새소식";
-          break;
-
-        default:
-          break;
-      }
-
       dispatch({
-        type: NOTICE_LIST_REQUEST,
-        data: {
-          type: sendType,
-        },
+        type: ADMIN_NOTICE_LIST_REQUEST,
       });
 
       return message.success("정보가 업데이트 되었습니다.");
@@ -276,30 +216,9 @@ const Notice = ({}) => {
 
   useEffect(() => {
     setCurrentData(null);
-    let sendType = "";
-
-    switch (tab) {
-      case 0:
-        sendType = "";
-        break;
-
-      case 1:
-        sendType = "공지사항";
-        break;
-
-      case 2:
-        sendType = "새소식";
-        break;
-
-      default:
-        break;
-    }
 
     dispatch({
-      type: NOTICE_LIST_REQUEST,
-      data: {
-        type: sendType,
-      },
+      type: ADMIN_NOTICE_LIST_REQUEST,
     });
   }, [tab]);
 
@@ -308,10 +227,7 @@ const Notice = ({}) => {
       setCurrentData(null);
 
       dispatch({
-        type: NOTICE_LIST_REQUEST,
-        data: {
-          type: 0,
-        },
+        type: ADMIN_NOTICE_LIST_REQUEST,
       });
 
       return message.success("정보가 업데이트 되었습니다.");
@@ -548,7 +464,7 @@ const Notice = ({}) => {
           </Wrapper>
           <Table
             size="small"
-            dataSource={notices}
+            dataSource={adminNotices}
             columns={noticeCol}
             rowKey="id"
             style={{ width: "100%" }}
@@ -766,7 +682,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
     });
 
     context.store.dispatch({
-      type: NOTICE_LIST_REQUEST,
+      type: ADMIN_NOTICE_LIST_REQUEST,
       data: {
         title: "",
         type: "",

@@ -1,7 +1,8 @@
 import produce from "../util/produce";
 
 export const initailState = {
-  notices: [], // 관리자 리스트
+  notices: [], //
+  adminNotices: [], // 관리자 리스트
   createModal: false,
   detailModal: false,
   uploadFilePath: null,
@@ -11,9 +12,13 @@ export const initailState = {
   noticePage: 1, // 페이지네이션
   noticeDetail: null, // 디테일
   //
-  st_noticeListLoading: false, // 관리자 공지사항 가져오기
+  st_noticeListLoading: false, //  공지사항 가져오기
   st_noticeListDone: false,
   st_noticeListError: null,
+  //
+  st_adminNoticeListLoading: false, // 관리자 공지사항 가져오기
+  st_adminNoticeListDone: false,
+  st_adminNoticeListError: null,
   //
   st_noticeCreateLoading: false, // 공지사항 생성하기
   st_noticeCreateDone: false,
@@ -55,6 +60,10 @@ export const initailState = {
 export const NOTICE_LIST_REQUEST = "NOTICE_LIST_REQUEST";
 export const NOTICE_LIST_SUCCESS = "NOTICE_LIST_SUCCESS";
 export const NOTICE_LIST_FAILURE = "NOTICE_LIST_FAILURE";
+
+export const ADMIN_NOTICE_LIST_REQUEST = "ADMIN_NOTICE_LIST_REQUEST";
+export const ADMIN_NOTICE_LIST_SUCCESS = "ADMIN_NOTICE_LIST_SUCCESS";
+export const ADMIN_NOTICE_LIST_FAILURE = "ADMIN_NOTICE_LIST_FAILURE";
 //
 export const NOTICE_CREATE_REQUEST = "NOTICE_CREATE_REQUEST";
 export const NOTICE_CREATE_SUCCESS = "NOTICE_CREATE_SUCCESS";
@@ -113,6 +122,25 @@ const reducer = (state = initailState, action) =>
         draft.st_noticeListLoading = false;
         draft.st_noticeListDone = false;
         draft.st_noticeListError = action.error;
+        break;
+      }
+      ///////////////////////////////////////////////////////
+      case ADMIN_NOTICE_LIST_REQUEST: {
+        draft.st_adminNoticeListLoading = true;
+        draft.st_adminNoticeListDone = false;
+        draft.st_adminNoticeListError = null;
+        break;
+      }
+      case ADMIN_NOTICE_LIST_SUCCESS: {
+        draft.st_adminNoticeListLoading = false;
+        draft.st_adminNoticeListDone = true;
+        draft.adminNotices = action.data;
+        break;
+      }
+      case ADMIN_NOTICE_LIST_FAILURE: {
+        draft.st_adminNoticeListLoading = false;
+        draft.st_adminNoticeListDone = false;
+        draft.st_adminNoticeListError = action.error;
         break;
       }
       ///////////////////////////////////////////////////////
