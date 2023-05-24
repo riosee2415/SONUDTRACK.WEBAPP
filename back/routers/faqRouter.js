@@ -210,8 +210,8 @@ router.post("/create", isAdminCheck, async (req, res, next) => {
   const createQuery2 = `
   INSERT INTO faqHistory 
   (
-    quesiton,
-    answer,
+    value,
+    content,
     updator, 
     createdAt, 
     updatedAt
@@ -237,7 +237,7 @@ router.post("/create", isAdminCheck, async (req, res, next) => {
   }
 });
 /**
- * SUBJECT : 공지사항 수정하기
+ * SUBJECT : faq 수정하기
  * PARAMETERS : id, title, content, imagePath
  * ORDER BY : -
  * STATEMENT : -
@@ -259,8 +259,8 @@ router.post("/update", isAdminCheck, async (req, res, next) => {
   const insertQuery2 = `
   INSERT INTO noticeHistory 
   (
-    question, 
-    answer, 
+    value, 
+    content, 
     updator, 
     createdAt, 
     updatedAt
@@ -308,8 +308,8 @@ router.post("/delete", isAdminCheck, async (req, res, next) => {
   const historyInsertQuery = `
   INSERT INTO noticeHistory 
   (
-    question, 
-    updator, 
+    value, 
+    content, 
     createdAt, 
     updatedAt
     ) 
@@ -341,8 +341,8 @@ router.post("/history/list", isAdminCheck, async (req, res, next) => {
 
   const selectQuery = `
     SELECT 	A.id,
+            A.value,
             A.content,
-            A.question,
             B.username,
             DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일 %H:%i:%s")	AS  createdAt
       FROM 	faqHistory		A

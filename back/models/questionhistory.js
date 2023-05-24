@@ -5,6 +5,10 @@ module.exports = class QuestionHistory extends Model {
   static init(sequelize) {
     return super.init(
       {
+        content: {
+          type: DataTypes.STRING(50),
+          allowNull: false, // 필수
+        },
         questionId: {
           type: DataTypes.INTEGER,
           allowNull: false, // 필수

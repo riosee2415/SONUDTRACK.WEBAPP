@@ -261,7 +261,7 @@ router.post("/create", isAdminCheck, async (req, res, next) => {
   (
     "임시 공지사항",
     "임시 공지사항 입니다. 데이터를 입력해주세요.",
-  
+    "http://via.placeholder.com/420x400",
     "관리자",
     ${req.user.id},
     now(),

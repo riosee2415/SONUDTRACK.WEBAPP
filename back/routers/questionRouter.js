@@ -58,11 +58,11 @@ router.post("/admin/list", isAdminCheck, async (req, res, next) => {
  * DEV DATE : 2023/05/23
  */
 router.post("/update", isAdminCheck, async (req, res, next) => {
-  const { id, isConfirmed } = req.body;
+  const { id } = req.body;
 
   const updateQuery = `
   UPDATE  questions
-     SET  isConfirmed = ${isConfirmed ? 1 : 0}
+     SET  isConfirmed = 1
    WHERE  id = ${id}
 
   `;
@@ -70,6 +70,7 @@ router.post("/update", isAdminCheck, async (req, res, next) => {
   const historyInsertQuery = `
   INSERT  INTO  questionHistory
   (
+    content,
     questionId,
     updator,
     createdAt,
@@ -77,7 +78,8 @@ router.post("/update", isAdminCheck, async (req, res, next) => {
   ) 
   VALUES
   (
-    ${questionId},
+    "문의 내역 확인"
+    ${id},
     ${req.user.id},
     NOW(),
     NOW(),
@@ -144,7 +146,6 @@ router.post("/history/list", isAdminCheck, async (req, res, next) => {
   const selectQuery = `
     SELECT 	A.id,
             A.content,
-            A.value,
             B.username,
             DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일 %H:%i:%s")	AS  createdAt
       FROM 	questionHistory		A
