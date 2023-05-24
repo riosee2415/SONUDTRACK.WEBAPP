@@ -6,8 +6,11 @@ module.exports = class CateType extends Model {
     return super.init(
       {
         category: {
-          type: DataTypes.ENUM("아티스템", "뮤직템"),
+          type: DataTypes.STRING(20),
           allowNull: false, //필수
+          validate: {
+            isIn: [["아티스템, 뮤직템"]],
+          },
         },
       },
       {

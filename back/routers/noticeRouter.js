@@ -188,7 +188,7 @@ router.post("/admin/list", isAdminCheck, async (req, res, nex) => {
           DATE_FORMAT(A.createdAt, "%Y. %m. %d") 		AS viewCreatedAt,
           DATE_FORMAT(A.updatedAt, "%Y. %m. %d") 	  AS viewUpdatedAt,
           B.username									                AS updator 
-    FROM	notice		  A
+    FROM	notices		  A
    INNER
     JOIN	users		    B
       ON	A.updator = B.id
