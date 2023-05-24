@@ -24,6 +24,7 @@ const questionhistory = require("./questionhistory");
 const noticeHistory = require("./noticeHistory");
 const galleryImage = require("./galleryImage");
 const adminUserRightHistory = require("./adminUserRightHistory");
+const cateType = require("./cateType");
 
 const env = process.env.NODE_ENV || "development";
 const config = require("../config/config")[env];
@@ -61,6 +62,7 @@ db.QuestionHistory = questionhistory;
 db.NoticeHistory = noticeHistory;
 db.GalleryImage = galleryImage;
 db.AdminUserRightHistory = adminUserRightHistory;
+db.cateType = cateType;
 
 Object.keys(db).forEach((modelName) => {
   db[modelName].init(sequelize);

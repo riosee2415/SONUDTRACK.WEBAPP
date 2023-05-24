@@ -59,6 +59,29 @@ const upload = multer({
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * SUBJECT : 공지사항 이미지
+ * PARAMETERS : -
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 장혜정
+ * DEV DATE : 2023/05/24
+ */
+router.post("/image", isAdminCheck, async (req, res, next) => {
+  const uploadImage = upload.single("image");
+
+  await uploadImage(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      return res.status(401).send("첨부 가능한 용량을 초과했습니다.");
+    } else if (err) {
+      return res.status(401).send("업로드 중 문제가 발생했습니다.");
+    }
+
+    return res.json({
+      path: req.file.location,
+    });
+  });
+});
 
 /**
  * SUBJECT : 공지사항 리스트
