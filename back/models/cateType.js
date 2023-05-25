@@ -8,9 +8,6 @@ module.exports = class CateType extends Model {
         category: {
           type: DataTypes.STRING(30),
           allowNull: false, //필수
-          validate: {
-            isIn: [["아티스템, 뮤직템"]],
-          },
         },
       },
       {

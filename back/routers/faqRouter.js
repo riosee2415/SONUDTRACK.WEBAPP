@@ -193,42 +193,42 @@ router.post("/create", isAdminCheck, async (req, res, next) => {
   (
     quesiton,
     answer,
-    updator, 
     createdAt, 
-    updatedAt
+    updatedAt,
+    updator 
   )
   VALUES
   (
     "임시 FAQ",
     "임시 FAQ 답변입니다. 내용을 입력해주세요.",
-    ${req.user.id},
     now(),
-    now()
+    now(),
+    ${req.user.id}
   )
 `;
 
-  const createQuery2 = `
-  INSERT INTO faqHistory 
+  const historyInsertQuery = `
+  INSERT INTO faqhistory 
   (
     value,
     content,
-    updator, 
     createdAt, 
-    updatedAt
+    updatedAt,
+    updator, 
   ) 
   VALUES 
   (
     "FAQ 데이터 생성",
     "임시 FAQ",
-    ${req.user.id},
     now(),
-    now()
+    now(),
+    ${req.user.id}
   )
   `;
 
   try {
     await models.sequelize.query(createQuery1);
-    await models.sequelize.query(createQuery2);
+    await models.sequelize.query(historyInsertQuery);
 
     return res.status(201).json({ result: true });
   } catch (error) {
