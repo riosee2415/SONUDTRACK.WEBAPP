@@ -34,10 +34,10 @@ router.post("/admin/list", isAdminCheck, async (req, res, next) => {
         		DATE_FORMAT(updatedAt, "%Y. %m. %d")		AS viewUpdatedAt
       FROM  questions   A
      WHERE  1 = 1
-       AND  A.name LIKE "${_name}}"
-       AND  A.isConfirmed LIKE "${_isConfirmed}}"
-       AND  A.createdAt LIKE "${_createdAt}}"
-       AND  A.isConfirmed = 1
+       AND  A.name LIKE "%${_name}%"
+       AND  A.isConfirmed LIKE "%${_isConfirmed}%"
+       AND  A.createdAt LIKE "%${_createdAt}%"
+
      ORDER BY num DESC
     `;
   try {
@@ -82,7 +82,7 @@ router.post("/update", isAdminCheck, async (req, res, next) => {
     ${id},
     ${req.user.id},
     NOW(),
-    NOW(),
+    NOW()
   )
   `;
   try {
@@ -124,7 +124,7 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
     "${email}",
     "${name}",
     NOW(),
-    NOW(),
+    NOW()
   )
   `;
 

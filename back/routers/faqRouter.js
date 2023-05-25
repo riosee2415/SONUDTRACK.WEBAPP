@@ -88,11 +88,11 @@ router.post("/list", async (req, res, next) => {
             A.createdAt,
             A.updatedAt,
             DATE_FORMAT(A.createdAt, "%Y.%m.%d")		AS viewCreatedAt,
-            DATE_FORMAT(A.updatedAt, "%Y.%m.%d")        AS viewUpdatedAt,
-            B.username								    AS updator
+            DATE_FORMAT(A.updatedAt, "%Y.%m.%d")    AS viewUpdatedAt,
+            B.username								              AS updator
     FROM    faq	        A
    INNER  
-    JOIN    users	    B 
+    JOIN    users	      B
       ON    A.updator = B.id 
    WHERE    A.isDelete = 0
      AND    A.question LIKE "%${_question}%"
@@ -165,7 +165,7 @@ router.post("/admin/list", isAdminCheck, async (req, res, nex) => {
     JOIN	users		B
       ON	A.updator = B.id
    WHERE	A.isDelete = 0
-     AND	A.title LIKE "%${_question}%"
+     AND	A.question LIKE "%${_question}%"
    ORDER	BY num DESC
 
   `;
@@ -271,7 +271,7 @@ router.post("/update", isAdminCheck, async (req, res, next) => {
   	"FAQ 데이터 수정",
   	${req.user.id},
   	now(),
-  	now(),
+  	now()
   )
   `;
 

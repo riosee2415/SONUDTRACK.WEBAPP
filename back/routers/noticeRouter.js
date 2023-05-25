@@ -245,18 +245,17 @@ router.post("/detail", async (req, res, next) => {
       return res.status(401).send("존재하지 않는 공지사항 데이터입니다.");
     }
 
-    const updateQuery = `
+    await models.sequelize.query(
+      `
     UPDATE  notices
        SET  hit = ${detailData[0][0].hit + 1}
      WHERE  id = ${id}
-    `;
-
-    await models.sequelize.query(updateQuery);
-
+    `
+    );
     return res.status(200).json(detailData[0][0]);
   } catch (error) {
     console.error(error);
-    return res.status(400).send("공지사항 데이터를 불러올 수 없습니다.");
+    return res.status(400).send("공지사항을 조회할 수 없습니다.");
   }
 });
 
