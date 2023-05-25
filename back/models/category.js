@@ -9,6 +9,21 @@ module.exports = class Category extends Model {
           type: DataTypes.STRING(50),
           allowNull: false,
         },
+        updator: {
+          type: DataTypes.INTEGER,
+          allowNull: true, // 필수
+        },
+
+        isDelete: {
+          type: DataTypes.TINYINT,
+          allowNull: false, // 필수
+          defaultValue: false,
+        },
+
+        deletedAt: {
+          type: DataTypes.DATE,
+          allowNull: true, // 필수
+        },
       },
       {
         modelName: "Category",
