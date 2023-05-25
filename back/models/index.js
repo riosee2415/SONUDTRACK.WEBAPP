@@ -26,6 +26,7 @@ const galleryImage = require("./galleryImage");
 const adminUserRightHistory = require("./adminUserRightHistory");
 const cateType = require("./cateType");
 const cateTypeHistory = require("./cateTypeHistory");
+const category = require("./category");
 
 const env = process.env.NODE_ENV || "development";
 const config = require("../config/config")[env];
@@ -65,6 +66,7 @@ db.GalleryImage = galleryImage;
 db.AdminUserRightHistory = adminUserRightHistory;
 db.CateType = cateType;
 db.CateTypeHistory = cateTypeHistory;
+db.Category = category;
 
 Object.keys(db).forEach((modelName) => {
   db[modelName].init(sequelize);
