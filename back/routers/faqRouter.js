@@ -187,7 +187,7 @@ router.post("/admin/list", isAdminCheck, async (req, res, nex) => {
  * DEVELOPMENT : 장혜정
  * DEV DATE : 2023/05/23
  */
-router.post("/create", isAdminCheck, async (req, res, next) => {
+router.post("/create", async (req, res, next) => {
   const createQuery1 = `
   INSERT INTO faq 
   (
@@ -214,7 +214,7 @@ router.post("/create", isAdminCheck, async (req, res, next) => {
     content,
     createdAt, 
     updatedAt,
-    updator, 
+    updator
   ) 
   VALUES 
   (

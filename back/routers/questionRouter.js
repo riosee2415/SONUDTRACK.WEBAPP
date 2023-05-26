@@ -14,11 +14,12 @@ const router = express.Router();
  * DEV DATE : 2023/05/23
  */
 router.post("/admin/list", isAdminCheck, async (req, res, next) => {
-  const { name, isConfirmed } = req.body;
+  const { name, isConfirmed, createdAt } = req.body;
 
   const _name = name ? name : ``;
-  const _isConfirmed = isConfirmed ? isConfirmed : ``;
-  // const _createdAt = createdAt ? createdAt : ``;
+  const _isConfirmed = parseInt(isConfirmed) || 3;
+
+  const _createdAt = createdAt ? createdAt : ``;
 
   const selectQuery = `
     SELECT  ROW_NUMBER() OVER(ORDER	BY A.createdAt)		AS num,
@@ -33,9 +34,21 @@ router.post("/admin/list", isAdminCheck, async (req, res, next) => {
         		DATE_FORMAT(createdAt, "%Y. %m. %d")		AS viewCreatedAt,  
         		DATE_FORMAT(updatedAt, "%Y. %m. %d")		AS viewUpdatedAt
       FROM  questions   A
-     WHERE  1 = 1
-       AND  A.name LIKE "%${_name}%"
-       AND  A.isConfirmed LIKE ${_isConfirmed}
+     WHERE  A.name LIKE "%${_name}%"
+            ${
+              _isConfirmed === 1
+                ? `AND A.isConfirmed = 0`
+                : _isConfirmed === 2
+                ? `AND A.isConfirmed = 1`
+                : _isConfirmed === 3
+                ? ``
+                : ``
+            }
+            ${
+              _createdAt !== ``
+                ? `AND DATE_FORMAT(createdAt, "%Y-%m-%d") = DATE_FORMAT("${_createdAt}", "%Y-%m-%d")`
+                : ``
+            }
      ORDER  BY num DESC
     `;
   try {
@@ -44,7 +57,7 @@ router.post("/admin/list", isAdminCheck, async (req, res, next) => {
     return res.status(200).json(result[0]);
   } catch (error) {
     console.error(error);
-    return res.status(401).send("문의 데이터를 가져올 수 없습니다. [CODE 036]");
+    return res.status(401).send("문의 데이터를 가져올 수 없습니다.");
   }
 });
 /**
@@ -60,7 +73,8 @@ router.post("/update", isAdminCheck, async (req, res, next) => {
 
   const updateQuery = `
   UPDATE  questions
-     SET  isConfirmed = 1
+     SET  isConfirmed = 1,
+          confirmedAt = now()
    WHERE  id = ${id}
 
   `;
@@ -76,7 +90,7 @@ router.post("/update", isAdminCheck, async (req, res, next) => {
   ) 
   VALUES
   (
-    "문의 내역 확인"
+    "문의 내역 확인",
     ${id},
     ${req.user.id},
     NOW(),
@@ -112,10 +126,9 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
     content,
     email,
     name,
-    isConfirmed,
-    confirmedAt,
     createdAt,
-    updatedAt
+    updatedAt,
+    UserId
   )
   VALUES
   (
@@ -123,10 +136,10 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
     "${content}",
     "${email}",
     "${name}",
-    0,
     NOW(),
     NOW(),
-    NOW()
+    ${req.user.id}
+
   )
   `;
 
