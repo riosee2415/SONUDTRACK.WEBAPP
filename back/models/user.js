@@ -5,6 +5,10 @@ module.exports = class User extends Model {
   static init(sequelize) {
     return super.init(
       {
+        userId: {
+          type: DataTypes.STRING(20),
+          allowNull: false, // 필수
+        },
         profileImage: {
           type: DataTypes.STRING(600),
           allowNull: false,
@@ -30,10 +34,6 @@ module.exports = class User extends Model {
           type: DataTypes.STRING(30),
           allowNull: false, // 필수
         },
-        userId: {
-          type: DataTypes.STRING(20),
-          allowNull: false, // 필수
-        },
         password: {
           type: DataTypes.STRING(100),
           allowNull: false, // 필수
@@ -52,32 +52,38 @@ module.exports = class User extends Model {
         terms: {
           //  이용약관동의
           type: DataTypes.BOOLEAN,
-          allowNull: true,
+          allowNull: false,
+          defaultValue: false,
         },
         terms2: {
           // 이용약관동의
           type: DataTypes.BOOLEAN,
-          allowNull: true,
+          allowNull: false,
+          defaultValue: false,
         },
         terms3: {
           // 이용약관동의
           type: DataTypes.BOOLEAN,
-          allowNull: true,
+          allowNull: false,
+          defaultValue: false,
         },
         terms4: {
           // 이용약관동의
           type: DataTypes.BOOLEAN,
-          allowNull: true,
+          allowNull: false,
+          defaultValue: false,
         },
         terms5: {
           // 이용약관동의
           type: DataTypes.BOOLEAN,
-          allowNull: true,
+          allowNull: false,
+          defaultValue: false,
         },
         terms6: {
           // 이용약관동의
           type: DataTypes.BOOLEAN,
-          allowNull: true,
+          allowNull: false,
+          defaultValue: false,
         },
 
         // 관리자 메뉴 권환 제어
@@ -150,25 +156,25 @@ module.exports = class User extends Model {
           type: DataTypes.DATE,
           allowNull: true,
         },
-        type:{
-          type: DataTypes.INTEGER,
+        type: {
+          type: DataTypes.INTEGER, // [1. 일반 사용자 | 2. 판매자 사용자]
           allowNull: false,
         },
-        bankName:{
+        bankName: {
           type: DataTypes.STRING(60),
-          allowNull:false,
+          allowNull: true,
         },
-        acconuntNum:{
+        acconuntNum: {
           type: DataTypes.STRING(60),
-          allowNull:false,
+          allowNull: true,
         },
-        artistemId:{
+        artistemId: {
           type: DataTypes.INTEGER,
-          allowNull:true,
+          allowNull: true,
         },
-        musictemId:{
+        musictemId: {
           type: DataTypes.INTEGER,
-          allowNull:true,
+          allowNull: true,
         },
       },
       {
