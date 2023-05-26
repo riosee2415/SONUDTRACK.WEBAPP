@@ -665,7 +665,14 @@ router.get("/signin", async (req, res, next) => {
     next(err);
   }
 });
-
+/**
+ * SUBJECT : 로그인
+ * PARAMETERS : userId, password
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 장혜정
+ * DEV DATE : 2023/05/26
+ */
 router.post("/signin", (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
     if (err) {
@@ -713,7 +720,7 @@ router.post("/signin", (req, res, next) => {
               A.exitedAt,
               DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")		AS viewCreatedAt,
               DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")		AS viewUpdatedAt,
-              DATE_FORMAT(A.exitedAt, "%Y년 %m월 %d일")		AS viewExitedAt,
+              DATE_FORMAT(A.exitedAt, "%Y년 %m월 %d일")		  AS viewExitedAt,
               CASE
                 WHEN  (
                       SELECT  COUNT(B.id)
@@ -740,7 +747,14 @@ router.post("/signin", (req, res, next) => {
     });
   })(req, res, next);
 });
-
+/**
+ * SUBJECT : 관리자 로그인
+ * PARAMETERS : userId, password
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 장혜정
+ * DEV DATE : 2023/05/26
+ */
 router.post("/signin/admin", (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
     if (err) {
@@ -793,7 +807,14 @@ router.post("/signin/admin", (req, res, next) => {
     });
   })(req, res, next);
 });
-
+/**
+ * SUBJECT :  회원가입
+ * PARAMETERS : userId, password
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 장혜정
+ * DEV DATE : 2023/05/26
+ */
 router.post("/signup", async (req, res, next) => {
   const {
     email,
@@ -809,10 +830,6 @@ router.post("/signup", async (req, res, next) => {
     terms5,
     terms6,
   } = req.body;
-
-  if (!terms2 && !terms3 && !terms4 && (!terms5 || !terms6)) {
-    return res.status(401).send("이용약관에 동의해주세요.");
-  }
 
   try {
     const exUser = await User.findOne({

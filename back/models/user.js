@@ -50,24 +50,24 @@ module.exports = class User extends Model {
           defaultValue: null,
         },
         terms: {
-          // 이용약관동의
+          //  이용약관동의
           type: DataTypes.BOOLEAN,
           allowNull: true,
         },
         terms2: {
           // 이용약관동의
           type: DataTypes.BOOLEAN,
-          allowNull: false,
+          allowNull: true,
         },
         terms3: {
           // 이용약관동의
           type: DataTypes.BOOLEAN,
-          allowNull: false,
+          allowNull: true,
         },
         terms4: {
           // 이용약관동의
           type: DataTypes.BOOLEAN,
-          allowNull: false,
+          allowNull: true,
         },
         terms5: {
           // 이용약관동의
