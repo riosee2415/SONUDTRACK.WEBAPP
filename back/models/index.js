@@ -28,6 +28,9 @@ const cateType = require("./cateType");
 const cateTypeHistory = require("./cateTypeHistory");
 const category = require("./category");
 const seller = require("./seller");
+const sellerhistory = require("./sellerhistory");
+const artistem = require("./artistem");
+const musictem = require("./musictem");
 
 const env = process.env.NODE_ENV || "development";
 const config = require("../config/config")[env];
@@ -69,6 +72,9 @@ db.CateType = cateType;
 db.CateTypeHistory = cateTypeHistory;
 db.Category = category;
 db.Seller = seller;
+db.SellerHistory = sellerhistory;
+db.Artistem = artistem;
+db.Musictem = musictem;
 
 Object.keys(db).forEach((modelName) => {
   db[modelName].init(sequelize);

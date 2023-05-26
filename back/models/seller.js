@@ -31,10 +31,10 @@ module.exports = class Seller extends Model {
           type: DataTypes.STRING(600),
           allowNull: false,
         },
-        isComplete: {
-          type: DataTypes.BOOLEAN,
+        status: {
+          type: DataTypes.INTEGER, // [ 1. 승인 대기중 | 2. 승인 | 3. 반려 ]
           allowNull: false,
-          defaultValue: false,
+          defaultValue: 1,
         },
         completedAt: {
           type: DataTypes.DATE,
