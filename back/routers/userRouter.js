@@ -598,7 +598,12 @@ router.get("/signin", async (req, res, next) => {
               A.exitedAt,
               DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")		AS viewCreatedAt,
               DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")		AS viewUpdatedAt,
-              DATE_FORMAT(A.exitedAt, "%Y년 %m월 %d일")		AS viewExitedAt
+              DATE_FORMAT(A.exitedAt, "%Y년 %m월 %d일")		AS viewExitedAt,
+              A.type,
+              A.bankName,
+              A.acconuntNum,
+              A.artistemId,
+              A.musictemId
         FROM	users     A
        WHERE  A.id = ${req.user.id}
       `;
@@ -672,7 +677,12 @@ router.post("/signin", (req, res, next) => {
               A.exitedAt,
               DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")		AS viewCreatedAt,
               DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")		AS viewUpdatedAt,
-              DATE_FORMAT(A.exitedAt, "%Y년 %m월 %d일")		  AS viewExitedAt
+              DATE_FORMAT(A.exitedAt, "%Y년 %m월 %d일")		  AS viewExitedAt,
+              A.type,
+              A.bankName,
+              A.acconuntNum,
+              A.artistemId,
+              A.musictemId
         FROM	users     A
        WHERE  A.id = ${user.id}
       `;
@@ -736,6 +746,11 @@ router.post("/signin/admin", (req, res, next) => {
           "menuRight10",
           "menuRight11",
           "menuRight12",
+          "type",
+          "bankName",
+          "acconuntNum",
+          "artistemId",
+          "musictemId"
         ],
       });
 

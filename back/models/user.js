@@ -164,11 +164,11 @@ module.exports = class User extends Model {
         },
         artistemId:{
           type: DataTypes.INTEGER,
-          allowNull:false,
+          allowNull:true,
         },
         musictemId:{
           type: DataTypes.INTEGER,
-          allowNull:false,
+          allowNull:true,
         },
       },
       {
