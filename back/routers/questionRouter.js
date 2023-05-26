@@ -14,14 +14,14 @@ const router = express.Router();
  * DEV DATE : 2023/05/23
  */
 router.post("/admin/list", isAdminCheck, async (req, res, next) => {
-  const { name, isConfirmed, createdAt } = req.body;
+  const { name, isConfirmed } = req.body;
 
   const _name = name ? name : ``;
   const _isConfirmed = isConfirmed ? isConfirmed : ``;
-  const _createdAt = createdAt ? createdAt : ``;
+  // const _createdAt = createdAt ? createdAt : ``;
 
   const selectQuery = `
-    SELECT  ROW_NUMBER() OVER(ORDER	BY createdAt)		AS num,
+    SELECT  ROW_NUMBER() OVER(ORDER	BY A.createdAt)		AS num,
         		A.id,
         		A.name,
         		A.email,
@@ -35,10 +35,8 @@ router.post("/admin/list", isAdminCheck, async (req, res, next) => {
       FROM  questions   A
      WHERE  1 = 1
        AND  A.name LIKE "%${_name}%"
-       AND  A.isConfirmed LIKE "%${_isConfirmed}%"
-       AND  A.createdAt LIKE "%${_createdAt}%"
-
-     ORDER BY num DESC
+       AND  A.isConfirmed LIKE ${_isConfirmed}
+     ORDER  BY num DESC
     `;
   try {
     const result = await models.sequelize.query(selectQuery);
@@ -114,8 +112,10 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
     content,
     email,
     name,
+    isConfirmed,
+    confirmedAt,
     createdAt,
-    updatedAt,
+    updatedAt
   )
   VALUES
   (
@@ -123,6 +123,8 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
     "${content}",
     "${email}",
     "${name}",
+    0,
+    NOW(),
     NOW(),
     NOW()
   )

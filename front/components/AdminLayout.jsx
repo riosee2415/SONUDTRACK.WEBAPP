@@ -71,6 +71,11 @@ export const items = {
       useYn: true,
     },
     {
+      name: "문의관리",
+      link: "/admin/boards/contact",
+      useYn: true,
+    },
+    {
       name: "겔러리관리",
       link: "/admin/boards/gallery",
       useYn: true,

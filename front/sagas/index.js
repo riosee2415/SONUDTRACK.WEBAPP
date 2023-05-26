@@ -5,7 +5,7 @@ import popupSaga from "./popup";
 import companySaga from "./company";
 import noticeSage from "./notice";
 import gallerySage from "./gallery";
-import questionSage from "./question";
+import questionSaga from "./question";
 import accept from "./accept";
 import editSaga from "./editor";
 import logoSaga from "./logo";
@@ -29,7 +29,7 @@ export default function* rootSaga() {
     fork(companySaga),
     fork(noticeSage),
     fork(gallerySage),
-    fork(questionSage),
+    fork(questionSaga),
     fork(accept),
     fork(editSaga),
     fork(logoSaga),

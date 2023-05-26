@@ -1,11 +1,10 @@
 import produce from "../util/produce";
 
 export const initailState = {
-  questions: null,
+  questions: [],
   types: null,
 
   createTypeModal: false, // 문의 유형 create 모달 실행
-
   updateModal: false, // 문의 update 모달 실행
 
   //
@@ -79,14 +78,20 @@ const reducer = (state = initailState, action) =>
     switch (action.type) {
       case QUESTION_GET_REQUEST: {
         draft.st_questionLoading = true;
-        draft.st_questionDone = null;
-        draft.st_questionError = false;
+        draft.st_questionDone = false;
+        draft.st_questionError = null;
         break;
       }
       case QUESTION_GET_SUCCESS: {
         draft.st_questionLoading = false;
         draft.st_questionDone = true;
+        draft.st_questionError = null;
         draft.questions = action.data;
+        console.log(action.data);
+        console.log(action.data);
+        console.log(action.data);
+        console.log(action.data);
+        console.log(action.data);
         break;
       }
       case QUESTION_GET_FAILURE: {
@@ -95,6 +100,7 @@ const reducer = (state = initailState, action) =>
         draft.st_questionError = action.error;
         break;
       }
+      //
       case QUESTION_DELETE_REQUEST: {
         draft.st_questionDeleteLoading = true;
         draft.st_questionDeleteDone = null;
@@ -112,6 +118,7 @@ const reducer = (state = initailState, action) =>
         draft.st_questionDeleteError = action.error;
         break;
       }
+      //
       case QUESTION_CREATE_REQUEST: {
         draft.st_questionCreateLoading = true;
         draft.st_questionCreateDone = null;

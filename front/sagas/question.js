@@ -33,7 +33,7 @@ import {
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
 async function questionGetAPI(data) {
-  return await axios.post(`/api/question/list`, data);
+  return await axios.post(`/api/question/admin/list`, data);
 }
 
 function* questionGet(action) {
@@ -256,7 +256,7 @@ function* watchQuestionTypeUpdate() {
 }
 
 //////////////////////////////////////////////////////////////
-export default function* bannerSaga() {
+export default function* questionSaga() {
   yield all([
     fork(watchQuestionGet),
     fork(watchQuestionCreate),
