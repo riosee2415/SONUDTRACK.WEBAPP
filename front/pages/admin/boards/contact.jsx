@@ -2,18 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import AdminLayout from "../../../components/AdminLayout";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  Popover,
-  Button,
-  Table,
-  Form,
-  Input,
-  Select,
-  message,
-  Switch,
-  Modal,
-  Popconfirm,
-} from "antd";
+import { Popover, Button, Table, Form, Input, message, Popconfirm } from "antd";
 import { useRouter, withRouter } from "next/router";
 import wrapper from "../../../store/configureStore";
 import { END } from "redux-saga";
@@ -26,19 +15,8 @@ import {
   OtherMenu,
   GuideUl,
   GuideLi,
-  DelBtn,
 } from "../../../components/commonComponents";
 import { LOAD_MY_INFO_REQUEST } from "../../../reducers/user";
-import {
-  NOTICE_LIST_REQUEST,
-  NOTICE_UPDATE_REQUEST,
-  NOTICE_UPDATE_TOP_REQUEST,
-  NOTICE_FILE_REQUEST,
-  NOTICE_FILE_INFO_REQUEST,
-  UPLOAD_PATH_INIT,
-  NOTICE_CREATE_REQUEST,
-  NOTICE_DELETE_REQUEST,
-} from "../../../reducers/notice";
 import Theme from "../../../components/Theme";
 import { items } from "../../../components/AdminLayout";
 import {
@@ -49,7 +27,10 @@ import {
   CheckOutlined,
 } from "@ant-design/icons";
 import { saveAs } from "file-saver";
-import { QUESTION_GET_REQUEST } from "../../../reducers/question";
+import {
+  QUESTION_GET_REQUEST,
+  QUESTION_UPDATE_REQUEST,
+} from "../../../reducers/question";
 
 const InfoTitle = styled.div`
   font-size: 19px;
@@ -74,8 +55,12 @@ const ViewStatusIcon = styled(EyeOutlined)`
 const Contact = ({}) => {
   const { st_loadMyInfoDone, me } = useSelector((state) => state.user);
 
-  const { questions } = useSelector((state) => state.question);
-  console.log(questions);
+  const {
+    questions,
+    //
+    st_questionUpdateDone,
+    st_questionUpdateError,
+  } = useSelector((state) => state.question);
 
   const router = useRouter();
   const dispatch = useDispatch();
@@ -115,7 +100,19 @@ const Contact = ({}) => {
 
   ////// HOOKS //////
 
+  const [currentTab, setCurrentTab] = useState(0); // 3:전체, 2:승인, 1:미승인
+
   ////// USEEFFECT //////
+
+  // 승인 후 처리
+  useEffect(() => {
+    if (st_questionUpdateDone) {
+      dispatch({
+        type: QUESTION_GET_REQUEST,
+      });
+      return message.success("승인되었습니다.");
+    }
+  }, [st_questionUpdateDone, st_questionUpdateError]);
 
   useEffect(() => {
     if (st_loadMyInfoDone) {
@@ -142,7 +139,48 @@ const Contact = ({}) => {
     });
   }, []);
 
+  ////// TOGGLE //////
+
+  // currentTAb Toggle
+  const currentTabToggle = useCallback((data) => {
+    setCurrentTab(data);
+
+    dispatch({
+      type: QUESTION_GET_REQUEST,
+      data: {
+        isConfirmed: data,
+      },
+    });
+  }, []);
   ////// HANDLER //////
+
+  // updateHandler
+  const updateHandler = useCallback(() => {
+    dispatch({
+      type: QUESTION_UPDATE_REQUEST,
+      data: {
+        id: currentData && currentData.id,
+      },
+    });
+  }, [currentData]);
+
+  // 데이터불러오기
+  const beforeSetDataHandler = useCallback(
+    (record) => {
+      setCurrentData(record);
+
+      infoForm.setFieldsValue({
+        name: record.name,
+        email: record.email,
+        title: record.title,
+        content: record.content,
+        isConfirmed: record.isConfirmed ? "승인" : "미승인",
+        viewCreatedAt: record.viewCreatedAt,
+        viewUpdatedAt: record.viewUpdatedAt,
+      });
+    },
+    [currentData, infoForm, currentTop]
+  );
 
   ////// DATAVIEW //////
 
@@ -162,6 +200,7 @@ const Contact = ({}) => {
       title: "작성일",
       dataIndex: "viewCreatedAt",
     },
+
     {
       title: "상태창",
       render: (data) => (
@@ -173,18 +212,20 @@ const Contact = ({}) => {
       ),
     },
     {
-      title: "승인",
+      title: "승인여부",
       render: (data) =>
         data.isConfirmed ? (
-          "승인완료"
+          "완료"
         ) : (
           <Popconfirm
             title="정말 승인하시겠습니까?"
-            onConfirm={() => deleteHandler(data)}
+            onConfirm={() => updateHandler(data)}
             okText="승인"
             cancelText="취소"
           >
-            <DelBtn />
+            <Button type="primary" size="small">
+              승인
+            </Button>
           </Popconfirm>
         ),
     },
@@ -237,6 +278,29 @@ const Contact = ({}) => {
       {/* CONTENT */}
 
       <Wrapper dr="row" padding="0px 20px" al="flex-start">
+        <Wrapper margin={`0 0 20px`} dr={`row`} ju={`flex-start`}>
+          <Button
+            onClick={() => currentTabToggle(3)}
+            type={currentTab === 3 ? "primary" : "default"}
+            size="small"
+          >
+            전체
+          </Button>
+          <Button
+            onClick={() => currentTabToggle(2)}
+            type={currentTab === 2 ? "primary" : "default"}
+            size="small"
+          >
+            승인
+          </Button>
+          <Button
+            onClick={() => currentTabToggle(1)}
+            type={currentTab === 1 ? "primary" : "default"}
+            size="small"
+          >
+            미승인
+          </Button>
+        </Wrapper>
         <Wrapper
           width={`calc(50% - 10px)`}
           margin="5px"
@@ -265,7 +329,7 @@ const Contact = ({}) => {
               <Wrapper margin={`0px 0px 5px 0px`}>
                 <InfoTitle>
                   <CheckOutlined />
-                  공지사항 기본정보
+                  기본정보
                 </InfoTitle>
               </Wrapper>
 
@@ -274,29 +338,29 @@ const Contact = ({}) => {
                 labelCol={{ span: 3 }}
                 wrapperCol={{ span: 21 }}
                 style={{ width: "100%", paddingRight: "20px" }}
-                // onFinish={infoFormFinish}
+                onFinish={updateHandler}
               >
-                <Form.Item
-                  label="제목"
-                  name="title"
-                  rules={[
-                    { required: true, message: "제목은 필수 입력사항 입니다." },
-                  ]}
-                >
-                  <Input size="small" />
+                <Form.Item label="이름" name="name">
+                  <Input size="small" readOnly />
                 </Form.Item>
 
-                <Form.Item
-                  label="내용"
-                  name="content"
-                  rules={[
-                    { required: true, message: "내용은 필수 입력사항 입니다." },
-                  ]}
-                >
-                  <Input.TextArea rows={10} />
+                <Form.Item label="이메일" name="email">
+                  <Input readOnly rows={10} />
                 </Form.Item>
 
-                <Form.Item label="조회수" name="hit">
+                <Form.Item label="제목" name="title">
+                  <Input size="small" readOnly />
+                </Form.Item>
+
+                <Form.Item label="내용" name="content">
+                  <Input.TextArea
+                    size="small"
+                    readOnly
+                    style={{ height: `150px` }}
+                  />
+                </Form.Item>
+
+                <Form.Item label="작성일" name="viewCreatedAt">
                   <Input
                     size="small"
                     style={{ background: Theme.lightGrey_C, border: "none" }}
@@ -304,7 +368,7 @@ const Contact = ({}) => {
                   />
                 </Form.Item>
 
-                <Form.Item label="작성일" name="createdAt">
+                <Form.Item label="수정일" name="viewUpdatedAt">
                   <Input
                     size="small"
                     style={{ background: Theme.lightGrey_C, border: "none" }}
@@ -312,27 +376,13 @@ const Contact = ({}) => {
                   />
                 </Form.Item>
 
-                <Form.Item label="수정일" name="updatedAt">
-                  <Input
-                    size="small"
-                    style={{ background: Theme.lightGrey_C, border: "none" }}
-                    readOnly
-                  />
-                </Form.Item>
-
-                <Form.Item label="최근작업자" name="updator">
-                  <Input
-                    size="small"
-                    style={{ background: Theme.lightGrey_C, border: "none" }}
-                    readOnly
-                  />
-                </Form.Item>
-
-                <Wrapper al="flex-end">
-                  <Button type="primary" size="small" htmlType="submit">
-                    정보 업데이트
-                  </Button>
-                </Wrapper>
+                {!currentData && currentData.isConfirmed && (
+                  <Wrapper al="flex-end">
+                    <Button type="primary" size="small" htmlType="submit">
+                      승인
+                    </Button>
+                  </Wrapper>
+                )}
               </Form>
 
               <Wrapper

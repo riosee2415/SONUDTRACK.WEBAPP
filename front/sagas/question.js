@@ -9,9 +9,9 @@ import {
   QUESTION_CREATE_SUCCESS,
   QUESTION_CREATE_FAILURE,
   //
-  QUESTION_DELETE_REQUEST,
-  QUESTION_DELETE_SUCCESS,
-  QUESTION_DELETE_FAILURE,
+  QUESTION_UPDATE_REQUEST,
+  QUESTION_UPDATE_SUCCESS,
+  QUESTION_UPDATE_FAILURE,
   // ************************************************
   QUESTION_TYPE_GET_REQUEST,
   QUESTION_TYPE_GET_SUCCESS,
@@ -86,22 +86,22 @@ function* questionCreate(action) {
 
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
-async function questionDeleteAPI(data) {
-  return await axios.delete(`/api/question/delete/${data.questionId}`);
+async function questionUpdateAPI(data) {
+  return await axios.post(`/api/question/update`, data);
 }
 
-function* questionDelete(action) {
+function* questionUpdate(action) {
   try {
-    const result = yield call(questionDeleteAPI, action.data);
+    const result = yield call(questionUpdateAPI, action.data);
 
     yield put({
-      type: QUESTION_DELETE_SUCCESS,
+      type: QUESTION_UPDATE_SUCCESS,
       data: result.data,
     });
   } catch (err) {
     console.error(err);
     yield put({
-      type: QUESTION_DELETE_FAILURE,
+      type: QUESTION_UPDATE_FAILURE,
       error: err.response.data,
     });
   }
@@ -233,8 +233,8 @@ function* watchQuestionCreate() {
   yield takeLatest(QUESTION_CREATE_REQUEST, questionCreate);
 }
 
-function* watchQuestionDelete() {
-  yield takeLatest(QUESTION_DELETE_REQUEST, questionDelete);
+function* watchQuestionUpdate() {
+  yield takeLatest(QUESTION_UPDATE_REQUEST, questionUpdate);
 }
 
 // ****************************************************************
@@ -260,7 +260,7 @@ export default function* questionSaga() {
   yield all([
     fork(watchQuestionGet),
     fork(watchQuestionCreate),
-    fork(watchQuestionDelete),
+    fork(watchQuestionUpdate),
 
     // ****************************************************************
 

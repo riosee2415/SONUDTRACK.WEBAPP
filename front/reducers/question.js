@@ -16,9 +16,9 @@ export const initailState = {
   st_questionCreateDone: false,
   st_questionCreateError: null,
   //
-  st_questionDeleteLoading: false, // 문의 정보 삭제하기
-  st_questionDeleteDone: false,
-  st_questionDeleteError: null,
+  st_questionUpdateLoading: false, // 문의 정보 승인하기
+  st_questionUpdateDone: false,
+  st_questionUpdateError: null,
   ////////////////////////////////////////////////////////////////////////
   st_questionTypeLoading: false, // 문의 유형 정보 가져오기
   st_questionTypeDone: false,
@@ -41,9 +41,9 @@ export const QUESTION_GET_REQUEST = "QUESTION_GET_REQUEST";
 export const QUESTION_GET_SUCCESS = "QUESTION_GET_SUCCESS";
 export const QUESTION_GET_FAILURE = "QUESTION_GET_FAILURE";
 
-export const QUESTION_DELETE_REQUEST = "QUESTION_DELETE_REQUEST";
-export const QUESTION_DELETE_SUCCESS = "QUESTION_DELETE_SUCCESS";
-export const QUESTION_DELETE_FAILURE = "QUESTION_DELETE_FAILURE";
+export const QUESTION_UPDATE_REQUEST = "QUESTION_UPDATE_REQUEST";
+export const QUESTION_UPDATE_SUCCESS = "QUESTION_UPDATE_SUCCESS";
+export const QUESTION_UPDATE_FAILURE = "QUESTION_UPDATE_FAILURE";
 
 export const QUESTION_CREATE_REQUEST = "QUESTION_CREATE_REQUEST";
 export const QUESTION_CREATE_SUCCESS = "QUESTION_CREATE_SUCCESS";
@@ -87,11 +87,7 @@ const reducer = (state = initailState, action) =>
         draft.st_questionDone = true;
         draft.st_questionError = null;
         draft.questions = action.data;
-        console.log(action.data);
-        console.log(action.data);
-        console.log(action.data);
-        console.log(action.data);
-        console.log(action.data);
+
         break;
       }
       case QUESTION_GET_FAILURE: {
@@ -101,21 +97,23 @@ const reducer = (state = initailState, action) =>
         break;
       }
       //
-      case QUESTION_DELETE_REQUEST: {
-        draft.st_questionDeleteLoading = true;
-        draft.st_questionDeleteDone = null;
-        draft.st_questionDeleteError = false;
+      case QUESTION_UPDATE_REQUEST: {
+        draft.st_questionUpdateLoading = true;
+        draft.st_questionUpdateDone = false;
+        draft.st_questionUpdateError = null;
         break;
       }
-      case QUESTION_DELETE_SUCCESS: {
-        draft.st_questionDeleteLoading = false;
-        draft.st_questionDeleteDone = true;
+      case QUESTION_UPDATE_SUCCESS: {
+        draft.st_questionUpdateLoading = false;
+        draft.st_questionUpdateDone = true;
+        draft.st_questionUpdateError = null;
+
         break;
       }
-      case QUESTION_DELETE_FAILURE: {
-        draft.st_questionDeleteLoading = false;
-        draft.st_questionDeleteDone = false;
-        draft.st_questionDeleteError = action.error;
+      case QUESTION_UPDATE_FAILURE: {
+        draft.st_questionUpdateLoading = false;
+        draft.st_questionUpdateDone = false;
+        draft.st_questionUpdateError = action.error;
         break;
       }
       //
