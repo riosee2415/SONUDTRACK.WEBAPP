@@ -150,6 +150,26 @@ module.exports = class User extends Model {
           type: DataTypes.DATE,
           allowNull: true,
         },
+        type:{
+          type: DataTypes.INTEGER,
+          allowNull: false,
+        },
+        bankName:{
+          type: DataTypes.STRING(60),
+          allowNull:false,
+        },
+        acconuntNum:{
+          type: DataTypes.STRING(60),
+          allowNull:false,
+        },
+        artistemId:{
+          type: DataTypes.INTEGER,
+          allowNull:false,
+        },
+        musictemId:{
+          type: DataTypes.INTEGER,
+          allowNull:false,
+        },
       },
       {
         modelName: "User",

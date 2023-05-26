@@ -227,23 +227,7 @@ router.post("/snsLogin", (req, res, next) => {
               A.exitedAt,
               DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")		AS viewCreatedAt,
               DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")		AS viewUpdatedAt,
-              DATE_FORMAT(A.exitedAt, "%Y년 %m월 %d일")		AS viewExitedAt,
-              CASE
-                WHEN  (
-                      SELECT  COUNT(B.id)
-                        FROM  artist		B
-                        WHERE  B.isPermm = 1	 
-                          AND  B.UserId = A.id
-                      ) > 0
-                THEN  "아티스트"
-                ELSE  "일반"
-              END                    AS  isArtist,
-              (
-                SELECT  B.id
-                  FROM  artist		B
-                 WHERE  B.isPermm = 1	 
-                   AND  B.UserId = A.id  
-              )                       AS ArtistId
+              DATE_FORMAT(A.exitedAt, "%Y년 %m월 %d일")		AS viewExitedAt
         FROM	users     A
        WHERE  A.id = ${user.id}
 `;
@@ -361,23 +345,7 @@ router.post("/snsLogin", (req, res, next) => {
               A.exitedAt,
               DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")		AS viewCreatedAt,
               DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")		AS viewUpdatedAt,
-              DATE_FORMAT(A.exitedAt, "%Y년 %m월 %d일")		AS viewExitedAt,
-              CASE
-                WHEN  (
-                      SELECT  COUNT(B.id)
-                        FROM  artist		B
-                        WHERE  B.isPermm = 1	 
-                          AND  B.UserId = A.id
-                      ) > 0
-                THEN  "아티스트"
-                ELSE  "일반"
-              END                    AS  isArtist,
-              (
-                SELECT  B.id
-                  FROM  artist		B
-                 WHERE  B.isPermm = 1	 
-                   AND  B.UserId = A.id  
-              )                       AS ArtistId
+              DATE_FORMAT(A.exitedAt, "%Y년 %m월 %d일")		AS viewExitedAt
         FROM	users     A
        WHERE  A.id = ${insertResult[0].insertId}
 `;
@@ -630,23 +598,7 @@ router.get("/signin", async (req, res, next) => {
               A.exitedAt,
               DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")		AS viewCreatedAt,
               DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")		AS viewUpdatedAt,
-              DATE_FORMAT(A.exitedAt, "%Y년 %m월 %d일")		AS viewExitedAt,
-              CASE
-                WHEN  (
-                      SELECT  COUNT(B.id)
-                        FROM  artist		B
-                        WHERE  B.isPermm = 1	 
-                          AND  B.UserId = A.id
-                      ) > 0
-                THEN  "아티스트"
-                ELSE  "일반"
-              END                    AS  isArtist,
-              (
-                SELECT  B.id
-                  FROM  artist		B
-                 WHERE  B.isPermm = 1	 
-                   AND  B.UserId = A.id  
-              )                       AS ArtistId
+              DATE_FORMAT(A.exitedAt, "%Y년 %m월 %d일")		AS viewExitedAt
         FROM	users     A
        WHERE  A.id = ${req.user.id}
       `;
@@ -720,23 +672,7 @@ router.post("/signin", (req, res, next) => {
               A.exitedAt,
               DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")		AS viewCreatedAt,
               DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")		AS viewUpdatedAt,
-              DATE_FORMAT(A.exitedAt, "%Y년 %m월 %d일")		  AS viewExitedAt,
-              CASE
-                WHEN  (
-                      SELECT  COUNT(B.id)
-                        FROM  artist		B
-                        WHERE  B.isPermm = 1	 
-                          AND  B.UserId = A.id
-                      ) > 0
-                THEN  "아티스트"
-                ELSE  "일반"
-              END                    AS  isArtist,
-              (
-                SELECT  B.id
-                  FROM  artist		B
-                 WHERE  B.isPermm = 1	 
-                   AND  B.UserId = A.id  
-              )                       AS ArtistId
+              DATE_FORMAT(A.exitedAt, "%Y년 %m월 %d일")		  AS viewExitedAt
         FROM	users     A
        WHERE  A.id = ${user.id}
       `;
@@ -809,7 +745,7 @@ router.post("/signin/admin", (req, res, next) => {
 });
 /**
  * SUBJECT :  회원가입
- * PARAMETERS : userId, password
+ * PARAMETERS : 
  * ORDER BY : -
  * STATEMENT : -
  * DEVELOPMENT : 장혜정
@@ -1115,11 +1051,18 @@ router.post("/findemail", async (req, res, next) => {
 });
 
 //아이디찾기
-
+/**
+ * SUBJECT :  아이디 찾기
+ * PARAMETERS : username, mobile
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 장혜정
+ * DEV DATE : 2023/05/26
+ */
 router.post("/findeUserId", async (req, res, next) => {
   const { username, mobile } = req.body;
 
-  const findQuery = `
+  const selectQuery = `
   SELECT  userId
     FROM  users
    WHERE  username = "${username}"
@@ -1127,20 +1070,27 @@ router.post("/findeUserId", async (req, res, next) => {
   `;
 
   try {
-    const findUser = await models.sequelize.query(findQuery);
+    const findResult = await models.sequelize.query(selectQuery);
 
-    if (findUser[0].length !== 0) {
-      return res.status(200).json({ userId: findUser[0][0].userId });
+    if (findResult[0].length === 0) {
+      return res.status(400).send("일치하는 정보가 존재하지 않습니다.");
     } else {
-      return res.status(401).send("일치하는 정보가 없습니다.");
+      return res.status(200).json(findResult[0][0].email);
     }
   } catch (error) {
     console.error(error);
-    return res.status(401).send("이메일을 찾을 수 없습니다.");
+    return res.status(401).send("아이디를 찾을 수 없습니다.");
   }
 });
 
-//비밀번호 재설정
+/**
+ * SUBJECT :  비밀번호 찾기
+ * PARAMETERS : userId, email
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 장혜정
+ * DEV DATE : 2023/05/26
+ */
 router.post("/modifypass", async (req, res, next) => {
   const { userId, email } = req.body;
 
@@ -1190,10 +1140,17 @@ router.post("/modifypass", async (req, res, next) => {
     return res.status(200).json({ result: true });
   } catch (error) {
     console.error(error);
-    return res.status(401).send("잘못된 요청 입니다. [CODE097]");
+    return res.status(401).send("비밀번호를 찾을 수 없습니다.");
   }
 });
-
+/**
+ * SUBJECT :  인증번호 인증
+ * PARAMETERS : secret, email
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 장혜정
+ * DEV DATE : 2023/05/26
+ */
 router.post("/checkSecret", async (req, res, next) => {
   const { secret } = req.body;
 
@@ -1216,7 +1173,14 @@ router.post("/checkSecret", async (req, res, next) => {
     return res.status(401).send("잘못된 요청 입니다.");
   }
 });
-
+/**
+ * SUBJECT :  인증번호 인증
+ * PARAMETERS : secret, email
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 장혜정
+ * DEV DATE : 2023/05/26
+ */
 router.post("/modifypass/update", async (req, res, next) => {
   const { userId, password } = req.body;
 
