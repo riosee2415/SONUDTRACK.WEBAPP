@@ -431,7 +431,7 @@ const Notice = ({}) => {
         </GuideUl>
       </Wrapper>
 
-            {/* 검색 */}
+      {/* 검색 */}
       <Wrapper padding={`10px 20px`}>
         <SearchForm
           form={searchForm}
