@@ -27,12 +27,14 @@ import {
   GuideUl,
   GuideLi,
   DelBtn,
+  Image,
+  SearchForm,
+  SearchFormItem,
 } from "../../../components/commonComponents";
 import { LOAD_MY_INFO_REQUEST } from "../../../reducers/user";
 import {
   ADMIN_NOTICE_LIST_REQUEST,
   NOTICE_UPDATE_REQUEST,
-  NOTICE_UPDATE_TOP_REQUEST,
   NOTICE_FILE_REQUEST,
   UPLOAD_PATH_INIT,
   NOTICE_CREATE_REQUEST,
@@ -46,6 +48,8 @@ import {
   EyeOutlined,
   AlertOutlined,
   CheckOutlined,
+  SearchOutlined,
+  UnorderedListOutlined,
 } from "@ant-design/icons";
 import { saveAs } from "file-saver";
 
@@ -73,23 +77,21 @@ const Notice = ({}) => {
   const { st_loadMyInfoDone, me } = useSelector((state) => state.user);
   const {
     adminNotices,
+
     st_noticeUpdateDone,
     st_noticeUpdateError,
-    st_noticeUpdateTopDone,
-    st_noticeUpdateTopError,
+
     uploadFilePath,
     st_noticeFileLoading,
     st_noticeFileDone,
-    st_noticeFileInfoDone,
-    st_noticeFileInfoError,
+    st_noticeFileError,
+
     st_noticeCreateDone,
     st_noticeCreateError,
+
     st_noticeDeleteDone,
     st_noticeDeleteError,
-    st_noticeFileError,
   } = useSelector((state) => state.notice);
-
-  console.log(adminNotices);
 
   const router = useRouter();
   const dispatch = useDispatch();
@@ -100,8 +102,6 @@ const Notice = ({}) => {
   const [sameDepth, setSameDepth] = useState([]);
 
   const [currentData, setCurrentData] = useState(null);
-  const [currentTop, setCurrentTop] = useState(false);
-  const [tab, setTab] = useState(0);
 
   const [infoForm] = Form.useForm();
 
@@ -128,103 +128,11 @@ const Notice = ({}) => {
   /////////////////////////////////////////////////////////////////////////
 
   ////// HOOKS //////
+  const [searchForm] = Form.useForm();
+
+  const [noticeTitle, setNoticeTitle] = useState(""); // 공지사항 제목
 
   ////// USEEFFECT //////
-
-  // ********************** 공지사항 생성 후처리 *************************
-  useEffect(() => {
-    if (st_noticeCreateDone) {
-      message.success("정보가 업데이트 되었습니다.");
-
-      dispatch({
-        type: ADMIN_NOTICE_LIST_REQUEST,
-      });
-    }
-  }, [st_noticeCreateDone]);
-
-  useEffect(() => {
-    if (st_noticeCreateError) {
-      return message.error(st_noticeCreateError);
-    }
-    if (st_noticeFileError) {
-      return message.error(st_noticeFileError);
-    }
-  }, [st_noticeCreateError, st_noticeFileError]);
-
-  // ********************** 공지사항 수정 *************************
-  useEffect(() => {
-    if (st_noticeUpdateDone) {
-      message.success("정보가 업데이트 되었습니다.");
-
-      dispatch({
-        type: ADMIN_NOTICE_LIST_REQUEST,
-      });
-    }
-  }, [st_noticeUpdateDone]);
-
-  useEffect(() => {
-    if (st_noticeUpdateError) {
-      return message.error(st_noticeUpdateError);
-    }
-  }, [st_noticeUpdateError]);
-
-  // ********************** 공지사항 상단고정 수정 *************************
-  useEffect(() => {
-    if (st_noticeUpdateTopDone) {
-      dispatch({
-        type: ADMIN_NOTICE_LIST_REQUEST,
-      });
-
-      return message.success("정보가 업데이트 되었습니다.");
-    }
-  }, [st_noticeUpdateTopDone]);
-
-  useEffect(() => {
-    if (st_noticeFileInfoError) {
-      return message.error(st_noticeFileInfoError);
-    }
-  }, [st_noticeFileInfoError]);
-
-  // ********************** 공지사항 이미지 변경 *************************
-
-  useEffect(() => {
-    if (st_noticeFileDone) {
-      return message.success(
-        "공지사항 이미지가 업로드되었습니다. 정보 업데이트 버튼을 눌러주세요."
-      );
-    }
-  }, [st_noticeFileDone]);
-
-  useEffect(() => {
-    if (st_noticeFileError) {
-      return message.error(st_noticeFileError);
-    }
-  }, [st_noticeFileError]);
-
-  useEffect(() => {
-    setCurrentData(null);
-
-    dispatch({
-      type: ADMIN_NOTICE_LIST_REQUEST,
-    });
-  }, [tab]);
-
-  useEffect(() => {
-    if (st_noticeDeleteDone) {
-      setCurrentData(null);
-
-      dispatch({
-        type: ADMIN_NOTICE_LIST_REQUEST,
-      });
-
-      return message.success("정보가 업데이트 되었습니다.");
-    }
-
-    if (st_noticeDeleteError) {
-      return message.error(st_noticeDeleteError);
-    }
-  }, [st_noticeDeleteDone, st_noticeDeleteError]);
-
   useEffect(() => {
     if (st_loadMyInfoDone) {
       if (!me || parseInt(me.level) < 3) {
@@ -250,7 +158,109 @@ const Notice = ({}) => {
     });
   }, []);
 
+  useEffect(() => {
+    dispatch({
+      type: ADMIN_NOTICE_LIST_REQUEST,
+      data: {
+        searchTitle: noticeTitle,
+      },
+    });
+  }, [noticeTitle]);
+
+  // ********************** 공지사항 생성 후처리 *************************
+  useEffect(() => {
+    if (st_noticeCreateDone) {
+      message.success("공지사항이 생성 되었습니다.");
+
+      dispatch({
+        type: ADMIN_NOTICE_LIST_REQUEST,
+        data: {
+          searchTitle: noticeTitle,
+        }
+      });
+    }
+  }, [st_noticeCreateDone]);
+
+  useEffect(() => {
+    if (st_noticeCreateError) {
+      return message.error(st_noticeCreateError);
+    }
+    if (st_noticeFileError) {
+      return message.error(st_noticeFileError);
+    }
+  }, [st_noticeCreateError, st_noticeFileError]);
+
+  // ********************** 공지사항 수정 *************************
+  useEffect(() => {
+    if (st_noticeUpdateDone) {
+      message.success("공지사항이 수정 되었습니다.");
+
+      dispatch({
+        type: ADMIN_NOTICE_LIST_REQUEST,
+        data: {
+          searchTitle: noticeTitle,
+        },
+      });
+    }
+  }, [st_noticeUpdateDone]);
+
+  useEffect(() => {
+    if (st_noticeUpdateError) {
+      return message.error(st_noticeUpdateError);
+    }
+  }, [st_noticeUpdateError]);
+
+  // ********************** 공지사항 삭제 *************************
+  useEffect(() => {
+    if (st_noticeDeleteDone) {
+      message.success("공지사항이 삭제되었습니다.");
+
+      setCurrentData(null);
+
+      dispatch({
+        type: ADMIN_NOTICE_LIST_REQUEST,
+        data: {
+          searchTitle: noticeTitle,
+        },
+      });
+    }
+  }, [st_noticeDeleteDone]);
+
+  useEffect(() => {
+    if (st_noticeDeleteError) {
+      return message.error(st_noticeDeleteError);
+    }
+  }, [st_noticeDeleteError]);
+
+  // ********************** 공지사항 이미지 변경 *************************
+
+  useEffect(() => {
+    if (st_noticeFileDone) {
+      return message.success(
+        "공지사항 이미지가 업로드되었습니다. 정보 업데이트 버튼을 눌러주세요."
+      );
+    }
+  }, [st_noticeFileDone]);
+
+  useEffect(() => {
+    if (st_noticeFileError) {
+      return message.error(st_noticeFileError);
+    }
+  }, [st_noticeFileError]);
+
   ////// HANDLER //////
+
+  const searchHandler = useCallback(
+    (data) => {
+      setNoticeTitle(data.title);
+    },
+    [noticeTitle]
+  );
+
+  const allSearchHandler = useCallback(() => {
+    searchForm.resetFields();
+    setNoticeTitle("");
+  }, [noticeTitle]);
 
   const createWithTypeHandler = useCallback(() => {
     dispatch({
@@ -269,7 +279,7 @@ const Notice = ({}) => {
     const formData = new FormData();
 
     [].forEach.call(e.target.files, (file) => {
-      formData.append("file", file);
+      formData.append("image", file);
     });
 
     dispatch({
@@ -287,7 +297,6 @@ const Notice = ({}) => {
       });
 
       setCurrentData(record);
-      setCurrentTop(record.isTop);
 
       infoForm.setFieldsValue({
         title: record.title,
@@ -299,7 +308,7 @@ const Notice = ({}) => {
         updator: record.updator,
       });
     },
-    [currentData, infoForm, currentTop]
+    [currentData, infoForm]
   );
 
   const infoFormFinish = useCallback(
@@ -420,6 +429,37 @@ const Notice = ({}) => {
             삭제처리 된 공지사항은 복구가 불가능합니다.
           </GuideLi>
         </GuideUl>
+      </Wrapper>
+
+            {/* 검색 */}
+      <Wrapper padding={`10px 20px`}>
+        <SearchForm
+          form={searchForm}
+          onFinish={searchHandler}
+          layout="inline"
+          style={{ width: "100%" }}
+        >
+          <SearchFormItem name="title">
+            <Input size="small" placeholder="제목으로 검색해주세요." />
+          </SearchFormItem>
+
+          <SearchFormItem>
+            <Button icon={<SearchOutlined />} size="small" htmlType="submit">
+              검색
+            </Button>
+          </SearchFormItem>
+
+          <SearchFormItem>
+            <Button
+              icon={<UnorderedListOutlined />}
+              size="small"
+              type="primary"
+              onClick={allSearchHandler}
+            >
+              전체조회
+            </Button>
+          </SearchFormItem>
+        </SearchForm>
       </Wrapper>
 
       {/* CONTENT */}
