@@ -34,7 +34,6 @@ import {
   NOTICE_UPDATE_REQUEST,
   NOTICE_UPDATE_TOP_REQUEST,
   NOTICE_FILE_REQUEST,
-  NOTICE_FILE_INFO_REQUEST,
   UPLOAD_PATH_INIT,
   NOTICE_CREATE_REQUEST,
   NOTICE_DELETE_REQUEST,
@@ -132,21 +131,6 @@ const Notice = ({}) => {
 
   ////// USEEFFECT //////
 
-  useEffect(() => {
-    if (st_noticeFileDone) {
-      setCurrentData((prev) => {
-        return {
-          ...prev,
-          file: uploadFilePath,
-        };
-      });
-
-      return message.success(
-        "파일이 업로드되었습니다. 적용하기 버튼을 눌러주세요."
-      );
-    }
-  }, [st_noticeFileDone]);
-
   // ********************** 공지사항 생성 후처리 *************************
   useEffect(() => {
     if (st_noticeCreateDone) {
@@ -201,18 +185,21 @@ const Notice = ({}) => {
     }
   }, [st_noticeFileInfoError]);
 
-  // ********************** 공지사항 파일정보 적용 *************************
-  useEffect(() => {
-    if (st_noticeFileInfoDone) {
-      return message.success("정보가 업데이트 되었습니다.");
-    }
-  }, [st_noticeFileInfoDone]);
+  // ********************** 공지사항 이미지 변경 *************************
 
   useEffect(() => {
-    if (st_noticeUpdateTopError) {
-      return message.error(st_noticeUpdateError);
+    if (st_noticeFileDone) {
+      return message.success(
+        "공지사항 이미지가 업로드되었습니다. 정보 업데이트 버튼을 눌러주세요."
+      );
     }
-  }, [st_noticeUpdateTopError]);
+  }, [st_noticeFileDone]);
+
+  useEffect(() => {
+    if (st_noticeFileError) {
+      return message.error(st_noticeFileError);
+    }
+  }, [st_noticeFileError]);
 
   useEffect(() => {
     setCurrentData(null);
@@ -291,20 +278,7 @@ const Notice = ({}) => {
     });
   });
 
-  const fileDownloadHandler = useCallback(async (filepath) => {
-    const filename = "web_notice_file";
-    const ext = filepath.split(".");
-    const _ext = ext[ext.length - 1];
 
-    const finalFilename = `${filename}.${_ext}`;
-
-    let blob = await fetch(filepath).then((r) => r.blob());
-
-    const element = document.createElement("a");
-    const file = new Blob([blob]);
-
-    saveAs(file, finalFilename);
-  }, []);
 
   const beforeSetDataHandler = useCallback(
     (record) => {
@@ -336,23 +310,13 @@ const Notice = ({}) => {
           id: currentData.id,
           title: data.title,
           content: data.content,
+          imagePath: uploadFilePath ? uploadFilePath : currentData.imagePath,
           type: "공지사항",
         },
       });
     },
-    [currentData]
+    [currentData, uploadFilePath]
   );
-
-  const applyFileHandler = useCallback(() => {
-    dispatch({
-      type: NOTICE_FILE_INFO_REQUEST,
-      data: {
-        id: currentData.id,
-        filepath: uploadFilePath,
-        title: currentData.title,
-      },
-    });
-  }, [uploadFilePath, currentData]);
 
   const deleteHandler = useCallback((data) => {
     dispatch({
@@ -444,6 +408,15 @@ const Notice = ({}) => {
             공지사항을 추가 / 수정 / 삭제 등 관리를 할 수 있습니다.
           </GuideLi>
           <GuideLi isImpo={true}>
+            공지사항이미지는 5MB이하 용량으로 올려주세요.
+          </GuideLi>
+          <GuideLi isImpo={true}>
+            공지사항이미지사이즈는 420px X 400px입니다.
+          </GuideLi>
+          <GuideLi isImpo={true}>
+            공지사항이미지는 정보 업데이트버튼을 눌러야 적용이 됩니다.
+          </GuideLi>
+          <GuideLi isImpo={true}>
             삭제처리 된 공지사항은 복구가 불가능합니다.
           </GuideLi>
         </GuideUl>
@@ -482,6 +455,39 @@ const Notice = ({}) => {
         >
           {currentData ? (
             <>
+
+        <Wrapper margin={`0px 0px 5px 0px`}>
+          <InfoTitle>
+            <CheckOutlined />
+                  공지사항 이미지 정보
+          </InfoTitle>
+        </Wrapper>
+
+              <Wrapper width={`auto`} margin={`0 0 30px`}>
+                <Image
+                  width={`420px`}
+                  height={`400px`}
+                  src={uploadFilePath ? uploadFilePath : currentData.imagePath}
+                  alt={`image`}
+                />
+
+                <input
+                  hidden
+                  type={`file`}
+                  ref={fileRef}
+                  accept={`.jpg, .png`}
+                  onChange={onChangeFiles}
+                />
+                <Button
+                  loading={st_noticeFileLoading}
+                  style={{ width: `420px`, marginTop: `5px` }}
+                  size="small"
+                  type="primary"
+                  onClick={clickFileUpload}
+                >
+                  공지사항 이미지 업로드
+                </Button>
+              </Wrapper>
               <Wrapper margin={`0px 0px 5px 0px`}>
                 <InfoTitle>
                   <CheckOutlined />
@@ -554,99 +560,6 @@ const Notice = ({}) => {
                   </Button>
                 </Wrapper>
               </Form>
-
-              <Wrapper
-                width="100%"
-                height="1px"
-                bgColor={Theme.lightGrey_C}
-                margin={`30px 0px`}
-              ></Wrapper>
-
-              <Wrapper margin={`0px 0px 5px 0px`}>
-                <InfoTitle>
-                  <CheckOutlined />
-                  공지사항 파일정보
-                </InfoTitle>
-              </Wrapper>
-
-              <Wrapper padding="0px 20px">
-                {currentData.file ? (
-                  <Wrapper al="flex-start">
-                    <Text>등록된 파일이 1개 있습니다.</Text>
-                    <Wrapper dr="row" ju="flex-start">
-                      <Button
-                        type="defalut"
-                        size="small"
-                        onClick={() => fileDownloadHandler(currentData.file)}
-                      >
-                        다운로드
-                      </Button>
-
-                      <input
-                        type="file"
-                        name="file"
-                        accept=".png, .jpg"
-                        // multiple
-                        hidden
-                        ref={fileRef}
-                        onChange={onChangeFiles}
-                      />
-
-                      <Button
-                        type="danger"
-                        size="small"
-                        onClick={clickFileUpload}
-                        loading={st_noticeFileLoading}
-                      >
-                        수정하기
-                      </Button>
-
-                      {uploadFilePath && (
-                        <Button
-                          type="primary"
-                          size="small"
-                          style={{ marginLeft: "10px" }}
-                          onClick={applyFileHandler}
-                        >
-                          적용하기
-                        </Button>
-                      )}
-                    </Wrapper>
-                  </Wrapper>
-                ) : (
-                  <Wrapper al="flex-start">
-                    <Text>등록된 파일이 없습니다.</Text>
-
-                    <Wrapper ju="flex-start" dr="row">
-                      <input
-                        type="file"
-                        name="file"
-                        accept=".png, .jpg"
-                        // multiple
-                        hidden
-                        ref={fileRef}
-                        onChange={onChangeFiles}
-                      />
-
-                      <Button
-                        type="danger"
-                        size="small"
-                        onClick={clickFileUpload}
-                        loading={st_noticeFileLoading}
-                      >
-                        등록하기
-                      </Button>
-                    </Wrapper>
-                  </Wrapper>
-                )}
-              </Wrapper>
-
-              <Wrapper
-                width="100%"
-                height="1px"
-                bgColor={Theme.lightGrey_C}
-                margin={`30px 0px`}
-              ></Wrapper>
             </>
           ) : (
             <Wrapper padding={`50px 0px`} dr="row">
