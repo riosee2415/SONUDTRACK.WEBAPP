@@ -29,11 +29,15 @@ const cateTypeHistory = require("./cateTypeHistory");
 const category = require("./category");
 const seller = require("./seller");
 const sellerhistory = require("./sellerhistory");
-const artistem = require("./artistem");
-const musictem = require("./musictem");
 const tagtype = require("./tagtype");
 const tag = require("./tag");
 const taghistory = require("./taghistory");
+const artistem = require("./artistem");
+const musictem = require("./musictem");
+const artistfilmography = require("./artistfilmography");
+const artistcountry = require("./artistcountry");
+const artistcategory = require("./artistcategory");
+const artisttag = require("./artisttag");
 
 const env = process.env.NODE_ENV || "development";
 const config = require("../config/config")[env];
@@ -81,6 +85,10 @@ db.Musictem = musictem;
 db.TagType = tagtype;
 db.Tag = tag;
 db.TagHistory = taghistory;
+db.ArtistFilmography = artistfilmography;
+db.ArtistCountry = artistcountry;
+db.ArtistCategory = artistcategory;
+db.ArtistTag = artisttag;
 
 Object.keys(db).forEach((modelName) => {
   db[modelName].init(sequelize);

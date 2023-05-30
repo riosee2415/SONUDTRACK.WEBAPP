@@ -38,18 +38,13 @@ const upload = multer({
 const router = express.Router();
 
 router.post("/list", isAdminCheck, async (req, res, next) => {
-  const { searchData, searchLevel, searchExit, searchType } = req.body;
+  const { searchData, searchLevel, searchExit } = req.body;
 
   const _searchData = searchData ? searchData : ``;
 
   const _searchLevel = parseInt(searchLevel) === 0 ? 0 : parseInt(searchLevel);
 
   const _searchExit = searchExit ? searchExit : false;
-
-  // 아티스트 조회
-  // 1번 : 전체 조회
-  // 2번 : 아티스트 조회
-  const _searchType = searchType ? searchType : 1;
 
   const selectQuery = `
   SELECT	ROW_NUMBER() OVER(ORDER	BY A.createdAt)		AS num,
@@ -81,16 +76,11 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
           DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")		AS viewCreatedAt,
 		      DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")		AS viewUpdatedAt,
 		      DATE_FORMAT(A.exitedAt, "%Y년 %m월 %d일")		AS viewExitedAt,
-          CASE
-            WHEN  (
-                   SELECT  COUNT(B.id)
-                     FROM  artist		B
-                    WHERE  B.isPermm = 1	 
-                      AND  B.UserId = A.id
-                  ) > 0
-            THEN  "아티스트"
-            ELSE  "일반"
-          END                    AS  isArtist
+          A.type,
+          A.bankName,
+          A.acconuntNum,
+          A.artistemId,
+          A.musictemId
     FROM	users     A
    WHERE	CONCAT(A.username, A.email) LIKE '%${_searchData}%'
           ${
@@ -107,16 +97,6 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
               : ``
           } 
           AND	A.isExit = ${_searchExit}
-          ${
-            _searchType === 1
-              ? ``
-              : `AND 0 < (
-                          SELECT  COUNT(B.id)
-                            FROM  artist		B
-                           WHERE  B.isPermm = 1	 
-                             AND  B.UserId = A.id
-                         )`
-          }
    ORDER	BY num DESC
   `;
 
@@ -750,7 +730,7 @@ router.post("/signin/admin", (req, res, next) => {
           "bankName",
           "acconuntNum",
           "artistemId",
-          "musictemId"
+          "musictemId",
         ],
       });
 
@@ -760,7 +740,7 @@ router.post("/signin/admin", (req, res, next) => {
 });
 /**
  * SUBJECT :  회원가입
- * PARAMETERS : 
+ * PARAMETERS :
  * ORDER BY : -
  * STATEMENT : -
  * DEVELOPMENT : 장혜정

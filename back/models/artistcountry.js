@@ -4,7 +4,16 @@ const { Model } = DataTypes;
 module.exports = class ArtistCountry extends Model {
   static init(sequelize) {
     return super.init(
-      {},
+      {
+        value: {
+          type: DataTypes.STRING(50),
+          allowNull: false,
+        },
+        sort: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+        },
+      },
       {
         modelName: "ArtistCountry",
         tableName: "artistCountry",

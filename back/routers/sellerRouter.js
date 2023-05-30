@@ -92,7 +92,7 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
     return res.status(200).json(list[0]);
   } catch (error) {
     console.error(error);
-    return res.status(401).send("판매자 신청 리스트를 불러올 수 없습니다.");
+    return res.status(400).send("판매자 신청 리스트를 불러올 수 없습니다.");
   }
 });
 
@@ -104,7 +104,7 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
  * DEVELOPMENT : 신태섭
  * DEV DATE : 2023/05/26
  */
-router.post("/seller/create", isLoggedIn, async (req, res, next) => {
+router.post("/create", isLoggedIn, async (req, res, next) => {
   const { isMusictem, isArtistem, activity, genre, filename, filepath } =
     req.body;
 
@@ -146,7 +146,7 @@ router.post("/seller/create", isLoggedIn, async (req, res, next) => {
     const findResult = await models.sequelize.query(findQuery);
 
     if (findResult[0].length !== 0) {
-      return res.status(401).send("이미 승인된 판매자 신청 이력이 존재합니다.");
+      return res.status(400).send("이미 승인된 판매자 신청 이력이 존재합니다.");
     }
 
     await models.sequelize.query(insertQuery);
@@ -154,7 +154,7 @@ router.post("/seller/create", isLoggedIn, async (req, res, next) => {
     return res.status(201).json({ result: true });
   } catch (error) {
     console.error(error);
-    return res.status(401).send("판매자 신청을 진행할 수 없습니다.");
+    return res.status(400).send("판매자 신청을 진행할 수 없습니다.");
   }
 });
 
@@ -166,11 +166,15 @@ router.post("/seller/create", isLoggedIn, async (req, res, next) => {
  * DEVELOPMENT : 신태섭
  * DEV DATE : 2023/05/26
  */
+
+// status는 무조건 2, 3 둘중 하나로 보내주세요.
+// status === 2 승인
+// status === 3 반려
 router.post("/admin/permit", isAdminCheck, async (req, res, next) => {
   const { id, status, UserId, userId } = req.body;
 
   if (parseInt(status) !== 2 && parseInt(status) !== 3) {
-    return res.status(401).send("잘못된 요청입니다.");
+    return res.status(400).send("잘못된 요청입니다.");
   }
 
   const findQuery = `
@@ -185,11 +189,11 @@ router.post("/admin/permit", isAdminCheck, async (req, res, next) => {
     const findResult = await models.sequelize.query(findQuery);
 
     if (findResult[0].length === 0) {
-      return res.status(401).send("존재하지 않는 판매자 신청 이력입니다.");
+      return res.status(400).send("존재하지 않는 판매자 신청 이력입니다.");
     }
 
     if (parseInt(findResult[0][0].status) !== 1) {
-      return res.status(401).send("이미 처리된 신청 이력입니다.");
+      return res.status(400).send("이미 처리된 신청 이력입니다.");
     }
 
     if (parseInt(status) === 2) {
@@ -241,15 +245,24 @@ router.post("/admin/permit", isAdminCheck, async (req, res, next) => {
         )
         `;
 
-        await models.sequelize.query(insertQuery);
+        const insertResult = await models.sequelize.query(insertQuery);
+
+        const updateQuery = `
+        UPDATE  users
+           SET  musictemId = ${insertResult[0].insertId}
+         WHERE  id = ${UserId}
+        `;
+
+        await models.sequelize.query(updateQuery);
       }
 
       if (findResult[0][0].isArtistem) {
         const insertQuery = `
         INSERT  INTO    artistem
         (
+            isVacation,
             name,
-            companyName,
+            companyNo,
             artistName,
             artistProfileImage,
             artistInfo,
@@ -261,14 +274,16 @@ router.post("/admin/permit", isAdminCheck, async (req, res, next) => {
             question6,
             question7,
             question8,
-            isVacation,
+            repMusicFile,
+            repMusicFilename,
             isUpdate,
+            UserId,
             createdAt,
-            updatedAt,
-            UserId
+            updatedAt
         )
         VALUES
         (
+            0,
             NULL,
             NULL,
             NULL,
@@ -284,13 +299,22 @@ router.post("/admin/permit", isAdminCheck, async (req, res, next) => {
             NULL,
             NULL,
             NULL,
+            0,
+            ${UserId},
             NOW(),
-            NOW(),
-            ${UserId}
+            NOW()
         )
         `;
 
-        await models.sequelize.query(insertQuery);
+        const insertResult = await models.sequelize.query(insertQuery);
+
+        const updateQuery = `
+        UPDATE  users
+           SET  artistemId = ${insertResult[0].insertId}
+         WHERE  id = ${UserId}
+        `;
+
+        await models.sequelize.query(updateQuery);
       }
 
       await models.sequelize.query(updateQuery);
@@ -334,16 +358,161 @@ router.post("/admin/permit", isAdminCheck, async (req, res, next) => {
   } catch (error) {
     console.error(error);
     return res
-      .status(401)
+      .status(400)
       .send("판매자 신청 정보를 승인 / 반려할 수 없습니다.");
+  }
+});
+
+/**
+ * SUBJECT : 아티스탬 정보 조회 라우터
+ * PARAMETERS : ArtistemId
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/05/30
+ */
+router.post("/artistem/myData", isLoggedIn, async (req, res, next) => {
+  const { ArtistemId } = req.body;
+
+  const artistemQuery = `
+  SELECT  id,
+          isVacation,
+          name,
+          companyNo,
+          artistName,
+          artistProfileImage,
+          artistInfo,
+          question1,
+          question2,
+          question3,
+          question4,
+          question5,
+          question6,
+          question7,
+          question8,
+          repMusicFile,
+          repMusicFilename,
+          isUpdate,
+          createdAt,
+          updatedAt
+    FROM  artistem
+   WHERE  id = ${ArtistemId}
+  `;
+
+  const findCountryInfoQuery = `
+  SELECT  ROW_NUMBER()  OVER(ORDER  BY sort)      AS num,
+          id,
+          value,
+          sort,
+          createdAt,
+          updatedAt,
+          DATE_FORMAT(createdAt, "%Y년 %m월 %d일")  AS viewCreatedAt,
+          DATE_FORMAT(updatedAt, "%Y년 %m월 %d일")  AS viewUpdatedAt
+    FROM  artistCountry
+   WHERE  ArtistemId = ${ArtistemId}
+   ORDER  BY num ASC
+  `;
+
+  const findFilmInfoQuery = `
+  SELECT  ROW_NUMBER()  OVER(ORDER  BY sort)      AS num,
+          id,
+          part,
+          comment,
+          singerName,
+          songName,
+          filename,
+          filePath,
+          imagePathName,
+          imagePath,
+          sort,
+          createdAt,
+          updatedAt,
+          DATE_FORMAT(createdAt, "%Y년 %m월 %d일")  AS viewCreatedAt,
+          DATE_FORMAT(updatedAt, "%Y년 %m월 %d일")  AS viewUpdatedAt
+    FROM  artistFilmography
+   WHERE  ArtistemId = ${ArtistemId}
+   ORDER  BY num ASC
+  `;
+
+  const findCateInfoQuery = `
+  SELECT  ROW_NUMBER()  OVER(ORDER  BY A.sort)      AS num,
+          A.id,
+          A.sort,
+          A.ArtistemId,
+          A.CateTypeId,
+          A.CategoryId,
+          A.createdAt,
+          A.updatedAt,
+          DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")  AS viewCreatedAt,
+          DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")  AS viewUpdatedAt,
+          B.category                                AS categoryTypeValue,
+          C.value                                   AS catagoryValue
+    FROM  artistCategory    A
+   INNER
+    JOIN  cateType          B
+      ON  A.CateTypeId = B.id
+   INNER
+    JOIN  category          C
+      ON  A.CategoryId = C.id
+   WHERE  A.ArtistemId = ${ArtistemId}
+   ORDER  BY num ASC
+  `;
+
+  const findTagInfoQuery = `
+  SELECT  ROW_NUMBER()  OVER(ORDER  BY A.sort)      AS num,
+          A.id,
+          A.sort,
+          A.ArtistemId,
+          A.TagTypeId,
+          A.TagId,
+          A.createdAt,
+          A.updatedAt,
+          DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")  AS viewCreatedAt,
+          DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")  AS viewUpdatedAt,
+          B.value                                   AS tagTypeValue,
+          C.tagValue
+    FROM  artistTag        A
+   INNER
+    JOIN  tagType          B
+      ON  A.TagTypeId = B.id
+   INNER
+    JOIN  tag              C
+      ON  A.TagId = C.id
+   WHERE  A.ArtistemId = ${ArtistemId}
+   ORDER  BY num ASC
+  `;
+
+  try {
+    const artistemData = await models.sequelize.query(artistemQuery);
+
+    if (artistemData[0].length === 0) {
+      return res.status(400).send("아티스탬 정보가 존재하지 않습니다.");
+    }
+
+    const findCountryInfoData = await models.sequelize.query(
+      findCountryInfoQuery
+    );
+    const findFilmInfoData = await models.sequelize.query(findFilmInfoQuery);
+    const findCateInfoData = await models.sequelize.query(findCateInfoQuery);
+    const findTagInfoData = await models.sequelize.query(findTagInfoQuery);
+
+    return res.status(200).json({
+      artistemData: artistemData[0].length !== 0 ? artistemData[0][0] : null,
+      findCountryInfoData: findCountryInfoData[0],
+      findFilmInfoData: findFilmInfoData[0],
+      findCateInfoData: findCateInfoData[0],
+      findTagInfoData: findTagInfoData[0],
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("아티스탬 정보를 조회할 수 없습니다.");
   }
 });
 
 /**
  * SUBJECT : 아티스탬 정보 입력 라우터
  * PARAMETERS : name,
-                profileImage,
-                companyName,
+                companyNo,
                 artistName,
                 artistProfileImage,
                 artistInfo,
@@ -355,10 +524,307 @@ router.post("/admin/permit", isAdminCheck, async (req, res, next) => {
                 question6,
                 question7,
                 question8,
+                repMusicFile,
+                repMusicFilename,
+                countrys,
+                filmography,
+                categorys,
+                tags
  * ORDER BY : -
  * STATEMENT : -
  * DEVELOPMENT : 신태섭
  * DEV DATE : 2023/05/30
  */
+// 배열 정보는 해당 폼에 맞도록 보내주세요 !
+// countrys: [
+//   {
+//     value: "",
+//     sort: 1,
+//   },
+//   {
+//     value: "",
+//     sort: 2,
+//   },
+// ];
+// filmography: [
+//   {
+//     part: "",
+//     comment: "",
+//     singerName: "",
+//     songName: "",
+//     filename: "",
+//     filePath: "",
+//     imagePathName: "",
+//     imagePath: "",
+//     sort: 1,
+//   },
+//   {
+//     part: "",
+//     comment: "",
+//     singerName: "",
+//     songName: "",
+//     filename: "",
+//     filePath: "",
+//     imagePathName: "",
+//     imagePath: "",
+//     sort: 2,
+//   },
+// ];
+// categorys: [
+//   {
+//     CateTypeId: 1,
+//     CategoryId: 1,
+//     sort: 1,
+//   },
+//   {
+//     CateTypeId: 2,
+//     CategoryId: 2,
+//     sort: 2,
+//   },
+// ];
+// tags: [
+//   {
+//     TagTypeId: 1,
+//     TagId: 1,
+//     sort: 1,
+//   },
+//   {
+//     TagTypeId: 2,
+//     TagId: 2,
+//     sort: 2,
+//   },
+// ];
+
+router.post("/artistem/info/update", isLoggedIn, async (req, res, next) => {
+  const {
+    name,
+    companyNo,
+    artistName,
+    artistProfileImage,
+    artistInfo,
+    question1,
+    question2,
+    question3,
+    question4,
+    question5,
+    question6,
+    question7,
+    question8,
+    repMusicFile,
+    repMusicFilename,
+    countrys,
+    filmography,
+    categorys,
+    tags,
+  } = req.body;
+
+  if (!Array.isArray(countrys)) {
+    return res.status(400).send("잘못된 요청입니다.");
+  }
+
+  if (!Array.isArray(filmography)) {
+    return res.status(400).send("잘못된 요청입니다.");
+  }
+
+  if (!Array.isArray(categorys)) {
+    return res.status(400).send("잘못된 요청입니다.");
+  }
+
+  if (!Array.isArray(tags)) {
+    return res.status(400).send("잘못된 요청입니다.");
+  }
+
+  const findQuery = `
+  SELECT  id
+    FROM  artistem
+   WHERE  UserId = ${req.user.id}
+  `;
+
+  try {
+    const findResult = await models.sequelize.query(findQuery);
+
+    if (findResult[0].length === 0) {
+      return res
+        .status(400)
+        .send("정보를 수정할 아티스탬 정보가 존재하지 않습니다.");
+    }
+
+    const deleteQuery1 = `
+    DELETE
+      FROM  artistCountry
+     WHERE  ArtistemId = ${parseInt(findResult[0][0].id)}
+    `;
+
+    const deleteQuery2 = `
+    DELETE
+      FROM  artistFilmography
+     WHERE  ArtistemId = ${parseInt(findResult[0][0].id)}
+    `;
+
+    const deleteQuery3 = `
+    DELETE
+      FROM  artistCategory
+     WHERE  ArtistemId = ${parseInt(findResult[0][0].id)}
+    `;
+
+    const deleteQuery4 = `
+    DELETE
+      FROM  artistTag
+     WHERE  ArtistemId = ${parseInt(findResult[0][0].id)}
+    `;
+
+    await models.sequelize.query(deleteQuery1);
+    await models.sequelize.query(deleteQuery2);
+    await models.sequelize.query(deleteQuery3);
+    await models.sequelize.query(deleteQuery4);
+
+    const updateQuery = `
+    UPDATE  artistem
+       SET  name = "${name}",
+            companyNo = "${companyNo}",
+            artistName = "${artistName}",
+            artistProfileImage = "${artistProfileImage}",
+            artistInfo = "${artistInfo}",
+            question1 = "${question1}",
+            question2 = "${question2}",
+            question3 = "${question3}",
+            question4 = "${question4}",
+            question5 = "${question5}",
+            question6 = "${question6}",
+            question7 = "${question7}",
+            question8 = "${question8}",
+            repMusicFile = "${repMusicFile}",
+            repMusicFilename = "${repMusicFilename}",
+            isUpdate = 1,
+            updatedAt = NOW()
+     WHERE  id = ${parseInt(findResult[0][0].id)}
+    `;
+
+    await models.sequelize.query(updateQuery);
+
+    await Promise.all(
+      countrys.map(async (data) => {
+        const insertQuery = `
+      INSERT  INTO  artistCountry
+      (
+        value,
+        sort,
+        ArtistemId,
+        createdAt,
+        updatedAt
+      )
+      VALUES
+      (
+        "${data.value}",
+        ${data.sort},
+        ${parseInt(findResult[0][0].id)},
+        NOW(),
+        NOW()
+      )
+      `;
+
+        await models.sequelize.query(insertQuery);
+      })
+    );
+
+    await Promise.all(
+      filmography.map(async (data) => {
+        const insertQuery = `
+        INSERT  INTO  artistFilmography
+        (
+          part,
+          comment,
+          singerName,
+          songName,
+          filename,
+          filePath,
+          imagePathName,
+          imagePath,
+          sort,
+          ArtistemId,
+          createdAt,
+          updatedAt
+        )
+        VALUES
+        (
+          "${data.part}",
+          "${data.comment}",
+          "${data.singerName}",
+          "${data.songName}",
+          "${data.filename}",
+          "${data.filePath}",
+          "${data.imagePathName}",
+          "${data.imagePath}",
+          ${data.sort},
+          ${parseInt(findResult[0][0].id)},
+          NOW(),
+          NOW()
+        )
+        `;
+
+        await models.sequelize.query(insertQuery);
+      })
+    );
+
+    await Promise.all(
+      categorys.map(async (data) => {
+        const insertQuery = `
+        INSERT  INTO  artistCategory
+        (
+          ArtistemId,
+          CateTypeId,
+          CategoryId,
+          sort,
+          createdAt,
+          updatedAt
+        )
+        VALUES
+        (
+          ${parseInt(findResult[0][0].id)},
+          ${data.CateTypeId},
+          ${data.CategoryId},
+          ${data.sort},
+          NOW(),
+          NOW()
+        )
+        `;
+
+        await models.sequelize.query(insertQuery);
+      })
+    );
+
+    await Promise.all(
+      tags.map(async (data) => {
+        const insertQuery = `
+        INSERT  INTO  artistTag
+        (
+          ArtistemId,
+          TagTypeId,
+          TagId,
+          sort,
+          createdAt,
+          updatedAt
+        )
+        VALUES
+        (
+          ${parseInt(findResult[0][0].id)},
+          ${data.TagTypeId},
+          ${data.TagId},
+          ${data.sort},
+          NOW(),
+          NOW()
+        )
+        `;
+
+        await models.sequelize.query(insertQuery);
+      })
+    );
+
+    return res.status(200).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("아티스트 정보를 입력할 수 없습니다.");
+  }
+});
 
 module.exports = router;

@@ -1,7 +1,7 @@
 const DataTypes = require("sequelize");
 const { Model } = DataTypes;
 
-module.exports = class ArtistCategory extends Model {
+module.exports = class ArtistTag extends Model {
   static init(sequelize) {
     return super.init(
       {
@@ -11,8 +11,8 @@ module.exports = class ArtistCategory extends Model {
         },
       },
       {
-        modelName: "ArtistCategory",
-        tableName: "artistCategory",
+        modelName: "ArtistTag",
+        tableName: "artistTag",
         charset: "utf8mb4",
         collate: "utf8mb4_general_ci", // 한글 저장
         sequelize,
@@ -20,8 +20,8 @@ module.exports = class ArtistCategory extends Model {
     );
   }
   static associate(db) {
-    db.ArtistCategory.belongsTo(db.Artistem);
-    db.ArtistCategory.belongsTo(db.CateType);
-    db.ArtistCategory.belongsTo(db.Category);
+    db.ArtistTag.belongsTo(db.Artistem);
+    db.ArtistTag.belongsTo(db.TagType);
+    db.ArtistTag.belongsTo(db.Tag);
   }
 };

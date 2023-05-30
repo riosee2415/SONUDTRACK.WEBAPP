@@ -192,7 +192,7 @@ router.post("/create", isAdminCheck, async (req, res, next) => {
   )
   VALUES
   (
-    "임시 카테고리 생성",
+    "임시 카테고리",
     ${CateTypeId},
     NOW(),
     NOW()
@@ -209,7 +209,7 @@ router.post("/create", isAdminCheck, async (req, res, next) => {
   )
   VALUES
   (
-    "임시 카테고리 생성"
+    "임시 카테고리",
     ${req.user.id},
     NOW(),
     NOW()
