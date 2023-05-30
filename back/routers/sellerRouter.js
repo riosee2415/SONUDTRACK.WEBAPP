@@ -166,7 +166,7 @@ router.post("/seller/create", isLoggedIn, async (req, res, next) => {
  * DEVELOPMENT : 신태섭
  * DEV DATE : 2023/05/26
  */
-router.post("/update", isAdminCheck, async (req, res, next) => {
+router.post("/admin/permit", isAdminCheck, async (req, res, next) => {
   const { id, status, UserId, userId } = req.body;
 
   if (parseInt(status) !== 2 && parseInt(status) !== 3) {
@@ -201,34 +201,96 @@ router.post("/update", isAdminCheck, async (req, res, next) => {
       `;
 
       const historyInsertQuery = `
-      INSERT    INTO  sellerHistory
-      (
-        title,
-        content,
-        updator,
-        createdAt,
-        updatedAt
-      ) 
-      VALUES
-      (
-        "판매자 신청 승인",
-        "${userId} 아이디 회원 판매자 신청 승인",
-        updator,
-        createdAt,
-        updatedAt
-      ) 
-      `;
+        INSERT    INTO  sellerHistory
+        (
+          title,
+          content,
+          updator,
+          createdAt,
+          updatedAt
+        ) 
+        VALUES
+        (
+          "판매자 신청 승인",
+          "${userId} 아이디 회원 판매자 신청 승인",
+          updator,
+          createdAt,
+          updatedAt
+        ) 
+        `;
 
       if (findResult[0][0].isMusictem) {
         const insertQuery = `
-        INSERT  INTO    
+        INSERT  INTO    musictem
+        (
+            artistName,
+            profileImage,
+            profileImageName,
+            createdAt,
+            updatedAt,
+            UserId
+        )
+        VALUES
+        (
+            NULL,
+            NULL,
+            NULL,
+            NOW(),
+            NOW(),
+            ${UserId}
+        )
         `;
+
+        await models.sequelize.query(insertQuery);
       }
 
       if (findResult[0][0].isArtistem) {
         const insertQuery = `
-        INSERT  INTO    
+        INSERT  INTO    artistem
+        (
+            name,
+            companyName,
+            artistName,
+            artistProfileImage,
+            artistInfo,
+            question1,
+            question2,
+            question3,
+            question4,
+            question5,
+            question6,
+            question7,
+            question8,
+            isVacation,
+            isUpdate,
+            createdAt,
+            updatedAt,
+            UserId
+        )
+        VALUES
+        (
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            NOW(),
+            NOW(),
+            ${UserId}
+        )
         `;
+
+        await models.sequelize.query(insertQuery);
       }
 
       await models.sequelize.query(updateQuery);
@@ -276,5 +338,27 @@ router.post("/update", isAdminCheck, async (req, res, next) => {
       .send("판매자 신청 정보를 승인 / 반려할 수 없습니다.");
   }
 });
+
+/**
+ * SUBJECT : 아티스탬 정보 입력 라우터
+ * PARAMETERS : name,
+                profileImage,
+                companyName,
+                artistName,
+                artistProfileImage,
+                artistInfo,
+                question1,
+                question2,
+                question3,
+                question4,
+                question5,
+                question6,
+                question7,
+                question8,
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/05/30
+ */
 
 module.exports = router;

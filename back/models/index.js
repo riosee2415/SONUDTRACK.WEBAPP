@@ -31,6 +31,9 @@ const seller = require("./seller");
 const sellerhistory = require("./sellerhistory");
 const artistem = require("./artistem");
 const musictem = require("./musictem");
+const tagtype = require("./tagtype");
+const tag = require("./tag");
+const taghistory = require("./taghistory");
 
 const env = process.env.NODE_ENV || "development";
 const config = require("../config/config")[env];
@@ -75,6 +78,9 @@ db.Seller = seller;
 db.SellerHistory = sellerhistory;
 db.Artistem = artistem;
 db.Musictem = musictem;
+db.TagType = tagtype;
+db.Tag = tag;
+db.TagHistory = taghistory;
 
 Object.keys(db).forEach((modelName) => {
   db[modelName].init(sequelize);

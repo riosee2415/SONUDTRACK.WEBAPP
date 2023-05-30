@@ -199,25 +199,26 @@ router.post("/create", isAdminCheck, async (req, res, next) => {
   )
   `;
 
-  // const historyInsertQuery = `
-  // INSERT  INTO  cateType
-  // (
-  //   content,
-  //   updator,
-  //   createdAt,
-  //   updatedAt
-  // )
-  // VALUES
-  // (
-  //   "임시 카테고리 생성"
-  //   ${req.user.id},
-  //   NOW(),
-  //   NOW()
-  // )
-  // `;
+  const historyInsertQuery = `
+  INSERT  INTO  cateType
+  (
+    content,
+    updator,
+    createdAt,
+    updatedAt
+  )
+  VALUES
+  (
+    "임시 카테고리 생성"
+    ${req.user.id},
+    NOW(),
+    NOW()
+  )
+  `;
+
   try {
     await models.sequelize.query(insertQuery);
-    // await models.sequelize.query(historyInsertQuery);
+    await models.sequelize.query(historyInsertQuery);
 
     return res.status(201).json({ result: true });
   } catch (error) {
@@ -245,26 +246,26 @@ router.post("/update", isAdminCheck, async (req, res, next) => {
    WHERE  id = ${id}
   `;
 
-  // const historyUpdateQuery = `
-  // INSERT  INTO  cateTypeHistory
-  // (
-  //   content,
-  //   updator,
-  //   createdAt,
-  //   updatedAt
-  // )
-  // VALUES
-  // (
-  //   "${value}",
-  //   ${req.user.id},
-  //   NOW(),
-  //   NOW()
+  const historyUpdateQuery = `
+  INSERT  INTO  cateTypeHistory
+  (
+    content,
+    updator,
+    createdAt,
+    updatedAt
+  )
+  VALUES
+  (
+    "${value}",
+    ${req.user.id},
+    NOW(),
+    NOW()
+  )
+  `;
 
-  // )
-  // `;
   try {
     await models.sequelize.query(updateQuery);
-    // await models.sequelize.query(historyUpdateQuery);
+    await models.sequelize.query(historyUpdateQuery);
 
     return res.status(200).json({ result: true });
   } catch (error) {
@@ -291,26 +292,26 @@ router.post("/delete", isAdminCheck, async (req, res, next) => {
    WHERE  id = ${id}
   `;
 
-  // const historyDeleteQuery = `
-  // INSERT  INTO  cateTypeHistory
-  // (
-  //   content,
-  //   updator,
-  //   createdAt,
-  //   updatedAt
-  // )
-  // VALUES
-  // (
-  //   "${value}",
-  //   ${req.user.id},
-  //   NOW(),
-  //   NOW()
-  // )
-  // `;
+  const historyDeleteQuery = `
+  INSERT  INTO  cateTypeHistory
+  (
+    content,
+    updator,
+    createdAt,
+    updatedAt
+  )
+  VALUES
+  (
+    "${value}",
+    ${req.user.id},
+    NOW(),
+    NOW()
+  )
+  `;
 
   try {
     await models.sequelize.query(deleteQuery);
-    // await models.sequelize.query(historyDeleteQuery);
+    await models.sequelize.query(historyDeleteQuery);
 
     return res.status(200).json({ result: true });
   } catch (error) {
