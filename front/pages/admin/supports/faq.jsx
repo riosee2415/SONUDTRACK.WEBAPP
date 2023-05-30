@@ -28,6 +28,7 @@ import {
   EyeOutlined,
   HomeOutlined,
   RightOutlined,
+  UnorderedListOutlined,
 } from "@ant-design/icons";
 import {
   ADMIN_FAQ_LIST_REQUEST,
@@ -140,7 +141,7 @@ const Faq = ({}) => {
     dispatch({
       type: ADMIN_FAQ_LIST_REQUEST,
       data: {
-        title: searchTitle,
+        question: searchTitle,
       },
     });
   }, [searchTitle]);
@@ -152,7 +153,7 @@ const Faq = ({}) => {
       dispatch({
         type: ADMIN_FAQ_LIST_REQUEST,
         data: {
-          title: searchTitle,
+          question: searchTitle,
         },
       });
 
@@ -171,7 +172,7 @@ const Faq = ({}) => {
       dispatch({
         type: ADMIN_FAQ_LIST_REQUEST,
         data: {
-          title: searchTitle,
+          question: searchTitle,
         },
       });
 
@@ -187,22 +188,22 @@ const Faq = ({}) => {
 
   useEffect(() => {
     if (st_faqDeleteDone) {
+      message.success("자주묻는질문이 삭제되었습니다.");
       setCurrentData(null);
-
       dispatch({
         type: ADMIN_FAQ_LIST_REQUEST,
         data: {
-          title: searchTitle,
+          question: searchTitle,
         },
       });
-
-      return message.success("자주묻는질문이 삭제되었습니다.");
     }
+  }, [st_faqDeleteDone]);
 
+  useEffect(() => {
     if (st_faqDeleteError) {
       return message.error(st_faqDeleteError);
     }
-  }, [st_faqDeleteDone, st_faqDeleteError]);
+  }, [st_faqDeleteError]);
 
   ////// HANDLER //////
 
@@ -212,6 +213,11 @@ const Faq = ({}) => {
     },
     [searchTitle]
   );
+
+  const allSearchHandler = useCallback(() => {
+    searchForm.resetFields();
+    setSearchTitle("");
+  }, [searchTitle]);
 
   const beforeSetDataHandler = useCallback(
     (record) => {
@@ -336,7 +342,7 @@ const Faq = ({}) => {
         <RightOutlined />
         <Popover content={content}>
           <HomeText cur={true} margin={`3px 20px 0px 20px`}>
-            {level2}{" "}
+            {level2}
           </HomeText>
         </Popover>
       </Wrapper>
@@ -372,6 +378,17 @@ const Faq = ({}) => {
           <SearchFormItem>
             <Button size="small" type="primary" htmlType="submit">
               검색
+            </Button>
+          </SearchFormItem>
+
+          <SearchFormItem>
+            <Button
+              icon={<UnorderedListOutlined />}
+              size="small"
+              type="primary"
+              onClick={allSearchHandler}
+            >
+              전체조회
             </Button>
           </SearchFormItem>
         </SearchForm>
@@ -519,6 +536,9 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: ADMIN_FAQ_LIST_REQUEST,
+      data: {
+        question: "",
+      },
     });
 
     // 구현부 종료

@@ -187,11 +187,11 @@ router.post("/admin/list", isAdminCheck, async (req, res, nex) => {
  * DEVELOPMENT : 장혜정
  * DEV DATE : 2023/05/23
  */
-router.post("/create", async (req, res, next) => {
+router.post("/create", isAdminCheck, async (req, res, next) => {
   const createQuery1 = `
   INSERT INTO faq 
   (
-    quesiton,
+    question,
     answer,
     createdAt, 
     updatedAt,
@@ -238,7 +238,7 @@ router.post("/create", async (req, res, next) => {
 });
 /**
  * SUBJECT : faq 수정하기
- * PARAMETERS : id, title, content, imagePath
+ * PARAMETERS : id, question, answer
  * ORDER BY : -
  * STATEMENT : -
  * DEVELOPMENT : 장혜정
@@ -248,7 +248,7 @@ router.post("/update", isAdminCheck, async (req, res, next) => {
   const { id, question, answer } = req.body;
 
   const updateQuery = `
-  UPDATE  notices 
+  UPDATE  faq 
      SET  question = "${question}",
           answer = "${answer}",
           updatedAt = now(),
@@ -257,7 +257,7 @@ router.post("/update", isAdminCheck, async (req, res, next) => {
   `;
 
   const insertQuery2 = `
-  INSERT INTO noticeHistory 
+  INSERT INTO faqhistory 
   (
     value, 
     content, 
@@ -282,7 +282,7 @@ router.post("/update", isAdminCheck, async (req, res, next) => {
     return res.status(200).json({ result: true });
   } catch (error) {
     console.error(error);
-    return res.status(401).send("FAQ를 수정할 수 없습니다. [CODE 087]");
+    return res.status(401).send("FAQ를 수정할 수 없습니다.");
   }
 });
 
@@ -306,17 +306,18 @@ router.post("/delete", isAdminCheck, async (req, res, next) => {
   `;
 
   const historyInsertQuery = `
-  INSERT INTO noticeHistory 
+  INSERT INTO faqhistory 
   (
     value, 
     content, 
+    updator,
     createdAt, 
     updatedAt
     ) 
   VALUES 
   (
-    "데이터 삭제",
     "${question}",
+    "데이터 삭제",
     ${req.user.id},
     now(),
     now()
@@ -330,7 +331,7 @@ router.post("/delete", isAdminCheck, async (req, res, next) => {
     return res.status(200).json({ result: true });
   } catch (error) {
     console.error(error);
-    return res.status(401).send("FAQ를 삭제할 수 없습니다. [CODE 097]");
+    return res.status(401).send("FAQ를 삭제할 수 없습니다.");
   }
 });
 

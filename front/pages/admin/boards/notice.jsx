@@ -162,7 +162,7 @@ const Notice = ({}) => {
     dispatch({
       type: ADMIN_NOTICE_LIST_REQUEST,
       data: {
-        searchTitle: noticeTitle,
+        title: noticeTitle,
       },
     });
   }, [noticeTitle]);
@@ -175,8 +175,8 @@ const Notice = ({}) => {
       dispatch({
         type: ADMIN_NOTICE_LIST_REQUEST,
         data: {
-          searchTitle: noticeTitle,
-        }
+          title: noticeTitle,
+        },
       });
     }
   }, [st_noticeCreateDone]);
@@ -198,7 +198,7 @@ const Notice = ({}) => {
       dispatch({
         type: ADMIN_NOTICE_LIST_REQUEST,
         data: {
-          searchTitle: noticeTitle,
+          title: noticeTitle,
         },
       });
     }
@@ -220,7 +220,7 @@ const Notice = ({}) => {
       dispatch({
         type: ADMIN_NOTICE_LIST_REQUEST,
         data: {
-          searchTitle: noticeTitle,
+          title: noticeTitle,
         },
       });
     }
@@ -287,8 +287,6 @@ const Notice = ({}) => {
       data: formData,
     });
   });
-
-
 
   const beforeSetDataHandler = useCallback(
     (record) => {
@@ -495,13 +493,12 @@ const Notice = ({}) => {
         >
           {currentData ? (
             <>
-
-        <Wrapper margin={`0px 0px 5px 0px`}>
-          <InfoTitle>
-            <CheckOutlined />
+              <Wrapper margin={`0px 0px 5px 0px`}>
+                <InfoTitle>
+                  <CheckOutlined />
                   공지사항 이미지 정보
-          </InfoTitle>
-        </Wrapper>
+                </InfoTitle>
+              </Wrapper>
 
               <Wrapper width={`auto`} margin={`0 0 30px`}>
                 <Image
