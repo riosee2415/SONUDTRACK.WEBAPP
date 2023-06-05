@@ -179,7 +179,7 @@ export const items = {
       useYn: true,
     },
     {
-      name: "아티스트관리",
+      name: "판매자신청관리",
       link: "/admin/snd/artist",
       useYn: true,
     },

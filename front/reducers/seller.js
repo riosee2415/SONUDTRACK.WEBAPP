@@ -2,6 +2,7 @@ import produce from "../util/produce";
 
 export const initailState = {
   sellerList: [], // 관리자 판매자신청리스트
+  sellerImage: null, // 판매자신청할때 이미지
   //   아티스템 상세 조회
   artistemData: null,
   findCountryInfoData: [],
@@ -29,6 +30,10 @@ export const initailState = {
   st_artistemInfoUpdateLoading: false,
   st_artistemInfoUpdateDone: false,
   st_artistemInfoUpdateError: null,
+  // 판매자 신청할때 이미지 업로드
+  st_sellerImageLoading: false,
+  st_sellerImageDone: false,
+  st_sellerImageError: null,
 };
 
 export const SELLER_LIST_REQUEST = "SELLER_LIST_REQUEST";
@@ -50,6 +55,12 @@ export const ARTISTEM_MY_DATA_FAILURE = "ARTISTEM_MY_DATA_FAILURE";
 export const ARTISTEM_INFO_UPDATE_REQUEST = "ARTISTEM_INFO_UPDATE_REQUEST";
 export const ARTISTEM_INFO_UPDATE_SUCCESS = "ARTISTEM_INFO_UPDATE_SUCCESS";
 export const ARTISTEM_INFO_UPDATE_FAILURE = "ARTISTEM_INFO_UPDATE_FAILURE";
+
+export const SELLER_IMAGE_REQUEST = "SELLER_IMAGE_REQUEST";
+export const SELLER_IMAGE_SUCCESS = "SELLER_IMAGE_SUCCESS";
+export const SELLER_IMAGE_FAILURE = "SELLER_IMAGE_FAILURE";
+
+export const SELLER_IMAGE_RESET = "SELLER_IMAGE_RESET";
 
 const reducer = (state = initailState, action) =>
   produce(state, (draft) => {
@@ -160,6 +171,30 @@ const reducer = (state = initailState, action) =>
         break;
       }
       ///////////////////////////////////////////////////////
+      case SELLER_IMAGE_REQUEST: {
+        draft.st_sellerImageLoading = true;
+        draft.st_sellerImageDone = false;
+        draft.st_sellerImageError = null;
+        break;
+      }
+      case SELLER_IMAGE_SUCCESS: {
+        draft.st_sellerImageLoading = false;
+        draft.st_sellerImageDone = true;
+        draft.st_sellerImageError = null;
+        draft.sellerImage = action.data.path;
+        break;
+      }
+      case SELLER_IMAGE_FAILURE: {
+        draft.st_sellerImageLoading = false;
+        draft.st_sellerImageDone = false;
+        draft.st_sellerImageError = action.error;
+        break;
+      }
+      ///////////////////////////////////////////////////////
+
+      case SELLER_IMAGE_RESET: {
+        draft.sellerImage = null;
+      }
 
       default:
         break;

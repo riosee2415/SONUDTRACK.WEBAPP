@@ -34,6 +34,11 @@ import {
   ARTIST_UPLOAD_REQUEST,
   PERMM_WAITING_CREATE_REQUEST,
 } from "../reducers/artist";
+import {
+  SELLER_CREATE_REQUEST,
+  SELLER_IMAGE_REQUEST,
+  SELLER_IMAGE_RESET,
+} from "../reducers/seller";
 
 const Menu = styled(Wrapper)`
   padding: 0 30px;
@@ -88,6 +93,16 @@ const MypageMenu = ({}) => {
     st_artistUploadDone,
     st_artistUploadError,
   } = useSelector((state) => state.artist);
+
+  const {
+    sellerImage,
+    //
+    st_sellerImageDone,
+    st_sellerImageError,
+    //
+    st_sellerCreateDone,
+    st_sellerCreateError,
+  } = useSelector((state) => state.seller);
 
   ////////////// - USE STATE- ///////////////
   const width = useWidth();
@@ -149,7 +164,7 @@ const MypageMenu = ({}) => {
 
   // 판매자 파일 등록
   useEffect(() => {
-    if (st_artistUploadDone) {
+    if (st_sellerImageDone) {
       let arr = files ? files.map((data) => data) : [];
 
       arr.push({
@@ -160,29 +175,29 @@ const MypageMenu = ({}) => {
 
       setFiles(arr);
     }
-    if (st_artistUploadError) {
-      return message.error(st_artistUploadError);
+    if (st_sellerImageError) {
+      return message.error(st_sellerImageError);
     }
-  }, [st_artistUploadDone, st_artistUploadError]);
+  }, [st_sellerImageDone, st_sellerImageError]);
 
   // 판매자 전환 신청 후처리
   useEffect(() => {
-    if (st_permmWaitingCreateDone) {
+    if (st_sellerCreateDone) {
       plan.setValue("");
       techGenre.setValue("");
       setFileName("");
       setFiles([]);
       dispatch({
-        type: ARTIST_IMAGE_RESET,
+        type: SELLER_IMAGE_RESET,
       });
 
       modalOpenToggle();
       completeModalOpenToggle();
     }
-    if (st_permmWaitingCreateError) {
-      return message.error(st_permmWaitingCreateError);
+    if (st_sellerCreateError) {
+      return message.error(st_sellerCreateError);
     }
-  }, [st_permmWaitingCreateDone, st_permmWaitingCreateError]);
+  }, [st_sellerCreateDone, st_sellerCreateError]);
 
   useEffect(() => {
     if (st_logoutDone) {
@@ -268,7 +283,7 @@ const MypageMenu = ({}) => {
     }
 
     dispatch({
-      type: ARTIST_UPLOAD_REQUEST,
+      type: SELLER_IMAGE_REQUEST,
       data: formData,
     });
   }, []);
@@ -276,13 +291,19 @@ const MypageMenu = ({}) => {
   // 파일 삭제
   const fileDeleteHandler = useCallback(
     (data) => {
-      if (files) {
-        const arr = files.filter(function (_, index) {
-          return index !== data;
-        });
+      // if (files) {
+      //   const arr = files.filter(function (_, index) {
+      //     return index !== data;
+      //   });
 
-        setFiles(arr);
-      }
+      //   setFiles(arr);
+      // }
+
+      dispatch({
+        type: SELLER_IMAGE_RESET,
+      });
+
+      setFileName(null);
     },
     [files]
   );
@@ -297,7 +318,7 @@ const MypageMenu = ({}) => {
       return message.error("역활과 장르를 입력해주세요.");
     }
 
-    if (files.length === 0) {
+    if (sellerImage === null) {
       return message.error("작업물을 등록해주세요.");
     }
 
@@ -308,16 +329,17 @@ const MypageMenu = ({}) => {
     }
 
     dispatch({
-      type: PERMM_WAITING_CREATE_REQUEST,
+      type: SELLER_CREATE_REQUEST,
       data: {
-        plan: plan.value,
-        gen: techGenre.value,
-        imagePaths: files,
-        isArtist: isArtist,
         isMusictem: isMusic,
+        isArtistem: isArtist,
+        activity: plan.value,
+        genre: techGenre.value,
+        filename: fileName,
+        filepath: sellerImage,
       },
     });
-  }, [files, plan, techGenre, isArtist, isMusic]);
+  }, [files, plan, techGenre, isArtist, isMusic, sellerImage]);
 
   return (
     <WholeWrapper height={`calc(100vh - 166px)`} ju={`flex-start`}>
@@ -726,7 +748,28 @@ const MypageMenu = ({}) => {
               </CommonButton>
             </Wrapper>
 
-            {files &&
+            {sellerImage && (
+              <Wrapper
+                dr={`row`}
+                ju={`space-between`}
+                padding={`16px 14px`}
+                margin={`0 0 10px`}
+                bgColor={Theme.lightGrey2_C}
+              >
+                <Text fontSize={`16px`} color={Theme.grey_C}>
+                  <Image
+                    alt="icon"
+                    src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/music-file.png`}
+                    width={`14px`}
+                    margin={`0 5px 0 0`}
+                  />
+                  {fileName}
+                </Text>
+                <CloseOutlined cursor={`pointer`} onClick={fileDeleteHandler} />
+              </Wrapper>
+            )}
+
+            {/* {files &&
               files.map((data) => {
                 return (
                   <Wrapper
@@ -752,7 +795,7 @@ const MypageMenu = ({}) => {
                     />
                   </Wrapper>
                 );
-              })}
+              })} */}
           </Wrapper>
           <CommonButton
             width={`180px`}

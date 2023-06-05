@@ -20,7 +20,11 @@ import {
   ARTISTEM_INFO_UPDATE_REQUEST,
   ARTISTEM_INFO_UPDATE_SUCCESS,
   ARTISTEM_INFO_UPDATE_FAILURE,
-} from "../reducers/logo";
+  //
+  SELLER_IMAGE_REQUEST,
+  SELLER_IMAGE_SUCCESS,
+  SELLER_IMAGE_FAILURE,
+} from "../reducers/seller";
 
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
@@ -137,6 +141,29 @@ function* artistemInfoUpdate(action) {
   }
 }
 
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function sellerImageAPI(data) {
+  return await axios.post(`/api/seller/image`, data);
+}
+
+function* sellerImage(action) {
+  try {
+    const result = yield call(sellerImageAPI, action.data);
+
+    yield put({
+      type: SELLER_IMAGE_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: SELLER_IMAGE_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 // ******************************************************************************************************************
@@ -150,6 +177,9 @@ function* watchSellerCreate() {
 }
 function* watchSellerAdminPermit() {
   yield takeLatest(SELLER_ADMIN_PERMIT_REQUEST, sellerAdminPermit);
+}
+function* watchSellerImage() {
+  yield takeLatest(SELLER_IMAGE_REQUEST, sellerImage);
 }
 
 function* watchArtistemMyData() {
@@ -165,6 +195,7 @@ export default function* sellerSaga() {
     fork(watchSellerList),
     fork(watchSellerCreate),
     fork(watchSellerAdminPermit),
+    fork(watchSellerImage),
     //
     fork(watchArtistemMyData),
     fork(watchArtistemInfoUpdate),
