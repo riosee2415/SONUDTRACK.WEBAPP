@@ -164,17 +164,19 @@ export const items = {
       useYn: true,
     },
   ],
+  공용관리: [
+    {
+      name: "카테고리관리",
+      link: "/admin/category/list",
+      useYn: true,
+    },
+    {
+      name: "태그관리",
+      link: "/admin/category/tags",
+      useYn: true,
+    },
+  ],
   음원관리: [
-    {
-      name: "공용테그관리",
-      link: "/admin/snd/tags",
-      useYn: true,
-    },
-    {
-      name: "앨범카테고리관리",
-      link: "/admin/snd/category",
-      useYn: true,
-    },
     {
       name: "등록앨범관리",
       link: "/admin/snd/list",
@@ -323,6 +325,11 @@ const AdminLayout = ({ children }) => {
             right={me && me.menuRight8}
             title={`판매자관리`}
             menus={items["판매자관리"]}
+          />
+          <AdminMenuBox
+            right={me && me.menuRight8}
+            title={`공용관리`}
+            menus={items["공용관리"]}
           />
           <AdminMenuBox
             right={me && me.menuRight8}
