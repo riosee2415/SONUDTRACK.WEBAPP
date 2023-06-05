@@ -361,7 +361,7 @@ const MypageMenu = ({}) => {
         <Text fontSize={`22px`} fontWeight={`bold`} margin={`20px 0 12px`}>
           {me && me.nickname}
         </Text>
-        {me && me.isArtist === "일반" ? (
+        {me && me.type === 1 ? (
           <CommonButton
             width={`162px`}
             height={`45px`}

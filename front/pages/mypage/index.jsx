@@ -110,12 +110,12 @@ const Index = () => {
   const { me } = useSelector((state) => state.user);
   const { userBuyList } = useSelector((state) => state.buy);
 
-  const [currnetTab, setCurrentTab] = useState(0);
-
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
   const dispatch = useDispatch();
+
+  const [currnetTab, setCurrentTab] = useState(0);
   ////// REDUX //////
   ////// USEEFFECT //////
   useEffect(() => {
@@ -149,7 +149,7 @@ const Index = () => {
 
       <ClientLayout>
         <WholeWrapper>
-          {me && me.isArtist === "일반" ? (
+          {me && me.type === 1 ? (
             <RsWrapper>
               <Wrapper
                 height={`260px`}

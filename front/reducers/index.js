@@ -15,6 +15,7 @@ import product from "./product";
 import artist from "./artist";
 import buyRequest from "./buyRequest";
 import buy from "./buy";
+import seller from "./seller";
 
 const rootReducer = (state, action) => {
   switch (action.type) {
@@ -38,6 +39,7 @@ const rootReducer = (state, action) => {
         artist,
         buyRequest,
         buy,
+        seller,
       });
       return combinedReducer(state, action);
     }
