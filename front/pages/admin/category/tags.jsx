@@ -37,6 +37,15 @@ import {
   CATEGORY_UPDATE_REQUEST,
 } from "../../../reducers/category";
 import UseAdminInput from "../../../hooks/useAdminInput";
+import {
+  TAG_CREATE_REQUEST,
+  TAG_LIST_REQUEST,
+  TAG_TYPE_CREATE_REQUEST,
+  TAG_TYPE_DELETE_REQUEST,
+  TAG_TYPE_LIST_REQUEST,
+  TAG_TYPE_UPDATE_REQUEST,
+  TAG_UPDATE_REQUEST,
+} from "../../../reducers/tag";
 
 const Category = ({}) => {
   const { st_loadMyInfoDone, me } = useSelector((state) => state.user);
@@ -106,7 +115,24 @@ const Category = ({}) => {
     st_categoryDeleteDone,
     st_categoryDeleteError,
   } = useSelector((state) => state.category);
+  const {
+    tagTypeList,
+    tagList,
+    //
+    st_tagTypeCreateDone,
+    st_tagTypeCreateError,
+    //
+    st_tagTypeDeleteDone,
+    st_tagTypeDeleteError,
+    //
+    st_tagCreateDone,
+    st_tagCreateError,
+    //
+    st_tagUpdateDone,
+    st_tagUpdateError,
+  } = useSelector((state) => state.tag);
 
+  console.log(tagTypeList);
   ////// HOOKS //////
 
   // MODAL
@@ -123,72 +149,80 @@ const Category = ({}) => {
   ////// USEEFFECT //////
 
   useEffect(() => {
-    if (st_categoryDeleteDone) {
+    if (st_tagUpdateDone) {
       dispatch({
-        type: CATEGORY_ADMIN_LIST_REQUEST,
+        type: TAG_LIST_REQUEST,
         data: {
-          CateTypeId: currentData && currentData.id,
+          TagTypeId: currentData && currentData.id,
         },
       });
 
-      return message.success("카테고리를 삭제했습니다.");
+      return message.success("태그를 생성했습니다.");
     }
 
-    if (st_categoryDeleteError) {
-      return message.error(st_categoryDeleteError);
+    if (st_tagUpdateError) {
+      return message.error(st_tagUpdateError);
     }
-  }, [st_categoryDeleteDone, st_categoryDeleteError]);
+  }, [st_tagUpdateDone, st_tagUpdateError]);
 
   useEffect(() => {
-    if (st_categoryCreateDone) {
+    if (st_tagCreateDone) {
       dispatch({
-        type: CATEGORY_ADMIN_LIST_REQUEST,
+        type: TAG_LIST_REQUEST,
         data: {
-          CateTypeId: currentData && currentData.id,
+          TagTypeId: currentData && currentData.id,
         },
       });
 
-      return message.success("카테고리를 생성했습니다.");
+      return message.success("태그를 생성했습니다.");
     }
 
-    if (st_categoryCreateError) {
-      return message.error(st_categoryCreateError);
+    if (st_tagCreateError) {
+      return message.error(st_tagCreateError);
     }
-  }, [st_categoryCreateDone, st_categoryCreateError]);
-
-  useEffect(() => {
-    if (st_categoryUpdateDone) {
-      return message.success("카테고리명을 수정했습니다.");
-    }
-
-    if (st_categoryUpdateError) {
-      return message.error(st_categoryUpdateError);
-    }
-  }, [st_categoryUpdateDone, st_categoryUpdateError]);
+  }, [st_tagCreateDone, st_tagCreateError]);
 
   useEffect(() => {
-    if (st_categoryTypeUpdateDone) {
-      return message.success("카테고리 타입명이 수정되었습니다.");
+    if (st_tagTypeDeleteDone) {
+      dispatch({
+        type: TAG_TYPE_LIST_REQUEST,
+      });
+
+      return message.success("태그 타입이 삭제되었습니다.");
     }
 
-    if (st_categoryTypeUpdateError) {
-      return message.error(st_categoryTypeUpdateError);
+    if (st_tagTypeDeleteError) {
+      return message.error(st_tagTypeDeleteError);
     }
-  }, [st_categoryTypeUpdateDone, st_categoryTypeUpdateError]);
+  }, [st_tagTypeDeleteDone, st_tagTypeDeleteError]);
+
+  useEffect(() => {
+    if (st_tagTypeCreateDone) {
+      dispatch({
+        type: TAG_TYPE_LIST_REQUEST,
+      });
+
+      return message.success("태그 타입이 생성되었습니다.");
+    }
+
+    if (st_tagTypeCreateError) {
+      return message.error(st_tagTypeCreateError);
+    }
+  }, [st_tagTypeCreateDone, st_tagTypeCreateError]);
 
   ////// TOGGLE //////
 
   // 카테고리 상세 토글
-  const categoryDetailToggle = useCallback(
+  const tagDetailToggle = useCallback(
     (data) => {
       setIsDetailModal(!isDetailModal);
 
       setCurrentData(data);
 
       dispatch({
-        type: CATEGORY_ADMIN_LIST_REQUEST,
+        type: TAG_LIST_REQUEST,
         data: {
-          CateTypeId: data.id,
+          TagTypeId: data.id,
         },
       });
     },
@@ -196,6 +230,24 @@ const Category = ({}) => {
   );
 
   ////// HANDLER //////
+
+  // 태그 삭제
+  const tagDeleteHandler = useCallback((data) => {
+    dispatch({
+      type: TAG_TYPE_DELETE_REQUEST,
+      data: {
+        id: data.id,
+        value: data.value,
+      },
+    });
+  }, []);
+
+  // 태그 타입 생성
+  const tagTypeCreateHandler = useCallback(() => {
+    dispatch({
+      type: TAG_TYPE_CREATE_REQUEST,
+    });
+  }, []);
 
   // 카테고리 삭제
   const categoryDeleteHandler = useCallback((data) => {
@@ -209,11 +261,11 @@ const Category = ({}) => {
   }, []);
 
   // 카테고리 생성
-  const categoryCreateHandler = useCallback(() => {
+  const tagCreateHandler = useCallback(() => {
     dispatch({
-      type: CATEGORY_CREATE_REQUEST,
+      type: TAG_CREATE_REQUEST,
       data: {
-        CateTypeId: currentData && currentData.id,
+        TagTypeId: currentData && currentData.id,
       },
     });
   }, [currentData]);
@@ -229,18 +281,18 @@ const Category = ({}) => {
       width: `5%`,
     },
     {
-      title: "카테고리명",
+      title: "태그명",
       render: (data) => (
         <UseAdminInput
-          init={data.value}
-          REQUEST_TARGET={CATEGORY_UPDATE_REQUEST}
-          placeholder="카테고리명을 입력해주세요."
+          init={data.tagValue}
+          REQUEST_TARGET={TAG_UPDATE_REQUEST}
+          placeholder="태그명을 입력해주세요."
           DATA_TARGET={{
             id: data.id,
-            value: data.value,
-            CateTypeId: data.CateTypeId,
+            tagValue: data.tagValue,
+            TagTypeId: data.TagTypeId,
           }}
-          updateValue="value"
+          updateValue="tagValue"
         />
       ),
     },
@@ -269,17 +321,17 @@ const Category = ({}) => {
       width: `5%`,
     },
     {
-      title: "카테고리 타입명",
+      title: "태그 타입명",
       render: (data) => (
         <UseAdminInput
-          init={data.category}
-          REQUEST_TARGET={CATEGORY_TYPE_UPDATE_REQUEST}
-          placeholder="카테고리 타입명을 입력해주세요."
+          init={data.value}
+          REQUEST_TARGET={TAG_TYPE_UPDATE_REQUEST}
+          placeholder="태그 타입명을 입력해주세요."
           DATA_TARGET={{
             id: data.id,
-            category: data.category,
+            value: data.value,
           }}
-          updateValue="category"
+          updateValue="value"
         />
       ),
     },
@@ -289,15 +341,31 @@ const Category = ({}) => {
       width: `15%`,
     },
     {
-      title: "하위카테고리",
+      title: "하위태그",
       render: (data) => (
         <Button
           size="small"
           type="primary"
-          onClick={() => categoryDetailToggle(data)}
+          onClick={() => tagDetailToggle(data)}
         >
-          하위카테고리
+          하위태그
         </Button>
+      ),
+      width: `10%`,
+    },
+    {
+      title: "삭제",
+      render: (data) => (
+        <Popconfirm
+          title="삭제하시겠습니까?"
+          okText="삭제"
+          cancelText="취소"
+          onConfirm={() => tagDeleteHandler(data)}
+        >
+          <Button type="danger" size="small">
+            삭제
+          </Button>
+        </Popconfirm>
       ),
       width: `10%`,
     },
@@ -344,12 +412,17 @@ const Category = ({}) => {
       </Wrapper>
 
       <Wrapper dr="row" padding="0px 20px" al="flex-start" ju="space-between">
+        <Wrapper al={`flex-end`} margin={`0 0 10px`}>
+          <Button type="primary" size="small" onClick={tagTypeCreateHandler}>
+            생성하기
+          </Button>
+        </Wrapper>
         <Wrapper shadow={`3px 3px 6px ${Theme.lightGrey_C}`}>
           <Table
             style={{ width: "100%" }}
             rowKey="id"
             columns={col}
-            dataSource={categoryTypeList}
+            dataSource={tagTypeList}
             size="small"
             // onRow={(record, index) => {
             //   return {
@@ -367,7 +440,7 @@ const Category = ({}) => {
         onClose={() => setIsDetailModal(false)}
       >
         <Wrapper al={`flex-end`}>
-          <Button type="primary" size="small" onClick={categoryCreateHandler}>
+          <Button type="primary" size="small" onClick={tagCreateHandler}>
             생성하기
           </Button>
         </Wrapper>
@@ -375,7 +448,7 @@ const Category = ({}) => {
           style={{ width: "100%" }}
           rowKey="id"
           columns={cateCol}
-          dataSource={categoryAdminList}
+          dataSource={tagList}
           size="small"
           // onRow={(record, index) => {
           //   return {
@@ -404,7 +477,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
     });
 
     context.store.dispatch({
-      type: CATEGORY_TYPE_GET_REQUEST,
+      type: TAG_TYPE_LIST_REQUEST,
     });
 
     // 구현부 종료
