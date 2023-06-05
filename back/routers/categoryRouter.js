@@ -200,7 +200,7 @@ router.post("/create", isAdminCheck, async (req, res, next) => {
   `;
 
   const historyInsertQuery = `
-  INSERT  INTO  cateType
+  INSERT  INTO  cateTypeHistory
   (
     content,
     updator,

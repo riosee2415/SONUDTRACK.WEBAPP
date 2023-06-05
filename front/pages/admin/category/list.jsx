@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import AdminLayout from "../../../components/AdminLayout";
-import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Button,
@@ -8,7 +7,6 @@ import {
   Form,
   Input,
   message,
-  Modal,
   Popconfirm,
   Popover,
   Table,
@@ -25,23 +23,20 @@ import {
   OtherMenu,
   GuideUl,
   GuideLi,
-  DelBtn,
 } from "../../../components/commonComponents";
 import { LOAD_MY_INFO_REQUEST } from "../../../reducers/user";
 import Theme from "../../../components/Theme";
 import { items } from "../../../components/AdminLayout";
-import {
-  AlertOutlined,
-  CheckOutlined,
-  EyeOutlined,
-  HomeOutlined,
-  RightOutlined,
-} from "@ant-design/icons";
+import { HomeOutlined, RightOutlined } from "@ant-design/icons";
 import {
   CATEGORY_ADMIN_LIST_REQUEST,
+  CATEGORY_CREATE_REQUEST,
+  CATEGORY_DELETE_REQUEST,
   CATEGORY_TYPE_GET_REQUEST,
   CATEGORY_TYPE_UPDATE_REQUEST,
+  CATEGORY_UPDATE_REQUEST,
 } from "../../../reducers/category";
+import UseAdminInput from "../../../hooks/useAdminInput";
 
 const Category = ({}) => {
   const { st_loadMyInfoDone, me } = useSelector((state) => state.user);
@@ -97,30 +92,82 @@ const Category = ({}) => {
 
   const {
     categoryTypeList,
+    categoryAdminList,
     //
     st_categoryTypeUpdateDone,
     st_categoryTypeUpdateError,
+    //
+    st_categoryUpdateDone,
+    st_categoryUpdateError,
+    //
+    st_categoryCreateDone,
+    st_categoryCreateError,
+    //
+    st_categoryDeleteDone,
+    st_categoryDeleteError,
   } = useSelector((state) => state.category);
-  console.log(categoryTypeList);
 
   ////// HOOKS //////
 
+  // MODAL
+  const [isDetailModal, setIsDetailModal] = useState(false);
+
   // DATA
-  const [isTypeModal, setIsTypeModal] = useState(false);
   const [currentData, setCurrentData] = useState(null); // 현재 데이터
 
   // FORM
   const [typeForm] = Form.useForm();
 
+  // INPUT
+
   ////// USEEFFECT //////
 
   useEffect(() => {
-    if (st_categoryTypeUpdateDone) {
-      setIsTypeModal(false);
+    if (st_categoryDeleteDone) {
       dispatch({
-        type: CATEGORY_TYPE_GET_REQUEST,
+        type: CATEGORY_ADMIN_LIST_REQUEST,
+        data: {
+          CateTypeId: currentData && currentData.id,
+        },
       });
 
+      return message.success("카테고리를 삭제했습니다.");
+    }
+
+    if (st_categoryDeleteError) {
+      return message.error(st_categoryDeleteError);
+    }
+  }, [st_categoryDeleteDone, st_categoryDeleteError]);
+
+  useEffect(() => {
+    if (st_categoryCreateDone) {
+      dispatch({
+        type: CATEGORY_ADMIN_LIST_REQUEST,
+        data: {
+          CateTypeId: currentData && currentData.id,
+        },
+      });
+
+      return message.success("카테고리를 생성했습니다.");
+    }
+
+    if (st_categoryCreateError) {
+      return message.error(st_categoryCreateError);
+    }
+  }, [st_categoryCreateDone, st_categoryCreateError]);
+
+  useEffect(() => {
+    if (st_categoryUpdateDone) {
+      return message.success("카테고리명을 수정했습니다.");
+    }
+
+    if (st_categoryUpdateError) {
+      return message.error(st_categoryUpdateError);
+    }
+  }, [st_categoryUpdateDone, st_categoryUpdateError]);
+
+  useEffect(() => {
+    if (st_categoryTypeUpdateDone) {
       return message.success("카테고리 타입명이 수정되었습니다.");
     }
 
@@ -131,35 +178,45 @@ const Category = ({}) => {
 
   ////// TOGGLE //////
 
-  // 카테고리 타입명 토글
-  const categoryTypeToggle = useCallback(
+  // 카테고리 상세 토글
+  const categoryDetailToggle = useCallback(
     (data) => {
-      if (data) {
-        setCurrentData(data);
-        typeForm.setFieldsValue({
-          category: data.category,
-        });
-      }
-      setIsTypeModal(!isTypeModal);
+      setIsDetailModal(!isDetailModal);
+
+      setCurrentData(data);
+
+      dispatch({
+        type: CATEGORY_ADMIN_LIST_REQUEST,
+        data: {
+          CateTypeId: data.id,
+        },
+      });
     },
-    [isTypeModal]
+    [isDetailModal]
   );
 
   ////// HANDLER //////
 
-  // 카테고리 타입명 수정
-  const categoryTypeUpdateHandler = useCallback(
-    (data) => {
-      dispatch({
-        type: CATEGORY_TYPE_UPDATE_REQUEST,
-        data: {
-          id: currentData && currentData.id,
-          category: data.category,
-        },
-      });
-    },
-    [currentData]
-  );
+  // 카테고리 삭제
+  const categoryDeleteHandler = useCallback((data) => {
+    dispatch({
+      type: CATEGORY_DELETE_REQUEST,
+      data: {
+        id: data.id,
+        value: data.value,
+      },
+    });
+  }, []);
+
+  // 카테고리 생성
+  const categoryCreateHandler = useCallback(() => {
+    dispatch({
+      type: CATEGORY_CREATE_REQUEST,
+      data: {
+        CateTypeId: currentData && currentData.id,
+      },
+    });
+  }, [currentData]);
 
   ////// DATAVIEW //////
 
@@ -169,6 +226,38 @@ const Category = ({}) => {
     {
       title: "번호",
       dataIndex: "num",
+      width: `5%`,
+    },
+    {
+      title: "카테고리명",
+      render: (data) => (
+        <UseAdminInput
+          init={data.value}
+          REQUEST_TARGET={CATEGORY_UPDATE_REQUEST}
+          placeholder="카테고리명을 입력해주세요."
+          DATA_TARGET={{
+            id: data.id,
+            value: data.value,
+            CateTypeId: data.CateTypeId,
+          }}
+          updateValue="value"
+        />
+      ),
+    },
+    {
+      title: "삭제",
+      render: (data) => (
+        <Popconfirm
+          title="삭제하시겠습니까?"
+          okText="삭제"
+          cancelText="취소"
+          onConfirm={() => categoryDeleteHandler(data)}
+        >
+          <Button type="danger" size="small">
+            삭제
+          </Button>
+        </Popconfirm>
+      ),
       width: `5%`,
     },
   ];
@@ -181,7 +270,18 @@ const Category = ({}) => {
     },
     {
       title: "카테고리 타입명",
-      dataIndex: "category",
+      render: (data) => (
+        <UseAdminInput
+          init={data.category}
+          REQUEST_TARGET={CATEGORY_TYPE_UPDATE_REQUEST}
+          placeholder="카테고리 타입명을 입력해주세요."
+          DATA_TARGET={{
+            id: data.id,
+            category: data.category,
+          }}
+          updateValue="category"
+        />
+      ),
     },
     {
       title: "생성일",
@@ -189,26 +289,17 @@ const Category = ({}) => {
       width: `15%`,
     },
     {
-      title: "상세보기",
-      render: (data) => (
-        <Button size="small" type="primary">
-          상세보기
-        </Button>
-      ),
-      width: `10%`,
-    },
-    {
-      title: "수정",
+      title: "하위카테고리",
       render: (data) => (
         <Button
           size="small"
           type="primary"
-          onClick={() => categoryTypeToggle(data)}
+          onClick={() => categoryDetailToggle(data)}
         >
-          수정
+          하위카테고리
         </Button>
       ),
-      width: `5%`,
+      width: `10%`,
     },
   ];
 
@@ -270,35 +361,28 @@ const Category = ({}) => {
       </Wrapper>
 
       <Drawer
-        title="카테고리 타입 수정"
-        visible={isTypeModal}
-        width="600px"
-        onClose={categoryTypeToggle}
+        visible={isDetailModal}
+        title="카테고리 상세보기"
+        width="900px"
+        onClose={() => setIsDetailModal(false)}
       >
-        <Form size="small" form={typeForm} onFinish={categoryTypeUpdateHandler}>
-          <Form.Item
-            label="카테고리 타입명"
-            name="category"
-            rules={[
-              {
-                required: true,
-                message: "카테고리 타입명을 입력해주세요.",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-
-          <Wrapper al={`flex-end`}>
-            <Button size="small" type="primary" htmlType="submit">
-              수정
-            </Button>
-          </Wrapper>
-        </Form>
-      </Drawer>
-
-      <Drawer visible={true} title="카테고리 상세보기" width="900px">
-        <Table />
+        <Wrapper al={`flex-end`}>
+          <Button type="primary" size="small" onClick={categoryCreateHandler}>
+            생성하기
+          </Button>
+        </Wrapper>
+        <Table
+          style={{ width: "100%" }}
+          rowKey="id"
+          columns={cateCol}
+          dataSource={categoryAdminList}
+          size="small"
+          // onRow={(record, index) => {
+          //   return {
+          //     onClick: (e) => beforeSetDataHandler(record),
+          //   };
+          // }}
+        />
       </Drawer>
     </AdminLayout>
   );

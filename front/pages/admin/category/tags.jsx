@@ -1,15 +1,15 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import AdminLayout from "../../../components/AdminLayout";
-import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  Form,
-  Popover,
-  Input,
   Button,
+  Drawer,
+  Form,
+  Input,
   message,
   Popconfirm,
-  Select,
+  Popover,
+  Table,
 } from "antd";
 import { useRouter, withRouter } from "next/router";
 import wrapper from "../../../store/configureStore";
@@ -23,43 +23,33 @@ import {
   OtherMenu,
   GuideUl,
   GuideLi,
-  CustomForm,
-  CustomTable,
 } from "../../../components/commonComponents";
 import { LOAD_MY_INFO_REQUEST } from "../../../reducers/user";
 import Theme from "../../../components/Theme";
 import { items } from "../../../components/AdminLayout";
 import { HomeOutlined, RightOutlined } from "@ant-design/icons";
 import {
-  COMMON_TAG_NEW_REQUEST,
-  COMMON_TAG_LIST_REQUEST,
-  COMMON_TAG_MODIFY_REQUEST,
-  COMMON_TAG_DELETE_REQUEST,
-} from "../../../reducers/product";
+  CATEGORY_ADMIN_LIST_REQUEST,
+  CATEGORY_CREATE_REQUEST,
+  CATEGORY_DELETE_REQUEST,
+  CATEGORY_TYPE_GET_REQUEST,
+  CATEGORY_TYPE_UPDATE_REQUEST,
+  CATEGORY_UPDATE_REQUEST,
+} from "../../../reducers/category";
+import UseAdminInput from "../../../hooks/useAdminInput";
 
-const Tags = ({}) => {
+const Category = ({}) => {
   const { st_loadMyInfoDone, me } = useSelector((state) => state.user);
-  const {
-    commonTags,
-
-    // 테그명 등록 후처리
-    st_commonTagNewDone,
-    st_commonTagNewError,
-    //
-    // 테그명 삭제 후처리
-    st_commonTagDeleteDone,
-    st_commonTagDeleteError,
-  } = useSelector((state) => state.product);
 
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const [nForm] = Form.useForm();
-
   // 상위메뉴 변수
-  const [level1, setLevel1] = useState("음원관리");
+  const [level1, setLevel1] = useState("공용관리");
   const [level2, setLevel2] = useState("");
   const [sameDepth, setSameDepth] = useState([]);
+
+  const [infoForm] = Form.useForm();
 
   const moveLinkHandler = useCallback((link) => {
     router.push(link);
@@ -79,50 +69,9 @@ const Tags = ({}) => {
     </PopWrapper>
   );
 
-  /////////////////////////////////////////////////////////////////////////
-
-  ////// HOOKS //////
-
-  ////// USEEFFECT //////
-
-  // 테그명 등록 후처리
-  useEffect(() => {
-    if (st_commonTagNewDone) {
-      message.success("새로운 테그를 등록했습니다.");
-      dispatch({
-        type: COMMON_TAG_LIST_REQUEST,
-      });
-      nForm.resetFields();
-    }
-
-    if (st_commonTagNewError) {
-      return message.error(st_commonTagNewError);
-    }
-  }, [st_commonTagNewDone, st_commonTagNewError]);
-
-  // 테그명 삭제 후처리
-  useEffect(() => {
-    if (st_commonTagDeleteDone) {
-      message.success("새로운 테그를 삭제했습니다.");
-      dispatch({
-        type: COMMON_TAG_LIST_REQUEST,
-      });
-      nForm.resetFields();
-    }
-
-    if (st_commonTagDeleteError) {
-      return message.error(st_commonTagDeleteError);
-    }
-  }, [st_commonTagDeleteDone, st_commonTagDeleteError]);
-
   useEffect(() => {
     if (st_loadMyInfoDone) {
       if (!me || parseInt(me.level) < 3) {
-        moveLinkHandler(`/admin`);
-      }
-
-      if (!(me && me.menuRight8)) {
-        message.error("접근권한이 없는 페이지 입니다.");
         moveLinkHandler(`/admin`);
       }
     }
@@ -139,84 +88,218 @@ const Tags = ({}) => {
       }
     });
   }, []);
+  /////////////////////////////////////////////////////////////////////////
+
+  const {
+    categoryTypeList,
+    categoryAdminList,
+    //
+    st_categoryTypeUpdateDone,
+    st_categoryTypeUpdateError,
+    //
+    st_categoryUpdateDone,
+    st_categoryUpdateError,
+    //
+    st_categoryCreateDone,
+    st_categoryCreateError,
+    //
+    st_categoryDeleteDone,
+    st_categoryDeleteError,
+  } = useSelector((state) => state.category);
+
+  ////// HOOKS //////
+
+  // MODAL
+  const [isDetailModal, setIsDetailModal] = useState(false);
+
+  // DATA
+  const [currentData, setCurrentData] = useState(null); // 현재 데이터
+
+  // FORM
+  const [typeForm] = Form.useForm();
+
+  // INPUT
+
+  ////// USEEFFECT //////
+
+  useEffect(() => {
+    if (st_categoryDeleteDone) {
+      dispatch({
+        type: CATEGORY_ADMIN_LIST_REQUEST,
+        data: {
+          CateTypeId: currentData && currentData.id,
+        },
+      });
+
+      return message.success("카테고리를 삭제했습니다.");
+    }
+
+    if (st_categoryDeleteError) {
+      return message.error(st_categoryDeleteError);
+    }
+  }, [st_categoryDeleteDone, st_categoryDeleteError]);
+
+  useEffect(() => {
+    if (st_categoryCreateDone) {
+      dispatch({
+        type: CATEGORY_ADMIN_LIST_REQUEST,
+        data: {
+          CateTypeId: currentData && currentData.id,
+        },
+      });
+
+      return message.success("카테고리를 생성했습니다.");
+    }
+
+    if (st_categoryCreateError) {
+      return message.error(st_categoryCreateError);
+    }
+  }, [st_categoryCreateDone, st_categoryCreateError]);
+
+  useEffect(() => {
+    if (st_categoryUpdateDone) {
+      return message.success("카테고리명을 수정했습니다.");
+    }
+
+    if (st_categoryUpdateError) {
+      return message.error(st_categoryUpdateError);
+    }
+  }, [st_categoryUpdateDone, st_categoryUpdateError]);
+
+  useEffect(() => {
+    if (st_categoryTypeUpdateDone) {
+      return message.success("카테고리 타입명이 수정되었습니다.");
+    }
+
+    if (st_categoryTypeUpdateError) {
+      return message.error(st_categoryTypeUpdateError);
+    }
+  }, [st_categoryTypeUpdateDone, st_categoryTypeUpdateError]);
+
+  ////// TOGGLE //////
+
+  // 카테고리 상세 토글
+  const categoryDetailToggle = useCallback(
+    (data) => {
+      setIsDetailModal(!isDetailModal);
+
+      setCurrentData(data);
+
+      dispatch({
+        type: CATEGORY_ADMIN_LIST_REQUEST,
+        data: {
+          CateTypeId: data.id,
+        },
+      });
+    },
+    [isDetailModal]
+  );
 
   ////// HANDLER //////
 
-  const deleteHandler = useCallback((data) => {
+  // 카테고리 삭제
+  const categoryDeleteHandler = useCallback((data) => {
     dispatch({
-      type: COMMON_TAG_DELETE_REQUEST,
+      type: CATEGORY_DELETE_REQUEST,
       data: {
         id: data.id,
-      },
-    });
-  }, []);
-
-  const newHandler = useCallback((data) => {
-    dispatch({
-      type: COMMON_TAG_NEW_REQUEST,
-      data: {
-        type: data.type,
         value: data.value,
       },
     });
   }, []);
 
+  // 카테고리 생성
+  const categoryCreateHandler = useCallback(() => {
+    dispatch({
+      type: CATEGORY_CREATE_REQUEST,
+      data: {
+        CateTypeId: currentData && currentData.id,
+      },
+    });
+  }, [currentData]);
+
   ////// DATAVIEW //////
 
   ////// DATA COLUMNS //////
-  const columns = [
+
+  const cateCol = [
     {
       title: "번호",
       dataIndex: "num",
-    },
-
-    {
-      title: "테그유형",
-      dataIndex: "type",
+      width: `5%`,
     },
     {
-      title: "테그명",
-      dataIndex: "value",
+      title: "카테고리명",
+      render: (data) => (
+        <UseAdminInput
+          init={data.value}
+          REQUEST_TARGET={CATEGORY_UPDATE_REQUEST}
+          placeholder="카테고리명을 입력해주세요."
+          DATA_TARGET={{
+            id: data.id,
+            value: data.value,
+            CateTypeId: data.CateTypeId,
+          }}
+          updateValue="value"
+        />
+      ),
     },
+    {
+      title: "삭제",
+      render: (data) => (
+        <Popconfirm
+          title="삭제하시겠습니까?"
+          okText="삭제"
+          cancelText="취소"
+          onConfirm={() => categoryDeleteHandler(data)}
+        >
+          <Button type="danger" size="small">
+            삭제
+          </Button>
+        </Popconfirm>
+      ),
+      width: `5%`,
+    },
+  ];
 
+  const col = [
+    {
+      title: "번호",
+      dataIndex: "num",
+      width: `5%`,
+    },
+    {
+      title: "카테고리 타입명",
+      render: (data) => (
+        <UseAdminInput
+          init={data.category}
+          REQUEST_TARGET={CATEGORY_TYPE_UPDATE_REQUEST}
+          placeholder="카테고리 타입명을 입력해주세요."
+          DATA_TARGET={{
+            id: data.id,
+            category: data.category,
+          }}
+          updateValue="category"
+        />
+      ),
+    },
     {
       title: "생성일",
       dataIndex: "viewCreatedAt",
+      width: `15%`,
     },
-
     {
-      title: "최근수정일",
-      dataIndex: "viewUpdatedAt",
-    },
-
-    {
-      title: "수정/삭제",
+      title: "하위카테고리",
       render: (data) => (
-        <Wrapper dr="row" ju="flex-start">
-          <Button
-            size="small"
-            type="primary"
-            style={{ fontSize: "12px", height: "20px" }}
-            onClick={() => message.error("테그명은 수정이 불가능합니다.")}
-          >
-            수정
-          </Button>
-          <Popconfirm
-            title="테그를 삭제하시겠습니까?"
-            okText="삭제"
-            cancelText="취소"
-            onConfirm={() => deleteHandler(data)}
-          >
-            <Button
-              size="small"
-              type="danger"
-              style={{ fontSize: "12px", height: "20px" }}
-            >
-              삭제
-            </Button>
-          </Popconfirm>
-        </Wrapper>
+        <Button
+          size="small"
+          type="primary"
+          onClick={() => categoryDetailToggle(data)}
+        >
+          하위카테고리
+        </Button>
       ),
+      width: `10%`,
     },
   ];
 
@@ -231,6 +314,7 @@ const Tags = ({}) => {
         al={`center`}
         padding={`0px 15px`}
         color={Theme.grey_C}
+        // shadow={`2px 2px 6px  ${Theme.adminTheme_2}`}
       >
         <HomeText
           margin={`3px 20px 0px 20px`}
@@ -244,7 +328,7 @@ const Tags = ({}) => {
         <RightOutlined />
         <Popover content={content}>
           <HomeText cur={true} margin={`3px 20px 0px 20px`}>
-            {level2}
+            {level2}{" "}
           </HomeText>
         </Popover>
       </Wrapper>
@@ -252,73 +336,54 @@ const Tags = ({}) => {
       {/* GUIDE */}
       <Wrapper margin={`10px 0px 0px 0px`}>
         <GuideUl>
-          <GuideLi>
-            뮤직탬, 아티스탬에 적용되는 공용 테그입니다. 이름 순 으로 정렬되어
-            보여집니다.
-          </GuideLi>
+          <GuideLi>카테고리를 관리할 수 있습니다.</GuideLi>
           <GuideLi isImpo={true}>
-            음원 또는 앨범에 등록된 테그는 삭제하더라도 남아있게 됩니다.
+            카테고리 타입을 선택한 후 카테고리를 관리할 수 있습니다.
           </GuideLi>
         </GuideUl>
       </Wrapper>
 
-      <Wrapper padding="0px 20px">
-        <CustomForm
-          colon={false}
-          layout="inline"
-          onFinish={newHandler}
-          form={nForm}
-        >
-          <CustomForm.Item
-            label="테그유형"
-            name="type"
-            rules={[
-              { required: true, message: "테그유형은 필수입력사항 입니다." },
-            ]}
-          >
-            <Select
-              style={{ width: "250px", marginRight: `10px` }}
-              size="small"
-              placeholder="테그유형을 선택하세요."
-              maxLength={35}
-            >
-              <Select.Option value={"카테고리"}>카테고리</Select.Option>
-              <Select.Option value={"Mood"}>Mood</Select.Option>
-              <Select.Option value={"Genre"}>Genre</Select.Option>
-            </Select>
-          </CustomForm.Item>
-
-          <CustomForm.Item
-            label="테그명"
-            name="value"
-            rules={[
-              { required: true, message: "테그명은 필수입력사항 입니다." },
-            ]}
-          >
-            <Input
-              style={{ width: "250px" }}
-              size="small"
-              placeholder="테그명을 입력하세요."
-              maxLength={35}
-            />
-          </CustomForm.Item>
-
-          <CustomForm.Item>
-            <Button size="small" type="primary" htmlType="submit">
-              등록
-            </Button>
-          </CustomForm.Item>
-        </CustomForm>
+      <Wrapper dr="row" padding="0px 20px" al="flex-start" ju="space-between">
+        <Wrapper shadow={`3px 3px 6px ${Theme.lightGrey_C}`}>
+          <Table
+            style={{ width: "100%" }}
+            rowKey="id"
+            columns={col}
+            dataSource={categoryTypeList}
+            size="small"
+            // onRow={(record, index) => {
+            //   return {
+            //     onClick: (e) => beforeSetDataHandler(record),
+            //   };
+            // }}
+          />
+        </Wrapper>
       </Wrapper>
 
-      <Wrapper padding="0px 20px" margin="10px 0px 0px 0px">
-        <CustomTable
+      <Drawer
+        visible={isDetailModal}
+        title="카테고리 상세보기"
+        width="900px"
+        onClose={() => setIsDetailModal(false)}
+      >
+        <Wrapper al={`flex-end`}>
+          <Button type="primary" size="small" onClick={categoryCreateHandler}>
+            생성하기
+          </Button>
+        </Wrapper>
+        <Table
+          style={{ width: "100%" }}
           rowKey="id"
-          columns={columns}
-          dataSource={commonTags}
+          columns={cateCol}
+          dataSource={categoryAdminList}
           size="small"
+          // onRow={(record, index) => {
+          //   return {
+          //     onClick: (e) => beforeSetDataHandler(record),
+          //   };
+          // }}
         />
-      </Wrapper>
+      </Drawer>
     </AdminLayout>
   );
 };
@@ -339,7 +404,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
     });
 
     context.store.dispatch({
-      type: COMMON_TAG_LIST_REQUEST,
+      type: CATEGORY_TYPE_GET_REQUEST,
     });
 
     // 구현부 종료
@@ -349,4 +414,4 @@ export const getServerSideProps = wrapper.getServerSideProps(
   }
 );
 
-export default withRouter(Tags);
+export default withRouter(Category);

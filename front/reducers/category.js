@@ -140,7 +140,7 @@ const reducer = (state = initailState, action) =>
       case CATEGORY_CREATE_SUCCESS: {
         draft.st_categoryCreateLoading = false;
         draft.st_categoryCreateDone = true;
-        draft.st_categoryCreateDone = null;
+        draft.st_categoryCreateError = null;
         break;
       }
       case CATEGORY_CREATE_FAILURE: {
@@ -160,7 +160,7 @@ const reducer = (state = initailState, action) =>
       case CATEGORY_DELETE_SUCCESS: {
         draft.st_categoryDeleteLoading = false;
         draft.st_categoryDeleteDone = true;
-        draft.st_categoryDeleteDone = null;
+        draft.st_categoryDeleteError = null;
         break;
       }
       case CATEGORY_DELETE_FAILURE: {
