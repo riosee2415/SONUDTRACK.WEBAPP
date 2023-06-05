@@ -157,6 +157,13 @@ export const items = {
       useYn: true,
     },
   ],
+  판매자관리: [
+    {
+      name: "판매자신청관리",
+      link: "/admin/seller",
+      useYn: true,
+    },
+  ],
   음원관리: [
     {
       name: "공용테그관리",
@@ -176,11 +183,6 @@ export const items = {
     {
       name: "음원승인관리",
       link: "/admin/snd/track",
-      useYn: true,
-    },
-    {
-      name: "판매자신청관리",
-      link: "/admin/snd/artist",
       useYn: true,
     },
   ],
@@ -316,6 +318,11 @@ const AdminLayout = ({ children }) => {
             right={me && me.menuRight7}
             title={`기록관리`}
             menus={items["기록관리"]}
+          />
+          <AdminMenuBox
+            right={me && me.menuRight8}
+            title={`판매자관리`}
+            menus={items["판매자관리"]}
           />
           <AdminMenuBox
             right={me && me.menuRight8}

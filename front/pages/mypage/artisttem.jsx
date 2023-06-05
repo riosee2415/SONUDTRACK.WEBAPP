@@ -41,6 +41,14 @@ import {
   REP_SONG_FILE_RESET,
   REP_SONG_FILE_UPLOAD_REQUEST,
 } from "../../reducers/artist";
+import {
+  ARTISTEM_FILE_REQUEST,
+  FILMO_COVER_IMAGE_REQUEST,
+  FILMO_COVER_IMAGE_RESET,
+  FILMO_MUSIC_REQUEST,
+  SELLER_IMAGE_REQUEST,
+  SELLER_IMAGE_RESET,
+} from "../../reducers/seller";
 
 const Box = styled(Wrapper)`
   width: calc(100% / 6 - 37px);
@@ -108,7 +116,7 @@ const Index = () => {
   const { commonTags } = useSelector((state) => state.product);
 
   const {
-    filmoFile,
+    // filmoFile,
     st_filmoFileUploadLoading,
     st_filmoFileUploadDone,
     st_filmoFileUploadError,
@@ -126,6 +134,14 @@ const Index = () => {
     st_repSongFileUploadDone,
     st_repSongFileUploadError,
   } = useSelector((state) => state.artist);
+  const {
+    sellerImage,
+    filmoImage,
+    filmoFile,
+    //
+    st_artistemFileDone,
+    st_artistemFileError,
+  } = useSelector((state) => state.seller);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -189,30 +205,10 @@ const Index = () => {
         type: FILMO_FILE_RESET,
       });
       dispatch({
-        type: FILMO_IMAGE_RESET,
+        type: FILMO_COVER_IMAGE_RESET,
       });
     }
   }, [filmo]);
-
-  // 필모 음원 등록
-  useEffect(() => {
-    if (st_filmoFileUploadDone) {
-      return message.success("음원이 등록되었습니다.");
-    }
-    if (st_filmoFileUploadError) {
-      return message.error(st_filmoFileUploadError);
-    }
-  }, [st_filmoFileUploadDone, st_filmoFileUploadError]);
-
-  // 필모 앪범 이미지 등록
-  useEffect(() => {
-    if (st_filmoImgUploadDone) {
-      return message.success("앨범 커버 이미지가 등록되었습니다.");
-    }
-    if (st_filmoImgUploadError) {
-      return message.error(st_filmoImgUploadError);
-    }
-  }, [st_filmoImgUploadDone, st_filmoImgUploadError]);
 
   useEffect(() => {
     if (st_artistInfoUpdateDone) {
@@ -310,7 +306,7 @@ const Index = () => {
     }
 
     dispatch({
-      type: USER_UPLOAD_REQUEST,
+      type: SELLER_IMAGE_REQUEST,
       data: formData,
     });
   }, []);
@@ -320,7 +316,7 @@ const Index = () => {
     setProfileName("");
 
     dispatch({
-      type: USER_IMAGE_RESET,
+      type: SELLER_IMAGE_RESET,
     });
   }, []);
 
@@ -333,7 +329,7 @@ const Index = () => {
     if (artCoun.value) {
       let arr = useArtCoun ? useArtCoun.map((data) => data) : [];
 
-      arr.push(artCoun.value);
+      arr.push({ value: artCoun.value, sort: arr.length + 1 });
 
       setUseArtCoun(arr);
 
@@ -374,7 +370,7 @@ const Index = () => {
     }
 
     dispatch({
-      type: FILMO_FILE_UPLOAD_REQUEST,
+      type: FILMO_MUSIC_REQUEST,
       data: formData,
     });
   }, []);
@@ -407,7 +403,7 @@ const Index = () => {
     }
 
     dispatch({
-      type: FILMO_IMG_UPLOAD_REQUEST,
+      type: FILMO_COVER_IMAGE_REQUEST,
       data: formData,
     });
   }, []);
@@ -442,19 +438,21 @@ const Index = () => {
       return message.error("음원을 등록해주세요.");
     }
 
-    if (!filmoImg) {
+    if (!filmoImage) {
       return message.error("이미지를 등록해주세요.");
     }
 
     let arr = filmoArr ? filmoArr.map((data) => data) : [];
 
     arr.push({
-      roleName: roleName.value,
+      part: roleName.value,
       comment: comment.value,
-      name: singer.value,
-      title: songTitle.value,
-      musicFile: filmoFile,
-      coverImage: filmoImg,
+      singerName: singer.value,
+      songName: songTitle.value,
+      filename: filmoFileName.value,
+      filePath: filmoFile,
+      imagePathName: filmoImgName.value,
+      imagePath: filmoImage,
       sort: arr.length + 1,
     });
 
@@ -463,7 +461,17 @@ const Index = () => {
     filmoToggle();
 
     return message.success("필모그래피가 등록되었습니다.");
-  }, [roleName, comment, singer, songTitle, filmoFile, filmoImg, filmoArr]);
+  }, [
+    roleName,
+    comment,
+    singer,
+    songTitle,
+    filmoFile,
+    filmoImage,
+    filmoArr,
+    filmoFileName,
+    filmoImgName,
+  ]);
 
   // 검색태그 아이디 추가
   const tagHandler = useCallback(
@@ -501,7 +509,7 @@ const Index = () => {
     }
 
     dispatch({
-      type: REP_SONG_FILE_UPLOAD_REQUEST,
+      type: ARTISTEM_FILE_REQUEST,
       data: formData,
     });
   }, []);
@@ -698,6 +706,7 @@ const Index = () => {
                   tyoe="text"
                   border={`1px solid ${Theme.lightGrey_C}`}
                   {...comNum}
+                  type="number"
                 />
                 <CommonButton
                   width={`100px`}
@@ -705,7 +714,7 @@ const Index = () => {
                   fontSize={`18px`}
                   fontWeight={`600`}
                   kindOf={`subTheme2`}
-                  onClick={businessNumCheck}
+                  // onClick={businessNumCheck}
                 >
                   인증하기
                 </CommonButton>
@@ -763,6 +772,7 @@ const Index = () => {
                   placeholder="프로필 이미지를 등록해주세요."
                   tyoe="text"
                   border={`1px solid ${Theme.lightGrey_C}`}
+                  readOnly
                 />
                 <input
                   ref={imgRef}
@@ -783,7 +793,8 @@ const Index = () => {
                   파일등록
                 </CommonButton>
               </Wrapper>
-              {userPath && (
+
+              {sellerImage && (
                 <Wrapper
                   width={width < 700 ? `100%` : `440px`}
                   dr={`row`}
@@ -885,7 +896,7 @@ const Index = () => {
                         margin={`0 8px 0 0`}
                         key={idx}
                       >
-                        {data}
+                        {data.value}
                         <CloseOutlined
                           onClick={() => artCounDeleteHandler(idx)}
                         />
@@ -922,7 +933,7 @@ const Index = () => {
                 <input
                   ref={repSongFileRef}
                   type={`file`}
-                  accept={`.mp3`}
+                  // accept={`.mp3`}
                   hidden
                   onChange={repSongFileUploadHandler}
                 />
@@ -1119,7 +1130,7 @@ const Index = () => {
                     return (
                       <Box key={data.sort}>
                         <SquareBox>
-                          <Image alt="thumbnail" src={data.coverImage} />
+                          <Image alt="thumbnail" src={data.imagePath} />
                         </SquareBox>
                         <Wrapper
                           height={`100%`}
@@ -1130,9 +1141,9 @@ const Index = () => {
                           left={`0`}
                         >
                           <Text fontSize={`20px`} fontWeight={`bold`}>
-                            {data.name}
+                            {data.singerName}
                           </Text>
-                          <Text fontSize={`16px`}>{data.title}</Text>
+                          <Text fontSize={`16px`}>{data.songName}</Text>
                         </Wrapper>
                       </Box>
                     );
@@ -1386,7 +1397,7 @@ const Index = () => {
                   <input
                     ref={filmoFileRef}
                     type={`file`}
-                    accept={`.mp3`}
+                    // accept={`.mp3`}
                     hidden
                     onChange={filmoFileUploadHandler}
                   />
@@ -1441,7 +1452,7 @@ const Index = () => {
                   <input
                     ref={filmoImgRef}
                     type={`file`}
-                    accept={`.jpg, .png`}
+                    // accept={`.jpg, .png`}
                     hidden
                     onChange={filmoImgUploadHandler}
                   />
@@ -1455,7 +1466,7 @@ const Index = () => {
                     파일등록
                   </CommonButton>
                 </Wrapper>
-                {filmoImg && (
+                {filmoImage && (
                   <Wrapper
                     dr={`row`}
                     ju={`space-between`}

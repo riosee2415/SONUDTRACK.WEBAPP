@@ -84,17 +84,6 @@ const MypageMenu = ({}) => {
   } = useSelector((state) => state.user);
 
   const {
-    artistPath,
-
-    st_permmWaitingCreateDone,
-    st_permmWaitingCreateError,
-
-    st_artistUploadLoading,
-    st_artistUploadDone,
-    st_artistUploadError,
-  } = useSelector((state) => state.artist);
-
-  const {
     sellerImage,
     //
     st_sellerImageDone,
@@ -163,22 +152,22 @@ const MypageMenu = ({}) => {
   }, [st_userImgUpdateDone, st_userImgUpdateError]);
 
   // 판매자 파일 등록
-  useEffect(() => {
-    if (st_sellerImageDone) {
-      let arr = files ? files.map((data) => data) : [];
+  // useEffect(() => {
+  //   if (st_sellerImageDone) {
+  //     let arr = files ? files.map((data) => data) : [];
 
-      arr.push({
-        id: arr.length,
-        filename: fileName,
-        filepath: artistPath,
-      });
+  //     arr.push({
+  //       id: arr.length,
+  //       filename: fileName,
+  //       filepath: artistPath,
+  //     });
 
-      setFiles(arr);
-    }
-    if (st_sellerImageError) {
-      return message.error(st_sellerImageError);
-    }
-  }, [st_sellerImageDone, st_sellerImageError]);
+  //     setFiles(arr);
+  //   }
+  //   if (st_sellerImageError) {
+  //     return message.error(st_sellerImageError);
+  //   }
+  // }, [st_sellerImageDone, st_sellerImageError]);
 
   // 판매자 전환 신청 후처리
   useEffect(() => {
@@ -742,7 +731,6 @@ const MypageMenu = ({}) => {
                 fontWeight={`bold`}
                 kindOf={`subTheme2`}
                 onClick={fileClickHandler}
-                loading={st_artistUploadLoading}
               >
                 파일등록
               </CommonButton>

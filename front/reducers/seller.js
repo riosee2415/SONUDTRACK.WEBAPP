@@ -2,7 +2,10 @@ import produce from "../util/produce";
 
 export const initailState = {
   sellerList: [], // 관리자 판매자신청리스트
-  sellerImage: null, // 판매자신청할때 이미지
+  sellerImage: null, // 판매자신청할때 이미지, 아티스템 프로필 등록
+  artistemFile: null, // 아티스템 대표음원
+  filmoImage: null, // 필모그래피 커버이미지
+  filmoFile: null, // 필모그래피 파일
   //   아티스템 상세 조회
   artistemData: null,
   findCountryInfoData: [],
@@ -34,6 +37,18 @@ export const initailState = {
   st_sellerImageLoading: false,
   st_sellerImageDone: false,
   st_sellerImageError: null,
+  // 아티스템 대표음원
+  st_artistemFileLoading: false,
+  st_artistemFileDone: false,
+  st_artistemFileError: null,
+  // 필모그래피 커버이미지
+  st_filmoCoverImageLoading: false,
+  st_filmoCoverImageDone: false,
+  st_filmoCoverImageError: null,
+  // 필모그래피 음원
+  st_filmoMusicLoading: false,
+  st_filmoMusicDone: false,
+  st_filmoMusicError: null,
 };
 
 export const SELLER_LIST_REQUEST = "SELLER_LIST_REQUEST";
@@ -60,7 +75,22 @@ export const SELLER_IMAGE_REQUEST = "SELLER_IMAGE_REQUEST";
 export const SELLER_IMAGE_SUCCESS = "SELLER_IMAGE_SUCCESS";
 export const SELLER_IMAGE_FAILURE = "SELLER_IMAGE_FAILURE";
 
+export const ARTISTEM_FILE_REQUEST = "ARTISTEM_FILE_REQUEST";
+export const ARTISTEM_FILE_SUCCESS = "ARTISTEM_FILE_SUCCESS";
+export const ARTISTEM_FILE_FAILURE = "ARTISTEM_FILE_FAILURE";
+
+export const FILMO_COVER_IMAGE_REQUEST = "FILMO_COVER_IMAGE_REQUEST";
+export const FILMO_COVER_IMAGE_SUCCESS = "FILMO_COVER_IMAGE_SUCCESS";
+export const FILMO_COVER_IMAGE_FAILURE = "FILMO_COVER_IMAGE_FAILURE";
+
+export const FILMO_MUSIC_REQUEST = "FILMO_MUSIC_REQUEST";
+export const FILMO_MUSIC_SUCCESS = "FILMO_MUSIC_SUCCESS";
+export const FILMO_MUSIC_FAILURE = "FILMO_MUSIC_FAILURE";
+
 export const SELLER_IMAGE_RESET = "SELLER_IMAGE_RESET";
+export const ARTISTEM_FILE_RESET = "ARTISTEM_FILE_RESET";
+export const FILMO_COVER_IMAGE_RESET = "FILMO_COVER_IMAGE_RESET";
+export const FIMO_MUSIC_RESET = "FIMO_MUSIC_RESET";
 
 const reducer = (state = initailState, action) =>
   produce(state, (draft) => {
@@ -191,9 +221,81 @@ const reducer = (state = initailState, action) =>
         break;
       }
       ///////////////////////////////////////////////////////
+      case ARTISTEM_FILE_REQUEST: {
+        draft.st_artistemFileLoading = true;
+        draft.st_artistemFileDone = false;
+        draft.st_artistemFileError = null;
+        break;
+      }
+      case ARTISTEM_FILE_SUCCESS: {
+        draft.st_artistemFileLoading = false;
+        draft.st_artistemFileDone = true;
+        draft.st_artistemFileError = null;
+        draft.artistemFile = action.data.path;
+        break;
+      }
+      case ARTISTEM_FILE_FAILURE: {
+        draft.st_artistemFileLoading = false;
+        draft.st_artistemFileDone = false;
+        draft.st_artistemFileError = action.error;
+        break;
+      }
+      ///////////////////////////////////////////////////////
+      case FILMO_COVER_IMAGE_REQUEST: {
+        draft.st_filemoCoverImageLoading = true;
+        draft.st_filemoCoverImageDone = false;
+        draft.st_filemoCoverImageError = null;
+        break;
+      }
+      case FILMO_COVER_IMAGE_SUCCESS: {
+        draft.st_filemoCoverImageLoading = false;
+        draft.st_filemoCoverImageDone = true;
+        draft.st_filemoCoverImageError = null;
+        draft.filmoImage = action.data.path;
+        break;
+      }
+      case FILMO_COVER_IMAGE_FAILURE: {
+        draft.st_filemoCoverImageLoading = false;
+        draft.st_filemoCoverImageDone = false;
+        draft.st_filemoCoverImageError = action.error;
+        break;
+      }
+      ///////////////////////////////////////////////////////
+      case FILMO_MUSIC_REQUEST: {
+        draft.st_filmoMusicLoading = true;
+        draft.st_filmoMusicDone = false;
+        draft.st_filmoMusicError = null;
+        break;
+      }
+      case FILMO_MUSIC_SUCCESS: {
+        draft.st_filmoMusicLoading = false;
+        draft.st_filmoMusicDone = true;
+        draft.st_filmoMusicError = null;
+        draft.filmoFile = action.data.path;
+        break;
+      }
+      case FILMO_MUSIC_FAILURE: {
+        draft.st_filmoMusicLoading = false;
+        draft.st_filmoMusicDone = false;
+        draft.st_filmoMusicError = action.error;
+        break;
+      }
+      ///////////////////////////////////////////////////////
 
       case SELLER_IMAGE_RESET: {
         draft.sellerImage = null;
+      }
+
+      case ARTISTEM_FILE_RESET: {
+        draft.artistemFile = null;
+      }
+
+      case FILMO_COVER_IMAGE_RESET: {
+        draft.filmoImage = null;
+      }
+
+      case FIMO_MUSIC_RESET: {
+        draft.filmoFile = null;
       }
 
       default:

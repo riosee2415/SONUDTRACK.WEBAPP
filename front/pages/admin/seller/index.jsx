@@ -40,7 +40,7 @@ const Artist = ({}) => {
   const dispatch = useDispatch();
 
   // 상위메뉴 변수
-  const [level1, setLevel1] = useState("음원관리");
+  const [level1, setLevel1] = useState("판매자관리");
   const [level2, setLevel2] = useState("");
   const [sameDepth, setSameDepth] = useState([]);
 
