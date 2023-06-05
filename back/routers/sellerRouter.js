@@ -297,7 +297,8 @@ router.post("/admin/permit", isAdminCheck, async (req, res, next) => {
 
         const updateQuery = `
         UPDATE  users
-           SET  musictemId = ${insertResult[0].insertId}
+           SET  musictemId = ${insertResult[0].insertId},
+                type = 2
          WHERE  id = ${UserId}
         `;
 
@@ -358,7 +359,8 @@ router.post("/admin/permit", isAdminCheck, async (req, res, next) => {
 
         const updateQuery = `
         UPDATE  users
-           SET  artistemId = ${insertResult[0].insertId}
+           SET  artistemId = ${insertResult[0].insertId},
+                type = 2
          WHERE  id = ${UserId}
         `;
 
