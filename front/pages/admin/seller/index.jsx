@@ -91,6 +91,8 @@ const Artist = ({}) => {
 
   ////// HOOKS //////
 
+  const [currentTab, setCurrentTab] = useState(1); // 1:승인대기중/2:승인/3:반려/4:전체
+
   ////// USEEFFECT //////
 
   useEffect(() => {
@@ -98,6 +100,9 @@ const Artist = ({}) => {
       message.info("판매자 전환이 승인되었습니다.");
       dispatch({
         type: SELLER_LIST_REQUEST,
+        data: {
+          status: currentTab,
+        },
       });
     }
 
@@ -108,6 +113,19 @@ const Artist = ({}) => {
 
   ////// HANDLER //////
 
+  // 검색
+  const searchHandler = useCallback((data) => {
+    setCurrentTab(data);
+
+    dispatch({
+      type: SELLER_LIST_REQUEST,
+      data: {
+        status: data,
+      },
+    });
+  }, []);
+
+  // 승인
   const okPermm = useCallback((data) => {
     dispatch({
       type: SELLER_ADMIN_PERMIT_REQUEST,
@@ -120,6 +138,7 @@ const Artist = ({}) => {
     });
   }, []);
 
+  // 반려
   const delPermm = useCallback((data) => {
     dispatch({
       type: SELLER_ADMIN_PERMIT_REQUEST,
@@ -280,6 +299,41 @@ const Artist = ({}) => {
 
       {/* CONTENT */}
       <Wrapper padding="0px 20px">
+        <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 10px`}>
+          <Button
+            onClick={() => searchHandler(1)}
+            style={{ margin: `0 5px 0 0` }}
+            size="small"
+            type={currentTab === 1 ? "primary" : "default"}
+          >
+            승인 대기중
+          </Button>
+          <Button
+            onClick={() => searchHandler(2)}
+            style={{ margin: `0 5px 0 0` }}
+            size="small"
+            type={currentTab === 2 ? "primary" : "default"}
+          >
+            승인
+          </Button>
+          <Button
+            onClick={() => searchHandler(3)}
+            style={{ margin: `0 5px 0 0` }}
+            size="small"
+            type={currentTab === 3 ? "primary" : "default"}
+          >
+            반려
+          </Button>
+          <Button
+            onClick={() => searchHandler(4)}
+            style={{ margin: `0 5px 0 0` }}
+            size="small"
+            type={currentTab === 4 ? "primary" : "default"}
+          >
+            전체
+          </Button>
+        </Wrapper>
+
         <CustomTable
           rowKey="id"
           columns={columns}
@@ -308,6 +362,9 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: SELLER_LIST_REQUEST,
+      data: {
+        status: 1,
+      },
     });
 
     // 구현부 종료

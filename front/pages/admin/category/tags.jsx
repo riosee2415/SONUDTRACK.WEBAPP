@@ -39,6 +39,7 @@ import {
 import UseAdminInput from "../../../hooks/useAdminInput";
 import {
   TAG_CREATE_REQUEST,
+  TAG_DELETE_REQUEST,
   TAG_LIST_REQUEST,
   TAG_TYPE_CREATE_REQUEST,
   TAG_TYPE_DELETE_REQUEST,
@@ -130,6 +131,9 @@ const Category = ({}) => {
     //
     st_tagUpdateDone,
     st_tagUpdateError,
+    //
+    st_tagDeleteDone,
+    st_tagDeleteError,
   } = useSelector((state) => state.tag);
 
   console.log(tagTypeList);
@@ -149,6 +153,23 @@ const Category = ({}) => {
   ////// USEEFFECT //////
 
   useEffect(() => {
+    if (st_tagDeleteDone) {
+      dispatch({
+        type: TAG_LIST_REQUEST,
+        data: {
+          TagTypeId: currentData && currentData.id,
+        },
+      });
+
+      return message.success("태그가 삭제되었습니다.");
+    }
+
+    if (st_tagDeleteError) {
+      return message.error(st_tagDeleteError);
+    }
+  }, [st_tagDeleteDone, st_tagDeleteError]);
+
+  useEffect(() => {
     if (st_tagUpdateDone) {
       dispatch({
         type: TAG_LIST_REQUEST,
@@ -157,7 +178,7 @@ const Category = ({}) => {
         },
       });
 
-      return message.success("태그를 생성했습니다.");
+      return message.success("태그를 수정했습니다.");
     }
 
     if (st_tagUpdateError) {
@@ -231,8 +252,8 @@ const Category = ({}) => {
 
   ////// HANDLER //////
 
-  // 태그 삭제
-  const tagDeleteHandler = useCallback((data) => {
+  // 태그 타입 삭제
+  const tagTypeDeleteHandler = useCallback((data) => {
     dispatch({
       type: TAG_TYPE_DELETE_REQUEST,
       data: {
@@ -249,18 +270,18 @@ const Category = ({}) => {
     });
   }, []);
 
-  // 카테고리 삭제
-  const categoryDeleteHandler = useCallback((data) => {
+  // 태그 삭제
+  const tagDeleteHandler = useCallback((data) => {
     dispatch({
-      type: CATEGORY_DELETE_REQUEST,
+      type: TAG_DELETE_REQUEST,
       data: {
         id: data.id,
-        value: data.value,
+        tagValue: data.tagValue,
       },
     });
   }, []);
 
-  // 카테고리 생성
+  // 태그 생성
   const tagCreateHandler = useCallback(() => {
     dispatch({
       type: TAG_CREATE_REQUEST,
@@ -303,7 +324,7 @@ const Category = ({}) => {
           title="삭제하시겠습니까?"
           okText="삭제"
           cancelText="취소"
-          onConfirm={() => categoryDeleteHandler(data)}
+          onConfirm={() => tagDeleteHandler(data)}
         >
           <Button type="danger" size="small">
             삭제
@@ -360,7 +381,7 @@ const Category = ({}) => {
           title="삭제하시겠습니까?"
           okText="삭제"
           cancelText="취소"
-          onConfirm={() => tagDeleteHandler(data)}
+          onConfirm={() => tagTypeDeleteHandler(data)}
         >
           <Button type="danger" size="small">
             삭제
@@ -404,9 +425,9 @@ const Category = ({}) => {
       {/* GUIDE */}
       <Wrapper margin={`10px 0px 0px 0px`}>
         <GuideUl>
-          <GuideLi>카테고리를 관리할 수 있습니다.</GuideLi>
+          <GuideLi>태그를 관리할 수 있습니다.</GuideLi>
           <GuideLi isImpo={true}>
-            카테고리 타입을 선택한 후 카테고리를 관리할 수 있습니다.
+            태그 타입을 선택한 후 하위태그를 관리할 수 있습니다.
           </GuideLi>
         </GuideUl>
       </Wrapper>
