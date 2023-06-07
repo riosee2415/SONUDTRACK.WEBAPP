@@ -49,6 +49,8 @@ import {
   SELLER_IMAGE_REQUEST,
   SELLER_IMAGE_RESET,
 } from "../../reducers/seller";
+import { CATEGORY_LIST_REQUEST } from "../../reducers/category";
+import { TAG_LIST_REQUEST, TAG_TYPE_LIST_REQUEST } from "../../reducers/tag";
 
 const Box = styled(Wrapper)`
   width: calc(100% / 6 - 37px);
@@ -142,6 +144,9 @@ const Index = () => {
     st_artistemFileDone,
     st_artistemFileError,
   } = useSelector((state) => state.seller);
+  const { categoryList } = useSelector((state) => state.category);
+  const { tagTypeList, tagList } = useSelector((state) => state.tag);
+  console.log(tagList);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -1170,7 +1175,29 @@ const Index = () => {
                 al={`flex-start`}
                 margin={`0 0 30px`}
               >
-                {commonTags &&
+                {categoryList.map((data) => {
+                  return (
+                    <TagBtn
+                      key={data.id}
+                      kindOf={`grey`}
+                      width={
+                        width < 1100
+                          ? width < 900
+                            ? `calc(100% / 3 - 20px)`
+                            : `calc(100% / 5 - 20px)`
+                          : `calc(100% / 8 - 20px)`
+                      }
+                      margin={`0 10px`}
+                      padding={`0`}
+                      height={width < 900 ? `40px` : `54px`}
+                      onClick={() => tagHandler(data)}
+                      isActive={tagArr.includes(data.id)}
+                    >
+                      {data.value}
+                    </TagBtn>
+                  );
+                })}
+                {/* {commonTags &&
                   commonTags.map((data) => {
                     return (
                       data.type === "카테고리" && (
@@ -1194,7 +1221,7 @@ const Index = () => {
                         </TagBtn>
                       )
                     );
-                  })}
+                  })} */}
               </Wrapper>
               <Text
                 fontSize={`16px`}
@@ -1212,7 +1239,7 @@ const Index = () => {
                 al={`flex-start`}
                 margin={`0 0 30px`}
               >
-                {commonTags &&
+                {/* {commonTags &&
                   commonTags.map((data) => {
                     return (
                       data.type === "Mood" && (
@@ -1236,7 +1263,7 @@ const Index = () => {
                         </TagBtn>
                       )
                     );
-                  })}
+                  })} */}
               </Wrapper>
               <Text
                 fontSize={`16px`}
@@ -1519,7 +1546,17 @@ export const getServerSideProps = wrapper.getServerSideProps(
     });
 
     context.store.dispatch({
-      type: COMMON_TAG_LIST_REQUEST,
+      type: CATEGORY_LIST_REQUEST,
+      data: {
+        CateTypeId: 1,
+      },
+    });
+
+    context.store.dispatch({
+      type: TAG_LIST_REQUEST,
+      data: {
+        TagTypeId: 1,
+      },
     });
 
     // 구현부 종료

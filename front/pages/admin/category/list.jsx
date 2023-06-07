@@ -115,9 +115,6 @@ const Category = ({}) => {
   // DATA
   const [currentData, setCurrentData] = useState(null); // 현재 데이터
 
-  // FORM
-  const [typeForm] = Form.useForm();
-
   // INPUT
 
   ////// USEEFFECT //////
