@@ -560,6 +560,153 @@ router.post("/artistem/myData", isLoggedIn, async (req, res, next) => {
 });
 
 /**
+ * SUBJECT : 아티스탬 디테일
+ * PARAMETERS : ArtistemId
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/05/30
+ */
+router.post("/artistem/detail", async (req, res, next) => {
+  const { ArtistemId } = req.body;
+
+  const artistemQuery = `
+  SELECT  id,
+          isVacation,
+          name,
+          companyNo,
+          artistName,
+          artistProfileImage,
+          artistInfo,
+          question1,
+          question2,
+          question3,
+          question4,
+          question5,
+          question6,
+          question7,
+          question8,
+          repMusicFile,
+          repMusicFilename,
+          isUpdate,
+          createdAt,
+          updatedAt
+    FROM  artistem
+   WHERE  id = ${ArtistemId}
+     AND  isUpdate = 1
+  `;
+
+  const findCountryInfoQuery = `
+  SELECT  ROW_NUMBER()  OVER(ORDER  BY sort)      AS num,
+          id,
+          value,
+          sort,
+          createdAt,
+          updatedAt,
+          DATE_FORMAT(createdAt, "%Y년 %m월 %d일")  AS viewCreatedAt,
+          DATE_FORMAT(updatedAt, "%Y년 %m월 %d일")  AS viewUpdatedAt
+    FROM  artistCountry
+   WHERE  ArtistemId = ${ArtistemId}
+   ORDER  BY num ASC
+  `;
+
+  const findFilmInfoQuery = `
+  SELECT  ROW_NUMBER()  OVER(ORDER  BY sort)      AS num,
+          id,
+          part,
+          comment,
+          singerName,
+          songName,
+          filename,
+          filePath,
+          imagePathName,
+          imagePath,
+          sort,
+          createdAt,
+          updatedAt,
+          DATE_FORMAT(createdAt, "%Y년 %m월 %d일")  AS viewCreatedAt,
+          DATE_FORMAT(updatedAt, "%Y년 %m월 %d일")  AS viewUpdatedAt
+    FROM  artistFilmography
+   WHERE  ArtistemId = ${ArtistemId}
+   ORDER  BY num ASC
+  `;
+
+  const findCateInfoQuery = `
+  SELECT  ROW_NUMBER()  OVER(ORDER  BY A.sort)      AS num,
+          A.id,
+          A.sort,
+          A.ArtistemId,
+          A.CateTypeId,
+          A.CategoryId,
+          A.createdAt,
+          A.updatedAt,
+          DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")  AS viewCreatedAt,
+          DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")  AS viewUpdatedAt,
+          B.category                                AS categoryTypeValue,
+          C.value                                   AS catagoryValue
+    FROM  artistCategory    A
+   INNER
+    JOIN  cateType          B
+      ON  A.CateTypeId = B.id
+   INNER
+    JOIN  category          C
+      ON  A.CategoryId = C.id
+   WHERE  A.ArtistemId = ${ArtistemId}
+   ORDER  BY num ASC
+  `;
+
+  const findTagInfoQuery = `
+  SELECT  ROW_NUMBER()  OVER(ORDER  BY A.sort)      AS num,
+          A.id,
+          A.sort,
+          A.ArtistemId,
+          A.TagTypeId,
+          A.TagId,
+          A.createdAt,
+          A.updatedAt,
+          DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")  AS viewCreatedAt,
+          DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")  AS viewUpdatedAt,
+          B.value                                   AS tagTypeValue,
+          C.tagValue
+    FROM  artistTag        A
+   INNER
+    JOIN  tagType          B
+      ON  A.TagTypeId = B.id
+   INNER
+    JOIN  tag              C
+      ON  A.TagId = C.id
+   WHERE  A.ArtistemId = ${ArtistemId}
+   ORDER  BY num ASC
+  `;
+
+  try {
+    const artistemData = await models.sequelize.query(artistemQuery);
+
+    if (artistemData[0].length === 0) {
+      return res.status(400).send("아티스탬 정보가 존재하지 않습니다.");
+    }
+
+    const findCountryInfoData = await models.sequelize.query(
+      findCountryInfoQuery
+    );
+    const findFilmInfoData = await models.sequelize.query(findFilmInfoQuery);
+    const findCateInfoData = await models.sequelize.query(findCateInfoQuery);
+    const findTagInfoData = await models.sequelize.query(findTagInfoQuery);
+
+    return res.status(200).json({
+      artistemData: artistemData[0].length !== 0 ? artistemData[0][0] : null,
+      findCountryInfoData: findCountryInfoData[0],
+      findFilmInfoData: findFilmInfoData[0],
+      findCateInfoData: findCateInfoData[0],
+      findTagInfoData: findTagInfoData[0],
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("아티스탬 정보를 조회할 수 없습니다.");
+  }
+});
+
+/**
  * SUBJECT : 아티스탬 정보 입력 라우터
  * PARAMETERS : name,
                 companyNo,
