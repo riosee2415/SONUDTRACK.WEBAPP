@@ -20,7 +20,12 @@ import { LOAD_MY_INFO_REQUEST } from "../../../reducers/user";
 
 import Theme from "../../../components/Theme";
 import { items } from "../../../components/AdminLayout";
-import { HomeOutlined, RightOutlined } from "@ant-design/icons";
+import {
+  CheckOutlined,
+  CloseOutlined,
+  HomeOutlined,
+  RightOutlined,
+} from "@ant-design/icons";
 import {
   SELLER_ADMIN_PERMIT_REQUEST,
   SELLER_LIST_REQUEST,
@@ -172,6 +177,20 @@ const Artist = ({}) => {
       dataIndex: "mobile",
     },
     {
+      title: "주로뮤직템활동",
+      render: (data) =>
+        data.isMusictem ? <CheckOutlined /> : <CloseOutlined />,
+    },
+    {
+      title: "주로아티스템활동",
+      render: (data) =>
+        data.isArtistem ? <CheckOutlined /> : <CloseOutlined />,
+    },
+    {
+      title: "연락처",
+      dataIndex: "mobile",
+    },
+    {
       title: "활동계획",
       dataIndex: "activity",
     },
@@ -216,7 +235,7 @@ const Artist = ({}) => {
     {
       title: "승인/거절",
       render: (data) => {
-        return data.viewStatus ? (
+        return data.status !== 1 ? (
           data.viewStatus
         ) : (
           <Wrapper dr="row" ju="flex-start">

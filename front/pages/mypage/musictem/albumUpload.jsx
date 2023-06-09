@@ -28,12 +28,14 @@ import {
   CloseOutlined,
 } from "@ant-design/icons";
 import {
-  CATEGORY_LIST_REQUEST,
   PRODUCT_AGREEMENT_UPLOAD_REQUEST,
   PRODUCT_COVER_UPLOAD_REQUEST,
   PRODUCT_CREATE_REQUEST,
   PRODUCT_GEN_ALL_REQUEST,
 } from "../../../reducers/product";
+import { TAG_TYPE_LIST_REQUEST } from "../../../reducers/tag";
+import { CATEGORY_LIST_REQUEST } from "../../../reducers/category";
+import { ALBUM_IMAGE_REQUEST } from "../../../reducers/album";
 
 const CustomForm = styled(Form)`
   width: 100%;
@@ -123,6 +125,10 @@ const Index = () => {
     st_productAgreementUploadLoading,
     st_productAgreementUploadError,
   } = useSelector((state) => state.product);
+  const { tagTypeList } = useSelector((state) => state.tag);
+  const { categoryList } = useSelector((state) => state.category);
+  const { albumImage } = useSelector((state) => state.album);
+  console.log(albumImage);
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
@@ -139,6 +145,7 @@ const Index = () => {
   const coverImageRef = useRef();
   const agreementRef = useRef();
 
+  const [tagArr, setTagArr] = useState([]); // 검색 태그
   ////// REDUX //////
   ////// USEEFFECT //////
   useEffect(() => {
@@ -216,7 +223,7 @@ const Index = () => {
       });
 
       dispatch({
-        type: PRODUCT_COVER_UPLOAD_REQUEST,
+        type: ALBUM_IMAGE_REQUEST,
         data: formData,
       });
     },
@@ -277,6 +284,28 @@ const Index = () => {
       });
     },
     [coverPath, agreementPath, agreementName, selectGen]
+  );
+
+  // 검색태그 아이디 추가
+  const tagHandler = useCallback(
+    (type) => {
+      const index = tagArr.indexOf(type.id);
+      let tempArr = tagArr.map((data) => data);
+
+      if (index !== -1) {
+        tempArr = tempArr.filter((data) => data !== type.id);
+      } else {
+        tempArr.push({
+          value: type[0],
+          TagTypeId: type[1],
+          TagId: type[2],
+          sort: tempArr.length + 1,
+        });
+      }
+
+      setTagArr(tempArr);
+    },
+    [tagArr]
   );
 
   ////// DATAVIEW //////
@@ -406,16 +435,19 @@ const Index = () => {
                 >
                   <Wrapper>
                     <Form.Item
-                      name="productCategoryId"
+                      name="categorys"
                       rules={[
                         { required: true, message: "카테고리는 필수 입니다." },
                       ]}
                     >
                       <CustomSelect placeholder="카테고리를 선택해주세요.">
-                        {categorys &&
-                          categorys.map((data) => {
+                        {categoryList &&
+                          categoryList.map((data) => {
                             return (
-                              <Select.Option key={data.id} value={data.id}>
+                              <Select.Option
+                                key={data.id}
+                                value={[data.value, data.CateTypeId, data.id]}
+                              >
                                 {data.value}
                               </Select.Option>
                             );
@@ -437,20 +469,32 @@ const Index = () => {
                 >
                   <CustomSelect
                     placeholder="장르를 선택해주세요."
-                    onChange={selectGenHandler}
+                    onChange={tagHandler}
                   >
-                    {targetAllGens &&
-                      targetAllGens.map((data) => {
-                        return (
-                          <Select.Option key={data.id} value={data.id}>
-                            {data.value}
-                          </Select.Option>
-                        );
-                      })}
+                    {tagTypeList.map((data) => {
+                      return (
+                        data.value === "Mood" &&
+                        data.underValues.map((value) => {
+                          return (
+                            <Select.Option
+                              value={[
+                                value.tagValue,
+
+                                value.id,
+                                value.TagTypeId,
+                              ]}
+                              key={value.id}
+                            >
+                              {value.tagValue}
+                            </Select.Option>
+                          );
+                        })
+                      );
+                    })}
                   </CustomSelect>
                   <Wrapper dr={`row`} ju={`flex-start`} margin={`10px 0 0`}>
-                    {selectGen &&
-                      selectGen.map((data) => {
+                    {tagArr &&
+                      tagArr.map((data) => {
                         return (
                           <Wrapper
                             width={`auto`}
@@ -460,14 +504,7 @@ const Index = () => {
                             radius={`30px`}
                             border={`1px solid ${Theme.lightGrey_C}`}
                           >
-                            <Text>
-                              {targetAllGens &&
-                                targetAllGens.find(
-                                  (value) => value.id === data
-                                ) &&
-                                targetAllGens.find((value) => value.id === data)
-                                  .value}
-                            </Text>
+                            <Text>{data.value}</Text>
                             <CloseButton
                               onClick={() => selectGenHandler(data)}
                             />
@@ -496,55 +533,6 @@ const Index = () => {
                       height={`50px`}
                       border={`1px solid ${Theme.lightGrey_C}`}
                       placeholder="제목을 입력해주세요."
-                    />
-                  </Form.Item>
-                </Wrapper>
-
-                <Text>
-                  부제목
-                  <SpanText>*</SpanText>
-                </Text>
-                <Wrapper
-                  dr={`row`}
-                  ju={`space-between`}
-                  margin={`12px 0 10px`}
-                  width={width < 700 ? `100%` : `440px`}
-                >
-                  <Form.Item
-                    name="subTitle"
-                    rules={[
-                      { required: true, message: "부제목은 필수 입니다." },
-                    ]}
-                  >
-                    <TextInput
-                      width={`100%`}
-                      height={`50px`}
-                      border={`1px solid ${Theme.lightGrey_C}`}
-                      placeholder="부제목을 입력해주세요."
-                    />
-                  </Form.Item>
-                </Wrapper>
-
-                <Text>
-                  소개글
-                  <SpanText>*</SpanText>
-                </Text>
-                <Wrapper
-                  dr={`row`}
-                  ju={`space-between`}
-                  margin={`12px 0 10px`}
-                  width={width < 700 ? `100%` : `440px`}
-                >
-                  <Form.Item
-                    name="content"
-                    rules={[
-                      { required: true, message: "소개글은 필수 입니다." },
-                    ]}
-                  >
-                    <TextArea
-                      width={`100%`}
-                      border={`1px solid ${Theme.lightGrey_C}`}
-                      placeholder="소개글을 입력해주세요."
                     />
                   </Form.Item>
                 </Wrapper>
@@ -751,6 +739,13 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: CATEGORY_LIST_REQUEST,
+      data: {
+        CateTypeId: 2,
+      },
+    });
+
+    context.store.dispatch({
+      type: TAG_TYPE_LIST_REQUEST,
     });
 
     // 구현부 종료

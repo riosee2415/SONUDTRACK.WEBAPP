@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import ClientLayout from "../../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../../store/configureStore";
@@ -19,7 +19,7 @@ import {
 } from "../../../components/commonComponents";
 import { Checkbox, Empty, Form, message, Modal, Switch } from "antd";
 import Theme from "../../../components/Theme";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import styled from "styled-components";
 import { useState } from "react";
@@ -28,6 +28,12 @@ import { CloseOutlined } from "@ant-design/icons";
 import Link from "next/dist/client/link";
 import { PRODUCT_MYLIST_REQUEST } from "../../../reducers/product";
 import AlbumSlider from "../../../components/slide/AlbumSlider";
+import useInput from "../../../hooks/useInput";
+import {
+  MUSICTEM_INFO_UPDATE_REQUEST,
+  SELLER_IMAGE_REQUEST,
+  SELLER_IMAGE_RESET,
+} from "../../../reducers/seller";
 
 const CustomForm = styled(Form)`
   width: 100%;
@@ -41,6 +47,13 @@ const Index = () => {
   ////// GLOBAL STATE //////
   const { me } = useSelector((state) => state.user);
   const { myProducts } = useSelector((state) => state.product);
+  const {
+    sellerImage,
+    //
+    st_musictemInfoUpdateDone,
+    st_musictemInfoUpdateError,
+  } = useSelector((state) => state.seller);
+
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
@@ -49,8 +62,27 @@ const Index = () => {
 
   const [isModal, setIsModal] = useState(false);
 
+  // INPUT
+  const artistNameInput = useInput(``);
+  const [profileImageName, setProfileImageName] = useState(null);
+
+  // REF
+  const imageRef = useRef();
+
   ////// REDUX //////
+  const dispatch = useDispatch();
   ////// USEEFFECT //////
+
+  useEffect(() => {
+    if (st_musictemInfoUpdateDone) {
+      return message.success("뮤직템 정보가 수정되었습니다.");
+    }
+
+    if (st_musictemInfoUpdateError) {
+      return message.error(st_musictemInfoUpdateError);
+    }
+  }, [st_musictemInfoUpdateDone, st_musictemInfoUpdateError]);
+
   useEffect(() => {
     if (!me) {
       router.push(`/user/login`);
@@ -58,7 +90,6 @@ const Index = () => {
 
       return message.error(`로그인이 필요한 페이지입니다.`);
     } else {
-      console.log(me);
       mypageForm.setFieldsValue({
         artistName: me.username,
       });
@@ -66,10 +97,54 @@ const Index = () => {
   }, [me]);
 
   ////// TOGGLE //////
+  // 프로필 이미지 클릭
+  const imageClickHandler = useCallback(() => {
+    imageRef.current.click();
+  }, [imageRef]);
+
   const modalToggle = useCallback(() => {
     setIsModal((prev) => !prev);
   }, [isModal]);
   ////// HANDLER //////
+
+  // 뮤직템 정보 수정
+  const mesictemUpdateHandler = useCallback(() => {
+    dispatch({
+      type: MUSICTEM_INFO_UPDATE_REQUEST,
+      data: {
+        artistName: artistNameInput.value,
+        profileImage: sellerImage,
+        profileImageName: profileImageName,
+      },
+    });
+  }, [artistNameInput, sellerImage, profileImageName]);
+
+  // 프로필 이미지 삭제
+  const imageDelteHandler = useCallback(() => {
+    dispatch({
+      type: SELLER_IMAGE_RESET,
+    });
+  }, []);
+
+  // 프로필 이미지 업로드
+  const imageUploadHandler = useCallback((e) => {
+    setProfileImageName(e.target.files[0].name);
+
+    const formData = new FormData();
+
+    [].forEach.call(e.target.files, (file) => {
+      formData.append("image", file);
+    });
+
+    if (e.target.files.length < 1) {
+      return;
+    }
+
+    dispatch({
+      type: SELLER_IMAGE_REQUEST,
+      data: formData,
+    });
+  }, []);
   ////// DATAVIEW //////
 
   return (
@@ -146,9 +221,10 @@ const Index = () => {
                     tyoe="text"
                     border={`1px solid ${Theme.lightGrey_C}`}
                     margin={`0 0 30px`}
+                    {...artistNameInput}
                   />
                 </Form.Item>
-                {/* <Text
+                <Text
                   fontSize={`16px`}
                   color={Theme.grey_C}
                   fontWeight={`500`}
@@ -165,6 +241,13 @@ const Index = () => {
                   ju={`space-between`}
                   margin={`0 0 10px`}
                 >
+                  <input
+                    ref={imageRef}
+                    type={`file`}
+                    // accept={`.jpg, .png`}
+                    hidden
+                    onChange={imageUploadHandler}
+                  />
                   <TextInput
                     width={`calc(100% - 108px)`}
                     height={`50px`}
@@ -179,35 +262,38 @@ const Index = () => {
                     fontSize={`18px`}
                     fontWeight={`600`}
                     kindOf={`subTheme2`}
+                    onClick={imageClickHandler}
                   >
                     파일등록
                   </CommonButton>
-                </Wrapper> */}
-                {/* <Wrapper
-                  width={width < 700 ? `100%` : `440px`}
-                  dr={`row`}
-                  ju={`space-between`}
-                  padding={`16px 14px`}
-                  bgColor={Theme.lightGrey2_C}
-                  margin={`0 0 30px`}
-                >
-                  <Text fontSize={`16px`} color={Theme.grey_C}>
-                    <Image
-                      alt="icon"
-                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/music-file.png`}
-                      width={`14px`}
-                      margin={`0 5px 0 0`}
-                    />
-                    K-Pop.jpg
-                  </Text>
-                  <CloseOutlined />
-                </Wrapper> */}
+                </Wrapper>
+                {sellerImage && (
+                  <Wrapper
+                    width={width < 700 ? `100%` : `440px`}
+                    dr={`row`}
+                    ju={`space-between`}
+                    padding={`16px 14px`}
+                    bgColor={Theme.lightGrey2_C}
+                    margin={`0 0 30px`}
+                  >
+                    <Text fontSize={`16px`} color={Theme.grey_C}>
+                      <Image
+                        alt="icon"
+                        src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/music-file.png`}
+                        width={`14px`}
+                        margin={`0 5px 0 0`}
+                      />
+                      {profileImageName}
+                    </Text>
+                    <CloseOutlined onClick={imageDelteHandler} />
+                  </Wrapper>
+                )}
 
                 <Wrapper al={`flex-start`} margin={`0 0 30px`}>
                   <CommonButton
                     width={`180px`}
                     height={`50px`}
-                    htmlType="submit"
+                    onClick={mesictemUpdateHandler}
                   >
                     수정하기
                   </CommonButton>

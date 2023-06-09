@@ -2,11 +2,7 @@ import React, { useEffect, useRef } from "react";
 import ClientLayout from "../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../store/configureStore";
-import {
-  LOAD_MY_INFO_REQUEST,
-  USER_IMAGE_RESET,
-  USER_UPLOAD_REQUEST,
-} from "../../reducers/user";
+import { LOAD_MY_INFO_REQUEST } from "../../reducers/user";
 import axios from "axios";
 import { END } from "redux-saga";
 import useWidth from "../../hooks/useWidth";
@@ -31,26 +27,16 @@ import styled from "styled-components";
 import { useState } from "react";
 import { useCallback } from "react";
 import useInput from "../../hooks/useInput";
-import { COMMON_TAG_LIST_REQUEST } from "../../reducers/product";
+
 import {
-  ARTISTEM_DETAIL_REQUEST,
-  ARTIST_INFO_UPDATE_REQUEST,
-  FILMO_FILE_RESET,
-  FILMO_IMAGE_RESET,
-  REP_SONG_FILE_RESET,
-} from "../../reducers/artist";
-import {
-  ARTISTEM_FILE_REQUEST,
-  FILMO_COVER_IMAGE_REQUEST,
   FILMO_COVER_IMAGE_RESET,
-  FILMO_MUSIC_REQUEST,
   SELLER_IMAGE_REQUEST,
   SELLER_IMAGE_RESET,
   ARTISTEM_INFO_UPDATE_REQUEST,
   ARTISTEM_MY_DATA_REQUEST,
 } from "../../reducers/seller";
 import { CATEGORY_LIST_REQUEST } from "../../reducers/category";
-import { TAG_LIST_REQUEST, TAG_TYPE_LIST_REQUEST } from "../../reducers/tag";
+import { TAG_TYPE_LIST_REQUEST } from "../../reducers/tag";
 
 const Box = styled(Wrapper)`
   width: calc(100% / 6 - 37px);
@@ -106,36 +92,8 @@ const TagBtn = styled(CommonButton)`
 
 const Index = () => {
   ////// GLOBAL STATE //////
-  const {
-    me,
-    userPath,
+  const { me } = useSelector((state) => state.user);
 
-    st_userUploadLoading,
-    st_userUploadDone,
-    st_userUploadError,
-  } = useSelector((state) => state.user);
-
-  const { commonTags } = useSelector((state) => state.product);
-
-  const {
-    // filmoFile,
-    st_filmoFileUploadLoading,
-    st_filmoFileUploadDone,
-    st_filmoFileUploadError,
-
-    filmoImg,
-    st_filmoImgUploadLoading,
-    st_filmoImgUploadDone,
-    st_filmoImgUploadError,
-
-    st_artistInfoUpdateDone,
-    st_artistInfoUpdateError,
-
-    repSongFile,
-    st_repSongFileUploadLoading,
-    st_repSongFileUploadDone,
-    st_repSongFileUploadError,
-  } = useSelector((state) => state.artist);
   const {
     sellerImage,
     artistemData,
@@ -263,23 +221,10 @@ const Index = () => {
       filmoImgName.setValue("");
 
       dispatch({
-        type: FILMO_FILE_RESET,
-      });
-      dispatch({
         type: FILMO_COVER_IMAGE_RESET,
       });
     }
   }, [filmo]);
-
-  useEffect(() => {
-    if (st_artistInfoUpdateDone) {
-      return message.success("프로필이 수정되었습니다.");
-    }
-
-    if (st_artistInfoUpdateError) {
-      return message.error(st_artistInfoUpdateError);
-    }
-  }, [st_artistInfoUpdateDone, st_artistInfoUpdateError]);
 
   // 데이터세팅
   useEffect(() => {
@@ -468,10 +413,6 @@ const Index = () => {
   // 필모음원 삭제
   const filmoFileDeleteHandler = useCallback(() => {
     filmoFileName.setValue("");
-
-    dispatch({
-      type: FILMO_FILE_RESET,
-    });
   }, []);
 
   // 필모앨범이미지 등록
@@ -502,10 +443,6 @@ const Index = () => {
   // 필모앨범이미지 삭제
   const filmoImgDeleteHandler = useCallback(() => {
     filmoImgName.setValue("");
-
-    dispatch({
-      type: FILMO_IMAGE_RESET,
-    });
   }, []);
 
   const filmoCreateHandler = useCallback(() => {
@@ -907,7 +844,6 @@ const Index = () => {
                   fontWeight={`600`}
                   kindOf={`subTheme2`}
                   onClick={() => imgClickHandler(1)}
-                  loading={st_userUploadLoading}
                 >
                   파일등록
                 </CommonButton>
@@ -1052,7 +988,7 @@ const Index = () => {
                 <input
                   ref={repSongFileRef}
                   type={`file`}
-                  // accept={`.mp3`}
+                  accept={`.mp3`}
                   hidden
                   onChange={repSongFileUploadHandler}
                 />
@@ -1063,7 +999,6 @@ const Index = () => {
                   fontWeight={`600`}
                   kindOf={`subTheme2`}
                   onClick={repSongFileClickHandler}
-                  loading={st_repSongFileUploadLoading}
                 >
                   파일등록
                 </CommonButton>
@@ -1313,31 +1248,6 @@ const Index = () => {
                     </TagBtn>
                   );
                 })}
-                {/* {commonTags &&
-                  commonTags.map((data) => {
-                    return (
-                      data.type === "카테고리" && (
-                        <TagBtn
-                          key={data.id}
-                          kindOf={`grey`}
-                          width={
-                            width < 1100
-                              ? width < 900
-                                ? `calc(100% / 3 - 20px)`
-                                : `calc(100% / 5 - 20px)`
-                              : `calc(100% / 8 - 20px)`
-                          }
-                          margin={`0 10px`}
-                          padding={`0`}
-                          height={width < 900 ? `40px` : `54px`}
-                          onClick={() => tagHandler(data)}
-                          isActive={tagArr.includes(data.id)}
-                        >
-                          {data.value}
-                        </TagBtn>
-                      )
-                    );
-                  })} */}
               </Wrapper>
               <Text
                 fontSize={`16px`}
@@ -1548,7 +1458,7 @@ const Index = () => {
                   <input
                     ref={filmoFileRef}
                     type={`file`}
-                    // accept={`.mp3`}
+                    accept={`.mp3`}
                     hidden
                     onChange={filmoFileUploadHandler}
                   />
@@ -1557,7 +1467,6 @@ const Index = () => {
                     width={`100px`}
                     height={`50px`}
                     onClick={filmoFileClickHandler}
-                    loading={st_filmoFileUploadLoading}
                   >
                     파일등록
                   </CommonButton>
@@ -1603,7 +1512,7 @@ const Index = () => {
                   <input
                     ref={filmoImgRef}
                     type={`file`}
-                    // accept={`.jpg, .png`}
+                    accept={`.jpg, .png`}
                     hidden
                     onChange={filmoImgUploadHandler}
                   />
@@ -1612,7 +1521,6 @@ const Index = () => {
                     width={`100px`}
                     height={`50px`}
                     onClick={filmoImgClickHandler}
-                    loading={st_filmoImgUploadLoading}
                   >
                     파일등록
                   </CommonButton>

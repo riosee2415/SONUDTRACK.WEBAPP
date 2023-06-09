@@ -45,6 +45,7 @@ const rootReducer = (state, action) => {
         seller,
         category,
         tag,
+        album,
       });
       return combinedReducer(state, action);
     }
