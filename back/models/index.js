@@ -38,6 +38,10 @@ const artistfilmography = require("./artistfilmography");
 const artistcountry = require("./artistcountry");
 const artistcategory = require("./artistcategory");
 const artisttag = require("./artisttag");
+const album = require("./album");
+const albumtag = require("./albumtag");
+const albumcategory = require("./albumcategory");
+const track = require("./track");
 
 const env = process.env.NODE_ENV || "development";
 const config = require("../config/config")[env];
@@ -89,6 +93,10 @@ db.ArtistFilmography = artistfilmography;
 db.ArtistCountry = artistcountry;
 db.ArtistCategory = artistcategory;
 db.ArtistTag = artisttag;
+db.Album = album;
+db.AlbumTag = albumtag;
+db.AlbumCategory = albumcategory;
+db.Track = track;
 
 Object.keys(db).forEach((modelName) => {
   db[modelName].init(sequelize);

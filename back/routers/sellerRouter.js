@@ -890,6 +890,52 @@ router.post("/artistem/detail", async (req, res, next) => {
 });
 
 /**
+ * SUBJECT : 뮤직탬 정보입력 라우터
+ * PARAMETERS : artistName,
+                profileImage,
+                profileImageName
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/06/09
+ */
+router.post("/musictem/info/update", isLoggedIn, async (req, res, next) => {
+  const { artistName, profileImage, profileImageName } = req.body;
+
+  const findQuery = `
+  SELECT  id
+    FROM  musictem
+   WHERE  UserId = ${req.user.id}
+  `;
+
+  try {
+    const findResult = await models.sequelize.query(findQuery);
+
+    if (findResult[0].length === 0) {
+      return res
+        .status(400)
+        .send("정보를 수정할 뮤직탬 정보가 존재하지 않습니다.");
+    }
+
+    const updateQuery = `
+    UPDATE  musictem
+       SET  artistName = "${artistName}",
+            profileImage = "${profileImage}",
+            profileImageName = "${profileImageName}",
+            updatedAt = NOW()
+     WHERE  id = ${findResult[0][0].id}
+    `;
+
+    await models.sequelize.query(updateQuery);
+
+    return res.status(200).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("뮤직탬 정보를 입력할 수 없습니다.");
+  }
+});
+
+/**
  * SUBJECT : 아티스탬 정보 입력 라우터
  * PARAMETERS : name,
                 companyNo,
