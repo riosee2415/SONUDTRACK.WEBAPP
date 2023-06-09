@@ -538,7 +538,9 @@ const Index = () => {
                   return (
                     <ArtWrapper
                       key={data.id}
-                      onClick={() => movelinkHandler(`/artisttem/${data.id}`)}
+                      onClick={() =>
+                        movelinkHandler(`/artisttem/${data.artistemId}`)
+                      }
                     >
                       <SquareBox>
                         <Image src={data.artistProfileImage} alt="thumbnail" />

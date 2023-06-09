@@ -42,19 +42,42 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { ARTISTEM_DETAIL_REQUEST } from "../../reducers/seller";
 
+const PlayWrapper = styled(Wrapper)`
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+
+  & .play {
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.4s;
+  }
+
+  &:hover .play {
+    cursor: pointer;
+    opacity: 1;
+    visibility: visible;
+  }
+`;
+
 const Index = () => {
   ////// GLOBAL STATE //////
   const { buyRequestFile, st_buyRequestCreateDone } = useSelector(
     (state) => state.buyRequest
   );
   const { me } = useSelector((state) => state.user);
-  const { artistemData } = useSelector((state) => state.seller);
-
-  console.log(artistemData);
+  const {
+    artistemData,
+    findCountryInfoData,
+    findFilmInfoData,
+    findTagInfoData,
+  } = useSelector((state) => state.seller);
 
   ////// HOOKS //////
   const width = useWidth();
 
+  const [play, setPlay] = useState(false);
+  const [visibleId, setVisibleId] = useState(null);
   const [isModal, setIsModal] = useState(false);
   const [isDetail, setIsDetail] = useState(false);
   const [isContact, setIsContact] = useState(false);
@@ -187,6 +210,34 @@ const Index = () => {
     });
   });
 
+  const playHandler = useCallback(
+    (data) => {
+      const audio = new Audio(data.filePath);
+      audio.loop = false;
+      audio.volume = 1;
+      audio.play();
+
+      if (data) {
+        setVisibleId(data.id);
+        setPlay(true);
+      }
+    },
+    [play, visibleId]
+  );
+
+  const pauseHandler = useCallback(
+    (data) => {
+      const audio = new Audio(data.filePath);
+      audio.pause();
+
+      if (data.id === visibleId) {
+        setPlay(false);
+        setVisibleId(null);
+      }
+    },
+    [play, visibleId]
+  );
+
   ////// DATAVIEW //////
 
   return (
@@ -203,9 +254,7 @@ const Index = () => {
             left={`0`}
             height={`640px`}
             zIndex={`-1`}
-            bgImg={`url(${
-              artistemData && artistemData[0] && artistemData[0].profileImage
-            })`}
+            bgImg={`url(${artistemData && artistemData.artistProfileImage})`}
           >
             <Wrapper
               height={`100%`}
@@ -221,11 +270,7 @@ const Index = () => {
                   height={`214px`}
                   radius={`100%`}
                   shadow={`3px 3px 15px rgba(0, 0, 0, 0.1)`}
-                  src={
-                    artistemData &&
-                    artistemData[0] &&
-                    artistemData[0].profileImage
-                  }
+                  src={artistemData && artistemData.artistProfileImage}
                   alt="thumbnail"
                 />
                 <Wrapper
@@ -275,9 +320,7 @@ const Index = () => {
                     fontWeight={`bold`}
                     margin={`0 14px 0 0`}
                   >
-                    {artistemData &&
-                      artistemData[0] &&
-                      artistemData[0].artistname}
+                    {artistemData && artistemData.artistName}
                   </Text>
                   <Image
                     alt="icon"
@@ -290,7 +333,7 @@ const Index = () => {
                   </Text>
                 </Wrapper>
                 <Text fontSize={width < 900 ? `16px` : `20px`}>
-                  {artistemData && artistemData[0] && artistemData[0].info}
+                  {artistemData && artistemData.artistInfo}
                 </Text>
                 <Wrapper dr={`row`} ju={`flex-start`} margin={`16px 0 20px`}>
                   <CommonButton
@@ -303,9 +346,7 @@ const Index = () => {
                     상세 프로필
                   </CommonButton>
                   {(me && me.ArtistId) !==
-                    (artistemData &&
-                      artistemData[0] &&
-                      artistemData[0].artistRequestId) && (
+                    (artistemData && artistemData.artistRequestId) && (
                     <CommonButton
                       width={`146px`}
                       height={`46px`}
@@ -315,25 +356,55 @@ const Index = () => {
                     </CommonButton>
                   )}
                 </Wrapper>
-                <Text color={Theme.darkGrey_C}>TAG</Text>
-                <Wrapper dr={`row`} ju={`flex-start`} margin={`5px 0 0`}>
-                  {artistemData &&
-                    artistemData[0] &&
-                    artistemData[0].tags.map((data) => {
-                      return (
-                        <Wrapper
-                          width={`auto`}
-                          border={`1px solid ${Theme.lightGrey_C}`}
-                          bgColor={Theme.white_C}
-                          radius={`30px`}
-                          height={`27px`}
-                          padding={`0 15px`}
-                          margin={`0 4px 0 0`}
-                        >
-                          {data.value}
-                        </Wrapper>
-                      );
-                    })}
+                <Wrapper dr={`row`} ju={`flex-start`}>
+                  <Wrapper
+                    width={`auto`}
+                    al={`flex-start`}
+                    margin={width < 900 ? `0 0 30px` : `0 50px 0 0`}
+                  >
+                    <Text color={Theme.darkGrey_C}>TAG</Text>
+                    <Wrapper dr={`row`} ju={`flex-start`} margin={`5px 0 0`}>
+                      {findTagInfoData &&
+                        findTagInfoData.map((data, idx) => {
+                          return (
+                            <Wrapper
+                              key={idx}
+                              width={`auto`}
+                              border={`1px solid ${Theme.lightGrey_C}`}
+                              bgColor={Theme.white_C}
+                              radius={`30px`}
+                              height={`27px`}
+                              padding={`0 15px`}
+                              margin={`0 4px 0 0`}
+                            >
+                              {data.tagValue}
+                            </Wrapper>
+                          );
+                        })}
+                    </Wrapper>
+                  </Wrapper>
+                  <Wrapper width={`auto`} al={`flex-start`}>
+                    <Text color={Theme.darkGrey_C}>언어/국가</Text>
+                    <Wrapper dr={`row`} ju={`flex-start`} margin={`5px 0 0`}>
+                      {findCountryInfoData &&
+                        findCountryInfoData.map((data, idx) => {
+                          return (
+                            <Wrapper
+                              key={idx}
+                              width={`auto`}
+                              border={`1px solid ${Theme.lightGrey_C}`}
+                              bgColor={Theme.white_C}
+                              radius={`30px`}
+                              height={`27px`}
+                              padding={`0 15px`}
+                              margin={`0 4px 0 0`}
+                            >
+                              {data.value}
+                            </Wrapper>
+                          );
+                        })}
+                    </Wrapper>
+                  </Wrapper>
                 </Wrapper>
               </Wrapper>
             </Wrapper>
@@ -351,20 +422,57 @@ const Index = () => {
               al={`flex-start`}
               margin={`0 0 60px`}
             >
-              {artistemData &&
-                artistemData[0] &&
-                artistemData[0].films.map((data) => {
+              {findFilmInfoData &&
+                findFilmInfoData.map((data) => {
                   return (
                     <ArtWrapper key={data.id}>
-                      <SquareBox>
-                        <Image src={data.coverImage} alt="thumbnail" />
-                      </SquareBox>
+                      <PlayWrapper
+                        onClick={() =>
+                          data.id === visibleId && play
+                            ? pauseHandler(data)
+                            : playHandler(data)
+                        }
+                      >
+                        <SquareBox>
+                          <Image src={data.imagePath} alt="thumbnail" />
+                        </SquareBox>
+                        {data.id === visibleId && play ? (
+                          <Wrapper
+                            position={`absolute`}
+                            top={`0`}
+                            left={`0`}
+                            height={`100%`}
+                            bgColor={`rgba(0, 0, 0, 0.4)`}
+                          >
+                            <Image
+                              alt="pause icon"
+                              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/pause_w.png`}
+                              width={`36px`}
+                            />
+                          </Wrapper>
+                        ) : (
+                          <Wrapper
+                            position={`absolute`}
+                            top={`0`}
+                            left={`0`}
+                            height={`100%`}
+                            bgColor={`rgba(0, 0, 0, 0.4)`}
+                            className={`play`}
+                          >
+                            <Image
+                              alt="play icon"
+                              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/play_white.png`}
+                              width={`36px`}
+                            />
+                          </Wrapper>
+                        )}
+                      </PlayWrapper>
                       <Text
                         fontSize={`18px`}
                         fontWeight={`bold`}
                         margin={`20px 0 7px`}
                       >
-                        {data.title} / {data.name}
+                        {data.singerName} / {data.songName}
                       </Text>
                       <Wrapper dr={`row`} ju={`flex-start`}>
                         <Wrapper
@@ -375,7 +483,7 @@ const Index = () => {
                           padding={`0 15px`}
                           margin={`0 7px 5px 0`}
                         >
-                          {data.roleName}
+                          {data.part}
                         </Wrapper>
                       </Wrapper>
                       <Text color={Theme.grey_C}>Comment : {data.comment}</Text>
@@ -638,8 +746,7 @@ const Index = () => {
                 color={Theme.basicTheme_C}
                 margin={`0 0 16px`}
               >
-                {artistemData && artistemData[0] && artistemData[0].artistname}
-                는 어떤 아티스트인가요?
+                {artistemData && artistemData.artistName}는 어떤 아티스트인가요?
               </Text>
               <Wrapper
                 overflow={`auto`}
@@ -659,8 +766,7 @@ const Index = () => {
                   Q. 주로 하는 역할(기술)과 장르는 무엇인가요?
                 </Text>
                 <Text fontSize={`16px`} margin={`0 0 28px`}>
-                  A.{" "}
-                  {artistemData && artistemData[0] && artistemData[0].question1}
+                  A. {artistemData && artistemData.question1}
                 </Text>
                 <Text
                   fontSize={`18px`}
@@ -671,8 +777,7 @@ const Index = () => {
                   Q. Q. 보통의 작업 시간은 몇 일인가요?
                 </Text>
                 <Text fontSize={`16px`} margin={`0 0 28px`}>
-                  A.{" "}
-                  {artistemData && artistemData[0] && artistemData[0].question2}
+                  A. {artistemData && artistemData.question2}
                 </Text>
                 <Text
                   fontSize={`18px`}
@@ -683,8 +788,7 @@ const Index = () => {
                   Q. 녹음 환경과 장비 유무는 무엇인가요?
                 </Text>
                 <Text fontSize={`16px`} margin={`0 0 28px`}>
-                  A.{" "}
-                  {artistemData && artistemData[0] && artistemData[0].question3}
+                  A. {artistemData && artistemData.question3}
                 </Text>
                 <Text
                   fontSize={`18px`}
@@ -695,8 +799,7 @@ const Index = () => {
                   Q. 평균 비용은 어떻게 되나요?
                 </Text>
                 <Text fontSize={`16px`} margin={`0 0 28px`}>
-                  A.{" "}
-                  {artistemData && artistemData[0] && artistemData[0].question4}
+                  A. {artistemData && artistemData.question4}
                 </Text>
                 <Text
                   fontSize={`18px`}
@@ -708,8 +811,7 @@ const Index = () => {
                   어떤 음악을 추구하나요?
                 </Text>
                 <Text fontSize={`16px`} margin={`0 0 28px`}>
-                  A.{" "}
-                  {artistemData && artistemData[0] && artistemData[0].question5}
+                  A. {artistemData && artistemData.question5}
                 </Text>
                 <Text
                   fontSize={`18px`}
@@ -720,8 +822,7 @@ const Index = () => {
                   Q. 어떤 뮤지션을 좋아하고, 어떤 음악을 추구하나요?
                 </Text>
                 <Text fontSize={`16px`} margin={`0 0 28px`}>
-                  A.{" "}
-                  {artistemData && artistemData[0] && artistemData[0].question6}
+                  A. {artistemData && artistemData.question6}
                 </Text>
                 <Text
                   fontSize={`18px`}
@@ -732,8 +833,7 @@ const Index = () => {
                   Q. 이 일을 한지는 얼마나 되었고, 보통 어떤 작업을 하나요?
                 </Text>
                 <Text fontSize={`16px`} margin={`0 0 28px`}>
-                  A.{" "}
-                  {artistemData && artistemData[0] && artistemData[0].question7}
+                  A. {artistemData && artistemData.question7}
                 </Text>
                 <Text
                   fontSize={`18px`}
@@ -744,8 +844,7 @@ const Index = () => {
                   Q. 그 외 하고싶은 말이 있나요?
                 </Text>
                 <Text fontSize={`16px`} margin={`0 0 28px`}>
-                  A.{" "}
-                  {artistemData && artistemData[0] && artistemData[0].question8}
+                  A. {artistemData && artistemData.question8}
                 </Text>
               </Wrapper>
             </Wrapper>

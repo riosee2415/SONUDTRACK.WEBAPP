@@ -102,7 +102,7 @@ const Index = () => {
                 {playing ? (
                   <Image
                     alt="pause icon"
-                    src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/pause_white.png`}
+                    src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/pause_w.png`}
                     width={width < 700 ? `20px` : `24px`}
                     margin={width < 700 ? `0 15px` : `0 30px`}
                     onClick={playingToggle}

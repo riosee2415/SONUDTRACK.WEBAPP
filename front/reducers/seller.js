@@ -338,6 +338,10 @@ const reducer = (state = initailState, action) =>
         draft.st_artistemDetailDone = true;
         draft.st_artistemDetailError = null;
         draft.artistemData = action.data.artistemData;
+        draft.findCountryInfoData = action.data.findCountryInfoData;
+        draft.findFilmInfoData = action.data.findFilmInfoData;
+        draft.findCateInfoData = action.data.findCateInfoData;
+        draft.findTagInfoData = action.data.findTagInfoData;
         break;
       }
       case ARTISTEM_DETAIL_FAILURE: {
