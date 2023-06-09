@@ -159,6 +159,7 @@ module.exports = class User extends Model {
         type: {
           type: DataTypes.INTEGER, // [1. 일반 사용자 | 2. 판매자 사용자]
           allowNull: false,
+          defaultValue: 1,
         },
         bankName: {
           type: DataTypes.STRING(60),
