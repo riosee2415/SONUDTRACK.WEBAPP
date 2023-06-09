@@ -35,7 +35,11 @@ import {
 } from "../../../reducers/product";
 import { TAG_TYPE_LIST_REQUEST } from "../../../reducers/tag";
 import { CATEGORY_LIST_REQUEST } from "../../../reducers/category";
-import { ALBUM_IMAGE_REQUEST } from "../../../reducers/album";
+import {
+  ALBUM_CREATE_REQUEST,
+  ALBUM_IMAGE_REQUEST,
+} from "../../../reducers/album";
+import { SELLER_IMAGE_REQUEST } from "../../../reducers/seller";
 
 const CustomForm = styled(Form)`
   width: 100%;
@@ -110,8 +114,6 @@ const Index = () => {
   ////// GLOBAL STATE //////
   const { me } = useSelector((state) => state.user);
   const {
-    targetAllGens,
-    categorys,
     coverPath,
     agreementPath,
     //
@@ -127,8 +129,14 @@ const Index = () => {
   } = useSelector((state) => state.product);
   const { tagTypeList } = useSelector((state) => state.tag);
   const { categoryList } = useSelector((state) => state.category);
-  const { albumImage } = useSelector((state) => state.album);
-  console.log(albumImage);
+  const {
+    albumImage,
+    //
+    st_albumCreateDone,
+    st_albumCreateError,
+  } = useSelector((state) => state.album);
+  const { sellerImage } = useSelector((state) => state.seller);
+
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
@@ -148,6 +156,18 @@ const Index = () => {
   const [tagArr, setTagArr] = useState([]); // 검색 태그
   ////// REDUX //////
   ////// USEEFFECT //////
+  useEffect(() => {
+    if (st_albumCreateDone) {
+      router.push(`/mypage/musictem`);
+
+      return message.success("앨범을 등록했습니다.");
+    }
+
+    if (st_albumCreateError) {
+      return message.error(st_albumCreateError);
+    }
+  }, [st_albumCreateDone, st_albumCreateError]);
+
   useEffect(() => {
     if (!me) {
       router.push(`/user/login`);
@@ -192,20 +212,66 @@ const Index = () => {
 
   ////// HANDLER //////
 
-  // 장르 선택
-  const selectGenHandler = useCallback(
-    (gen) => {
-      let selectGenArr = selectGen ? selectGen.map((data) => data) : [];
-
-      if (selectGenArr.find((data) => data === gen)) {
-        setSelectGen(selectGenArr.filter((data) => data !== gen));
-        return;
+  // 앨범등록
+  const createHandler = useCallback(
+    (data) => {
+      if (!albumImage) {
+        return message.error("앨범 이미지를 업로드해주세요.");
       }
 
-      selectGenArr.push(gen);
-      setSelectGen(selectGenArr);
+      if (tagArr.length === 0) {
+        return message.error("태그를 하나 이상 선택해주세요.");
+      }
+
+      let cateArr = [];
+
+      cateArr.push({
+        CateTypeId: 2,
+        CategoryId: data.categorys[2],
+        sort: 1,
+      });
+
+      let resultTag = [];
+
+      tagArr.map((value) => {
+        console.log(value);
+        resultTag.push({
+          TagTypeId: value.TagTypeId,
+          TagId: value.TagId,
+          sort: value.sort,
+        });
+      });
+
+      dispatch({
+        type: ALBUM_CREATE_REQUEST,
+        data: {
+          albumImage: albumImage,
+          albumImageName: covertName,
+          bitRate: data.bitRate,
+          sampleRate: data.sampleRate,
+          fileName: agreementName,
+          filePath: sellerImage,
+          categorys: cateArr,
+          tags: resultTag,
+          MusictemId: me && me.musictemId,
+        },
+      });
     },
-    [selectGen]
+    [me, albumImage, covertName, agreementName, sellerImage, tagArr]
+  );
+
+  // 태그 삭제
+  const tagDeleteHandler = useCallback(
+    (data) => {
+      let arr = tagArr ? tagArr.map((data) => data) : [];
+      const currentId = arr.findIndex(
+        (value) => value.TagId === data.TagId && value.value === data.value
+      );
+
+      arr.splice(currentId, 1);
+      setTagArr(arr);
+    },
+    [tagArr]
   );
 
   // 커버이미지 업로드
@@ -219,7 +285,7 @@ const Index = () => {
 
       [].forEach.call(e.target.files, (file) => {
         setCovertName(file.name);
-        formData.append("file", file);
+        formData.append("image", file);
       });
 
       dispatch({
@@ -241,49 +307,15 @@ const Index = () => {
 
       [].forEach.call(e.target.files, (file) => {
         setAgreementName(file.name);
-        formData.append("file", file);
+        formData.append("image", file);
       });
 
       dispatch({
-        type: PRODUCT_AGREEMENT_UPLOAD_REQUEST,
+        type: SELLER_IMAGE_REQUEST,
         data: formData,
       });
     },
     [agreementName]
-  );
-
-  // 앨범 생성
-  const albumCreateHandler = useCallback(
-    (data) => {
-      if (!coverPath) {
-        return message.info("엘범 이미지를 등록해주세요.");
-      }
-
-      if (selectGen && selectGen.length === 0) {
-        return message.info("장르를 선택해주세요.");
-      }
-
-      if (!agreementPath) {
-        return message.info("동의서를 등록해주세요.");
-      }
-
-      dispatch({
-        type: PRODUCT_CREATE_REQUEST,
-        data: {
-          title: data.title,
-          subTitle: data.subTitle,
-          content: data.content,
-          coverImage: coverPath,
-          bitRate: data.bitRate,
-          sampleRate: data.sampleRate,
-          productCategoryId: data.productCategoryId,
-          productGenArr: selectGen.map((data) => data),
-          agreementPath: agreementPath,
-          agreementName: agreementName,
-        },
-      });
-    },
-    [coverPath, agreementPath, agreementName, selectGen]
   );
 
   // 검색태그 아이디 추가
@@ -297,8 +329,8 @@ const Index = () => {
       } else {
         tempArr.push({
           value: type[0],
-          TagTypeId: type[1],
-          TagId: type[2],
+          TagTypeId: type[2],
+          TagId: type[1],
           sort: tempArr.length + 1,
         });
       }
@@ -353,7 +385,7 @@ const Index = () => {
             </Wrapper>
 
             {/* ------------------ CUSTOM FORM ------------------ */}
-            <CustomForm onFinish={albumCreateHandler}>
+            <CustomForm onFinish={createHandler}>
               <Wrapper al={`flex-start`}>
                 <Text fontSize={`24px`} fontWeight={`600`} isHover>
                   <LeftOutlined style={{ margin: `0 15px 0 0` }} /> Musictem
@@ -473,13 +505,12 @@ const Index = () => {
                   >
                     {tagTypeList.map((data) => {
                       return (
-                        data.value === "Mood" &&
+                        data.value === "Genre" &&
                         data.underValues.map((value) => {
                           return (
                             <Select.Option
                               value={[
                                 value.tagValue,
-
                                 value.id,
                                 value.TagTypeId,
                               ]}
@@ -506,35 +537,12 @@ const Index = () => {
                           >
                             <Text>{data.value}</Text>
                             <CloseButton
-                              onClick={() => selectGenHandler(data)}
+                              onClick={() => tagDeleteHandler(data)}
                             />
                           </Wrapper>
                         );
                       })}
                   </Wrapper>
-                </Wrapper>
-
-                <Text>
-                  제목
-                  <SpanText>*</SpanText>
-                </Text>
-                <Wrapper
-                  dr={`row`}
-                  ju={`space-between`}
-                  margin={`12px 0 10px`}
-                  width={width < 700 ? `100%` : `440px`}
-                >
-                  <Form.Item
-                    name="title"
-                    rules={[{ required: true, message: "제목은 필수 입니다." }]}
-                  >
-                    <TextInput
-                      width={`100%`}
-                      height={`50px`}
-                      border={`1px solid ${Theme.lightGrey_C}`}
-                      placeholder="제목을 입력해주세요."
-                    />
-                  </Form.Item>
                 </Wrapper>
 
                 <Text>

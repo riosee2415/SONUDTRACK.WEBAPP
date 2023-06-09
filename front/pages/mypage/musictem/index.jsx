@@ -34,6 +34,7 @@ import {
   SELLER_IMAGE_REQUEST,
   SELLER_IMAGE_RESET,
 } from "../../../reducers/seller";
+import { MUSICTEM_DETAIL_REQUEST } from "../../../reducers/album";
 
 const CustomForm = styled(Form)`
   width: 100%;
@@ -53,6 +54,8 @@ const Index = () => {
     st_musictemInfoUpdateDone,
     st_musictemInfoUpdateError,
   } = useSelector((state) => state.seller);
+  const { detailData, albums } = useSelector((state) => state.album);
+  console.log(albums);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -74,6 +77,25 @@ const Index = () => {
   ////// USEEFFECT //////
 
   useEffect(() => {
+    if (detailData) {
+      // artistNameInput.setValue(detailData.artistName);
+      mypageForm.setFieldsValue({
+        artistName: artistNameInput.value,
+      });
+      setProfileImageName(detailData.profileImageName);
+    }
+  }, [detailData]);
+
+  useEffect(() => {
+    dispatch({
+      type: MUSICTEM_DETAIL_REQUEST,
+      data: {
+        MusictemId: me && me.musictemId,
+      },
+    });
+  }, [me]);
+
+  useEffect(() => {
     if (st_musictemInfoUpdateDone) {
       return message.success("뮤직템 정보가 수정되었습니다.");
     }
@@ -89,10 +111,6 @@ const Index = () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
 
       return message.error(`로그인이 필요한 페이지입니다.`);
-    } else {
-      mypageForm.setFieldsValue({
-        artistName: me.username,
-      });
     }
   }, [me]);
 
@@ -267,7 +285,7 @@ const Index = () => {
                     파일등록
                   </CommonButton>
                 </Wrapper>
-                {sellerImage && (
+                {profileImageName && (
                   <Wrapper
                     width={width < 700 ? `100%` : `440px`}
                     dr={`row`}
@@ -325,13 +343,13 @@ const Index = () => {
                   </a>
                 </Link>
                 <Wrapper dr={`row`} margin={`0 0 100px`}>
-                  {myProducts &&
-                    (myProducts.length === 0 ? (
+                  {albums &&
+                    (albums.length === 0 ? (
                       <Wrapper>
                         <Empty description="앨범이 없습니다." />
                       </Wrapper>
                     ) : (
-                      <AlbumSlider list={myProducts} />
+                      <AlbumSlider list={albums} />
                     ))}
                 </Wrapper>
                 {/* <Wrapper

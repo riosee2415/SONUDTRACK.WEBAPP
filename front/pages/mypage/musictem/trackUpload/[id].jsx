@@ -36,6 +36,15 @@ import {
   PRODUCT_TRACK_THUMBNAIL_UPLOAD_REQUEST,
   PRODUCT_TRACK_UPLOAD_REQUEST,
 } from "../../../../reducers/product";
+import {
+  ALBUM_FILE_REQUEST,
+  ALBUM_FILE_RESET,
+  ALBUM_IMAGE_REQUEST,
+  ALBUM_TRACK_CREATE_REQUEST,
+  ALBUM_TRACK_FILE_REQUEST,
+  ALBUM_TRACK_FILE_RESET,
+  MUSICTEM_DETAIL_REQUEST,
+} from "../../../../reducers/album";
 
 const CustomForm = styled(Form)`
   width: 100%;
@@ -62,10 +71,16 @@ const Index = () => {
     st_productTrackCreateDone,
     st_productTrackCreateError,
   } = useSelector((state) => state.product);
+  const {
+    albumFile,
+    albumTrackFile,
+    detailData,
+    //
+    st_albumTrackCreateDone,
+    st_albumTrackCreateError,
+  } = useSelector((state) => state.album);
   ////// HOOKS //////
   const width = useWidth();
-  const router = useRouter();
-  const dispatch = useDispatch();
 
   const [isModal, setIsModal] = useState(false);
   const [isModal2, setIsModal2] = useState(false);
@@ -75,13 +90,61 @@ const Index = () => {
 
   const [checkBox, setCheckBox] = useState(false);
 
-  const thumbnailRef = useRef();
-  const trackRef = useRef();
-
   const [form] = Form.useForm();
 
+  //////////////////////////////////////
+  const [titleFileName, setTitleFileName] = useState(null);
+
+  // REF
+  const trackRef = useRef();
+  const titleRef = useRef();
+
+  // DATA
+  const [trackData, setTrackData] = useState([]);
+  const [trackname, setTrackname] = useState(null);
   ////// REDUX //////
+  const router = useRouter();
+  const dispatch = useDispatch();
+
   ////// USEEFFECT //////
+
+  useEffect(() => {
+    if (st_albumTrackCreateDone) {
+      router.push(`/mypage/musictem`);
+      return message.success("앨범 트랙을 신청했습니다.");
+    }
+
+    if (st_albumTrackCreateError) {
+      return message.error(st_albumTrackCreateError);
+    }
+  }, [st_albumTrackCreateDone, st_albumTrackCreateError]);
+
+  useEffect(() => {
+    dispatch({
+      type: MUSICTEM_DETAIL_REQUEST,
+      data: {
+        MusictemId: me && me.musictemId,
+      },
+    });
+  }, [me]);
+
+  useEffect(() => {
+    if (albumTrackFile && trackname) {
+      let arr = trackData ? trackData.map((data) => data) : [];
+
+      arr.push({
+        filename: trackname,
+        filepath: albumTrackFile,
+      });
+
+      setTrackData(arr);
+
+      dispatch({
+        type: ALBUM_TRACK_FILE_RESET,
+      });
+    }
+  }, [albumTrackFile]);
+
   useEffect(() => {
     if (!me) {
       router.push(`/user/login`);
@@ -139,40 +202,65 @@ const Index = () => {
   }, [isModal2]);
   ////// HANDLER //////
 
-  // 썸네일 업로드
-  const thumbnailRefClickHandler = useCallback(() => {
-    thumbnailRef.current.click();
-  }, []);
+  // 신청하기
+  const trackCreateHandler = useCallback(() => {
+    let trackInfos = [];
 
-  const thumbnailUploadHandler = useCallback(
-    (e) => {
-      const formData = new FormData();
+    trackInfos.push({
+      songName: titleFileName,
+      singerName: detailData && detailData.artistName,
+      fileName: titleFileName,
+      filePath: albumFile,
+      fileLength: "0",
+      isTitle: 1,
+    });
 
-      [].forEach.call(e.target.files, (file) => {
-        setTrackThumbnailName(file.name);
-
-        formData.append("file", file);
+    trackData.map((data) => {
+      trackInfos.push({
+        songName: data.filename,
+        singerName: detailData && detailData.artistName,
+        fileName: data.filename,
+        filePath: data.filenpath,
+        fileLength: "0",
+        isTitle: 1,
       });
+    });
 
-      if (e.target.files.length < 1) {
-        return;
-      }
+    dispatch({
+      type: ALBUM_TRACK_CREATE_REQUEST,
+      data: {
+        trackInfos,
+        AlbumId: router.query.id,
+      },
+    });
+  }, [trackData, detailData, titleFileName, albumFile]);
 
-      dispatch({
-        type: PRODUCT_TRACK_THUMBNAIL_UPLOAD_REQUEST,
-        data: formData,
-      });
+  // 트랙 삭제
+  const trackDeleteHandler = useCallback(
+    (data) => {
+      let arr = trackData ? trackData.map((data) => data) : [];
+      const currentId = arr.findIndex(
+        (value) => value.filename === data.filename
+      );
+
+      arr.splice(currentId, 1);
+
+      setTrackData(arr);
     },
-    [trackThumbnailName]
+    [trackData]
   );
 
-  // 트랙 등록
-  const trackRefClickHandler = useCallback(() => {
-    trackRef.current.click();
+  // 타이틀 트랙 삭제
+  const titleTrackDeleteHandler = useCallback(() => {
+    setTitleFileName(null);
+    dispatch({
+      type: ALBUM_FILE_RESET,
+    });
   }, []);
 
   const trackUploadHandler = useCallback(
     (e) => {
+      setTrackname(e.target.files[0].name);
       const formData = new FormData();
 
       [].forEach.call(e.target.files, (file) => {
@@ -186,7 +274,41 @@ const Index = () => {
       }
 
       dispatch({
-        type: PRODUCT_TRACK_UPLOAD_REQUEST,
+        type: ALBUM_TRACK_FILE_REQUEST,
+        data: formData,
+      });
+    },
+    [trackName]
+  );
+
+  //  트랙 등록
+  const trackRefClickHandler = useCallback(() => {
+    trackRef.current.click();
+  }, [trackRef]);
+
+  // 타이틀 트랙 등록
+  const titleTrackRefClickHandler = useCallback(() => {
+    titleRef.current.click();
+  }, [titleRef]);
+
+  const titleTrackUploadHandler = useCallback(
+    (e) => {
+      setTitleFileName(e.target.files[0].name);
+
+      const formData = new FormData();
+
+      [].forEach.call(e.target.files, (file) => {
+        setTrackName(file.name);
+
+        formData.append("file", file);
+      });
+
+      if (e.target.files.length < 1) {
+        return;
+      }
+
+      dispatch({
+        type: ALBUM_FILE_REQUEST,
         data: formData,
       });
     },
@@ -196,38 +318,6 @@ const Index = () => {
   const checkBoxHandler = useCallback(() => {
     setCheckBox((prev) => !prev);
   }, [checkBox]);
-
-  const trackCreateHandler = useCallback(
-    (data) => {
-      if (!trackThumbnailPath) {
-        return message.info("썸네일을 업로드해주세요.");
-      }
-
-      if (!trackUploadPath) {
-        return message.info("트랙을 업로드해주세요.");
-      }
-
-      if (!checkBox) {
-        return message.info("필수항목에 체크해주세요.");
-      }
-
-      dispatch({
-        type: PRODUCT_TRACK_CREATE_REQUEST,
-        data: {
-          title: data.title,
-          thumbnail: trackThumbnailPath,
-          filename: trackName,
-          filepath: trackUploadPath,
-          author: me.nickname,
-          sPrice: data.sPrice,
-          dPrice: data.dPrice,
-          pPrice: data.pPrice,
-          productId: router.query.id,
-        },
-      });
-    },
-    [router.query, trackName, checkBox, me, trackThumbnailPath, trackUploadPath]
-  );
 
   ////// DATAVIEW //////
 
@@ -326,172 +416,14 @@ const Index = () => {
                     한 앨범에 등록 가능한 Track 수는 최소 1곡에서 최대 10곡
                     입니다.
                   </Text>
+                  <Text fontWeight={`500`}>
+                    앨범의 Track 중 대표곡 1곡을 지정하여 Title로 등록이
+                    가능합니다.
+                  </Text>
                 </Wrapper>
 
                 <Text>
-                  썸네일
-                  <SpanText>*</SpanText>
-                </Text>
-
-                {trackThumbnailPath && (
-                  <Image
-                    margin={`10px 0 0`}
-                    width={`300px`}
-                    height={`300px`}
-                    radius={`10px`}
-                    src={trackThumbnailPath}
-                    alt="trackThumbnail"
-                  />
-                )}
-
-                <Wrapper
-                  dr={`row`}
-                  ju={`space-between`}
-                  margin={`12px 0 33px`}
-                  width={width < 700 ? `100%` : `440px`}
-                >
-                  <TextInput
-                    value={trackThumbnailName}
-                    width={`calc(100% - 110px)`}
-                    height={`50px`}
-                    readOnly
-                    border={`1px solid ${Theme.lightGrey_C}`}
-                    placeholder="썸네일을 업로드해주세요."
-                  />
-
-                  <input
-                    type="file"
-                    accept=".png, .jpg"
-                    hidden
-                    ref={thumbnailRef}
-                    onChange={thumbnailUploadHandler}
-                  />
-
-                  <CommonButton
-                    width={`100px`}
-                    height={`50px`}
-                    fontSize={width < 700 ? `14px` : `16px`}
-                    fontWeight={`bold`}
-                    kindOf={`subTheme2`}
-                    loading={st_productTrackThumbnailUploadLoading}
-                    onClick={thumbnailRefClickHandler}
-                  >
-                    파일등록
-                  </CommonButton>
-                </Wrapper>
-
-                <Text>
-                  제목
-                  <SpanText>*</SpanText>
-                </Text>
-                <Wrapper
-                  dr={`row`}
-                  ju={`space-between`}
-                  margin={`12px 0 10px`}
-                  width={width < 700 ? `100%` : `440px`}
-                >
-                  <Form.Item
-                    name="title"
-                    rules={[{ required: true, message: "제목은 필수 입니다." }]}
-                  >
-                    <TextInput
-                      width={`100%`}
-                      height={`50px`}
-                      border={`1px solid ${Theme.lightGrey_C}`}
-                      placeholder="제목을 입력해주세요."
-                    />
-                  </Form.Item>
-                </Wrapper>
-
-                <Text>
-                  Standard Price
-                  <SpanText>*</SpanText>
-                </Text>
-                <Wrapper
-                  dr={`row`}
-                  ju={`space-between`}
-                  margin={`12px 0 10px`}
-                  width={width < 700 ? `100%` : `440px`}
-                >
-                  <Form.Item
-                    name="sPrice"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Standard Price는 필수 입니다.",
-                      },
-                    ]}
-                  >
-                    <TextInput
-                      type="number"
-                      width={`100%`}
-                      height={`50px`}
-                      border={`1px solid ${Theme.lightGrey_C}`}
-                      placeholder="Standard Price를 입력해주세요."
-                    />
-                  </Form.Item>
-                </Wrapper>
-
-                <Text>
-                  Deluxe Price
-                  <SpanText>*</SpanText>
-                </Text>
-                <Wrapper
-                  dr={`row`}
-                  ju={`space-between`}
-                  margin={`12px 0 10px`}
-                  width={width < 700 ? `100%` : `440px`}
-                >
-                  <Form.Item
-                    name="dPrice"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Deluxe Price는 필수 입니다.",
-                      },
-                    ]}
-                  >
-                    <TextInput
-                      type="number"
-                      width={`100%`}
-                      height={`50px`}
-                      border={`1px solid ${Theme.lightGrey_C}`}
-                      placeholder="Deluxe Price를 입력해주세요."
-                    />
-                  </Form.Item>
-                </Wrapper>
-
-                <Text>
-                  Platinum Price
-                  <SpanText>*</SpanText>
-                </Text>
-                <Wrapper
-                  dr={`row`}
-                  ju={`space-between`}
-                  margin={`12px 0 10px`}
-                  width={width < 700 ? `100%` : `440px`}
-                >
-                  <Form.Item
-                    name="pPrice"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Platinum Price는 필수 입니다.",
-                      },
-                    ]}
-                  >
-                    <TextInput
-                      type="number"
-                      width={`100%`}
-                      height={`50px`}
-                      border={`1px solid ${Theme.lightGrey_C}`}
-                      placeholder="Platinum Price를 입력해주세요."
-                    />
-                  </Form.Item>
-                </Wrapper>
-
-                <Text>
-                  Track 등록
+                  Ttile 등록
                   <SpanText>*</SpanText>
                 </Text>
                 <Wrapper
@@ -501,19 +433,19 @@ const Index = () => {
                   width={width < 700 ? `100%` : `440px`}
                 >
                   <TextInput
-                    value={trackName}
+                    // value={titleFileName}
                     width={`calc(100% - 110px)`}
                     height={`50px`}
                     readOnly
                     border={`1px solid ${Theme.lightGrey_C}`}
-                    placeholder="Track을 업로드해주세요."
+                    placeholder="대표곡 1곡만 업로드할 수 있습니다."
                   />
 
                   <input
                     type="file"
                     accept=".wav, .mp3"
                     hidden
-                    ref={trackRef}
+                    ref={titleRef}
                     onChange={trackUploadHandler}
                   />
                   <CommonButton
@@ -528,6 +460,91 @@ const Index = () => {
                     파일등록
                   </CommonButton>
                 </Wrapper>
+
+                {titleFileName && (
+                  <Wrapper
+                    width={width < 700 ? `100%` : `440px`}
+                    dr={`row`}
+                    ju={`space-between`}
+                    padding={`16px 14px`}
+                    bgColor={Theme.lightGrey2_C}
+                    margin={`0 0 30px`}
+                  >
+                    <Text fontSize={`16px`} color={Theme.grey_C}>
+                      <Image
+                        alt="icon"
+                        src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/music-file.png`}
+                        width={`14px`}
+                        margin={`0 5px 0 0`}
+                      />
+                      {titleFileName}
+                    </Text>
+                    <CloseOutlined onClick={titleTrackDeleteHandler} />
+                  </Wrapper>
+                )}
+
+                <Text>
+                  Track 등록
+                  <SpanText>*</SpanText>
+                </Text>
+                <Wrapper
+                  dr={`row`}
+                  ju={`space-between`}
+                  margin={`12px 0 33px`}
+                  width={width < 700 ? `100%` : `440px`}
+                >
+                  <TextInput
+                    // value={trackName}
+                    width={`calc(100% - 110px)`}
+                    height={`50px`}
+                    readOnly
+                    border={`1px solid ${Theme.lightGrey_C}`}
+                    placeholder="Track을 업로드해주세요."
+                  />
+
+                  <input
+                    type="file"
+                    accept=".wav, .mp3"
+                    hidden
+                    ref={trackRef}
+                    onChange={titleTrackUploadHandler}
+                  />
+                  <CommonButton
+                    width={`100px`}
+                    height={`50px`}
+                    fontSize={width < 700 ? `14px` : `16px`}
+                    fontWeight={`bold`}
+                    kindOf={`subTheme2`}
+                    loading={st_productTrackUploadLoading}
+                    onClick={titleTrackRefClickHandler}
+                  >
+                    파일등록
+                  </CommonButton>
+                </Wrapper>
+
+                {trackData.map((data) => {
+                  return (
+                    <Wrapper
+                      width={width < 700 ? `100%` : `440px`}
+                      dr={`row`}
+                      ju={`space-between`}
+                      padding={`16px 14px`}
+                      bgColor={Theme.lightGrey2_C}
+                      margin={`0 0 30px`}
+                    >
+                      <Text fontSize={`16px`} color={Theme.grey_C}>
+                        <Image
+                          alt="icon"
+                          src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/music-file.png`}
+                          width={`14px`}
+                          margin={`0 5px 0 0`}
+                        />
+                        {data.filename}
+                      </Text>
+                      <CloseOutlined onClick={trackDeleteHandler} />
+                    </Wrapper>
+                  );
+                })}
 
                 <Text fontWeight={`600`}>
                   업로드한 전 곡은 New Wave Sound 외에 어느 곳에서도
