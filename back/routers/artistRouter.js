@@ -3,16 +3,6 @@ const models = require("../models");
 
 const router = express.Router();
 
-router.post("/list", async (req, res, next) => {
-  try {
-  } catch (error) {
-    console.error(error);
-    return res
-      .status(401)
-      .send("아티스트정보를 가져올 수 없습니다. 개발사에 문의해주세요.");
-  }
-});
-
 router.post("/new", async (req, res, next) => {
   const selectQuery = `
         SELECT 	A.id,
