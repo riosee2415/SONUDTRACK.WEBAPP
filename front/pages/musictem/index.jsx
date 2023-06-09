@@ -475,13 +475,13 @@ const Index = () => {
                       >
                         <audio
                           id={`audioTeg_recent_${idx}`}
-                          src={data.filepath}
+                          src={data.filePath}
                           hidden
                         />
                         <Wrapper width={`auto`} dr={`row`} ju={`flex-start`}>
                           <Image
                             alt="thumbnail"
-                            src={data.thumbnail}
+                            src={data.albumImage}
                             width={width < 700 ? `80px` : `100px`}
                             height={width < 700 ? `80px` : `100px`}
                             radius={`7px`}
@@ -515,7 +515,7 @@ const Index = () => {
                               width={width < 1600 ? `200px` : `280px`}
                               isEllipsis
                             >
-                              {data.title}
+                              {data.songName}
                             </Text>
                             <Text
                               onClick={() =>
@@ -527,7 +527,7 @@ const Index = () => {
                               fontSize={width < 700 ? `14px` : `16px`}
                               color={Theme.subTheme4_C}
                             >
-                              {data.author}
+                              {data.singerName}
                             </Text>
                             {width < 1520 ? (
                               <Text
@@ -623,7 +623,7 @@ const Index = () => {
                             color={Theme.darkGrey_C}
                             margin={`0 20px 0 0`}
                           >
-                            {newAudioTime[idx]}
+                            {data.fileLength}
                           </Text>
                           <Wrapper width={width < 1360 ? `180px` : `236px`}>
                             <ReactWaves
@@ -639,7 +639,7 @@ const Index = () => {
                               volume={1}
                               zoom={2}
                               playing={playing1 === data.id}
-                              audioFile={data.filepath}
+                              audioFile={data.filePath}
                             />
                           </Wrapper>
                         </Wrapper>
@@ -752,7 +752,7 @@ const Index = () => {
                       >
                         <audio
                           id={`audioTeg_recent_${idx}`}
-                          src={data.filepath}
+                          src={data.filePath}
                           hidden
                         />
                         <Wrapper width={`auto`} dr={`row`} ju={`flex-start`}>
@@ -900,7 +900,7 @@ const Index = () => {
                             color={Theme.darkGrey_C}
                             margin={`0 20px 0 0`}
                           >
-                            {newAudioTime[idx]}
+                            {data.fileLength}
                           </Text>
                           <Wrapper width={width < 1360 ? `180px` : `236px`}>
                             <ReactWaves
@@ -916,7 +916,7 @@ const Index = () => {
                               volume={1}
                               zoom={2}
                               playing={playing1 === data.id}
-                              audioFile={data.filepath}
+                              audioFile={data.filePath}
                             />
                           </Wrapper>
                         </Wrapper>
@@ -1159,13 +1159,13 @@ const Index = () => {
                       >
                         <audio
                           id={`audioTeg_${idx}`}
-                          src={data.filepath}
+                          src={data.filePath}
                           hidden
                         />
                         <Wrapper width={`auto`} dr={`row`} ju={`flex-start`}>
                           <Image
                             alt="thumbnail"
-                            src={data.thumbnail}
+                            src={data.albumImage}
                             width={width < 700 ? `80px` : `100px`}
                             height={width < 700 ? `80px` : `100px`}
                             radius={`7px`}
@@ -1199,17 +1199,17 @@ const Index = () => {
                               width={width < 1600 ? `200px` : `280px`}
                               isEllipsis
                             >
-                              {data.title}
+                              {data.songName}
                             </Text>
                             <Text
                               onClick={() =>
-                                movelinkHandler(`/musictem/artist/${ProductId}`)
+                                movelinkHandler(`/musictem/artist/${data.id}`)
                               }
                               isHover
                               fontSize={width < 700 ? `14px` : `16px`}
                               color={Theme.subTheme4_C}
                             >
-                              {data.author}
+                              {data.singerName}
                             </Text>
                             {width < 1520 ? (
                               <Text
@@ -1303,7 +1303,7 @@ const Index = () => {
                             color={Theme.darkGrey_C}
                             margin={`0 20px 0 0`}
                           >
-                            {allAudioTime[idx]}
+                            {data.fileLength}
                           </Text>
 
                           <Wrapper width={width < 1360 ? `180px` : `236px`}>
@@ -1320,7 +1320,7 @@ const Index = () => {
                               volume={1}
                               zoom={2}
                               playing={playing3 === data.id}
-                              audioFile={data.filepath}
+                              audioFile={data.filePath}
                             />
                           </Wrapper>
                         </Wrapper>
