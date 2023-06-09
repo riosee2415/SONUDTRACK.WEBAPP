@@ -5,6 +5,14 @@ module.exports = class Track extends Model {
   static init(sequelize) {
     return super.init(
       {
+        songName: {
+          type: DataTypes.STRING(300),
+          allowNull: false,
+        },
+        singerName: {
+          type: DataTypes.STRING(100),
+          allowNull: false,
+        },
         fileName: {
           type: DataTypes.STRING(1000),
           allowNull: false,
