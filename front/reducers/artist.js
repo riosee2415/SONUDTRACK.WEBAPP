@@ -3,9 +3,9 @@ import produce from "../util/produce";
 export const initailState = {
   permmCnt: 0,
   artistList: [],
+  newArtistList: [],
   permmWaitingList: [],
   artistems: [],
-  artistemDetail: null,
   allArtistemList: [], // 아티스트 전체조회
   artistPath: null, // 판매자 신청 파일 등록
   artistemNearList: [],
@@ -19,6 +19,10 @@ export const initailState = {
   st_permmWaitingLoading: false,
   st_permmWaitingDone: false,
   st_permmWaitingError: null,
+  //
+  st_newArtistListLoading: false,
+  st_newArtistListDone: false,
+  st_newArtistListError: null,
   //
   st_permmWaitingOkLoading: false,
   st_permmWaitingOkDone: false,
@@ -43,10 +47,7 @@ export const initailState = {
   st_artistemUpUpLoading: false,
   st_artistemUpUpDone: false,
   st_artistemUpUpError: null,
-  //
-  st_artistemDetailLoading: false,
-  st_artistemDetailDone: false,
-  st_artistemDetailError: null,
+
   //
   st_allArtistemListLoading: false,
   st_allArtistemListDone: false,
@@ -84,6 +85,10 @@ export const initailState = {
   st_repSongFileUploadDone: false,
   st_repSongFileUploadError: null,
 };
+
+export const NEW_ARTIST_LIST_REQUEST = "NEW_ARTIST_LIST_REQUEST";
+export const NEW_ARTIST_LIST_SUCCESS = "NEW_ARTIST_LIST_SUCCESS";
+export const NEW_ARTIST_LIST_FAILURE = "NEW_ARTIST_LIST_FAILURE";
 
 export const PERMM_WAITING_LIST_REQUEST = "PERMM_WAITING_LIST_REQUEST";
 export const PERMM_WAITING_LIST_SUCCESS = "PERMM_WAITING_LIST_SUCCESS";
@@ -164,6 +169,29 @@ export const REP_SONG_FILE_RESET = "REP_SONG_FILE_RESET";
 const reducer = (state = initailState, action) =>
   produce(state, (draft) => {
     switch (action.type) {
+      case NEW_ARTIST_LIST_REQUEST: {
+        draft.st_newArtistLoading = true;
+        draft.st_newArtistDone = false;
+        draft.st_newArtistError = null;
+        break;
+      }
+
+      case NEW_ARTIST_LIST_SUCCESS: {
+        draft.st_newArtistLoading = false;
+        draft.st_newArtistDone = true;
+        draft.st_newArtistError = null;
+        draft.newArtistList = action.data;
+        break;
+      }
+
+      case NEW_ARTIST_LIST_FAILURE: {
+        draft.st_newArtistLoading = false;
+        draft.st_newArtistDone = false;
+        draft.st_newArtistError = action.error;
+        break;
+      }
+
+      ////////////////////////////////////////////////////
       case PERMM_WAITING_LIST_REQUEST: {
         draft.st_permmWaitingLoading = true;
         draft.st_permmWaitingDone = false;
@@ -329,30 +357,7 @@ const reducer = (state = initailState, action) =>
       }
 
       ////////////////////////////////////////////////////
-      ////////////////////////////////////////////////////
-      case ARTISTEM_DETAIL_REQUEST: {
-        draft.st_artistemDetailLoading = true;
-        draft.st_artistemDetailDone = false;
-        draft.st_artistemDetailError = null;
-        break;
-      }
 
-      case ARTISTEM_DETAIL_SUCCESS: {
-        draft.st_artistemDetailLoading = false;
-        draft.st_artistemDetailDone = true;
-        draft.st_artistemDetailError = null;
-        draft.artistemDetail = action.data;
-        break;
-      }
-
-      case ARTISTEM_DETAIL_FAILURE: {
-        draft.st_artistemDetailLoading = false;
-        draft.st_artistemDetailDone = false;
-        draft.st_artistemDetailError = action.error;
-        break;
-      }
-
-      ////////////////////////////////////////////////////
       ////////////////////////////////////////////////////
 
       case ALL_ARTISTEM_LIST_REQUEST: {

@@ -26,11 +26,8 @@ import { Empty, Modal, Select } from "antd";
 import MainSlider2 from "../../components/slide/MainSlider2";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
-import {
-  ALL_ARTISTEM_LIST_REQUEST,
-  ARTISTEM_NEAR_LIST_REQUEST,
-  ARTISTEM_SLIDE_LIST_REQUEST,
-} from "../../reducers/artist";
+import { NEW_ARTIST_LIST_REQUEST } from "../../reducers/artist";
+import { ARTISTEM_LIST_REQUEST } from "../../reducers/seller";
 import { CATEGORY_LIST_REQUEST } from "../../reducers/product";
 
 const CustomSelect = styled(Wrapper)`
@@ -81,9 +78,8 @@ const Box = styled(Wrapper)`
 
 const Index = () => {
   ////// GLOBAL STATE //////
-  const { allArtistemList, artistemNearList, artistemSlideList } = useSelector(
-    (state) => state.artist
-  );
+  const { newArtistList } = useSelector((state) => state.artist);
+  const { artistemList } = useSelector((state) => state.seller);
 
   const { categorys } = useSelector((state) => state.product);
 
@@ -94,19 +90,15 @@ const Index = () => {
 
   const [orderType, setOrderType] = useState(1); // 더보기 정렬 1.추천 2.최신
 
-  const [selectArtist, setSelectArtist] = useState(null);
+  const [selectArtist, setSelectArtist] = useState(
+    newArtistList && newArtistList[0]
+  );
 
   ////// USEEFFECT //////
 
   useEffect(() => {
-    if (artistemNearList.length !== 0) {
-      setSelectArtist(artistemNearList[0]);
-    }
-  }, [artistemNearList]);
-
-  useEffect(() => {
     dispatch({
-      type: ALL_ARTISTEM_LIST_REQUEST,
+      type: NEW_ARTIST_LIST_REQUEST,
       data: {
         orderType,
       },
@@ -266,8 +258,8 @@ const Index = () => {
               margin={`0 0 120px`}
               al={`flex-start`}
             >
-              {artistemNearList &&
-                (artistemNearList.length === 0 ? (
+              {newArtistList &&
+                (newArtistList.length === 0 ? (
                   <Wrapper height={`300px`}>
                     <Empty description="새로운 아티스트가 없습니다." />
                   </Wrapper>
@@ -278,9 +270,9 @@ const Index = () => {
                       dr={`row`}
                       ju={`space-between`}
                     >
-                      {artistemNearList.map((data, idx) => {
+                      {newArtistList.map((data, idx) => {
                         return (
-                          <Box width={`48%`}>
+                          <Box width={`48%`} key={data.id}>
                             <Wrapper
                               height={width < 700 ? `120px` : `236px`}
                               overflow={`hidden`}
@@ -292,7 +284,7 @@ const Index = () => {
                                 key={idx}
                                 onClick={() => selectArtistHandler(data)}
                                 alt="image"
-                                src={data.profileImage}
+                                src={data.artistProfileImage}
                                 width={`100%`}
                                 height={`100%`}
                               />
@@ -304,7 +296,7 @@ const Index = () => {
                   </>
                 ))}
 
-              {artistemNearList && artistemNearList.length !== 0 && (
+              {newArtistList && newArtistList.length !== 0 && (
                 <Box
                   width={width < 900 ? `100%` : `49%`}
                   margin={width < 900 ? `20px 0 0` : `0`}
@@ -328,9 +320,9 @@ const Index = () => {
                     >
                       <Wrapper dr={`row`} ju={`flex-start`}>
                         <Text fontSize={`18px`} fontWeight={`bold`}>
-                          {selectArtist && selectArtist.artistname}
+                          {selectArtist && selectArtist.name}
                         </Text>
-                        {/* <Wrapper
+                        <Wrapper
                           width={`auto`}
                           dr={`row`}
                           margin={`0 0 0 14px`}
@@ -346,16 +338,17 @@ const Index = () => {
                             }
                           />
                           <Text>{selectArtist && selectArtist.likeCnt}</Text>
-                        </Wrapper> */}
+                        </Wrapper>
                       </Wrapper>
                       <Text fontSize={`16px`} margin={`12px 0 18px`}>
-                        {selectArtist && selectArtist.info}
+                        {selectArtist && selectArtist.artistInfo}
                       </Text>
                       <Wrapper dr={`row`} ju={`flex-start`}>
                         {selectArtist &&
-                          selectArtist.tags.map((data) => {
+                          selectArtist.tags.map((data, idx) => {
                             return (
                               <Wrapper
+                                key={idx}
                                 width={`auto`}
                                 bgColor={Theme.white_C}
                                 color={Theme.darkGrey_C}
@@ -364,7 +357,7 @@ const Index = () => {
                                 padding={`0 15px`}
                                 margin={`0 7px 5px 0`}
                               >
-                                {data.value}
+                                {data.tagValue}
                               </Wrapper>
                             );
                           })}
@@ -374,7 +367,7 @@ const Index = () => {
                       height={width < 700 ? `240px` : `495px`}
                       alt="image"
                       radius={`7px`}
-                      src={selectArtist && selectArtist.profileImage}
+                      src={selectArtist && selectArtist.artistProfileImage}
                       className="thumb"
                     />
                   </Wrapper>
@@ -383,11 +376,9 @@ const Index = () => {
             </Wrapper>
 
             {/* 아티스트탬 슬라이드 */}
-            {artistemSlideList.length !== 0 && (
+            {/* {artistemSlideList.length !== 0 && (
               <MainSlider2 datum={artistemSlideList} />
-            )}
-
-            {console.log(artistemSlideList)}
+            )} */}
 
             <Wrapper margin={`100px 0 45px`}>
               <Text
@@ -524,7 +515,7 @@ const Index = () => {
               </Wrapper>
             </Wrapper>
             <Wrapper dr={`row`} ju={`flex-start`} al={`flex-start`}>
-              {allArtistemList && allArtistemList.length === 0 ? (
+              {artistemList && artistemList.length === 0 ? (
                 <Wrapper
                   height={`300px`}
                   borderBottom={`1px solid ${Theme.lightGrey_C}`}
@@ -543,22 +534,21 @@ const Index = () => {
                   </Text>
                 </Wrapper>
               ) : (
-                allArtistemList &&
-                allArtistemList.map((data) => {
+                artistemList.map((data) => {
                   return (
                     <ArtWrapper
                       key={data.id}
                       onClick={() => movelinkHandler(`/artisttem/${data.id}`)}
                     >
                       <SquareBox>
-                        <Image src={data.artistImage} alt="thumbnail" />
+                        <Image src={data.artistProfileImage} alt="thumbnail" />
                       </SquareBox>
                       <Text
                         fontSize={`18px`}
                         fontWeight={`bold`}
                         margin={`20px 0 7px`}
                       >
-                        {data.artistName}
+                        {data.name}
                       </Text>
                       <Wrapper dr={`row`} ju={`flex-start`}>
                         {data.tags.map((v, idx) => {
@@ -572,7 +562,7 @@ const Index = () => {
                               padding={`0 15px`}
                               margin={`0 7px 5px 0`}
                             >
-                              {v}
+                              {v.tagValue}
                             </Wrapper>
                           );
                         })}
@@ -643,11 +633,11 @@ export const getServerSideProps = wrapper.getServerSideProps(
     });
 
     context.store.dispatch({
-      type: ARTISTEM_NEAR_LIST_REQUEST,
+      type: NEW_ARTIST_LIST_REQUEST,
     });
 
     context.store.dispatch({
-      type: ARTISTEM_SLIDE_LIST_REQUEST,
+      type: ARTISTEM_LIST_REQUEST,
     });
 
     context.store.dispatch({

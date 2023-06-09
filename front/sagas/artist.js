@@ -1,6 +1,10 @@
 import { all, call, delay, fork, put, takeLatest } from "redux-saga/effects";
 import axios from "axios";
 import {
+  NEW_ARTIST_LIST_REQUEST,
+  NEW_ARTIST_LIST_SUCCESS,
+  NEW_ARTIST_LIST_FAILURE,
+  //
   PERMM_WAITING_LIST_REQUEST,
   PERMM_WAITING_LIST_SUCCESS,
   PERMM_WAITING_LIST_FAILURE,
@@ -28,10 +32,7 @@ import {
   ARTISTEM_TOP_UP_REQUEST,
   ARTISTEM_TOP_UP_SUCCESS,
   ARTISTEM_TOP_UP_FAILURE,
-  //
-  ARTISTEM_DETAIL_REQUEST,
-  ARTISTEM_DETAIL_SUCCESS,
-  ARTISTEM_DETAIL_FAILURE,
+
   //
   ALL_ARTISTEM_LIST_REQUEST,
   ALL_ARTISTEM_LIST_SUCCESS,
@@ -69,6 +70,34 @@ import {
   REP_SONG_FILE_UPLOAD_SUCCESS,
   REP_SONG_FILE_UPLOAD_FAILURE,
 } from "../reducers/artist";
+
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function newArtistListAPI(data) {
+  return await axios.post("/api/artist/new", data);
+}
+
+function* newArtistList(action) {
+  try {
+    const result = yield call(newArtistListAPI, action.data);
+
+    yield put({
+      type: NEW_ARTIST_LIST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: NEW_ARTIST_LIST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
 
 // ******************************************************************************************************************
 // SAGA AREA ********************************************************************************************************
@@ -257,34 +286,6 @@ function* artistemTopUp(action) {
     console.error(err);
     yield put({
       type: ARTISTEM_TOP_UP_FAILURE,
-      error: err.response.data,
-    });
-  }
-}
-
-// ******************************************************************************************************************
-// ******************************************************************************************************************
-// ******************************************************************************************************************
-
-// ******************************************************************************************************************
-// SAGA AREA ********************************************************************************************************
-// ******************************************************************************************************************
-async function artistemDetailAPI(data) {
-  return await axios.post("/api/artist/target/detail", data);
-}
-
-function* artistemDetail(action) {
-  try {
-    const result = yield call(artistemDetailAPI, action.data);
-
-    yield put({
-      type: ARTISTEM_DETAIL_SUCCESS,
-      data: result.data,
-    });
-  } catch (err) {
-    console.error(err);
-    yield put({
-      type: ARTISTEM_DETAIL_FAILURE,
       error: err.response.data,
     });
   }
@@ -547,6 +548,9 @@ function* repSongFile(action) {
 // ******************************************************************************************************************
 
 //////////////////////////////////////////////////////////////
+function* watchNewArtistList() {
+  yield takeLatest(NEW_ARTIST_LIST_REQUEST, newArtistList);
+}
 function* watchFaqTypeList() {
   yield takeLatest(PERMM_WAITING_LIST_REQUEST, permmWaitingList);
 }
@@ -568,9 +572,7 @@ function* watchArtistemIngUp() {
 function* watchArtistemTopUp() {
   yield takeLatest(ARTISTEM_TOP_UP_REQUEST, artistemTopUp);
 }
-function* watchArtistemDetail() {
-  yield takeLatest(ARTISTEM_DETAIL_REQUEST, artistemDetail);
-}
+
 function* watchAllArtistemList() {
   yield takeLatest(ALL_ARTISTEM_LIST_REQUEST, allArtistemList);
 }
@@ -602,6 +604,7 @@ function* watchRepSongFileUpload() {
 //////////////////////////////////////////////////////////////
 export default function* artistSaga() {
   yield all([
+    fork(watchNewArtistList),
     fork(watchFaqTypeList),
     fork(watchFaqTypeOk),
     fork(watchFaqTypeDel),
@@ -609,7 +612,6 @@ export default function* artistSaga() {
     fork(watchArtistemList),
     fork(watchArtistemIngUp),
     fork(watchArtistemTopUp),
-    fork(watchArtistemDetail),
     fork(watchAllArtistemList),
     fork(watchArtistNearList),
     fork(watchArtistSlideList),

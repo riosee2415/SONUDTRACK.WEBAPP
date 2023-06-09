@@ -7,6 +7,7 @@ export const initailState = {
   filmoImage: null, // 필모그래피 커버이미지
   filmoFile: null, // 필모그래피 파일
   artistemList: [], // 아티스템 리스트
+  artistemDetail: [], // 아티스템 디테일
   //   아티스템 상세 조회
   artistemData: null,
   findCountryInfoData: [],
@@ -336,6 +337,7 @@ const reducer = (state = initailState, action) =>
         draft.st_artistemDetailLoading = false;
         draft.st_artistemDetailDone = true;
         draft.st_artistemDetailError = null;
+        draft.artistemData = action.data.artistemData;
         break;
       }
       case ARTISTEM_DETAIL_FAILURE: {
