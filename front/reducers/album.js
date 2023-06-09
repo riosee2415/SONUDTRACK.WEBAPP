@@ -10,6 +10,10 @@ export const initailState = {
   detailData: null,
   albums: null,
   //
+  albumDetail: null, // 앨범 상세(정보)
+  albumTrack: null, // 앨범 상세(트랙)
+  albumCate: null, // 앨범 상세(카테고리)
+  albumTag: null, // 앨범 상세(태그)
 
   st_albumImageLoading: false, // album image
   st_albumImageDone: false,
@@ -50,6 +54,10 @@ export const initailState = {
   st_newMusictemListLoading: false, // new 뮤직템 리스트
   st_newMusictemListDone: false,
   st_newMusictemListError: null,
+  //
+  st_albumDetailLoading: false, // 앨범 디테일
+  st_albumDetailDone: false,
+  st_albumDetailError: null,
 };
 
 export const ALBUM_IMAGE_REQUEST = "ALBUM_IMAGE_REQUEST";
@@ -84,10 +92,6 @@ export const ALBUM_TRACK_FILE_REQUEST = "ALBUM_TRACK_FILE_REQUEST";
 export const ALBUM_TRACK_FILE_SUCCESS = "ALBUM_TRACK_FILE_SUCCESS";
 export const ALBUM_TRACK_FILE_FAILURE = "ALBUM_TRACK_FILE_FAILURE";
 
-export const ALBUM_IMAGE_RESET = "ALBUM_IMAGE_RESET";
-export const ALBUM_FILE_RESET = "ALBUM_FILE_RESET";
-export const ALBUM_TRACK_FILE_RESET = "ALBUM_TRACK_FILE_RESET";
-
 export const MUSICTEM_LIST_REQUEST = "MUSICTEM_LIST_REQUEST";
 export const MUSICTEM_LIST_SUCCESS = "MUSICTEM_LIST_SUCCESS";
 export const MUSICTEM_LIST_FAILURE = "MUSICTEM_LIST_FAILURE";
@@ -95,6 +99,14 @@ export const MUSICTEM_LIST_FAILURE = "MUSICTEM_LIST_FAILURE";
 export const NEW_MUSICTEM_LIST_REQUEST = "NEW_MUSICTEM_LIST_REQUEST";
 export const NEW_MUSICTEM_LIST_SUCCESS = "NEW_MUSICTEM_LIST_SUCCESS";
 export const NEW_MUSICTEM_LIST_FAILURE = "NEW_MUSICTEM_LIST_FAILURE";
+
+export const ALBUM_DETAIL_REQUEST = "ALBUM_DETAIL_REQUEST";
+export const ALBUM_DETAIL_SUCCESS = "ALBUM_DETAIL_SUCCESS";
+export const ALBUM_DETAIL_FAILURE = "ALBUM_DETAIL_FAILURE";
+
+export const ALBUM_IMAGE_RESET = "ALBUM_IMAGE_RESET";
+export const ALBUM_FILE_RESET = "ALBUM_FILE_RESET";
+export const ALBUM_TRACK_FILE_RESET = "ALBUM_TRACK_FILE_RESET";
 
 const reducer = (state = initailState, action) =>
   produce(state, (draft) => {
@@ -302,6 +314,32 @@ const reducer = (state = initailState, action) =>
         draft.st_albumTrackFileLoading = false;
         draft.st_albumTrackFileDone = false;
         draft.st_albumTrackFileError = action.error;
+        break;
+      }
+
+      //////////////////////////////////////////////
+
+      case ALBUM_DETAIL_REQUEST: {
+        draft.st_albumDetailLoading = true;
+        draft.st_albumDetailDone = false;
+        draft.st_albumDetailError = null;
+        break;
+      }
+      case ALBUM_DETAIL_SUCCESS: {
+        draft.st_albumDetailLoading = false;
+        draft.st_albumDetailDone = true;
+        draft.st_albumDetailError = null;
+        draft.albumDetail = action.data.detailData;
+        draft.albumTrack = action.data.tracks;
+        draft.albumCate = action.data.cates;
+        draft.albumTag = action.data.tags;
+
+        break;
+      }
+      case ALBUM_DETAIL_FAILURE: {
+        draft.st_albumDetailLoading = false;
+        draft.st_albumDetailDone = false;
+        draft.st_albumDetailError = action.error;
         break;
       }
 
