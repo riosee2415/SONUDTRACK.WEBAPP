@@ -18,12 +18,12 @@ import {
 import Theme from "../../../components/Theme";
 import { BellOutlined, StarFilled } from "@ant-design/icons";
 import styled from "styled-components";
-import { Modal, Popover, Rate, Select } from "antd";
+import { Empty, Modal, Popover, Rate, Select } from "antd";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
-import { PRODUCT_ARTIST_ALBUM_DETAIL_REQUEST } from "../../../reducers/product";
 import moment from "moment";
+import { MUSICTEM_DETAIL_REQUEST } from "../../../reducers/album";
 
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
@@ -67,9 +67,8 @@ const CdWrapper = styled(Wrapper)`
 
 const Index = () => {
   ////// GLOBAL STATE //////
-  const { productAlbumList, productTrackList, productArtist } = useSelector(
-    (state) => state.product
-  );
+  const { productTrackList } = useSelector((state) => state.product);
+  const { detailData, albums } = useSelector((state) => state.album);
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
@@ -87,14 +86,18 @@ const Index = () => {
   ////// USEEFFECT //////
 
   useEffect(() => {
-    dispatch({
-      type: PRODUCT_ARTIST_ALBUM_DETAIL_REQUEST,
-      data: {
-        id: router.query.id,
-        orderType: orderSort,
-      },
-    });
-  }, [router.query, orderSort]);
+    if (router.query) {
+      dispatch({
+        type: MUSICTEM_DETAIL_REQUEST,
+        data: {
+          MusictemId: router.query.id,
+        },
+      });
+    }
+  }, [router.query]);
+
+  console.log(detailData);
+  console.log(albums);
 
   useEffect(() => {
     if (productTrackList) {
@@ -182,13 +185,13 @@ const Index = () => {
                     Musictem
                   </Text>
                 </Wrapper>
-                {productArtist && (
+                {detailData && (
                   <Image
                     width={`180px`}
                     height={`180px`}
                     radius={`100%`}
                     margin={`0 0 20px`}
-                    src={productArtist.profileImage}
+                    src={detailData.profileImage}
                     alt="thumbnail"
                   />
                 )}
@@ -199,7 +202,7 @@ const Index = () => {
                     fontWeight={`bold`}
                     color={Theme.darkGrey_C}
                   >
-                    {productArtist && productArtist.nickname}
+                    {detailData && detailData.artistName}
                   </Text>
                   <Wrapper
                     dr={`row`}
@@ -251,8 +254,8 @@ const Index = () => {
                   ju={`flex-start`}
                   padding={`0 0 10px`}
                 >
-                  {productAlbumList &&
-                    productAlbumList.map((data) => {
+                  {albums &&
+                    albums.map((data) => {
                       return (
                         <Wrapper
                           key={data.id}
@@ -264,7 +267,7 @@ const Index = () => {
                             <Image
                               height={`100%`}
                               radius={`100%`}
-                              src={data.thumbnail}
+                              src={data.albumImage}
                               alt="thumbnail"
                             />
                             <Image
@@ -279,7 +282,7 @@ const Index = () => {
                             color={Theme.darkGrey_C}
                             margin={`20px 0 8px`}
                           >
-                            {data.title}
+                            {data.fileName}
                           </Text>
                           <Wrapper dr={`row`}>
                             <Image
@@ -289,7 +292,7 @@ const Index = () => {
                               src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
                             />
                             <Text fontSize={`12px`} color={Theme.grey_C}>
-                              {data.likeCnt}
+                              100
                             </Text>
                           </Wrapper>
                         </Wrapper>
@@ -317,7 +320,7 @@ const Index = () => {
               borderTop={`1px solid ${Theme.lightGrey_C}`}
               margin={`0 0 100px`}
             >
-              {productTrackList &&
+              {/* {productTrackList &&
                 productTrackList.map((data, idx) => {
                   return (
                     <Wrapper
@@ -548,7 +551,10 @@ const Index = () => {
                       )}
                     </Wrapper>
                   );
-                })}
+                })} */}
+              <Wrapper margin={`50px 0`}>
+                <Empty description={"판매가 된 음원이 존재하지 않습니다."} />
+              </Wrapper>
             </Wrapper>
 
             {/* <Wrapper margin={`60px 0`}>
