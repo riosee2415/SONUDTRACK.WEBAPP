@@ -42,6 +42,7 @@ const album = require("./album");
 const albumtag = require("./albumtag");
 const albumcategory = require("./albumcategory");
 const track = require("./track");
+const albumhistory = require("./albumhistory");
 
 const env = process.env.NODE_ENV || "development";
 const config = require("../config/config")[env];
@@ -97,6 +98,7 @@ db.Album = album;
 db.AlbumTag = albumtag;
 db.AlbumCategory = albumcategory;
 db.Track = track;
+db.AlbumHistory = albumhistory;
 
 Object.keys(db).forEach((modelName) => {
   db[modelName].init(sequelize);

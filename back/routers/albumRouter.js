@@ -6,6 +6,7 @@ const AWS = require("aws-sdk");
 const multerS3 = require("multer-s3");
 const models = require("../models");
 const isLoggedIn = require("../middlewares/isLoggedIn");
+const isAdminCheck = require("../middlewares/isAdminCheck");
 
 const router = express.Router();
 
@@ -201,6 +202,381 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
   } catch (error) {
     console.error(error);
     return res.status(401).send("앨범을 등록할 수 없습니다.");
+  }
+});
+
+/**
+ * SUBJECT : 관리자 프리미엄 앨범 등록
+ * PARAMETERS : albumImage,
+                albumImageName,
+                bitRate,
+                sampleRate,
+                fileName,
+                filePath,
+                categorys,
+                tags,
+                MusictemId,
+                trackInfos
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/06/09
+ */
+// categorys: [
+//   {
+//     CateTypeId: 1,
+//     CategoryId: 1,
+//     sort: 1,
+//   },
+//   {
+//     CateTypeId: 2,
+//     CategoryId: 2,
+//     sort: 2,
+//   }
+// ];
+// tags: [
+//   {
+//     TagTypeId: 1,
+//     TagId: 1,
+//     sort: 1,
+//   },
+//   {
+//     TagTypeId: 2,
+//     TagId: 2,
+//     sort: 2,
+//   }
+// ]
+// trackInfos: [
+//   {
+//     songName: "",
+//     singerName: "",
+//     fileName: "",
+//     filePath: "",
+//     fileLength: "",
+//     isTitle: 1
+//   },
+//   {
+//     songName: "",
+//     singerName: "",
+//     fileName: "",
+//     filePath: "",
+//     fileLength: "",
+//     isTitle: 0
+//   },
+//   {
+//     songName: "",
+//     singerName: "",
+//     fileName: "",
+//     filePath: "",
+//     fileLength: "",
+//     isTitle: 0
+//   }
+// ]
+router.post("/premium/create", isAdminCheck, async (req, res, next) => {
+  const {
+    albumImage,
+    albumImageName,
+    bitRate,
+    sampleRate,
+    fileName,
+    filePath,
+    categorys,
+    tags,
+    MusictemId,
+    trackInfos,
+    artistName,
+  } = req.body;
+
+  if (!Array.isArray(tags)) {
+    return res.status(401).send("잘못된 요청입니다.");
+  }
+
+  if (!Array.isArray(categorys)) {
+    return res.status(401).send("잘못된 요청입니다.");
+  }
+
+  if (!Array.isArray(trackInfos)) {
+    return res.status(401).send("잘못된 요청입니다.");
+  }
+
+  try {
+    const insertQuery = `
+    INSERT  INTO    album
+    (
+        albumImage,
+        albumImageName,
+        bitRate,
+        sampleRate,
+        fileName,
+        filePath,
+        MusictemId,
+        createdAt,
+        updatedAt,
+        isPremium,
+        isTrackPermit,
+        permitAt
+    )
+    VALUES
+    (
+        "${albumImage}",
+        "${albumImageName}",
+        "${bitRate}",
+        "${sampleRate}",
+        "${fileName}",
+        "${filePath}",
+        ${MusictemId},
+        NOW(),
+        NOW(),
+        1,
+        1,
+        NOW()
+    )
+    `;
+
+    const insertResult = await models.sequelize.query(insertQuery);
+
+    await Promise.all(
+      categorys.map(async (data) => {
+        const insertQuery = `
+        INSERT  INTO    albumCategory
+        (
+            AlbumId,
+            CateTypeId,
+            CategoryId,
+            sort,
+            createdAt,
+            updatedAt
+        )
+        VALUES
+        (
+            ${insertResult[0].insertId},
+            ${data.CateTypeId},
+            ${data.CategoryId},
+            ${data.sort},
+            NOW(),
+            NOW()
+        )
+        `;
+
+        await models.sequelize.query(insertQuery);
+      })
+    );
+
+    await Promise.all(
+      tags.map(async (data) => {
+        const insertQuery = `
+        INSERT  INTO    albumTag
+        (
+            AlbumId,
+            TagTypeId,
+            TagId,
+            sort,
+            createdAt,
+            updatedAt
+        )
+        VALUES
+        (
+            ${insertResult[0].insertId},
+            ${data.TagTypeId},
+            ${data.TagId},
+            ${data.sort},
+            NOW(),
+            NOW()
+        )
+        `;
+
+        await models.sequelize.query(insertQuery);
+      })
+    );
+
+    await Promise.all(
+      trackInfos.map(async (data) => {
+        const insertQuery = `
+            INSERT  INTO    track
+            (
+                songName,
+                singerName,
+                fileName,
+                filePath,
+                fileLength,
+                isTitle,
+                createdAt,
+                updatedAt,
+                AlbumId
+            )
+            VALUES
+            (
+                "${data.songName}",
+                "${data.singerName}",
+                "${data.fileName}",
+                "${data.filePath}",
+                "${data.fileLength}",
+                ${data.isTitle},
+                NOW(),
+                NOW(),
+                ${insertResult[0].insertId}
+            )
+            `;
+
+        await models.sequelize.query(insertQuery);
+      })
+    );
+
+    const historyInsertQuery = `
+    INSERT    INTO    albumHistory
+    (
+      title,
+      content,
+      updator,
+      createdAt,
+      updatedAt
+    )
+    VALUES
+    (
+      "프리미엄 앨범 등록",
+      "[${artistName}] 프리미엄 앨범 등록",
+      updator,
+      createdAt,
+      updatedAt
+    )
+    `;
+
+    await models.sequelize.query(historyInsertQuery);
+
+    return res.status(201).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("앨범을 등록할 수 없습니다.");
+  }
+});
+
+/**
+ * SUBJECT : 트랙 등록
+ * PARAMETERS : trackInfos, AlbumId
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/06/09
+ */
+// trackInfos: [
+//   {
+//     songName: "",
+//     singerName: "",
+//     fileName: "",
+//     filePath: "",
+//     fileLength: "",
+//     isTitle: 1
+//   },
+//   {
+//     songName: "",
+//     singerName: "",
+//     fileName: "",
+//     filePath: "",
+//     fileLength: "",
+//     isTitle: 0
+//   },
+//   {
+//     songName: "",
+//     singerName: "",
+//     fileName: "",
+//     filePath: "",
+//     fileLength: "",
+//     isTitle: 0
+//   }
+// ]
+router.post("/track/create", isLoggedIn, async (req, res, next) => {
+  const { trackInfos, AlbumId } = req.body;
+
+  if (!Array.isArray(trackInfos)) {
+    return res.status(401).send("잘못된 요청입니다.");
+  }
+
+  try {
+    await Promise.all(
+      trackInfos.map(async (data) => {
+        const insertQuery = `
+        INSERT  INTO    track
+        (
+            songName,
+            singerName,
+            fileName,
+            filePath,
+            fileLength,
+            isTitle,
+            createdAt,
+            updatedAt,
+            AlbumId
+        )
+        VALUES
+        (
+            "${data.songName}",
+            "${data.singerName}",
+            "${data.fileName}",
+            "${data.filePath}",
+            "${data.fileLength}",
+            ${data.isTitle},
+            NOW(),
+            NOW(),
+            ${AlbumId}
+        )
+        `;
+
+        await models.sequelize.query(insertQuery);
+      })
+    );
+
+    return res.status(201).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("트랙을 등록할 수 없습니다.");
+  }
+});
+
+/**
+ * SUBJECT : 관리자 트랙신청 승인
+ * PARAMETERS : AlbumId
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/06/09
+ */
+router.post("/track/permit", isAdminCheck, async (req, res, next) => {
+  const { AlbumId, trackTitleName } = req.body;
+
+  const updateQuery = `
+  UPDATE    album
+     SET    isTrackPermit = 1,
+            permitAt = NOW()
+   WHERE    id = ${AlbumId}
+  `;
+
+  const historyInsertQuery = `
+  INSERT    INTO    albumHistory
+  (
+    title,
+    content,
+    updator,
+    createdAt,
+    updatedAt
+  )
+  VALUES
+  (
+    "트랙 신청 승인",
+    "[${trackTitleName}] 트랙 신청 승인",
+    updator,
+    createdAt,
+    updatedAt
+  )
+  `;
+
+  try {
+    await models.sequelize.query(updateQuery);
+    await models.sequelize.query(historyInsertQuery);
+
+    return res.status(200).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("트랙 신청을 승인할 수 없습니다.");
   }
 });
 
