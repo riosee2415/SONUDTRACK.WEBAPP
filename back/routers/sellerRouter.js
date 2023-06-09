@@ -244,15 +244,14 @@ router.post("/admin/permit", isAdminCheck, async (req, res, next) => {
       return res.status(400).send("이미 처리된 신청 이력입니다.");
     }
 
-    if (parseInt(status) === 2) {
-      const updateQuery = `
+    const updateQuery = `
       UPDATE    seller
          SET    status = 2,
                 completedAt = NOW()
        WHERE    id = ${id}
       `;
 
-      const historyInsertQuery = `
+    const historyInsertQuery = `
         INSERT    INTO  sellerHistory
         (
           title,
@@ -271,8 +270,7 @@ router.post("/admin/permit", isAdminCheck, async (req, res, next) => {
         ) 
         `;
 
-      if (findResult[0][0].isMusictem) {
-        const insertQuery = `
+    const insertMusicTemQuery = `
         INSERT  INTO    musictem
         (
             artistName,
@@ -293,20 +291,20 @@ router.post("/admin/permit", isAdminCheck, async (req, res, next) => {
         )
         `;
 
-        const insertResult = await models.sequelize.query(insertQuery);
+    const insertMusictemResult = await models.sequelize.query(
+      insertMusicTemQuery
+    );
 
-        const updateQuery = `
+    const musictemUpdateQuery = `
         UPDATE  users
-           SET  musictemId = ${insertResult[0].insertId},
+           SET  musictemId = ${insertMusictemResult[0].insertId},
                 type = 2
          WHERE  id = ${UserId}
         `;
 
-        await models.sequelize.query(updateQuery);
-      }
+    await models.sequelize.query(musictemUpdateQuery);
 
-      if (findResult[0][0].isArtistem) {
-        const insertQuery = `
+    const insertArtistemQuery = `
         INSERT  INTO    artistem
         (
             isVacation,
@@ -355,23 +353,20 @@ router.post("/admin/permit", isAdminCheck, async (req, res, next) => {
         )
         `;
 
-        const insertResult = await models.sequelize.query(insertQuery);
+    const insertArtistemResult = await models.sequelize.query(
+      insertArtistemQuery
+    );
 
-        const updateQuery = `
+    const artistemUpdateQuery = `
         UPDATE  users
-           SET  artistemId = ${insertResult[0].insertId},
-                type = 2
+           SET  artistemId = ${insertArtistemResult[0].insertId}
          WHERE  id = ${UserId}
         `;
 
-        await models.sequelize.query(updateQuery);
-      }
+    await models.sequelize.query(artistemUpdateQuery);
 
-      await models.sequelize.query(updateQuery);
-      await models.sequelize.query(historyInsertQuery);
-
-      return res.status(200).json({ result: true });
-    }
+    await models.sequelize.query(updateQuery);
+    await models.sequelize.query(historyInsertQuery);
 
     if (parseInt(status) === 3) {
       const updateQuery = `
@@ -405,6 +400,8 @@ router.post("/admin/permit", isAdminCheck, async (req, res, next) => {
 
       return res.status(200).json({ result: true });
     }
+
+    return res.status(200).json({ result: true });
   } catch (error) {
     console.error(error);
     return res
