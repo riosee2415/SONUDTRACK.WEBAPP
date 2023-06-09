@@ -33,6 +33,7 @@ import { useCallback } from "react";
 import useInput from "../../hooks/useInput";
 import { COMMON_TAG_LIST_REQUEST } from "../../reducers/product";
 import {
+  ARTISTEM_DETAIL_REQUEST,
   ARTIST_INFO_UPDATE_REQUEST,
   FILMO_FILE_RESET,
   FILMO_IMAGE_RESET,
@@ -45,6 +46,8 @@ import {
   FILMO_MUSIC_REQUEST,
   SELLER_IMAGE_REQUEST,
   SELLER_IMAGE_RESET,
+  ARTISTEM_INFO_UPDATE_REQUEST,
+  ARTISTEM_MY_DATA_REQUEST,
 } from "../../reducers/seller";
 import { CATEGORY_LIST_REQUEST } from "../../reducers/category";
 import { TAG_LIST_REQUEST, TAG_TYPE_LIST_REQUEST } from "../../reducers/tag";
@@ -135,21 +138,23 @@ const Index = () => {
   } = useSelector((state) => state.artist);
   const {
     sellerImage,
-    filmoImage,
-    filmoFile,
+    artistemData,
+    findCountryInfoData,
+    findFilmInfoData,
+    findCateInfoData,
+    findTagInfoData,
     //
-    st_artistemFileDone,
-    st_artistemFileError,
+    st_artistemInfoUpdateDone,
+    st_artistemInfoUpdateError,
   } = useSelector((state) => state.seller);
   const { categoryList } = useSelector((state) => state.category);
-  const { tagTypeList, tagList } = useSelector((state) => state.tag);
-  console.log(tagList);
-
+  const { tagTypeList } = useSelector((state) => state.tag);
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
   const dispatch = useDispatch();
 
+  // REF
   const imgRef = useRef(); // 프로필 변경
   const filmoFileRef = useRef(); // 필모 음원
   const filmoImgRef = useRef(); // 필모 앨범이미지
@@ -181,10 +186,64 @@ const Index = () => {
   const filmoImgName = useInput(""); // 필모 곡제목
   const [filmoArr, setFilmoArr] = useState([]); // 필모그래피 데이터
   const [tagArr, setTagArr] = useState([]); // 검색 태그
-
   const [filmo, setFilmo] = useState(false);
+
+  const [currentTab, setCurrentTab] = useState(null); // 이미지순서
+  // image data
+  const [artistemProfileImage, setArtistemProfileImage] = useState(null); // 프로필이미지
+  const [reqMusic, setReqMusic] = useState(null); // 대표음원
+  const [filmoMusic, setFilmoMusic] = useState(null); // 필모그래피 음원
+  const [filmoCover, setFilmoCover] = useState(null); // 필모그래피 커버이미지
+
+  const [cateArr, setCateArr] = useState([]);
   ////// REDUX //////
   ////// USEEFFECT //////
+
+  useEffect(() => {
+    if (st_artistemInfoUpdateDone) {
+      dispatch({
+        type: ARTISTEM_MY_DATA_REQUEST,
+        data: {
+          ArtistemId: me && me.artistemId,
+        },
+      });
+
+      return message.success("아티스템 정보를 등록했습니다.");
+    }
+
+    if (st_artistemInfoUpdateError) {
+      return message.error(st_artistemInfoUpdateError);
+    }
+  }, [st_artistemInfoUpdateDone, st_artistemInfoUpdateError]);
+
+  useEffect(() => {
+    if (sellerImage) {
+      // 아티스템 프로필 이미지
+      if (currentTab === 1) {
+        setArtistemProfileImage(sellerImage);
+      }
+
+      // 대표음원
+      if (currentTab === 2) {
+        setReqMusic(sellerImage);
+      }
+
+      // 필모그래피-커버이미지
+      if (currentTab === 3) {
+        setFilmoCover(sellerImage);
+      }
+
+      // 필모그래피-음원등록
+      if (currentTab === 4) {
+        setFilmoMusic(sellerImage);
+      }
+
+      dispatch({
+        type: SELLER_IMAGE_RESET,
+      });
+    }
+  }, [currentTab, sellerImage]);
+
   useEffect(() => {
     if (!me) {
       router.push(`/user/login`);
@@ -214,31 +273,6 @@ const Index = () => {
 
   useEffect(() => {
     if (st_artistInfoUpdateDone) {
-      comName.setValue("");
-      comNum.setValue("");
-      setIsComNum(false);
-      artistName.setValue("");
-      setProfileName("");
-      artistInfo.setValue("");
-      artCoun.setValue("");
-      setUseArtCoun([]);
-      ques1.setValue("");
-      ques2.setValue("");
-      ques3.setValue("");
-      ques4.setValue("");
-      ques5.setValue("");
-      ques6.setValue("");
-      ques7.setValue("");
-      ques8.setValue("");
-      setFilmoArr([]);
-      repSongName.setValue("");
-
-      dispatch({
-        type: REP_SONG_FILE_RESET,
-      });
-
-      router.push(`/artisttem/${me && me.ArtistId}`);
-
       return message.success("프로필이 수정되었습니다.");
     }
 
@@ -246,6 +280,54 @@ const Index = () => {
       return message.error(st_artistInfoUpdateError);
     }
   }, [st_artistInfoUpdateDone, st_artistInfoUpdateError]);
+
+  // 데이터세팅
+  useEffect(() => {
+    if (artistemData) {
+      comName.setValue(artistemData.name);
+      comNum.setValue(artistemData.companyNo);
+      artistName.setValue(artistemData.artistName);
+      artistInfo.setValue(artistemData.artistInfo);
+      ques1.setValue(artistemData.question1);
+      ques2.setValue(artistemData.question2);
+      ques3.setValue(artistemData.question3);
+      ques4.setValue(artistemData.question4);
+      ques5.setValue(artistemData.question5);
+      ques6.setValue(artistemData.question6);
+      ques7.setValue(artistemData.question7);
+      ques8.setValue(artistemData.question8);
+      repSongName.setValue(artistemData.repMusicFilename);
+    }
+
+    if (findCountryInfoData) {
+      setUseArtCoun(findCountryInfoData);
+    }
+
+    if (findTagInfoData) {
+      setTagArr(findTagInfoData);
+    }
+    if (findCateInfoData) {
+      setCateArr(findCateInfoData);
+    }
+    if (findFilmInfoData) {
+      setFilmoArr(findFilmInfoData);
+    }
+  }, [
+    artistemData,
+    findCountryInfoData,
+    findFilmInfoData,
+    findCateInfoData,
+    findTagInfoData,
+  ]);
+
+  useEffect(() => {
+    dispatch({
+      type: ARTISTEM_MY_DATA_REQUEST,
+      data: {
+        ArtistemId: me && me.artistemId,
+      },
+    });
+  }, [me]);
 
   ////// TOGGLE //////
   const filmoToggle = useCallback(() => {
@@ -291,6 +373,7 @@ const Index = () => {
 
   // 프로필 등록
   const imgClickHandler = useCallback(() => {
+    setCurrentTab(1);
     imgRef.current.click();
   }, [imgRef]);
 
@@ -355,6 +438,7 @@ const Index = () => {
 
   // 필모음원 등록
   const filmoFileClickHandler = useCallback(() => {
+    setCurrentTab(4);
     filmoFileRef.current.click();
   }, [filmoFileRef]);
 
@@ -372,7 +456,7 @@ const Index = () => {
     }
 
     dispatch({
-      type: FILMO_MUSIC_REQUEST,
+      type: SELLER_IMAGE_REQUEST,
       data: formData,
     });
   }, []);
@@ -388,6 +472,7 @@ const Index = () => {
 
   // 필모앨범이미지 등록
   const filmoImgClickHandler = useCallback(() => {
+    setCurrentTab(3);
     filmoImgRef.current.click();
   }, [filmoImgRef]);
 
@@ -405,7 +490,7 @@ const Index = () => {
     }
 
     dispatch({
-      type: FILMO_COVER_IMAGE_REQUEST,
+      type: SELLER_IMAGE_REQUEST,
       data: formData,
     });
   }, []);
@@ -436,11 +521,11 @@ const Index = () => {
       return message.error("곡제목을 입력해주세요.");
     }
 
-    if (!filmoFile) {
+    if (!filmoMusic) {
       return message.error("음원을 등록해주세요.");
     }
 
-    if (!filmoImage) {
+    if (!filmoCover) {
       return message.error("이미지를 등록해주세요.");
     }
 
@@ -452,9 +537,9 @@ const Index = () => {
       singerName: singer.value,
       songName: songTitle.value,
       filename: filmoFileName.value,
-      filePath: filmoFile,
+      filePath: filmoMusic,
       imagePathName: filmoImgName.value,
-      imagePath: filmoImage,
+      imagePath: filmoCover,
       sort: arr.length + 1,
     });
 
@@ -468,11 +553,11 @@ const Index = () => {
     comment,
     singer,
     songTitle,
-    filmoFile,
-    filmoImage,
     filmoArr,
     filmoFileName,
     filmoImgName,
+    filmoMusic,
+    filmoCover,
   ]);
 
   // 검색태그 아이디 추가
@@ -484,16 +569,41 @@ const Index = () => {
       if (index !== -1) {
         tempArr = tempArr.filter((data) => data !== type.id);
       } else {
-        tempArr.push(type.id);
+        tempArr.push({
+          TagTypeId: type.TagTypeId,
+          TagId: type.id,
+          sort: tempArr.length + 1,
+        });
       }
 
       setTagArr(tempArr);
     },
     [tagArr]
   );
+  // 카테고리 아이디 추가
+  const cateHandler = useCallback(
+    (type) => {
+      const index = cateArr.indexOf(type.id);
+      let tempArr = cateArr.map((data) => data);
+
+      if (index !== -1) {
+        tempArr = tempArr.filter((data) => data !== type.id);
+      } else {
+        tempArr.push({
+          CateTypeId: type.CateTypeId,
+          CategoryId: type.id,
+          sort: tempArr.length + 1,
+        });
+      }
+
+      setCateArr(tempArr);
+    },
+    [cateArr]
+  );
 
   // 대표은원 등록
   const repSongFileClickHandler = useCallback(() => {
+    setCurrentTab(2);
     repSongFileRef.current.click();
   }, [repSongFileRef]);
 
@@ -511,7 +621,7 @@ const Index = () => {
     }
 
     dispatch({
-      type: ARTISTEM_FILE_REQUEST,
+      type: SELLER_IMAGE_REQUEST,
       data: formData,
     });
   }, []);
@@ -521,9 +631,9 @@ const Index = () => {
       return message.error("담당자 성함을 입력해주세요.");
     }
 
-    if (!isComNum) {
-      return message.error("사업자번호 인증해주세요.");
-    }
+    // if (!isComNum) {
+    //   return message.error("사업자번호 인증해주세요.");
+    // }
 
     if (!artistName.value || artistName.value.trim() === "") {
       return message.error("아티스트명을 입력해주세요.");
@@ -537,7 +647,7 @@ const Index = () => {
       return message.error("사용 가능한 언어/국가를 등록해주세요.");
     }
 
-    if (!repSongFile) {
+    if (!reqMusic) {
       return message.error("대표음원을 등록해주세요.");
     }
 
@@ -582,13 +692,16 @@ const Index = () => {
     }
 
     dispatch({
-      type: ARTIST_INFO_UPDATE_REQUEST,
+      type: ARTISTEM_INFO_UPDATE_REQUEST,
       data: {
-        id: me.ArtistId,
+        // id: me.ArtistId,
         name: comName.value,
-        businessNum: comNum.value,
-        artistname: artistName.value,
-        info: artistInfo.value,
+        companyNo: comNum.value,
+        artistName: artistName.value,
+        artistInfo: artistInfo.value,
+        artistProfileImage: artistemProfileImage,
+        repMusicFile: reqMusic,
+        repMusicFilename: repSongName.value,
         question1: ques1.value,
         question2: ques2.value,
         question3: ques3.value,
@@ -597,33 +710,32 @@ const Index = () => {
         question6: ques6.value,
         question7: ques7.value,
         question8: ques8.value,
-        artistFilms: filmoArr,
-        artistCountries: useArtCoun,
+        filmography: filmoArr,
+        countrys: useArtCoun,
         tags: tagArr,
-        repSongFilePath: repSongFile,
-        repSongFileName: repSongName.value,
+        categorys: cateArr,
       },
     });
   }, [
-    comName.value,
-    comNum.value,
-    artistName.value,
-    artistInfo.value,
-    useArtCoun,
-    isComNum,
-    ques1.value,
-    ques2.value,
-    ques3.value,
-    ques4.value,
-    ques5.value,
-    ques6.value,
-    ques7.value,
-    ques8.value,
+    comName,
+    comNum,
+    artistName,
+    artistInfo,
+    artistemProfileImage,
+    reqMusic,
+    repSongName,
+    ques1,
+    ques2,
+    ques3,
+    ques4,
+    ques5,
+    ques6,
+    ques7,
+    ques8,
     filmoArr,
+    useArtCoun,
     tagArr,
-    me,
-    repSongFile,
-    repSongName.value,
+    cateArr,
   ]);
 
   ////// DATAVIEW //////
@@ -789,14 +901,14 @@ const Index = () => {
                   fontSize={`18px`}
                   fontWeight={`600`}
                   kindOf={`subTheme2`}
-                  onClick={imgClickHandler}
+                  onClick={() => imgClickHandler(1)}
                   loading={st_userUploadLoading}
                 >
                   파일등록
                 </CommonButton>
               </Wrapper>
 
-              {sellerImage && (
+              {artistemProfileImage && (
                 <Wrapper
                   width={width < 700 ? `100%` : `440px`}
                   dr={`row`}
@@ -1128,9 +1240,9 @@ const Index = () => {
               </Wrapper>
               <Wrapper dr={`row`} ju={`flex-start`}>
                 {filmoArr &&
-                  filmoArr.map((data) => {
+                  filmoArr.map((data, idx) => {
                     return (
-                      <Box key={data.sort}>
+                      <Box key={idx}>
                         <SquareBox>
                           <Image alt="thumbnail" src={data.imagePath} />
                         </SquareBox>
@@ -1187,8 +1299,10 @@ const Index = () => {
                       margin={`0 10px`}
                       padding={`0`}
                       height={width < 900 ? `40px` : `54px`}
-                      onClick={() => tagHandler(data)}
-                      isActive={tagArr.includes(data.id)}
+                      onClick={() => cateHandler(data)}
+                      isActive={cateArr.find(
+                        (value) => value.CategoryId === data.id
+                      )}
                     >
                       {data.value}
                     </TagBtn>
@@ -1236,10 +1350,11 @@ const Index = () => {
                 al={`flex-start`}
                 margin={`0 0 30px`}
               >
-                {/* {commonTags &&
-                  commonTags.map((data) => {
-                    return (
-                      data.type === "Mood" && (
+                {tagTypeList.map((data) => {
+                  return (
+                    data.value === "Mood" &&
+                    data.underValues.map((value) => {
+                      return (
                         <TagBtn
                           key={data.id}
                           kindOf={`grey`}
@@ -1253,14 +1368,17 @@ const Index = () => {
                           margin={`0 10px`}
                           padding={`0`}
                           height={width < 900 ? `40px` : `54px`}
-                          onClick={() => tagHandler(data)}
-                          isActive={tagArr.includes(data.id)}
+                          onClick={() => tagHandler(value)}
+                          isActive={tagArr.find(
+                            (result) => result.TagId === value.id
+                          )}
                         >
-                          {data.value}
+                          {value.tagValue}
                         </TagBtn>
-                      )
-                    );
-                  })} */}
+                      );
+                    })
+                  );
+                })}
               </Wrapper>
               <Text
                 fontSize={`16px`}
@@ -1278,10 +1396,11 @@ const Index = () => {
                 al={`flex-start`}
                 margin={`0 0 30px`}
               >
-                {commonTags &&
-                  commonTags.map((data) => {
-                    return (
-                      data.type === "Genre" && (
+                {tagTypeList.map((data) => {
+                  return (
+                    data.value === "Genre" &&
+                    data.underValues.map((value) => {
+                      return (
                         <TagBtn
                           key={data.id}
                           kindOf={`grey`}
@@ -1295,14 +1414,17 @@ const Index = () => {
                           margin={`0 10px`}
                           padding={`0`}
                           height={width < 900 ? `40px` : `54px`}
-                          onClick={() => tagHandler(data)}
-                          isActive={tagArr.includes(data.id)}
+                          onClick={() => tagHandler(value)}
+                          isActive={tagArr.find(
+                            (result) => result.TagId === value.id
+                          )}
                         >
-                          {data.value}
+                          {value.tagValue}
                         </TagBtn>
-                      )
-                    );
-                  })}
+                      );
+                    })
+                  );
+                })}
               </Wrapper>
 
               <CommonButton
@@ -1435,7 +1557,7 @@ const Index = () => {
                     파일등록
                   </CommonButton>
                 </Wrapper>
-                {filmoFile && (
+                {filmoMusic && (
                   <Wrapper
                     dr={`row`}
                     ju={`space-between`}
@@ -1490,7 +1612,7 @@ const Index = () => {
                     파일등록
                   </CommonButton>
                 </Wrapper>
-                {filmoImage && (
+                {filmoCover && (
                   <Wrapper
                     dr={`row`}
                     ju={`space-between`}
@@ -1550,10 +1672,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
     });
 
     context.store.dispatch({
-      type: TAG_LIST_REQUEST,
-      data: {
-        TagTypeId: 1,
-      },
+      type: TAG_TYPE_LIST_REQUEST,
     });
 
     // 구현부 종료

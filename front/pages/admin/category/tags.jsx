@@ -134,6 +134,9 @@ const Category = ({}) => {
     //
     st_tagDeleteDone,
     st_tagDeleteError,
+    //
+    st_tagTypeUpdateDone,
+    st_tagTypeUpdateError,
   } = useSelector((state) => state.tag);
 
   console.log(tagTypeList);
@@ -151,6 +154,20 @@ const Category = ({}) => {
   // INPUT
 
   ////// USEEFFECT //////
+
+  useEffect(() => {
+    if (st_tagTypeUpdateDone) {
+      dispatch({
+        type: TAG_TYPE_LIST_REQUEST,
+      });
+
+      return message.success("태그 타입명을 수정했습니다.");
+    }
+
+    if (st_tagTypeUpdateError) {
+      return message.error(st_tagTypeUpdateError);
+    }
+  }, [st_tagTypeUpdateDone, st_tagTypeUpdateError]);
 
   useEffect(() => {
     if (st_tagDeleteDone) {
