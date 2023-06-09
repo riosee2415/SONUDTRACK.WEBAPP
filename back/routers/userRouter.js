@@ -38,13 +38,15 @@ const upload = multer({
 const router = express.Router();
 
 router.post("/list", isAdminCheck, async (req, res, next) => {
-  const { searchData, searchLevel, searchExit } = req.body;
+  const { searchData, searchLevel, searchExit, isArtist } = req.body;
 
   const _searchData = searchData ? searchData : ``;
 
   const _searchLevel = parseInt(searchLevel) === 0 ? 0 : parseInt(searchLevel);
 
   const _searchExit = searchExit ? searchExit : false;
+
+  const _isArtist = isArtist ? isArtist : false;
 
   const selectQuery = `
   SELECT	ROW_NUMBER() OVER(ORDER	BY A.createdAt)		AS num,
@@ -83,6 +85,7 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
           A.musictemId
     FROM	users     A
    WHERE	CONCAT(A.username, A.email) LIKE '%${_searchData}%'
+          ${_isArtist ? `AND A.type = 2` : ``}
           ${
             _searchLevel === parseInt(0)
               ? ``
