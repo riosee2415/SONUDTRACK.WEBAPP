@@ -4,6 +4,8 @@ export const initailState = {
   albumImage: null,
   albumFile: null,
   albumTrackFile: null,
+  musictemList: [], // 뮤직템 리스트
+  newMusictemList: [], // new 뮤직템 리스트
   //   뮤직템디테일
   detailData: null,
   albums: null,
@@ -40,6 +42,14 @@ export const initailState = {
   st_albumTrackFileLoading: false, // 앨범 트랙 파일
   st_albumTrackFileDone: false,
   st_albumTrackFileError: null,
+  //
+  st_musictemListLoading: false, // 뮤직템 리스트
+  st_musictemListDone: false,
+  st_musictemListError: null,
+  //
+  st_newMusictemListLoading: false, // new 뮤직템 리스트
+  st_newMusictemListDone: false,
+  st_newMusictemListError: null,
 };
 
 export const ALBUM_IMAGE_REQUEST = "ALBUM_IMAGE_REQUEST";
@@ -77,6 +87,14 @@ export const ALBUM_TRACK_FILE_FAILURE = "ALBUM_TRACK_FILE_FAILURE";
 export const ALBUM_IMAGE_RESET = "ALBUM_IMAGE_RESET";
 export const ALBUM_FILE_RESET = "ALBUM_FILE_RESET";
 export const ALBUM_TRACK_FILE_RESET = "ALBUM_TRACK_FILE_RESET";
+
+export const MUSICTEM_LIST_REQUEST = "MUSICTEM_LIST_REQUEST";
+export const MUSICTEM_LIST_SUCCESS = "MUSICTEM_LIST_SUCCESS";
+export const MUSICTEM_LIST_FAILURE = "MUSICTEM_LIST_FAILURE";
+
+export const NEW_MUSICTEM_LIST_REQUEST = "NEW_MUSICTEM_LIST_REQUEST";
+export const NEW_MUSICTEM_LIST_SUCCESS = "NEW_MUSICTEM_LIST_SUCCESS";
+export const NEW_MUSICTEM_LIST_FAILURE = "NEW_MUSICTEM_LIST_FAILURE";
 
 const reducer = (state = initailState, action) =>
   produce(state, (draft) => {
@@ -221,6 +239,48 @@ const reducer = (state = initailState, action) =>
         draft.st_albumFileLoading = false;
         draft.st_albumFileDone = false;
         draft.st_albumFileError = action.error;
+        break;
+      }
+
+      //////////////////////////////////////////////
+      case MUSICTEM_LIST_REQUEST: {
+        draft.st_musictemListLoading = true;
+        draft.st_musictemListDone = false;
+        draft.st_musictemListError = null;
+        break;
+      }
+      case MUSICTEM_LIST_SUCCESS: {
+        draft.st_musictemListLoading = false;
+        draft.st_musictemListDone = true;
+        draft.st_musictemListError = null;
+        draft.musictemList = action.data.musictems;
+        break;
+      }
+      case MUSICTEM_LIST_FAILURE: {
+        draft.st_musictemListLoading = false;
+        draft.st_musictemListDone = false;
+        draft.st_musictemListError = action.error;
+        break;
+      }
+
+      //////////////////////////////////////////////
+      case NEW_MUSICTEM_LIST_REQUEST: {
+        draft.st_newMusictemListLoading = true;
+        draft.st_newMusictemListDone = false;
+        draft.st_newMusictemListError = null;
+        break;
+      }
+      case NEW_MUSICTEM_LIST_SUCCESS: {
+        draft.st_newMusictemListLoading = false;
+        draft.st_newMusictemListDone = true;
+        draft.st_newMusictemListError = null;
+        draft.newMusictemList = action.data;
+        break;
+      }
+      case NEW_MUSICTEM_LIST_FAILURE: {
+        draft.st_newMusictemListLoading = false;
+        draft.st_newMusictemListDone = false;
+        draft.st_newMusictemListError = action.error;
         break;
       }
 

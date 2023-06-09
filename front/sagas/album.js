@@ -32,6 +32,14 @@ import {
   ALBUM_TRACK_FILE_REQUEST,
   ALBUM_TRACK_FILE_SUCCESS,
   ALBUM_TRACK_FILE_FAILURE,
+  //
+  MUSICTEM_LIST_REQUEST,
+  MUSICTEM_LIST_SUCCESS,
+  MUSICTEM_LIST_FAILURE,
+  //
+  NEW_MUSICTEM_LIST_REQUEST,
+  NEW_MUSICTEM_LIST_SUCCESS,
+  NEW_MUSICTEM_LIST_FAILURE,
 } from "../reducers/album";
 
 // SAGA AREA ********************************************************************************************************
@@ -222,6 +230,60 @@ function* albumTrackFile(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function musictemListAPI(data) {
+  return await axios.post(`/api/album/musictem/list`, data);
+}
+
+function* musictemList(action) {
+  try {
+    const result = yield call(musictemListAPI, action.data);
+
+    yield put({
+      type: MUSICTEM_LIST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: MUSICTEM_LIST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function newMusictemListAPI(data) {
+  return await axios.post(`/api/album/new/list`, data);
+}
+
+function* newMusictemList(action) {
+  try {
+    const result = yield call(newMusictemListAPI, action.data);
+
+    yield put({
+      type: NEW_MUSICTEM_LIST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: NEW_MUSICTEM_LIST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 function* watchAlbumImage() {
   yield takeLatest(ALBUM_IMAGE_REQUEST, albumImage);
@@ -247,6 +309,12 @@ function* watchAlbumFile() {
 function* watchAlbumTrackFile() {
   yield takeLatest(ALBUM_TRACK_FILE_REQUEST, albumTrackFile);
 }
+function* watchMusictemList() {
+  yield takeLatest(MUSICTEM_LIST_REQUEST, musictemList);
+}
+function* watchNewMusictemList() {
+  yield takeLatest(NEW_MUSICTEM_LIST_REQUEST, newMusictemList);
+}
 
 //////////////////////////////////////////////////////////////
 export default function* albumSaga() {
@@ -259,6 +327,8 @@ export default function* albumSaga() {
     fork(watchMusictemDetail),
     fork(watchAlbumFile),
     fork(watchAlbumTrackFile),
+    fork(watchMusictemList),
+    fork(watchNewMusictemList),
 
     //
   ]);
