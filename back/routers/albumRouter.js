@@ -340,6 +340,171 @@ router.post("/musictem/new/list", async (req, res, next) => {
  * DEVELOPMENT : 신태섭
  * DEV DATE : 2023/06/09
  */
+router.post("/musictem/detail", async (req, res, next) => {
+  const { MusictemId } = req.body;
+
+  const detailQuery = `
+  SELECT  id,
+          artistName,
+          profileImage,
+          profileImageName,
+          createdAt,
+          updatedAt,
+          DATE_FORMAT(createdAt, "%Y년 %m월 %d일")    AS viewCreatedAt,
+          DATE_FORMAT(createdAt, "%Y.%m.%d")        AS viewFrontCreatedAt,
+          DATE_FORMAT(updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt
+    FROM  musictem
+   WHERE  id = ${MusictemId}
+  `;
+
+  const albumQuery = `
+  SELECT  ROW_NUMBER()  OVER(ORDER  BY createdAt)   AS num,
+          id, 
+          albumImage,
+          albumImageName,
+          bitRate,
+          sampleRate,
+          fileName,
+          filePath,
+          isPremium,
+          isTrackPermit,
+          permitAt,
+          createdAt,
+          updatedAt,
+          DATE_FORMAT(createdAt, "%Y년 %m월 %d일")    AS viewCreatedAt,
+          DATE_FORMAT(createdAt, "%Y.%m.%d")        AS viewFrontCreatedAt,
+          DATE_FORMAT(updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
+          MusictemId
+    FROM  album
+   WHERE  MusictemId = ${MusictemId}
+   ORDER  BY num DESC
+  `;
+
+  const findCateInfoQuery = `
+  SELECT  ROW_NUMBER()  OVER(ORDER  BY A.sort)      AS num,
+          A.id,
+          A.sort,
+          A.AlbumId,
+          A.CateTypeId,
+          A.CategoryId,
+          A.createdAt,
+          A.updatedAt,
+          DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")  AS viewCreatedAt,
+          DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")  AS viewUpdatedAt,
+          B.category                                AS categoryTypeValue,
+          C.value                                   AS catagoryValue
+    FROM  albumCategory     A
+   INNER
+    JOIN  cateType          B
+      ON  A.CateTypeId = B.id
+   INNER
+    JOIN  category          C
+      ON  A.CategoryId = C.id
+   ORDER  BY num ASC
+  `;
+
+  const findTagInfoQuery = `
+  SELECT  ROW_NUMBER()  OVER(ORDER  BY A.sort)      AS num,
+          A.id,
+          A.sort,
+          A.AlbumId,
+          A.TagTypeId,
+          A.TagId,
+          A.createdAt,
+          A.updatedAt,
+          DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")  AS viewCreatedAt,
+          DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")  AS viewUpdatedAt,
+          B.value                                   AS tagTypeValue,
+          C.tagValue
+    FROM  albumTag        A
+   INNER
+    JOIN  tagType          B
+      ON  A.TagTypeId = B.id
+   INNER
+    JOIN  tag              C
+      ON  A.TagId = C.id
+   ORDER  BY num ASC
+  `;
+
+  const trackQuery = `
+  SELECT  ROW_NUMBER()  OVER(ORDER  BY A.createdAt)   AS num,
+          A.id,
+          A.songName,
+          A.singerName,
+          A.fileName,
+          A.filePath,
+          A.fileLength,
+          A.standardPrice,
+          A.deluxePrice,
+          A.platinumPrice,
+          A.isTitle,
+          A.AlbumId,
+          B.albumImage,
+          B.albumImageName,
+          A.createdAt,
+          A.updatedAt,
+          DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")    AS viewCreatedAt,
+          DATE_FORMAT(A.createdAt, "%Y.%m.%d")        AS viewFrontCreatedAt,
+          DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt
+    FROM  track   A 
+   INNER
+    JOIN  album   B
+   WHERE  B.isTrackPermit = 1
+   ORDER  BY num DESC
+  `;
+
+  try {
+    const detailData = await models.sequelize.query(detailQuery);
+
+    if (detailData[0].length === 0) {
+      return res.status(401).send("존재하지 않는 뮤직템 데이터입니다.");
+    }
+
+    const albums = await models.sequelize.query(albumQuery);
+
+    const track = await models.sequelize.query(trackQuery);
+    const categorys = await models.sequelize.query(findCateInfoQuery);
+    const tags = await models.sequelize.query(findTagInfoQuery);
+
+    albums[0].map((ele) => {
+      ele["tracks"] = [];
+
+      track[0].map((innerItem) => {
+        if (parseInt(ele.id) === parseInt(innerItem.AlbumId)) {
+          ele.tracks.push(innerItem);
+        }
+      });
+    });
+
+    albums[0].map((ele) => {
+      ele["categorys"] = [];
+
+      categorys[0].map((innerItem) => {
+        if (parseInt(ele.id) === parseInt(innerItem.AlbumId)) {
+          ele.categorys.push(innerItem);
+        }
+      });
+    });
+
+    albums[0].map((ele) => {
+      ele["tags"] = [];
+
+      tags[0].map((innerItem) => {
+        if (parseInt(ele.id) === parseInt(innerItem.AlbumId)) {
+          ele.tags.push(innerItem);
+        }
+      });
+    });
+
+    return res.status(200).json({
+      detailData: detailData[0][0],
+      albums: albums[0],
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("뮤직탬 정보를 조회할 수 없습니다.");
+  }
+});
 
 /**
  * SUBJECT : 앨범 상세
