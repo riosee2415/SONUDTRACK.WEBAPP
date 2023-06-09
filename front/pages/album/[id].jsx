@@ -23,6 +23,7 @@ import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
 import { PRODUCT_ALBUM_DETAIL_REQUEST } from "../../reducers/product";
+import { ALBUM_DETAIL_REQUEST } from "../../reducers/album";
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
 });
@@ -91,9 +92,15 @@ const AlbumWrapper = styled(Wrapper)`
 const Index = () => {
   ////// GLOBAL STATE //////
 
-  const { albumDetail } = useSelector((state) => state.product);
+  const { trackdetail } = useSelector((state) => state.product);
+  const { albumDetail, albumTrack, albumCate, albumTag } = useSelector(
+    (state) => state.album
+  );
 
   console.log(albumDetail);
+  console.log(albumTrack);
+  console.log(albumCate);
+  console.log(albumTag);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -111,9 +118,9 @@ const Index = () => {
   useEffect(() => {
     if (router.query) {
       dispatch({
-        type: PRODUCT_ALBUM_DETAIL_REQUEST,
+        type: ALBUM_DETAIL_REQUEST,
         data: {
-          id: router.query.id,
+          AlbumId: router.query.id,
         },
       });
     }
@@ -232,30 +239,32 @@ const Index = () => {
                       <Image
                         height={`100%`}
                         radius={`100%`}
-                        src={albumDetail.coverImage}
+                        src={albumDetail.albumImage}
                         alt="thumbnail"
                       />
                     )}
                     {/* 프리미엄일때 나타나는 아이콘*/}
-                    {/* <Popover
-                      placement="bottom"
-                      content={
-                        <Wrapper>
-                          <Text color={Theme.grey_C}>
-                            간단한 템포, 길이 등의 편집
-                          </Text>
-                          <Text color={Theme.grey_C}>이 가능합니다.</Text>
-                        </Wrapper>
-                      }
-                    >
-                      <Image
-                        width={`56px`}
-                        position={`absolute`}
-                        top={`10px`}
-                        right={`10px`}
-                        src="https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/premium.png"
-                      />
-                    </Popover> */}
+                    {albumDetail && albumDetail.isPremium === 1 && (
+                      <Popover
+                        placement="bottom"
+                        content={
+                          <Wrapper>
+                            <Text color={Theme.grey_C}>
+                              간단한 템포, 길이 등의 편집
+                            </Text>
+                            <Text color={Theme.grey_C}>이 가능합니다.</Text>
+                          </Wrapper>
+                        }
+                      >
+                        <Image
+                          width={`56px`}
+                          position={`absolute`}
+                          top={`10px`}
+                          right={`10px`}
+                          src="https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/premium.png"
+                        />
+                      </Popover>
+                    )}
                   </CdWrapper>
                   <Wrapper
                     width={`auto`}
@@ -271,7 +280,7 @@ const Index = () => {
                         src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
                       />
                       <Text fontSize={`12px`} color={Theme.grey_C}>
-                        {albumDetail && albumDetail.downloadCnt}
+                        55
                       </Text>
                     </Wrapper>
                     <Wrapper width={`65px`} cursor={`pointer`}>
@@ -290,7 +299,7 @@ const Index = () => {
                         src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
                       />
                       <Text fontSize={`12px`} color={Theme.grey_C}>
-                        {albumDetail && albumDetail.likeCnt}
+                        121
                       </Text>
                     </Wrapper>
                   </Wrapper>
@@ -301,7 +310,7 @@ const Index = () => {
                   padding={width < 800 ? `20px 0 0` : `0 0 0 56px`}
                 >
                   <Text fontSize={`30px`} fontWeight={`bold`}>
-                    {albumDetail && albumDetail.title}
+                    {albumDetail && albumDetail.fileName}
                   </Text>
                   <Wrapper
                     dr={`row`}
@@ -311,16 +320,15 @@ const Index = () => {
                   >
                     <SpanText color={Theme.grey_C}>Album by</SpanText>
                     <Text margin={`0 0 0 6px`} td={`underline`}>
-                      {albumDetail && albumDetail.nickname}
+                      {albumDetail && albumDetail.artistName}
                     </Text>
                   </Wrapper>
                   <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 30px`}>
-                    {albumDetail &&
-                      albumDetail.genList &&
-                      albumDetail.genList.map((data, idx) => {
+                    {albumTag &&
+                      albumTag.map((data) => {
                         return (
                           <Wrapper
-                            key={idx}
+                            key={data.id}
                             width={`auto`}
                             border={`1px solid ${Theme.lightGrey_C}`}
                             bgColor={Theme.white_C}
@@ -329,7 +337,7 @@ const Index = () => {
                             padding={`0 15px`}
                             margin={`0 4px 0 0`}
                           >
-                            {data.value}
+                            {data.tagValue}
                           </Wrapper>
                         );
                       })}
@@ -342,7 +350,7 @@ const Index = () => {
                     Information
                   </Text>
                   <Text color={Theme.grey_C} margin={`0 0 5px`}>
-                    Track : {albumDetail && albumDetail.trackList.length}곡
+                    Track : {albumTrack && albumTrack.length}곡
                   </Text>
                   <Text color={Theme.grey_C} margin={`0 0 5px`}>
                     Audio Files Included : MP3, WAV
@@ -368,8 +376,8 @@ const Index = () => {
             </Wrapper>
 
             <Wrapper borderTop={`1px solid ${Theme.lightGrey_C}`}>
-              {albumDetail &&
-                (albumDetail.trackList.length === 0 ? (
+              {albumTrack &&
+                (albumTrack.length === 0 ? (
                   <Wrapper
                     height={`400px`}
                     borderBottom={`1px solid ${Theme.lightGrey_C}`}
@@ -388,7 +396,7 @@ const Index = () => {
                     </Text>
                   </Wrapper>
                 ) : (
-                  albumDetail.trackList.slice(0, moreType).map((data, idx) => {
+                  albumTrack.slice(0, moreType).map((data, idx) => {
                     return (
                       <Wrapper
                         key={idx}
@@ -405,25 +413,25 @@ const Index = () => {
                       >
                         <audio
                           id={`audioTeg_recent_${idx}`}
-                          src={data.filepath}
+                          src={data.filePath}
                           hidden
                         />
                         <Wrapper width={`auto`} dr={`row`} ju={`flex-start`}>
                           <Image
                             alt="thumbnail"
-                            src={data.thumbnail}
+                            src={data.albumImage}
                             width={width < 700 ? `80px` : `100px`}
                             height={width < 700 ? `80px` : `100px`}
                             radius={`7px`}
                             shadow={`3px 3px 15px rgba(0, 0, 0, 0.15)`}
                           />
-                          {playing === data.id ? (
+                          {playing === data.num ? (
                             <Image
                               alt="pause icon"
                               src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/pause_purple.png`}
                               width={width < 700 ? `20px` : `24px`}
                               margin={width < 700 ? `0 15px` : `0 30px`}
-                              onClick={() => playingToggle(data.id)}
+                              onClick={() => playingToggle(data.num)}
                               cursor={`pointer`}
                             />
                           ) : (
@@ -432,7 +440,7 @@ const Index = () => {
                               src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/play_purple.png`}
                               width={width < 700 ? `20px` : `24px`}
                               margin={width < 700 ? `0 15px` : `0 30px`}
-                              onClick={() => playingToggle(data.id)}
+                              onClick={() => playingToggle(data.num)}
                               cursor={`pointer`}
                             />
                           )}
@@ -445,19 +453,21 @@ const Index = () => {
                               width={width < 1600 ? `200px` : `280px`}
                               isEllipsis
                             >
-                              {data.title}
+                              {data.songName}
                             </Text>
                             <Text
                               onClick={() =>
                                 movelinkHandler(
-                                  `/musictem/artist/${data.ProductId}`
+                                  `/musictem/artist/${
+                                    albumDetail && albumDetail.MusictemId
+                                  }`
                                 )
                               }
                               isHover
                               fontSize={width < 700 ? `14px` : `16px`}
                               color={Theme.subTheme4_C}
                             >
-                              {data.author}
+                              {data.singerName}
                             </Text>
                             {width < 1520 ? (
                               <Text
@@ -466,11 +476,14 @@ const Index = () => {
                                 color={Theme.grey2_C}
                                 isEllipsis
                               >
-                                {data.genList.map(
-                                  (value, idx) =>
-                                    value.value +
-                                    (data.genList.length === idx + 1 ? "" : ",")
-                                )}
+                                {albumTag &&
+                                  albumTag.map(
+                                    (value, idx) =>
+                                      value.tagValue +
+                                      (albumTag && albumTag.length === idx + 1
+                                        ? ""
+                                        : ",")
+                                  )}
                               </Text>
                             ) : null}
 
@@ -493,7 +506,7 @@ const Index = () => {
                                     src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
                                   />
                                   <Text fontSize={`12px`} color={Theme.grey_C}>
-                                    {data.viewDownLoadCnt}
+                                    1351
                                   </Text>
                                 </Wrapper>
                                 <Wrapper
@@ -518,7 +531,7 @@ const Index = () => {
                                     }
                                   />
                                   <Text fontSize={`12px`} color={Theme.grey_C}>
-                                    {data.likeCnt}
+                                    123
                                   </Text>
                                 </Wrapper>
                               </Wrapper>
@@ -532,11 +545,14 @@ const Index = () => {
                             color={Theme.grey2_C}
                           >
                             <Text width={`160px`} isEllipsis>
-                              {data.genList.map(
-                                (value, idx) =>
-                                  value.value +
-                                  (data.genList.length === idx + 1 ? "" : ",")
-                              )}
+                              {albumTag &&
+                                albumTag.map(
+                                  (value, idx) =>
+                                    value.tagValue +
+                                    (albumTag && albumTag.length === idx + 1
+                                      ? ""
+                                      : ",")
+                                )}
                             </Text>
                           </Wrapper>
                         )}
@@ -568,7 +584,7 @@ const Index = () => {
                               }}
                               volume={1}
                               zoom={2}
-                              playing={playing === data.id}
+                              playing={playing === data.num}
                               audioFile={data.filepath}
                             />
                           </Wrapper>
@@ -593,7 +609,7 @@ const Index = () => {
                                 src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
                               />
                               <Text fontSize={`12px`} color={Theme.grey_C}>
-                                {data.downloadCnt}
+                                1234
                               </Text>
                             </Wrapper>
                             <Wrapper
@@ -618,7 +634,7 @@ const Index = () => {
                                 }
                               />
                               <Text fontSize={`12px`} color={Theme.grey_C}>
-                                {data.likeCnt}
+                                124
                               </Text>
                             </Wrapper>
                           </Wrapper>
@@ -629,14 +645,12 @@ const Index = () => {
                 ))}
             </Wrapper>
             <Wrapper margin={`60px 0 100px`}>
-              {albumDetail && albumDetail.trackList.length > moreType && (
+              {albumTrack && albumTrack.length > moreType && (
                 <CommonButton
                   kindOf={`grey`}
                   width={`150px`}
                   height={`48px`}
-                  onClick={() =>
-                    moreTypeChangeHandler(albumDetail.trackList.length)
-                  }
+                  onClick={() => moreTypeChangeHandler(albumTrack.length)}
                 >
                   더보기 +
                 </CommonButton>
@@ -661,8 +675,8 @@ const Index = () => {
               padding={`0 0 10px`}
               margin={`0 0 120px`}
             >
-              {albumDetail &&
-                (albumDetail.similarList.length === 0 ? (
+              {trackdetail &&
+                (trackdetail.similarList.length === 0 ? (
                   <Wrapper
                     height={`400px`}
                     borderBottom={`1px solid ${Theme.lightGrey_C}`}
@@ -681,7 +695,7 @@ const Index = () => {
                     </Text>
                   </Wrapper>
                 ) : (
-                  albumDetail.similarList.map((data) => {
+                  trackdetail.similarList.map((data) => {
                     return (
                       <Wrapper
                         key={data.id}

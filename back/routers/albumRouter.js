@@ -677,24 +677,28 @@ router.post("/detail", async (req, res, next) => {
   const { AlbumId } = req.body;
 
   const detailQuery = `
-  SELECT  id, 
-          albumImage,
-          albumImageName,
-          bitRate,
-          sampleRate,
-          fileName,
-          filePath,
-          isPremium,
-          isTrackPermit,
-          permitAt,
-          createdAt,
-          updatedAt,
-          DATE_FORMAT(createdAt, "%Y년 %m월 %d일")    AS viewCreatedAt,
-          DATE_FORMAT(createdAt, "%Y.%m.%d")        AS viewFrontCreatedAt,
-          DATE_FORMAT(updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
-          MusictemId
-    FROM  album
-   WHERE  id = ${AlbumId}
+  SELECT  A.id, 
+          A.albumImage,
+          A.albumImageName,
+          A.bitRate,
+          A.sampleRate,
+          A.fileName,
+          A.filePath,
+          A.isPremium,
+          A.isTrackPermit,
+          A.permitAt,
+          A.createdAt,
+          A.updatedAt,
+          DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")    AS viewCreatedAt,
+          DATE_FORMAT(A.createdAt, "%Y.%m.%d")        AS viewFrontCreatedAt,
+          DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
+          A.MusictemId,
+          B.artistName
+    FROM  album         A
+   INNER
+    JOIN  musictem          B
+      ON  A.MusictemId = B.id
+   WHERE  A.id = ${AlbumId}
   `;
 
   const findCateInfoQuery = `

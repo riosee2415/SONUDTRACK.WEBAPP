@@ -281,6 +281,7 @@ const Index = () => {
                             fontSize={`18px`}
                             color={Theme.darkGrey_C}
                             margin={`20px 0 8px`}
+                            cursor={`pointer`}
                           >
                             {data.fileName}
                           </Text>
