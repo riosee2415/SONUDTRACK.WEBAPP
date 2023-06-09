@@ -2,6 +2,11 @@ import produce from "../util/produce";
 
 export const initailState = {
   albumImage: null,
+  albumFile: null,
+  albumTrackFile: null,
+  //   뮤직템디테일
+  detailData: null,
+  albums: null,
   //
 
   st_albumImageLoading: false, // album image
@@ -23,6 +28,18 @@ export const initailState = {
   st_albumTrackPermitLoading: false, // album 삭제하기
   st_albumTrackPermitDone: false,
   st_albumTrackPermitError: null,
+  //
+  st_musictemDetailLoading: false, // 뮤직템 디테일
+  st_musictemDetailDone: false,
+  st_musictemDetailError: null,
+  //
+  st_albumFileLoading: false, // 앨범 파일
+  st_albumFileDone: false,
+  st_albumFileError: null,
+  //
+  st_albumTrackFileLoading: false, // 앨범 트랙 파일
+  st_albumTrackFileDone: false,
+  st_albumTrackFileError: null,
 };
 
 export const ALBUM_IMAGE_REQUEST = "ALBUM_IMAGE_REQUEST";
@@ -45,7 +62,21 @@ export const ALBUM_TRACK_PERMIT_REQUEST = "ALBUM_TRACK_PERMIT_REQUEST";
 export const ALBUM_TRACK_PERMIT_SUCCESS = "ALBUM_TRACK_PERMIT_SUCCESS";
 export const ALBUM_TRACK_PERMIT_FAILURE = "ALBUM_TRACK_PERMIT_FAILURE";
 
+export const MUSICTEM_DETAIL_REQUEST = "MUSICTEM_DETAIL_REQUEST";
+export const MUSICTEM_DETAIL_SUCCESS = "MUSICTEM_DETAIL_SUCCESS";
+export const MUSICTEM_DETAIL_FAILURE = "MUSICTEM_DETAIL_FAILURE";
+
+export const ALBUM_FILE_REQUEST = "ALBUM_FILE_REQUEST";
+export const ALBUM_FILE_SUCCESS = "ALBUM_FILE_SUCCESS";
+export const ALBUM_FILE_FAILURE = "ALBUM_FILE_FAILURE";
+
+export const ALBUM_TRACK_FILE_REQUEST = "ALBUM_TRACK_FILE_REQUEST";
+export const ALBUM_TRACK_FILE_SUCCESS = "ALBUM_TRACK_FILE_SUCCESS";
+export const ALBUM_TRACK_FILE_FAILURE = "ALBUM_TRACK_FILE_FAILURE";
+
 export const ALBUM_IMAGE_RESET = "ALBUM_IMAGE_RESET";
+export const ALBUM_FILE_RESET = "ALBUM_FILE_RESET";
+export const ALBUM_TRACK_FILE_RESET = "ALBUM_TRACK_FILE_RESET";
 
 const reducer = (state = initailState, action) =>
   produce(state, (draft) => {
@@ -147,6 +178,70 @@ const reducer = (state = initailState, action) =>
         draft.st_albumTrackPermitLoading = false;
         draft.st_albumTrackPermitDone = false;
         draft.st_albumTrackPermitError = action.error;
+        break;
+      }
+
+      //////////////////////////////////////////////
+      case MUSICTEM_DETAIL_REQUEST: {
+        draft.st_musictemDetailLoading = true;
+        draft.st_musictemDetailDone = false;
+        draft.st_musictemDetailError = null;
+        break;
+      }
+      case MUSICTEM_DETAIL_SUCCESS: {
+        draft.st_musictemDetailLoading = false;
+        draft.st_musictemDetailDone = true;
+        draft.st_musictemDetailError = null;
+        draft.detailData = action.data.detailData;
+        draft.albums = action.data.albums;
+        break;
+      }
+      case MUSICTEM_DETAIL_FAILURE: {
+        draft.st_musictemDetailLoading = false;
+        draft.st_musictemDetailDone = false;
+        draft.st_musictemDetailError = action.error;
+        break;
+      }
+
+      //////////////////////////////////////////////
+      case ALBUM_FILE_REQUEST: {
+        draft.st_albumFileLoading = true;
+        draft.st_albumFileDone = false;
+        draft.st_albumFileError = null;
+        break;
+      }
+      case ALBUM_FILE_SUCCESS: {
+        draft.st_albumFileLoading = false;
+        draft.st_albumFileDone = true;
+        draft.st_albumFileError = null;
+        draft.albumFile = action.data.path;
+        break;
+      }
+      case ALBUM_FILE_FAILURE: {
+        draft.st_albumFileLoading = false;
+        draft.st_albumFileDone = false;
+        draft.st_albumFileError = action.error;
+        break;
+      }
+
+      //////////////////////////////////////////////
+      case ALBUM_TRACK_FILE_REQUEST: {
+        draft.st_albumTrackFileLoading = true;
+        draft.st_albumTrackFileDone = false;
+        draft.st_albumTrackFileError = null;
+        break;
+      }
+      case ALBUM_TRACK_FILE_SUCCESS: {
+        draft.st_albumTrackFileLoading = false;
+        draft.st_albumTrackFileDone = true;
+        draft.st_albumTrackFileError = null;
+        draft.albumTrackFile = action.data.path;
+        break;
+      }
+      case ALBUM_TRACK_FILE_FAILURE: {
+        draft.st_albumTrackFileLoading = false;
+        draft.st_albumTrackFileDone = false;
+        draft.st_albumTrackFileError = action.error;
         break;
       }
 

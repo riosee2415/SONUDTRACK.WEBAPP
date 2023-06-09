@@ -63,6 +63,7 @@ const AlbumSlider = ({ list }) => {
       <Carousel slide="div" slidesToShow={6} slidesToScroll={6}>
         {list &&
           list.map((data) => {
+            console.log(data);
             return (
               <Wrapper
                 width={width < 700 ? `150px !important` : `200px !important`}
@@ -74,7 +75,7 @@ const AlbumSlider = ({ list }) => {
                     radius={`100%`}
                     width={`100%`}
                     height={`100%`}
-                    src={data.coverImage}
+                    src={data.albumImage}
                     alt="corverImage"
                   />
                 </CdWrapper>

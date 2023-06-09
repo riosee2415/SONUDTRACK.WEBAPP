@@ -20,6 +20,18 @@ import {
   ALBUM_TRACK_PERMIT_REQUEST,
   ALBUM_TRACK_PERMIT_SUCCESS,
   ALBUM_TRACK_PERMIT_FAILURE,
+  //
+  MUSICTEM_DETAIL_REQUEST,
+  MUSICTEM_DETAIL_SUCCESS,
+  MUSICTEM_DETAIL_FAILURE,
+  //
+  ALBUM_FILE_REQUEST,
+  ALBUM_FILE_SUCCESS,
+  ALBUM_FILE_FAILURE,
+  //
+  ALBUM_TRACK_FILE_REQUEST,
+  ALBUM_TRACK_FILE_SUCCESS,
+  ALBUM_TRACK_FILE_FAILURE,
 } from "../reducers/album";
 
 // SAGA AREA ********************************************************************************************************
@@ -137,6 +149,75 @@ function* albumTrackPermit(action) {
   }
 }
 
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function musictemDetailAPI(data) {
+  return await axios.post(`/api/album/musictem/detail`, data);
+}
+
+function* musictemDetail(action) {
+  try {
+    const result = yield call(musictemDetailAPI, action.data);
+
+    yield put({
+      type: MUSICTEM_DETAIL_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: MUSICTEM_DETAIL_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function albumFileAPI(data) {
+  return await axios.post(`/api/album/file`, data);
+}
+
+function* albumFile(action) {
+  try {
+    const result = yield call(albumFileAPI, action.data);
+
+    yield put({
+      type: ALBUM_FILE_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: ALBUM_FILE_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function albumTrackFileAPI(data) {
+  return await axios.post(`/api/album/file`, data);
+}
+
+function* albumTrackFile(action) {
+  try {
+    const result = yield call(albumTrackFileAPI, action.data);
+
+    yield put({
+      type: ALBUM_TRACK_FILE_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: ALBUM_TRACK_FILE_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 // ******************************************************************************************************************
@@ -157,6 +238,15 @@ function* watchAlbumTrackCreate() {
 function* watchAlbumTrackPermit() {
   yield takeLatest(ALBUM_TRACK_PERMIT_REQUEST, albumTrackPermit);
 }
+function* watchMusictemDetail() {
+  yield takeLatest(MUSICTEM_DETAIL_REQUEST, musictemDetail);
+}
+function* watchAlbumFile() {
+  yield takeLatest(ALBUM_FILE_REQUEST, albumFile);
+}
+function* watchAlbumTrackFile() {
+  yield takeLatest(ALBUM_TRACK_FILE_REQUEST, albumTrackFile);
+}
 
 //////////////////////////////////////////////////////////////
 export default function* albumSaga() {
@@ -166,6 +256,9 @@ export default function* albumSaga() {
     fork(watchAlbumPremiumCreate),
     fork(watchAlbumTrackCreate),
     fork(watchAlbumTrackPermit),
+    fork(watchMusictemDetail),
+    fork(watchAlbumFile),
+    fork(watchAlbumTrackFile),
 
     //
   ]);
