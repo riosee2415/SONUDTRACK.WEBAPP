@@ -20,6 +20,10 @@ import {
   ALBUM_TRACK_PERMIT_REQUEST,
   ALBUM_TRACK_PERMIT_SUCCESS,
   ALBUM_TRACK_PERMIT_FAILURE,
+  //
+  MUSICTEM_DETAIL_REQUEST,
+  MUSICTEM_DETAIL_SUCCESS,
+  MUSICTEM_DETAIL_FAILURE,
 } from "../reducers/album";
 
 // SAGA AREA ********************************************************************************************************
@@ -141,6 +145,34 @@ function* albumTrackPermit(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function musictemDetailAPI(data) {
+  return await axios.post(`/api/album/musictem/detail`, data);
+}
+
+function* musictemDetail(action) {
+  try {
+    const result = yield call(musictemDetailAPI, action.data);
+
+    yield put({
+      type: MUSICTEM_DETAIL_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: MUSICTEM_DETAIL_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 function* watchAlbumImage() {
   yield takeLatest(ALBUM_IMAGE_REQUEST, albumImage);
@@ -157,6 +189,9 @@ function* watchAlbumTrackCreate() {
 function* watchAlbumTrackPermit() {
   yield takeLatest(ALBUM_TRACK_PERMIT_REQUEST, albumTrackPermit);
 }
+function* watchMusictemDetail() {
+  yield takeLatest(MUSICTEM_DETAIL_REQUEST, musictemDetail);
+}
 
 //////////////////////////////////////////////////////////////
 export default function* albumSaga() {
@@ -166,6 +201,7 @@ export default function* albumSaga() {
     fork(watchAlbumPremiumCreate),
     fork(watchAlbumTrackCreate),
     fork(watchAlbumTrackPermit),
+    fork(watchMusictemDetail),
 
     //
   ]);

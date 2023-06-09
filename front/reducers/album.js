@@ -2,6 +2,8 @@ import produce from "../util/produce";
 
 export const initailState = {
   albumImage: null,
+  musictemDetail: null, // 뮤직템 상세정보
+  musictemAlbum: null, // 뮤직템 상세정보(앨범)
   //
 
   st_albumImageLoading: false, // album image
@@ -23,6 +25,10 @@ export const initailState = {
   st_albumTrackPermitLoading: false, // album 삭제하기
   st_albumTrackPermitDone: false,
   st_albumTrackPermitError: null,
+  //
+  st_musictemDetailLoading: false, // 뮤직탬 상세정보 조회
+  st_musictemDetailDone: false,
+  st_musictemDetailError: null,
 };
 
 export const ALBUM_IMAGE_REQUEST = "ALBUM_IMAGE_REQUEST";
@@ -44,6 +50,10 @@ export const ALBUM_TRACK_CREATE_FAILURE = "ALBUM_TRACK_CREATE_FAILURE";
 export const ALBUM_TRACK_PERMIT_REQUEST = "ALBUM_TRACK_PERMIT_REQUEST";
 export const ALBUM_TRACK_PERMIT_SUCCESS = "ALBUM_TRACK_PERMIT_SUCCESS";
 export const ALBUM_TRACK_PERMIT_FAILURE = "ALBUM_TRACK_PERMIT_FAILURE";
+
+export const MUSICTEM_DETAIL_REQUEST = "MUSICTEM_DETAIL_REQUEST";
+export const MUSICTEM_DETAIL_SUCCESS = "MUSICTEM_DETAIL_SUCCESS";
+export const MUSICTEM_DETAIL_FAILURE = "MUSICTEM_DETAIL_FAILURE";
 
 export const ALBUM_IMAGE_RESET = "ALBUM_IMAGE_RESET";
 
@@ -147,6 +157,29 @@ const reducer = (state = initailState, action) =>
         draft.st_albumTrackPermitLoading = false;
         draft.st_albumTrackPermitDone = false;
         draft.st_albumTrackPermitError = action.error;
+        break;
+      }
+
+      //////////////////////////////////////////////
+
+      case MUSICTEM_DETAIL_REQUEST: {
+        draft.st_musictemDetailLoading = true;
+        draft.st_musictemDetailDone = false;
+        draft.st_musictemDetailError = null;
+        break;
+      }
+      case MUSICTEM_DETAIL_SUCCESS: {
+        draft.st_musictemDetailLoading = false;
+        draft.st_musictemDetailDone = true;
+        draft.st_musictemDetailError = null;
+        draft.musictemDetail = action.data.detailData;
+        draft.musictemAlbum = action.data.albums;
+        break;
+      }
+      case MUSICTEM_DETAIL_FAILURE: {
+        draft.st_musictemDetailLoading = false;
+        draft.st_musictemDetailDone = false;
+        draft.st_musictemDetailError = action.error;
         break;
       }
 
