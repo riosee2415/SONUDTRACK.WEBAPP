@@ -18,6 +18,7 @@ import buy from "./buy";
 import seller from "./seller";
 import category from "./category";
 import tag from "./tag";
+import album from "./album";
 
 const rootReducer = (state, action) => {
   switch (action.type) {

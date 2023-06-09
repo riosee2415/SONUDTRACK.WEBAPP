@@ -36,6 +36,18 @@ import {
   FILMO_MUSIC_REQUEST,
   FILMO_MUSIC_SUCCESS,
   FILMO_MUSIC_FAILURE,
+  //
+  ARTISTEM_LIST_REQUEST,
+  ARTISTEM_LIST_SUCCESS,
+  ARTISTEM_LIST_FAILURE,
+  //
+  ARTISTEM_DETAIL_REQUEST,
+  ARTISTEM_DETAIL_SUCCESS,
+  ARTISTEM_DETAIL_FAILURE,
+  //
+  MUSICTEM_INFO_UPDATE_REQUEST,
+  MUSICTEM_INFO_UPDATE_SUCCESS,
+  MUSICTEM_INFO_UPDATE_FAILURE,
 } from "../reducers/seller";
 
 // SAGA AREA ********************************************************************************************************
@@ -245,6 +257,75 @@ function* filmoMusic(action) {
   }
 }
 
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function artistemListAPI(data) {
+  return await axios.post(`/api/seller/artistem/list`, data);
+}
+
+function* artistemList(action) {
+  try {
+    const result = yield call(artistemListAPI, action.data);
+
+    yield put({
+      type: ARTISTEM_LIST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: ARTISTEM_LIST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function artistemDetailAPI(data) {
+  return await axios.post(`/api/seller/artistem/detail`, data);
+}
+
+function* artistemDetail(action) {
+  try {
+    const result = yield call(artistemDetailAPI, action.data);
+
+    yield put({
+      type: ARTISTEM_DETAIL_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: ARTISTEM_DETAIL_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function musictemInfoUpdateAPI(data) {
+  return await axios.post(`/api/seller/musictem/info/update`, data);
+}
+
+function* musictemInfoUpdate(action) {
+  try {
+    const result = yield call(musictemInfoUpdateAPI, action.data);
+
+    yield put({
+      type: MUSICTEM_INFO_UPDATE_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: MUSICTEM_INFO_UPDATE_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 // ******************************************************************************************************************
@@ -279,6 +360,16 @@ function* watchFilmoMusic() {
   yield takeLatest(FILMO_MUSIC_REQUEST, filmoMusic);
 }
 
+function* watchArtistemList() {
+  yield takeLatest(ARTISTEM_LIST_REQUEST, artistemList);
+}
+function* watchArtistemDetail() {
+  yield takeLatest(ARTISTEM_DETAIL_REQUEST, artistemDetail);
+}
+function* watchMusictemInfoUpdate() {
+  yield takeLatest(MUSICTEM_INFO_UPDATE_REQUEST, musictemInfoUpdate);
+}
+
 //////////////////////////////////////////////////////////////
 export default function* sellerSaga() {
   yield all([
@@ -292,6 +383,10 @@ export default function* sellerSaga() {
     fork(watchArtistemFile),
     fork(watchFilmoCoverImage),
     fork(watchFilmoMusic),
+    //
+    fork(watchArtistemList),
+    fork(watchArtistemDetail),
+    fork(watchMusictemInfoUpdate),
 
     //
   ]);

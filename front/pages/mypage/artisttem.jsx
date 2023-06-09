@@ -335,6 +335,10 @@ const Index = () => {
   }, [filmo]);
 
   ////// HANDLER //////
+
+  // 휴가중으로 변경하기
+  const vacationUpdateHandler = useCallback(() => {}, []);
+
   // 사업자번호 존재하면 기업명 가져오기
   const businessNumCheck = useCallback(() => {
     if (!comNum.value) {
@@ -762,6 +766,7 @@ const Index = () => {
                 height={`27px`}
                 padding={`0`}
                 margin={`0 20px 0 14px`}
+                onClick={() => router.push(`/artisttem/${me && me.artistemId}`)}
               >
                 My Artistem 보러가기
               </CommonButton>

@@ -6,6 +6,7 @@ export const initailState = {
   artistemFile: null, // 아티스템 대표음원
   filmoImage: null, // 필모그래피 커버이미지
   filmoFile: null, // 필모그래피 파일
+  artistemList: [], // 아티스템 리스트
   //   아티스템 상세 조회
   artistemData: null,
   findCountryInfoData: [],
@@ -49,6 +50,18 @@ export const initailState = {
   st_filmoMusicLoading: false,
   st_filmoMusicDone: false,
   st_filmoMusicError: null,
+  // 아티스템 리스트
+  st_artistemListLoading: false,
+  st_artistemListDone: false,
+  st_artistemListError: null,
+  // 아티스템 디테일
+  st_artistemDetailLoading: false,
+  st_artistemDetailDone: false,
+  st_artistemDetailError: null,
+  // 뮤직템 정보수정
+  st_musicTemInfoUpdateLoading: false,
+  st_musicTemInfoUpdateDone: false,
+  st_musicTemInfoUpdateError: null,
 };
 
 export const SELLER_LIST_REQUEST = "SELLER_LIST_REQUEST";
@@ -86,6 +99,18 @@ export const FILMO_COVER_IMAGE_FAILURE = "FILMO_COVER_IMAGE_FAILURE";
 export const FILMO_MUSIC_REQUEST = "FILMO_MUSIC_REQUEST";
 export const FILMO_MUSIC_SUCCESS = "FILMO_MUSIC_SUCCESS";
 export const FILMO_MUSIC_FAILURE = "FILMO_MUSIC_FAILURE";
+
+export const ARTISTEM_LIST_REQUEST = "ARTISTEM_LIST_REQUEST";
+export const ARTISTEM_LIST_SUCCESS = "ARTISTEM_LIST_SUCCESS";
+export const ARTISTEM_LIST_FAILURE = "ARTISTEM_LIST_FAILURE";
+
+export const ARTISTEM_DETAIL_REQUEST = "ARTISTEM_DETAIL_REQUEST";
+export const ARTISTEM_DETAIL_SUCCESS = "ARTISTEM_DETAIL_SUCCESS";
+export const ARTISTEM_DETAIL_FAILURE = "ARTISTEM_DETAIL_FAILURE";
+
+export const MUSICTEM_INFO_UPDATE_REQUEST = "MUSICTEM_INFO_UPDATE_REQUEST";
+export const MUSICTEM_INFO_UPDATE_SUCCESS = "MUSICTEM_INFO_UPDATE_SUCCESS";
+export const MUSICTEM_INFO_UPDATE_FAILURE = "MUSICTEM_INFO_UPDATE_FAILURE";
 
 export const SELLER_IMAGE_RESET = "SELLER_IMAGE_RESET";
 export const ARTISTEM_FILE_RESET = "ARTISTEM_FILE_RESET";
@@ -278,6 +303,64 @@ const reducer = (state = initailState, action) =>
         draft.st_filmoMusicLoading = false;
         draft.st_filmoMusicDone = false;
         draft.st_filmoMusicError = action.error;
+        break;
+      }
+      ///////////////////////////////////////////////////////
+      case ARTISTEM_LIST_REQUEST: {
+        draft.st_artistemListLoading = true;
+        draft.st_artistemListDone = false;
+        draft.st_artistemListError = null;
+        break;
+      }
+      case ARTISTEM_LIST_SUCCESS: {
+        draft.st_artistemListLoading = false;
+        draft.st_artistemListDone = true;
+        draft.st_artistemListError = null;
+        draft.artistemList = action.data;
+        break;
+      }
+      case ARTISTEM_LIST_FAILURE: {
+        draft.st_artistemListLoading = false;
+        draft.st_artistemListDone = false;
+        draft.st_artistemListError = action.error;
+        break;
+      }
+      ///////////////////////////////////////////////////////
+      case ARTISTEM_DETAIL_REQUEST: {
+        draft.st_artistemDetailLoading = true;
+        draft.st_artistemDetailDone = false;
+        draft.st_artistemDetailError = null;
+        break;
+      }
+      case ARTISTEM_DETAIL_SUCCESS: {
+        draft.st_artistemDetailLoading = false;
+        draft.st_artistemDetailDone = true;
+        draft.st_artistemDetailError = null;
+        break;
+      }
+      case ARTISTEM_DETAIL_FAILURE: {
+        draft.st_artistemDetailLoading = false;
+        draft.st_artistemDetailDone = false;
+        draft.st_artistemDetailError = action.error;
+        break;
+      }
+      ///////////////////////////////////////////////////////
+      case MUSICTEM_INFO_UPDATE_REQUEST: {
+        draft.st_musictemInfoUpdateLoading = true;
+        draft.st_musictemInfoUpdateDone = false;
+        draft.st_musictemInfoUpdateError = null;
+        break;
+      }
+      case MUSICTEM_INFO_UPDATE_SUCCESS: {
+        draft.st_musictemInfoUpdateLoading = false;
+        draft.st_musictemInfoUpdateDone = true;
+        draft.st_musictemInfoUpdateError = null;
+        break;
+      }
+      case MUSICTEM_INFO_UPDATE_FAILURE: {
+        draft.st_musictemInfoUpdateLoading = false;
+        draft.st_musictemInfoUpdateDone = false;
+        draft.st_musictemInfoUpdateError = action.error;
         break;
       }
       ///////////////////////////////////////////////////////
