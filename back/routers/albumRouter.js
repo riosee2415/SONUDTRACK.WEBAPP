@@ -54,6 +54,18 @@ router.post("/image", upload.single("image"), async (req, res, next) => {
 });
 
 /**
+ * SUBJECT : 앨범 파일
+ * PARAMETERS : -
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/06/09
+ */
+router.post("/file", upload.single("file"), async (req, res, next) => {
+  return res.json({ path: req.file.location });
+});
+
+/**
  * SUBJECT : 뮤직탬 리스트
  * PARAMETERS : page, songName, TagTypeId, TagId, CategoryId
  * ORDER BY : -

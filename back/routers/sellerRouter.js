@@ -54,6 +54,18 @@ router.post("/image", upload.single("image"), async (req, res, next) => {
 });
 
 /**
+ * SUBJECT : 파일 업로드
+ * PARAMETERS : formData
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/06/09
+ */
+router.post("/file", upload.single("file"), async (req, res, next) => {
+  return res.json({ path: req.file.location });
+});
+
+/**
  * SUBJECT : 판매자 신청리스트
  * PARAMETERS : UserId, isMusictem, isArtistem, status
  * ORDER BY : createdAt DESC
