@@ -3,6 +3,7 @@ const models = require("../models");
 
 const router = express.Router();
 
+// 아티스트템 최신 리스트
 router.post("/new", async (req, res, next) => {
   const selectQuery = `
         SELECT 	A.id,
@@ -17,6 +18,7 @@ router.post("/new", async (req, res, next) => {
         ORDER	BY A.createdAt DESC
         LIMIT   4
       `;
+
   const tagQuery = `
         SELECT  A.ArtistemId,
                 B.tagValue,
@@ -29,6 +31,7 @@ router.post("/new", async (req, res, next) => {
   try {
     const list = await models.sequelize.query(selectQuery);
     const tags = await models.sequelize.query(tagQuery);
+
     list[0].map((item) => {
       item["tags"] = [];
       tags[0].map((innerItem) => {
