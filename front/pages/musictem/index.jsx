@@ -33,6 +33,10 @@ import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
 import { COMMON_TAG_LIST_REQUEST } from "../../reducers/product";
 import useInput from "../../hooks/useInput";
+import {
+  MUSICTEM_LIST_REQUEST,
+  NEW_MUSICTEM_LIST_REQUEST,
+} from "../../reducers/album";
 
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
@@ -74,6 +78,10 @@ const Index = () => {
 
   const { productTrackSellDesc, trackAllList, trackRecentList, commonTags } =
     useSelector((state) => state.product);
+
+  const { musictemList, newMusictemList } = useSelector((state) => state.album);
+
+  console.log(musictemList);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -430,8 +438,8 @@ const Index = () => {
               borderTop={`1px solid ${Theme.lightGrey_C}`}
               margin={`0 0 100px`}
             >
-              {trackRecentList &&
-                (trackRecentList.length === 0 ? (
+              {newMusictemList &&
+                (newMusictemList.length === 0 ? (
                   <Wrapper
                     height={`400px`}
                     borderBottom={`1px solid ${Theme.lightGrey_C}`}
@@ -450,7 +458,7 @@ const Index = () => {
                     </Text>
                   </Wrapper>
                 ) : (
-                  trackRecentList.map((data, idx) => {
+                  newMusictemList.map((data, idx) => {
                     return (
                       <Wrapper
                         key={idx}
@@ -528,11 +536,11 @@ const Index = () => {
                                 color={Theme.grey2_C}
                                 isEllipsis
                               >
-                                {data.genList.map(
+                                {/* {data.genList.map(
                                   (value, idx) =>
                                     value.value +
                                     (data.genList.length === idx + 1 ? "" : ",")
-                                )}
+                                )} */}
                               </Text>
                             ) : null}
 
@@ -594,11 +602,11 @@ const Index = () => {
                             color={Theme.grey2_C}
                           >
                             <Text width={`160px`} isEllipsis>
-                              {data.genList.map(
+                              {/* {data.genList.map(
                                 (value, idx) =>
                                   value.value +
                                   (data.genList.length === idx + 1 ? "" : ",")
-                              )}
+                              )} */}
                             </Text>
                           </Wrapper>
                         )}
@@ -805,11 +813,11 @@ const Index = () => {
                                 color={Theme.grey2_C}
                                 isEllipsis
                               >
-                                {data.genList.map(
+                                {/* {data.genList.map(
                                   (value, idx) =>
                                     value.value +
                                     (data.genList.length === idx + 1 ? "" : ",")
-                                )}
+                                )} */}
                               </Text>
                             ) : null}
 
@@ -871,11 +879,11 @@ const Index = () => {
                             color={Theme.grey2_C}
                           >
                             <Text width={`160px`} isEllipsis>
-                              {data.genList.map(
+                              {/* {data.genList.map(
                                 (value, idx) =>
                                   value.value +
                                   (data.genList.length === idx + 1 ? "" : ",")
-                              )}
+                              )} */}
                             </Text>
                           </Wrapper>
                         )}
@@ -1114,8 +1122,8 @@ const Index = () => {
               </Wrapper>
             </Wrapper>
             <Wrapper borderTop={`1px solid ${Theme.lightGrey_C}`}>
-              {allTrackList &&
-                (allTrackList.length === 0 ? (
+              {musictemList &&
+                (musictemList.length === 0 ? (
                   <Wrapper
                     height={`400px`}
                     borderBottom={`1px solid ${Theme.lightGrey_C}`}
@@ -1134,7 +1142,7 @@ const Index = () => {
                     </Text>
                   </Wrapper>
                 ) : (
-                  allTrackList.slice(0, listPage).map((data, idx) => {
+                  musictemList.map((data, idx) => {
                     return (
                       <Wrapper
                         borderBottom={`1px solid ${Theme.lightGrey_C}`}
@@ -1210,12 +1218,12 @@ const Index = () => {
                                 color={Theme.grey2_C}
                                 isEllipsis
                               >
-                                {data.genList.map((value, idx) => {
+                                {/* {data.genList.map((value, idx) => {
                                   return (
                                     value.value +
                                     (data.genList.length === idx + 1 ? "" : ",")
                                   );
-                                })}
+                                })} */}
                               </Text>
                             ) : null}
 
@@ -1272,14 +1280,14 @@ const Index = () => {
                             fontSize={`18px`}
                             color={Theme.grey2_C}
                           >
-                            <Text width={`160px`} isEllipsis>
+                            {/* <Text width={`160px`} isEllipsis>
                               {data.genList.map((value, idx) => {
                                 return (
                                   value.value +
                                   (data.genList.length === idx + 1 ? "" : ",")
                                 );
                               })}
-                            </Text>
+                            </Text> */}
                           </Wrapper>
                         )}
 
@@ -1369,7 +1377,7 @@ const Index = () => {
             </Wrapper>
 
             <Wrapper margin={`60px 0`}>
-              {allTrackList.length && allTrackList.length > 5 && (
+              {allTrackList.length && allTrackList.length > 5 ? (
                 <CommonButton
                   kindOf={`grey`}
                   width={`150px`}
@@ -1378,7 +1386,7 @@ const Index = () => {
                 >
                   더보기 +
                 </CommonButton>
-              )}
+              ) : null}
             </Wrapper>
           </RsWrapper>
 
@@ -1537,6 +1545,15 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: COMMON_TAG_LIST_REQUEST,
+    });
+
+    //////////////////////////////////////////////////
+    context.store.dispatch({
+      type: MUSICTEM_LIST_REQUEST,
+    });
+
+    context.store.dispatch({
+      type: NEW_MUSICTEM_LIST_REQUEST,
     });
 
     // 구현부 종료
