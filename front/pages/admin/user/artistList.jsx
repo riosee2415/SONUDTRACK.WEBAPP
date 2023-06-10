@@ -21,6 +21,7 @@ import {
   Form,
   Switch,
   Drawer,
+  Checkbox,
 } from "antd";
 import {
   HomeText,
@@ -43,6 +44,11 @@ import {
 } from "../../../components/commonComponents";
 import Theme from "../../../components/Theme";
 import { HomeOutlined, RightOutlined } from "@ant-design/icons";
+import {
+  CATEGORY_ADMIN_LIST_REQUEST,
+  CATEGORY_LIST_REQUEST,
+} from "../../../reducers/category";
+import { TAG_TYPE_LIST_REQUEST } from "../../../reducers/tag";
 
 const TypeView = styled.span`
   padding: 2px 5px;
@@ -107,6 +113,8 @@ const ArtistList = ({}) => {
     st_userListUpdateDone,
     st_userListUpdateError,
   } = useSelector((state) => state.user);
+  const { categoryList } = useSelector((state) => state.category);
+  const { tagTypeList } = useSelector((state) => state.tag);
 
   const [sameDepth, setSameDepth] = useState([]);
 
@@ -129,6 +137,9 @@ const ArtistList = ({}) => {
 
   const [currentData, setCurrentData] = useState(null);
 
+  const [options, setOptions] = useState([]);
+  const [tagData, setTagData] = useState(null);
+  const [isCreate, setIsCreate] = useState(false);
   ////// USEEFFECT //////
 
   useEffect(() => {
@@ -189,13 +200,15 @@ const ArtistList = ({}) => {
 
   ////// TOGGLE //////
 
-  const updateModalClose = useCallback(() => {
-    dispatch({
-      type: UPDATE_MODAL_CLOSE_REQUEST,
-    });
-  }, [updateModal]);
-
   ////// HANDLER //////
+
+  // tag 선택
+  const tagSelectHandler = useCallback(
+    (data) => {
+      setTagData(data);
+    },
+    [options]
+  );
 
   //   premiumModalToggle
   const permiumModalToggle = useCallback(
@@ -213,30 +226,6 @@ const ArtistList = ({}) => {
     [sForm, sData]
   );
 
-  const levelFormClick = useCallback(() => {
-    levelForm.submit();
-  }, []);
-
-  const onSubmitUpdate = useCallback(
-    (data) => {
-      if (updateData.level === data.level) {
-        return LoadNotification(
-          "ADMIN SYSTEM ERRLR",
-          "현재 사용자와 같은 레벨로 수정할 수 없습니다."
-        );
-      }
-
-      dispatch({
-        type: USERLIST_UPDATE_REQUEST,
-        data: {
-          selectUserId: updateData.id,
-          changeLevel: data.level,
-        },
-      });
-    },
-    [updateData]
-  );
-
   const content = (
     <PopWrapper>
       {sameDepth.map((data) => {
@@ -252,34 +241,6 @@ const ArtistList = ({}) => {
   );
 
   ////// DATAVIEW //////
-
-  const levelArr = [
-    {
-      id: 1,
-      name: "일반회원",
-      disabled: false,
-    },
-    // {
-    //   id: 2,
-    //   name: "비어있음",
-    //   disabled: true,
-    // },
-    {
-      id: 3,
-      name: "운영자",
-      disabled: false,
-    },
-    {
-      id: 4,
-      name: "최고관리자",
-      disabled: false,
-    },
-    {
-      id: 5,
-      name: "개발사",
-      disabled: true,
-    },
-  ];
 
   const columns = [
     {
@@ -333,6 +294,29 @@ const ArtistList = ({}) => {
       ),
     },
   ];
+
+  useEffect(() => {
+    let arr = [];
+
+    for (
+      let i = 0;
+      i <
+      tagTypeList.find((value) => value.value === "Genre").underValues.length;
+      i++
+    ) {
+      arr.push({
+        value: tagTypeList.find((value) => value.value === "Genre").underValues[
+          i
+        ].id,
+        label: tagTypeList.find((value) => value.value === "Genre").underValues[
+          i
+        ].tagValue,
+      });
+    }
+
+    setOptions(arr);
+  }, [tagTypeList]);
+  console.log(options);
 
   return (
     <AdminLayout>
@@ -419,6 +403,19 @@ const ArtistList = ({}) => {
         width="900px"
         title="프리미엄 앨범등록하기"
       >
+        <Wrapper
+          dr={`row`}
+          padding={`0 0 20px`}
+          borderBottom={`1px solid ${Theme.grey2_C}`}
+          margin={`0 0 20px`}
+        >
+          <Wrapper dr={`row`} ju={`space-between`}>
+            <Text>앨범이미지</Text>
+            <Button size="small" type="primary">
+              등록하기
+            </Button>
+          </Wrapper>
+        </Wrapper>
         <Form size="small" labelCol={{ span: 3 }}>
           <Form.Item label="bitRate">
             <Input />
@@ -428,18 +425,35 @@ const ArtistList = ({}) => {
           </Form.Item>
           <Form.Item label="category">
             <Select>
-              <Select.Option></Select.Option>
+              {categoryList.map((data) => {
+                return (
+                  <Select.Option key={data.id} value={data.id}>
+                    {data.value}
+                  </Select.Option>
+                );
+              })}
             </Select>
           </Form.Item>
           <Form.Item label="tags">
-            <Select>
-              <Select.Option></Select.Option>
-            </Select>
+            <Select onChange={tagSelectHandler} options={options} mode="tags" />
           </Form.Item>
           <Form.Item label="track">
-            <Button type="primary">추가하기</Button>
+            <Button type="primary" onClick={() => setIsCreate(true)}>
+              추가하기
+            </Button>
           </Form.Item>
         </Form>
+        {isCreate && (
+          <Form size="small">
+            <Form.Item label="track">
+              <Wrapper dr={`row`} ju={`flex-start`}>
+                <Checkbox>title</Checkbox>
+                <Input style={{ width: `80%` }} readOnly />
+                <Button type="primary">업로드</Button>
+              </Wrapper>
+            </Form.Item>
+          </Form>
+        )}
       </Drawer>
     </AdminLayout>
   );
@@ -465,6 +479,17 @@ export const getServerSideProps = wrapper.getServerSideProps(
       data: {
         isArtist: true,
       },
+    });
+
+    context.store.dispatch({
+      type: CATEGORY_LIST_REQUEST,
+      data: {
+        CateTypeId: 2,
+      },
+    });
+
+    context.store.dispatch({
+      type: TAG_TYPE_LIST_REQUEST,
     });
 
     // 구현부 종료

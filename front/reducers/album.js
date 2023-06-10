@@ -6,6 +6,7 @@ export const initailState = {
   albumTrackFile: null,
   musictemList: [], // 뮤직템 리스트
   newMusictemList: [], // new 뮤직템 리스트
+  trackAdminList: [], // 관리자 트랙 리스트
   //   뮤직템디테일
   detailData: null,
   albums: null,
@@ -58,6 +59,10 @@ export const initailState = {
   st_albumDetailLoading: false, // 앨범 디테일
   st_albumDetailDone: false,
   st_albumDetailError: null,
+  //
+  st_trackAdminListLoading: false, // 트랙 관리자 리스트
+  st_trackAdminListDone: false,
+  st_trackAdminListError: null,
 };
 
 export const ALBUM_IMAGE_REQUEST = "ALBUM_IMAGE_REQUEST";
@@ -103,6 +108,10 @@ export const NEW_MUSICTEM_LIST_FAILURE = "NEW_MUSICTEM_LIST_FAILURE";
 export const ALBUM_DETAIL_REQUEST = "ALBUM_DETAIL_REQUEST";
 export const ALBUM_DETAIL_SUCCESS = "ALBUM_DETAIL_SUCCESS";
 export const ALBUM_DETAIL_FAILURE = "ALBUM_DETAIL_FAILURE";
+
+export const TRACK_ADMIN_LIST_REQUEST = "TRACK_ADMIN_LIST_REQUEST";
+export const TRACK_ADMIN_LIST_SUCCESS = "TRACK_ADMIN_LIST_SUCCESS";
+export const TRACK_ADMIN_LIST_FAILURE = "TRACK_ADMIN_LIST_FAILURE";
 
 export const ALBUM_IMAGE_RESET = "ALBUM_IMAGE_RESET";
 export const ALBUM_FILE_RESET = "ALBUM_FILE_RESET";
@@ -340,6 +349,29 @@ const reducer = (state = initailState, action) =>
         draft.st_albumDetailLoading = false;
         draft.st_albumDetailDone = false;
         draft.st_albumDetailError = action.error;
+        break;
+      }
+
+      //////////////////////////////////////////////
+
+      case TRACK_ADMIN_LIST_REQUEST: {
+        draft.st_trackAdminListLoading = true;
+        draft.st_trackAdminListDone = false;
+        draft.st_trackAdminListError = null;
+        break;
+      }
+      case TRACK_ADMIN_LIST_SUCCESS: {
+        draft.st_trackAdminListLoading = false;
+        draft.st_trackAdminListDone = true;
+        draft.st_trackAdminListError = null;
+        draft.trackAdminList = action.data;
+
+        break;
+      }
+      case TRACK_ADMIN_LIST_FAILURE: {
+        draft.st_trackAdminListLoading = false;
+        draft.st_trackAdminListDone = false;
+        draft.st_trackAdminListError = action.error;
         break;
       }
 

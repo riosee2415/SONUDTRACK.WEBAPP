@@ -44,6 +44,10 @@ import {
   ALBUM_DETAIL_REQUEST,
   ALBUM_DETAIL_SUCCESS,
   ALBUM_DETAIL_FAILURE,
+  //
+  TRACK_ADMIN_LIST_REQUEST,
+  TRACK_ADMIN_LIST_SUCCESS,
+  TRACK_ADMIN_LIST_FAILURE,
 } from "../reducers/album";
 
 // ******************************************************************************************************************
@@ -340,6 +344,30 @@ function* albumDetail(action) {
     });
   }
 }
+
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function trackAdminListAPI(data) {
+  return await axios.post(`/api/album/track/apply/list`, data);
+}
+
+function* trackAdminList(action) {
+  try {
+    const result = yield call(trackAdminListAPI, action.data);
+
+    yield put({
+      type: TRACK_ADMIN_LIST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: TRACK_ADMIN_LIST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 // ******************************************************************************************************************
@@ -378,6 +406,9 @@ function* watchNewMusictemList() {
 function* watchAlbumDetail() {
   yield takeLatest(ALBUM_DETAIL_REQUEST, albumDetail);
 }
+function* watchTrackAdminList() {
+  yield takeLatest(TRACK_ADMIN_LIST_REQUEST, trackAdminList);
+}
 
 //////////////////////////////////////////////////////////////
 export default function* albumSaga() {
@@ -393,6 +424,7 @@ export default function* albumSaga() {
     fork(watchMusictemList),
     fork(watchNewMusictemList),
     fork(watchAlbumDetail),
+    fork(watchTrackAdminList),
 
     //
   ]);
