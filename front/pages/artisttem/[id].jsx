@@ -76,8 +76,7 @@ const Index = () => {
   ////// HOOKS //////
   const width = useWidth();
 
-  const [play, setPlay] = useState(false);
-  const [visibleId, setVisibleId] = useState(null);
+  const [play, setPlay] = useState(null);
   const [isModal, setIsModal] = useState(false);
   const [isDetail, setIsDetail] = useState(false);
   const [isContact, setIsContact] = useState(false);
@@ -213,29 +212,20 @@ const Index = () => {
   const playHandler = useCallback(
     (data) => {
       const audio = new Audio(data.filePath);
-      audio.loop = false;
-      audio.volume = 1;
-      audio.play();
 
-      if (data) {
-        setVisibleId(data.id);
-        setPlay(true);
+      if (play === data.id) {
+        audio.loop = false;
+        audio.volume = 1;
+        audio.play();
+
+        setPlay(null);
+      } else {
+        audio.pause();
+
+        setPlay(data.id);
       }
     },
-    [play, visibleId]
-  );
-
-  const pauseHandler = useCallback(
-    (data) => {
-      const audio = new Audio(data.filePath);
-      audio.pause();
-
-      if (data.id === visibleId) {
-        setPlay(false);
-        setVisibleId(null);
-      }
-    },
-    [play, visibleId]
+    [play]
   );
 
   ////// DATAVIEW //////
@@ -426,17 +416,11 @@ const Index = () => {
                 findFilmInfoData.map((data) => {
                   return (
                     <ArtWrapper key={data.id}>
-                      <PlayWrapper
-                        onClick={() =>
-                          data.id === visibleId && play
-                            ? pauseHandler(data)
-                            : playHandler(data)
-                        }
-                      >
+                      <PlayWrapper onClick={() => playHandler(data)}>
                         <SquareBox>
                           <Image src={data.imagePath} alt="thumbnail" />
                         </SquareBox>
-                        {data.id === visibleId && play ? (
+                        {data.id === play ? (
                           <Wrapper
                             position={`absolute`}
                             top={`0`}
