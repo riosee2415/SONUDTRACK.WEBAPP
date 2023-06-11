@@ -41,6 +41,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { ARTISTEM_DETAIL_REQUEST } from "../../reducers/seller";
+import MPlayer from "./MPlayer";
 
 const PlayWrapper = styled(Wrapper)`
   position: relative;
@@ -76,7 +77,9 @@ const Index = () => {
   ////// HOOKS //////
   const width = useWidth();
 
-  const [play, setPlay] = useState(null);
+  const [myAudio, setMyAudio] = useState(null);
+
+  const [play, setPlay] = useState(false);
   const [isModal, setIsModal] = useState(false);
   const [isDetail, setIsDetail] = useState(false);
   const [isContact, setIsContact] = useState(false);
@@ -86,6 +89,10 @@ const Index = () => {
   const [terms, setTerms] = useState(false);
   const totalPriceInput = useInput(``);
   const contentInput = useInput(``);
+
+  const [playSrc, setPlaySrc] = useState(null);
+  const [playSrcFlag, setPlaySrcFlag] = useState(false);
+  const [playSrcFlag2, setPlaySrcFlag2] = useState(false);
 
   const fileRef = useRef();
   ////// REDUX //////
@@ -209,26 +216,35 @@ const Index = () => {
     });
   });
 
-  const playHandler = useCallback(
-    (data) => {
-      const audio = new Audio(data.filePath);
-
-      if (play === data.id) {
-        audio.loop = false;
-        audio.volume = 1;
-        audio.play();
-
-        setPlay(null);
-      } else {
-        audio.pause();
-
-        setPlay(data.id);
-      }
-    },
-    [play]
-  );
+  const playHandler = useCallback((data) => {}, [play, myAudio]);
 
   ////// DATAVIEW //////
+
+  const testAction = useCallback(
+    (filePath) => {
+      if (filePath === playSrc) {
+        setPlaySrc(null);
+        setPlaySrcFlag(false);
+        setPlaySrcFlag2(false);
+      } else {
+        setPlaySrc(filePath);
+        setPlaySrcFlag((p) => !p);
+
+        if (playSrcFlag) {
+          setPlaySrcFlag2(true);
+        } else {
+          setPlaySrcFlag2(false);
+        }
+      }
+    },
+    [playSrc, playSrcFlag]
+  );
+
+  useEffect(() => {
+    if (!playSrcFlag) {
+      // setPlaySrc(null);
+    }
+  }, [playSrcFlag]);
 
   return (
     <>
@@ -412,15 +428,23 @@ const Index = () => {
               al={`flex-start`}
               margin={`0 0 60px`}
             >
+              <Wrapper opacity="0">
+                {playSrcFlag ? <MPlayer url={playSrc} /> : null}
+                {playSrcFlag2 ? <MPlayer url={playSrc} /> : null}
+              </Wrapper>
+
               {findFilmInfoData &&
                 findFilmInfoData.map((data) => {
                   return (
-                    <ArtWrapper key={data.id}>
-                      <PlayWrapper onClick={() => playHandler(data)}>
+                    <ArtWrapper
+                      key={data.id}
+                      onClick={() => testAction(data.filePath)}
+                    >
+                      <PlayWrapper>
                         <SquareBox>
                           <Image src={data.imagePath} alt="thumbnail" />
                         </SquareBox>
-                        {data.id === play ? (
+                        {data.filePath === playSrc ? (
                           <Wrapper
                             position={`absolute`}
                             top={`0`}
