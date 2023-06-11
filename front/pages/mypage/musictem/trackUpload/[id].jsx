@@ -454,7 +454,6 @@ const Index = () => {
                     fontSize={width < 700 ? `14px` : `16px`}
                     fontWeight={`bold`}
                     kindOf={`subTheme2`}
-                    loading={st_productTrackUploadLoading}
                     onClick={trackRefClickHandler}
                   >
                     파일등록
