@@ -90,11 +90,21 @@ const Index = () => {
 
   const [orderType, setOrderType] = useState(1); // 더보기 정렬 1.추천 2.최신
 
-  const [selectArtist, setSelectArtist] = useState(
-    newArtistList && newArtistList[0]
-  );
+  const [selectArtist, setSelectArtist] = useState(null);
 
   ////// USEEFFECT //////
+
+  useEffect(() => {
+    dispatch({
+      type: NEW_ARTIST_LIST_REQUEST,
+    });
+  }, []);
+
+  useEffect(() => {
+    if (newArtistList && newArtistList.length > 0) {
+      setSelectArtist(newArtistList[0]);
+    }
+  }, [newArtistList]);
 
   useEffect(() => {
     dispatch({
