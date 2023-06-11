@@ -21,15 +21,7 @@ import {
 import Theme from "../../components/Theme";
 import { BellOutlined, CloseOutlined, StarFilled } from "@ant-design/icons";
 import styled from "styled-components";
-import {
-  Checkbox,
-  DatePicker,
-  message,
-  Modal,
-  Popover,
-  Rate,
-  Select,
-} from "antd";
+import { Checkbox, DatePicker, message, Modal, Rate } from "antd";
 import useInput from "../../hooks/useInput";
 import moment from "moment";
 import {
@@ -61,6 +53,12 @@ const PlayWrapper = styled(Wrapper)`
   }
 `;
 
+const HiddenWrapper = styled(Wrapper)`
+  height: 0;
+  opacity: 0;
+  visibility: hidden;
+`;
+
 const Index = () => {
   ////// GLOBAL STATE //////
   const { buyRequestFile, st_buyRequestCreateDone } = useSelector(
@@ -77,9 +75,6 @@ const Index = () => {
   ////// HOOKS //////
   const width = useWidth();
 
-  const [myAudio, setMyAudio] = useState(null);
-
-  const [play, setPlay] = useState(false);
   const [isModal, setIsModal] = useState(false);
   const [isDetail, setIsDetail] = useState(false);
   const [isContact, setIsContact] = useState(false);
@@ -126,6 +121,11 @@ const Index = () => {
       });
     }
   }, [router.query.id]);
+
+  useEffect(() => {
+    if (!playSrcFlag) {
+    }
+  }, [playSrcFlag]);
   ////// TOGGLE //////
   const modalToggle = useCallback(() => {
     setIsModal((prev) => !prev);
@@ -141,6 +141,7 @@ const Index = () => {
     }
     setIsContact((prev) => !prev);
   }, [isContact, me]);
+
   ////// HANDLER //////
 
   // 문의하기
@@ -216,11 +217,9 @@ const Index = () => {
     });
   });
 
-  const playHandler = useCallback((data) => {}, [play, myAudio]);
-
   ////// DATAVIEW //////
 
-  const testAction = useCallback(
+  const playHandler = useCallback(
     (filePath) => {
       if (filePath === playSrc) {
         setPlaySrc(null);
@@ -239,12 +238,6 @@ const Index = () => {
     },
     [playSrc, playSrcFlag]
   );
-
-  useEffect(() => {
-    if (!playSrcFlag) {
-      // setPlaySrc(null);
-    }
-  }, [playSrcFlag]);
 
   return (
     <>
@@ -428,17 +421,17 @@ const Index = () => {
               al={`flex-start`}
               margin={`0 0 60px`}
             >
-              <Wrapper opacity="0">
+              <HiddenWrapper>
                 {playSrcFlag ? <MPlayer url={playSrc} /> : null}
                 {playSrcFlag2 ? <MPlayer url={playSrc} /> : null}
-              </Wrapper>
+              </HiddenWrapper>
 
               {findFilmInfoData &&
                 findFilmInfoData.map((data) => {
                   return (
                     <ArtWrapper
                       key={data.id}
-                      onClick={() => testAction(data.filePath)}
+                      onClick={() => playHandler(data.filePath)}
                     >
                       <PlayWrapper>
                         <SquareBox>
