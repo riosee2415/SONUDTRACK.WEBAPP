@@ -294,6 +294,14 @@ const ArtistList = ({}) => {
   // 프리미엄 앨범 등록하기
   const premiumCreateHandler = useCallback(
     (data) => {
+      if (!sellerImage) {
+        return message.error("앨범 이미지를 등록해주세요.");
+      }
+
+      if (trackData.length === 0) {
+        return message.error("트랙곡을 등록해주세요.");
+      }
+
       let result = [];
 
       data.tags.map((value, idx) => {
@@ -631,18 +639,45 @@ const ArtistList = ({}) => {
           onFinish={premiumCreateHandler}
           form={albumForm}
         >
-          <Form.Item label="bitRate" name={"bitRate"}>
+          <Form.Item
+            rules={[
+              {
+                required: true,
+                message: "bitRate를 입력해주세요.",
+              },
+            ]}
+            label="bitRate"
+            name={"bitRate"}
+          >
             <Input />
           </Form.Item>
-          <Form.Item label="sampleRate" name={"sampleRate"}>
+          <Form.Item
+            rules={[
+              {
+                required: true,
+                message: "sampleRate를 입력해주세요.",
+              },
+            ]}
+            label="sampleRate"
+            name={"sampleRate"}
+          >
             <Input />
           </Form.Item>
-          <Form.Item label="category" name={"category"}>
+          <Form.Item
+            rules={[
+              {
+                required: true,
+                message: "카테고리를 선택해주세요.",
+              },
+            ]}
+            label="category"
+            name={"category"}
+          >
             <Select>
               {categoryList.map((data, idx) => {
                 return (
                   <Select.Option
-                    key={data.id}
+                    key={idx}
                     value={[data.value, data.CateTypeId, data.id, 1]}
                   >
                     {data.value}
@@ -651,20 +686,30 @@ const ArtistList = ({}) => {
               })}
             </Select>
           </Form.Item>
-          <Form.Item label="tags" name={"tags"}>
+          <Form.Item
+            rules={[
+              {
+                required: true,
+                message: "태그를 선택해주세요.",
+              },
+            ]}
+            label="tags"
+            name={"tags"}
+          >
             <Select onChange={tagSelectHandler} mode="tags">
-              {tagTypeList
-                .find((value) => value.value === "Genre")
-                .underValues.map((data) => {
-                  return (
-                    <Select.Option
-                      key={data.id}
-                      value={[data.tagValue, data.TagTypeId, data.id]}
-                    >
-                      {data.tagValue}
-                    </Select.Option>
-                  );
-                })}
+              {tagTypeList.find((value) => value.value === "Genre") &&
+                tagTypeList
+                  .find((value) => value.value === "Genre")
+                  .underValues.map((data) => {
+                    return (
+                      <Select.Option
+                        key={data.id}
+                        value={[data.tagValue, data.TagTypeId, data.id]}
+                      >
+                        {data.tagValue}
+                      </Select.Option>
+                    );
+                  })}
             </Select>
           </Form.Item>
           <Form.Item label="track">

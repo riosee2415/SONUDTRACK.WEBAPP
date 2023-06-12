@@ -102,6 +102,11 @@ export const items = {
       link: "/admin/user/buyStatus",
       useYn: true,
     },
+    {
+      name: "판매자 회원 관리",
+      link: "/admin/user/artistList",
+      useYn: true,
+    },
   ],
   고객지원관리: [
     {
