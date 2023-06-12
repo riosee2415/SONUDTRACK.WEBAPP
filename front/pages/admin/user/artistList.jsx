@@ -196,7 +196,7 @@ const ArtistList = ({}) => {
 
     for (
       let i = 0;
-      i <
+      i < tagTypeList.find((value) => value.value === "Genre") &&
       tagTypeList.find((value) => value.value === "Genre").underValues.length;
       i++
     ) {
@@ -697,7 +697,8 @@ const ArtistList = ({}) => {
             name={"tags"}
           >
             <Select onChange={tagSelectHandler} mode="tags">
-              {tagTypeList.find((value) => value.value === "Genre") &&
+              {tagTypeList &&
+                tagTypeList.find((value) => value.value === "Genre") &&
                 tagTypeList
                   .find((value) => value.value === "Genre")
                   .underValues.map((data) => {
