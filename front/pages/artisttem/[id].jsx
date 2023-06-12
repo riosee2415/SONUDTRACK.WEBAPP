@@ -19,11 +19,10 @@ import {
   Wrapper,
 } from "../../components/commonComponents";
 import Theme from "../../components/Theme";
-import { BellOutlined, CloseOutlined, StarFilled } from "@ant-design/icons";
+import { CloseOutlined, StarFilled } from "@ant-design/icons";
 import styled from "styled-components";
 import { Checkbox, DatePicker, message, Modal, Rate } from "antd";
 import useInput from "../../hooks/useInput";
-import moment from "moment";
 import {
   BUYREQUEST_CREATE_REQUEST,
   BUYREQUEST_FILE_REQUEST,
