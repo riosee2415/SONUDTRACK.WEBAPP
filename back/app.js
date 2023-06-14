@@ -29,6 +29,7 @@ const tagRouter = require("./routers/tagRouter");
 const sellerRouter = require("./routers/sellerRouter");
 const albumRouter = require("./routers/albumRouter");
 const artistRouter = require("./routers/artistRouter");
+const searchRouter = require("./routers/searchRouter");
 
 // Config Settings
 db.sequelize
@@ -113,6 +114,7 @@ app.use("/api/tag", tagRouter);
 app.use("/api/seller", sellerRouter);
 app.use("/api/album", albumRouter);
 app.use("/api/artist", artistRouter);
+app.use("/api/search", searchRouter);
 
 // second minute hour day-of-month month day-of-week
 const task = cron.schedule(
