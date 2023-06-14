@@ -749,7 +749,7 @@ router.post("/sendCompleteFile", isLoggedIn, async (req, res, next) => {
   const updateQuery = `
     UPDATE    artistContact
        SET    isCompleted = 1,
-              completedFilename = "${completedFilename}"
+              completedFilename = "${completedFilename}",
               completedFilepath = "${completedFilepath}"
      WHERE    id = ${id}
     `;
@@ -784,6 +784,7 @@ router.post("/sendCompleteFile", isLoggedIn, async (req, res, next) => {
  * DEVELOPMENT : 시니어 개발자 신태섭
  * DEV DATE : 2023/06/14
  */
+// type이 2 혹은 3인 데이터가 선택되지 않도록 해주세요 !
 router.post("/delete", isLoggedIn, async (req, res, next) => {
   const { idArr } = req.body;
 
@@ -802,27 +803,32 @@ router.post("/delete", isLoggedIn, async (req, res, next) => {
               WHEN  isOk = 0 AND isReject = 1 AND isPay = 0 AND isCompleted = 0 THEN  5
             END                                         AS type
       FROM  artistContact
-     WHERE  id IN (${idArr.map((data) => data)})
+     WHERE  id IN (${idArr})
        AND  isDelete = 0
     `;
+
     const checkList = await models.sequelize.query(selectQ);
 
-    if (checkList.find((data) => data.type === 2 || data.type === 3)) {
-      return res
-        .status(401)
-        .send(
-          "승인되었지만 처리되지 않은 내역이 존재합니다. 다시 시도하여 주십시오."
-        );
-    }
+    await Promise.all(
+      checkList[0].map(async (data) => {
+        if (parseInt(data.type) === 2 || parseInt(data.type) === 3) {
+          return res
+            .status(401)
+            .send(
+              "승인되었지만 처리되지 않은 내역이 존재합니다. 다시 시도하여 주십시오."
+            );
+        }
 
-    const deleteQ = `
+        const deleteQ = `
     UPDATE  artistContact
        SET  isDelete = 1,
             deletedAt = NOW()
-     WHERE  id IN (${idArr.map((data) => data)})
+     WHERE  id = ${data.id}
     `;
 
-    await models.sequelize.query(deleteQ);
+        await models.sequelize.query(deleteQ);
+      })
+    );
 
     return res.status(200).json({ result: true });
   } catch (error) {
