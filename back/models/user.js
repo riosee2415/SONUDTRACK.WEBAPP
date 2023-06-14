@@ -177,6 +177,11 @@ module.exports = class User extends Model {
           type: DataTypes.INTEGER,
           allowNull: true,
         },
+        point: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          defaultValue: 0,
+        },
       },
       {
         modelName: "User",
