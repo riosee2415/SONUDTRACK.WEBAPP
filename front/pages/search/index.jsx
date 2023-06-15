@@ -25,7 +25,8 @@ import dynamic from "next/dynamic";
 import { Modal, Select } from "antd";
 import { useRouter } from "next/router";
 import { CATE_ALL_LIST_REQUEST } from "../../reducers/category";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { TAG_LIST_REQUEST, TAG_TYPE_LIST_REQUEST } from "../../reducers/tag";
 
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
@@ -65,6 +66,7 @@ const CustomSelect = styled(Wrapper)`
 const Index = () => {
   ////// GLOBAL STATE //////
   const { cateAllList } = useSelector((state) => state.category);
+  const { tagList, tagTypeList } = useSelector((state) => state.tag);
 
   const [playing, setPlaying] = useState(false);
   const [down, setDown] = useState(false);
@@ -72,6 +74,7 @@ const Index = () => {
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
+  const dispatch = useDispatch();
   ////// USEEFFECT //////
 
   ////// TOGGLE //////
@@ -96,6 +99,15 @@ const Index = () => {
     },
     [cateData]
   );
+
+  const tagTypeHandler = useCallback((data) => {
+    dispatch({
+      type: TAG_LIST_REQUEST,
+      data: {
+        TagTypeId: data,
+      },
+    });
+  }, []);
 
   ////// DATAVIEW //////
 
@@ -199,13 +211,28 @@ const Index = () => {
                 </Text>
                 <Wrapper dr={`row`} width={`auto`}>
                   <CustomSelect margin={`0 14px 0 0`}>
-                    <Select>
+                    <Select placeholder={"Tag"} onChange={tagTypeHandler}>
                       <Select.Option>ALL</Select.Option>
+                      {tagTypeList &&
+                        tagTypeList.map((data) => {
+                          return (
+                            <Select.Option key={data.id} value={data.id}>
+                              {data.value}
+                            </Select.Option>
+                          );
+                        })}
                     </Select>
                   </CustomSelect>
                   <CustomSelect>
-                    <Select>
-                      <Select.Option>ALL</Select.Option>
+                    <Select placeholder={"Tag"}>
+                      {tagList &&
+                        tagList.map((data) => {
+                          return (
+                            <Select.Option key={data.id} value={data.id}>
+                              {data.tagValue}
+                            </Select.Option>
+                          );
+                        })}
                     </Select>
                   </CustomSelect>
                 </Wrapper>
@@ -572,6 +599,10 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: CATE_ALL_LIST_REQUEST,
+    });
+
+    context.store.dispatch({
+      type: TAG_TYPE_LIST_REQUEST,
     });
 
     // 구현부 종료
