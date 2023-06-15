@@ -319,4 +319,56 @@ router.post("/delete", isAdminCheck, async (req, res, next) => {
     return res.status(401).send("카테고리를 삭제할 수 없습니다.");
   }
 });
+
+/**
+ * SUBJECT : 카테고리 전체 리스트
+ * PARAMETERS :  -
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 김동현
+ * DEV DATE : 2023/06/15
+ */
+router.post("/all/List", async (req, res, next) => {
+  const typeSQ = `
+        SELECT	id,
+                category                                AS label,
+                createdAt,
+                updatedAt
+          FROM	cateType
+         ORDER  BY createdAt DESC
+    `;
+
+  const categorySQ = `
+      SELECT  ROW_NUMBER()  OVER(ORDER BY createdAt)    AS num,
+              id,
+              value,
+              CateTypeId,
+              createdAt,
+              updatedAt
+        FROM  category    
+       WHERE  isDelete = 0
+       ORDER  BY  num DESC
+    `;
+
+  try {
+    const typeResult = await models.sequelize.query(typeSQ);
+    const categoryResult = await models.sequelize.query(categorySQ);
+
+    typeResult[0].map((item) => {
+      item["options"] = [];
+
+      categoryResult[0].map((innerItem) => {
+        if (parseInt(item.id) === parseInt(innerItem.CateTypeId)) {
+          item.options.push({ label: innerItem.value, value: innerItem.id });
+        }
+      });
+    });
+
+    return res.status(200).json(typeResult[0]);
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("전체 카테고리목록을 불러올 수 없습니다.");
+  }
+});
+
 module.exports = router;

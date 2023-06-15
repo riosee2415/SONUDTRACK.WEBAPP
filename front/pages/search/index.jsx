@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ClientLayout from "../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../store/configureStore";
@@ -24,6 +24,8 @@ import styled from "styled-components";
 import dynamic from "next/dynamic";
 import { Modal, Select } from "antd";
 import { useRouter } from "next/router";
+import { CATE_ALL_LIST_REQUEST } from "../../reducers/category";
+import { useSelector } from "react-redux";
 
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
@@ -62,13 +64,16 @@ const CustomSelect = styled(Wrapper)`
 
 const Index = () => {
   ////// GLOBAL STATE //////
+  const { cateAllList } = useSelector((state) => state.category);
+
   const [playing, setPlaying] = useState(false);
   const [down, setDown] = useState(false);
+  const [cateData, setCateData] = useState(null);
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
-  ////// REDUX //////
   ////// USEEFFECT //////
+
   ////// TOGGLE //////
   const playingToggle = useCallback(() => {
     setPlaying((prev) => !prev);
@@ -83,6 +88,15 @@ const Index = () => {
     router.push(link);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
+
+  // 카테고리 선택
+  const categoryTypeHandler = useCallback(
+    (data) => {
+      setCateData(data);
+    },
+    [cateData]
+  );
+
   ////// DATAVIEW //////
 
   return (
@@ -167,9 +181,11 @@ const Index = () => {
                   Category
                 </Text>
                 <CustomSelect>
-                  <Select>
-                    <Select.Option>ALL</Select.Option>
-                  </Select>
+                  <Select
+                    placeholder={"Select"}
+                    onChange={categoryTypeHandler}
+                    options={cateAllList}
+                  />
                 </CustomSelect>
               </Wrapper>
               <Wrapper width={`auto`} al={`flex-start`}>
@@ -552,6 +568,10 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: LOAD_MY_INFO_REQUEST,
+    });
+
+    context.store.dispatch({
+      type: CATE_ALL_LIST_REQUEST,
     });
 
     // 구현부 종료

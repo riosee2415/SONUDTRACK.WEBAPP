@@ -4,6 +4,7 @@ export const initailState = {
   categoryList: [], // 카테고리 리스트
   categoryAdminList: [], // 카테고리 관리자 리스트
   categoryTypeList: [], // 카테고리 타입 리스트
+  cateAllList: [], // 카테고리 전체 리스트
 
   //
   st_categoryListLoading: false, // 카테고리 정보 가져오기
@@ -33,6 +34,10 @@ export const initailState = {
   st_categoryTypeUpdateLoading: false, // 카테고리 유형 정보 수정하기
   st_categoryTypeUpdateDone: false,
   st_categoryTypeUpdateError: null,
+  //
+  st_cateAllListLoading: false, // 카테고리 전체 리스트
+  st_cateAllListDone: false,
+  st_cateAllListError: null,
 };
 
 export const CATEGORY_LIST_REQUEST = "CATEGORY_LIST_REQUEST";
@@ -63,6 +68,10 @@ export const CATEGORY_TYPE_GET_FAILURE = "CATEGORY_TYPE_GET_FAILURE";
 export const CATEGORY_TYPE_UPDATE_REQUEST = "CATEGORY_TYPE_UPDATE_REQUEST";
 export const CATEGORY_TYPE_UPDATE_SUCCESS = "CATEGORY_TYPE_UPDATE_SUCCESS";
 export const CATEGORY_TYPE_UPDATE_FAILURE = "CATEGORY_TYPE_UPDATE_FAILURE";
+
+export const CATE_ALL_LIST_REQUEST = "CATE_ALL_LIST_REQUEST";
+export const CATE_ALL_LIST_SUCCESS = "CATE_ALL_LIST_SUCCESS";
+export const CATE_ALL_LIST_FAILURE = "CATE_ALL_LIST_FAILURE";
 
 const reducer = (state = initailState, action) =>
   produce(state, (draft) => {
@@ -212,6 +221,28 @@ const reducer = (state = initailState, action) =>
       }
 
       ///////////////////////////////////////////////////////
+      case CATE_ALL_LIST_REQUEST: {
+        draft.st_cateAllListLoading = true;
+        draft.st_cateAllListDone = false;
+        draft.st_cateAllListError = null;
+        break;
+      }
+      case CATE_ALL_LIST_SUCCESS: {
+        draft.st_cateAllListLoading = false;
+        draft.st_cateAllListDone = true;
+        draft.st_cateAllListError = null;
+        draft.cateAllList = action.data;
+
+        break;
+      }
+      case CATE_ALL_LIST_FAILURE: {
+        draft.st_cateAllListLoading = false;
+        draft.st_cateAllListDone = false;
+        draft.st_cateAllListError = action.error;
+        break;
+      }
+      ///////////////////////////////////////////////////////
+
       default:
         break;
     }
