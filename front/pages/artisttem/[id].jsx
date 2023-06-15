@@ -23,16 +23,16 @@ import { CloseOutlined, StarFilled } from "@ant-design/icons";
 import styled from "styled-components";
 import { Checkbox, DatePicker, message, Modal, Rate } from "antd";
 import useInput from "../../hooks/useInput";
-import {
-  BUYREQUEST_CREATE_REQUEST,
-  BUYREQUEST_FILE_REQUEST,
-  BUYREQUEST_RESET,
-} from "../../reducers/buyRequest";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { ARTISTEM_DETAIL_REQUEST } from "../../reducers/seller";
 import MPlayer from "./MPlayer";
+import {
+  ARTIST_CONTACT_CREATE_REQUEST,
+  ARTIST_CONTACT_FILE_REQUEST,
+  ARTIST_CONTACT_RESET,
+} from "../../reducers/artistContact";
 
 const PlayWrapper = styled(Wrapper)`
   position: relative;
@@ -60,9 +60,11 @@ const HiddenWrapper = styled(Wrapper)`
 
 const Index = () => {
   ////// GLOBAL STATE //////
-  const { buyRequestFile, st_buyRequestCreateDone } = useSelector(
-    (state) => state.buyRequest
-  );
+  const {
+    artistContactFile,
+    st_artistContactCreateDone,
+    st_artistContactCreateError,
+  } = useSelector((state) => state.artistContact);
   const { me } = useSelector((state) => state.user);
   const {
     artistemData,
@@ -95,20 +97,23 @@ const Index = () => {
   ////// USEEFFECT //////
 
   useEffect(() => {
-    if (st_buyRequestCreateDone) {
+    if (st_artistContactCreateDone) {
       setIsContact(false);
-      setSelectDate(null);
+      setSelectDate("");
       setFileName(null);
       setTerms(false);
       totalPriceInput.setValue(``);
       contentInput.setValue(``);
       dispatch({
-        type: BUYREQUEST_RESET,
+        type: ARTIST_CONTACT_RESET,
       });
 
       return message.success("문의가 접수되었습니다.");
     }
-  }, [st_buyRequestCreateDone]);
+    if (st_artistContactCreateError) {
+      return message.error(st_artistContactCreateError);
+    }
+  }, [st_artistContactCreateDone, st_artistContactCreateError]);
 
   useEffect(() => {
     if (router.query.id) {
@@ -157,7 +162,7 @@ const Index = () => {
       return message.error("제출 마감일을 선택해주세요.");
     }
 
-    if (!buyRequestFile) {
+    if (!artistContactFile) {
       return message.error("파일을 업로드해주세요.");
     }
 
@@ -166,33 +171,30 @@ const Index = () => {
     }
 
     dispatch({
-      type: BUYREQUEST_CREATE_REQUEST,
+      type: ARTIST_CONTACT_CREATE_REQUEST,
       data: {
         sendMessage: contentInput.value,
         totalPrice: totalPriceInput.value,
         endDate: selectDate.format("YYYY-MM-DD "),
         filename: fileName,
-        filepath: buyRequestFile,
-        sendUserId: me && me.id,
-        artistId: router.query.id,
+        filepath: artistContactFile,
+        ArtistemId: artistemData.id,
       },
     });
   }, [
-    router.query,
-    me,
-    router,
+    artistemData,
     contentInput,
     totalPriceInput,
     selectDate,
     fileName,
-    buyRequestFile,
+    artistContactFile,
     terms,
   ]);
 
   // 파일 리셋
   const fileResetHandler = useCallback(() => {
     dispatch({
-      type: BUYREQUEST_RESET,
+      type: ARTIST_CONTACT_RESET,
     });
   }, []);
 
@@ -203,6 +205,10 @@ const Index = () => {
 
   // 파일 업로드
   const onChangeImages = useCallback((e) => {
+    if (e.target.files.length < 1) {
+      return;
+    }
+
     setFileName(e.target.files[0].name);
     const formData = new FormData();
 
@@ -211,7 +217,7 @@ const Index = () => {
     });
 
     dispatch({
-      type: BUYREQUEST_FILE_REQUEST,
+      type: ARTIST_CONTACT_FILE_REQUEST,
       data: formData,
     });
   });
@@ -343,7 +349,6 @@ const Index = () => {
                   >
                     상세 프로필
                   </CommonButton>
-                  {console.log(artistemData)}
                   {(me && me.ArtistId) !==
                     (artistemData && artistemData.UserId) && (
                     <CommonButton
@@ -942,7 +947,7 @@ const Index = () => {
                   </CommonButton>
                 </Wrapper>
 
-                {buyRequestFile && fileName && (
+                {artistContactFile && fileName && (
                   <Wrapper
                     dr={`row`}
                     ju={`space-between`}

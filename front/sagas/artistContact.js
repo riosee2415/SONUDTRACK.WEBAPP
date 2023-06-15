@@ -46,7 +46,7 @@ import {
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
 async function artistContactFileAPI(data) {
-  return await axios.post("/api/buyRequest/file", data);
+  return await axios.post("/api/artistContact/file", data);
 }
 
 function* artistContactFile(action) {
@@ -73,7 +73,7 @@ function* artistContactFile(action) {
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
 async function artistContactAdminListAPI(data) {
-  return await axios.post("/api/buyRequest/list", data);
+  return await axios.post("/api/artistContact/list", data);
 }
 
 function* artistContactAdminList(action) {
@@ -100,7 +100,7 @@ function* artistContactAdminList(action) {
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
 async function artistContactMyListAPI(data) {
-  return await axios.post("/api/buyRequest/my/list", data);
+  return await axios.post("/api/artistContact/my/list", data);
 }
 
 function* artistContactMyList(action) {
@@ -127,7 +127,7 @@ function* artistContactMyList(action) {
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
 async function artistContactListAPI(data) {
-  return await axios.post("/api/buyRequest/artist/list", data);
+  return await axios.post("/api/artistContact/artist/list", data);
 }
 
 function* artistContactList(action) {
@@ -154,7 +154,7 @@ function* artistContactList(action) {
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
 async function artistContactCreateAPI(data) {
-  return await axios.post("/api/buyRequest/create", data);
+  return await axios.post("/api/artistContact/create", data);
 }
 
 function* artistContactCreate(action) {
@@ -181,7 +181,7 @@ function* artistContactCreate(action) {
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
 async function artistContactPermitAPI(data) {
-  return await axios.post("/api/buyRequest/isOk", data);
+  return await axios.post("/api/artistContact/isOk", data);
 }
 
 function* artistContactPermit(action) {
@@ -208,7 +208,7 @@ function* artistContactPermit(action) {
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
 async function artistContactRejectAPI(data) {
-  return await axios.post("/api/buyRequest/isReject", data);
+  return await axios.post("/api/artistContact/isReject", data);
 }
 
 function* artistContactReject(action) {
@@ -235,7 +235,7 @@ function* artistContactReject(action) {
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
 async function artistContactPaymentAPI(data) {
-  return await axios.post("/api/buyRequest/payment", data);
+  return await axios.post("/api/artistContact/payment", data);
 }
 
 function* artistContactPayment(action) {
@@ -262,7 +262,7 @@ function* artistContactPayment(action) {
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
 async function artistContactSendAPI(data) {
-  return await axios.post("/api/buyRequest/sendCompleteFile", data);
+  return await axios.post("/api/artistContact/sendCompleteFile", data);
 }
 
 function* artistContactSend(action) {
@@ -289,7 +289,7 @@ function* artistContactSend(action) {
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
 async function artistContactDeleteAPI(data) {
-  return await axios.post("/api/buyRequest/delete", data);
+  return await axios.post("/api/artistContact/delete", data);
 }
 
 function* artistContactDelete(action) {
