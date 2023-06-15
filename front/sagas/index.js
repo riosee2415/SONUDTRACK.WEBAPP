@@ -18,6 +18,7 @@ import sellerSaga from "./seller";
 import categorySaga from "./category";
 import tagSaga from "./tag";
 import albumSaga from "./album";
+import artistContactSaga from "./artistContact";
 //
 import axios from "axios";
 import backURL from "../config/config";
@@ -46,6 +47,7 @@ export default function* rootSaga() {
     fork(categorySaga),
     fork(tagSaga),
     fork(albumSaga),
+    fork(artistContactSaga),
     //
   ]);
 }

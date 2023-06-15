@@ -764,6 +764,7 @@ router.post("/artistem/detail", async (req, res, next) => {
 
   const artistemQuery = `
   SELECT  id,
+          UserId,
           isVacation,
           name,
           companyNo,

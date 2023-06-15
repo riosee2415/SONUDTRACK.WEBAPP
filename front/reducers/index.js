@@ -19,6 +19,7 @@ import seller from "./seller";
 import category from "./category";
 import tag from "./tag";
 import album from "./album";
+import artistContact from "./artistContact";
 
 const rootReducer = (state, action) => {
   switch (action.type) {
@@ -46,6 +47,7 @@ const rootReducer = (state, action) => {
         category,
         tag,
         album,
+        artistContact,
       });
       return combinedReducer(state, action);
     }

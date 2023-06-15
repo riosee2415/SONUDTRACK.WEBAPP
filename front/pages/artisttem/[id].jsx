@@ -343,8 +343,9 @@ const Index = () => {
                   >
                     상세 프로필
                   </CommonButton>
+                  {console.log(artistemData)}
                   {(me && me.ArtistId) !==
-                    (artistemData && artistemData.artistRequestId) && (
+                    (artistemData && artistemData.UserId) && (
                     <CommonButton
                       width={`146px`}
                       height={`46px`}
