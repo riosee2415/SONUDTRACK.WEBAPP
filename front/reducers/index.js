@@ -13,13 +13,13 @@ import logo from "./logo";
 import faq from "./faq";
 import product from "./product";
 import artist from "./artist";
-import buyRequest from "./buyRequest";
 import buy from "./buy";
 import seller from "./seller";
 import category from "./category";
 import tag from "./tag";
 import album from "./album";
 import artistContact from "./artistContact";
+import search from "./search";
 
 const rootReducer = (state, action) => {
   switch (action.type) {
@@ -41,13 +41,13 @@ const rootReducer = (state, action) => {
         faq,
         product,
         artist,
-        buyRequest,
         buy,
         seller,
         category,
         tag,
         album,
         artistContact,
+        search,
       });
       return combinedReducer(state, action);
     }

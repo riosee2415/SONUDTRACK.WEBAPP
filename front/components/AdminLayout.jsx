@@ -111,7 +111,7 @@ export const items = {
   고객지원관리: [
     {
       name: "구매요청관리",
-      link: "/admin/supports/buyRequest",
+      link: "/admin/supports/artistContact",
       useYn: true,
     },
     {

@@ -31,12 +31,6 @@ import Theme from "../../components/Theme";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import styled from "styled-components";
-import {
-  BUYREQUEST_DELETE_REQUEST,
-  BUYREQUEST_ISOK_REQUEST,
-  BUYREQUEST_ISREJECT_REQUEST,
-  BUYREQUEST_MY_LIST_REQUEST,
-} from "../../reducers/buyRequest";
 import moment from "moment";
 import { saveAs } from "file-saver";
 import {
@@ -94,11 +88,6 @@ const CustomDatePicker = styled(DatePicker)`
 const Index = () => {
   ////// GLOBAL STATE //////
   const { me } = useSelector((state) => state.user);
-  const {
-    //
-    st_buyRequestDeleteDone,
-    st_buyRequestDeleteError,
-  } = useSelector((state) => state.buyRequest);
   const {
     artistContactMyList,
     artistContactMyPage,

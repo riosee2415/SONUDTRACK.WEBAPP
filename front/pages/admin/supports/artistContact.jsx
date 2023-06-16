@@ -42,8 +42,8 @@ import {
   AlertOutlined,
   CheckOutlined,
 } from "@ant-design/icons";
-import { BUYREQUEST_LIST_REQUEST } from "../../../reducers/buyRequest";
 import styled from "styled-components";
+import { ARTIST_CONTACT_ADMIN_LIST_REQUEST } from "../../../reducers/artistContact";
 
 const TypeView = styled.span`
   padding: 2px 5px;
@@ -77,9 +77,11 @@ const ViewStatusIcon = styled(EyeOutlined)`
     props.active ? props.theme.adminTheme_1 : props.theme.lightGrey_C};
 `;
 
-const BuyRequest = () => {
+const ArtistContact = () => {
   const { st_loadMyInfoDone, me } = useSelector((state) => state.user);
-  const { buyRequests } = useSelector((state) => state.buyRequest);
+  const { artistContactAdminList } = useSelector(
+    (state) => state.artistContact
+  );
 
   const router = useRouter();
   const dispatch = useDispatch();
@@ -149,7 +151,7 @@ const BuyRequest = () => {
   // 검색
   useEffect(() => {
     dispatch({
-      type: BUYREQUEST_LIST_REQUEST,
+      type: ARTIST_CONTACT_ADMIN_LIST_REQUEST,
       data: {
         searchStatus: sStatus,
         searchSendUsername: sData ? sData.searchSendUsername : null,
@@ -366,7 +368,7 @@ const BuyRequest = () => {
             rowKey="id"
             columns={col}
             size="small"
-            dataSource={buyRequests}
+            dataSource={artistContactAdminList}
             onRow={(record, index) => {
               return {
                 onClick: (e) => beforeSetDataHandler(record),
@@ -553,7 +555,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
     });
 
     context.store.dispatch({
-      type: BUYREQUEST_LIST_REQUEST,
+      type: ARTIST_CONTACT_ADMIN_LIST_REQUEST,
     });
 
     // 구현부 종료
@@ -563,4 +565,4 @@ export const getServerSideProps = wrapper.getServerSideProps(
   }
 );
 
-export default BuyRequest;
+export default ArtistContact;
