@@ -418,7 +418,7 @@ router.post("/artist/list", isLoggedIn, async (req, res, next) => {
               C.artistName,
               C.artistProfileImage,
               C.artistInfo
-        FROM  artistContact		A
+        FROM  artistContact		  A
        INNER
         JOIN  users             B
           ON  A.UserId = B.id
@@ -427,7 +427,7 @@ router.post("/artist/list", isLoggedIn, async (req, res, next) => {
           ON  A.ArtistemId = C.id
        WHERE  1 = 1
          AND  A.isDelete = 0
-         AND  B.UserId = ${req.user.id}
+         AND  C.UserId = ${req.user.id}
       `;
 
     const selectQuery = `
@@ -490,7 +490,7 @@ router.post("/artist/list", isLoggedIn, async (req, res, next) => {
           ON  A.ArtistemId = C.id
        WHERE  1 = 1
          AND  A.isDelete = 0
-         AND  B.UserId = ${req.user.id}
+         AND  C.UserId = ${req.user.id}
        ORDER  BY num DESC
        LIMIT  ${LIMIT}
       OFFSET  ${OFFSET}
