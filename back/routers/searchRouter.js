@@ -207,7 +207,7 @@ router.post("/list", async (req, res, next) => {
                     SELECT  COUNT(id)
                       FROM  albumCategory
                      WHERE  A.AlbumId = AlbumId
-                       AND  TagId = ${_categoryId}
+                       AND  CategoryId = ${_categoryId}
                    )
           `
               : ``
@@ -263,7 +263,7 @@ router.post("/list", async (req, res, next) => {
                     SELECT  COUNT(id)
                       FROM  albumCategory
                      WHERE  A.AlbumId = AlbumId
-                       AND  TagId = ${_categoryId}
+                       AND  CategoryId = ${_categoryId}
                    )
           `
               : ``
