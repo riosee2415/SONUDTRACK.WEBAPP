@@ -444,7 +444,7 @@ router.post("/artist/list", isLoggedIn, async (req, res, next) => {
               A.totalPrice,
               CONCAT(FORMAT(A.totalPrice, ","), "원")     AS viewTotalPrice,
               CASE
-                WHEN  A.isOk = 0 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  "문의 완료"
+                WHEN  A.isOk = 0 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  "답변 대기"
                 WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  "문의 수락"
                 WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 0 THEN  "결제 완료"
                 WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 1 THEN  "제작 완료"
@@ -457,6 +457,7 @@ router.post("/artist/list", isLoggedIn, async (req, res, next) => {
                 WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 1 THEN  4
                 WHEN  A.isOk = 0 AND A.isReject = 1 AND A.isPay = 0 AND A.isCompleted = 0 THEN  5
               END                                         AS type,
+              DATEDIFF(A.endDate, NOW())      				    AS dateCnt,
               A.isPay,
               A.payWay,
               A.payPrice,

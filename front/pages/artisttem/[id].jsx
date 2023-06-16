@@ -349,8 +349,7 @@ const Index = () => {
                   >
                     상세 프로필
                   </CommonButton>
-                  {(me && me.ArtistId) !==
-                    (artistemData && artistemData.UserId) && (
+                  {(me && me.id) !== (artistemData && artistemData.UserId) && (
                     <CommonButton
                       width={`146px`}
                       height={`46px`}
