@@ -44,6 +44,9 @@ const albumcategory = require("./albumcategory");
 const track = require("./track");
 const albumhistory = require("./albumhistory");
 const artistcontact = require("./artistcontact");
+const boughthistory = require("./boughthistory");
+const wishlist = require("./wishlist");
+const wishitem = require("./wishitem");
 
 const env = process.env.NODE_ENV || "development";
 const config = require("../config/config")[env];
@@ -101,6 +104,9 @@ db.AlbumCategory = albumcategory;
 db.Track = track;
 db.AlbumHistory = albumhistory;
 db.ArtistContact = artistcontact;
+db.BoughtHistory = boughthistory;
+db.WishList = wishlist;
+db.WishItem = wishitem;
 
 Object.keys(db).forEach((modelName) => {
   db[modelName].init(sequelize);
