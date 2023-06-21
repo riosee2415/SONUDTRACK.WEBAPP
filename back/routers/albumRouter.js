@@ -111,7 +111,12 @@ router.post("/musictem/list", async (req, res, next) => {
            SELECT	albumImage 
              FROM	album
             WHERE	A.AlbumId = id 
-          ) 										  AS albumImage 
+          ) 										  AS albumImage,
+          (
+           SELECT	albumName 
+             FROM	album
+            WHERE	A.AlbumId = id 
+          ) 										  AS albumName
     FROM  track   A
    WHERE  TRUE = (
    				SELECT	isTrackPermit 
@@ -180,7 +185,12 @@ router.post("/musictem/list", async (req, res, next) => {
            SELECT	albumImage 
              FROM	album
             WHERE	A.AlbumId = id 
-          ) 										  AS albumImage 
+          ) 										  AS albumImage,
+          (
+            SELECT	albumName 
+              FROM	album
+             WHERE	A.AlbumId = id 
+           ) 										  AS albumName
     FROM  track   A
    WHERE  TRUE = (
    				SELECT	isTrackPermit 
@@ -287,7 +297,12 @@ router.post("/musictem/new/list", async (req, res, next) => {
            SELECT	albumImage 
              FROM	album
             WHERE	A.AlbumId = id 
-          ) 										  AS albumImage 
+          ) 										  AS albumImage,
+          (
+            SELECT	albumName 
+              FROM	album
+             WHERE	A.AlbumId = id 
+          ) 										  AS albumName
     FROM  track   A
    WHERE  TRUE = (
    				SELECT	isTrackPermit 
@@ -357,6 +372,7 @@ router.post("/track/apply/list", async (req, res, next) => {
   const albumQuery = `
   SELECT  ROW_NUMBER()  OVER(ORDER  BY createdAt)   AS num,
           id, 
+          albumName,
           albumImage,
           albumImageName,
           bitRate,
@@ -436,6 +452,7 @@ router.post("/track/apply/list", async (req, res, next) => {
           A.platinumPrice,
           A.isTitle,
           A.AlbumId,
+          B.albumName,
           B.albumImage,
           B.albumImageName,
           A.createdAt,
@@ -519,6 +536,7 @@ router.post("/musictem/detail", async (req, res, next) => {
   const albumQuery = `
   SELECT  ROW_NUMBER()  OVER(ORDER  BY createdAt)   AS num,
           id, 
+          albumName,
           albumImage,
           albumImageName,
           bitRate,
@@ -598,6 +616,7 @@ router.post("/musictem/detail", async (req, res, next) => {
           A.platinumPrice,
           A.isTitle,
           A.AlbumId,
+          B.albumName,
           B.albumImage,
           B.albumImageName,
           A.createdAt,
@@ -678,6 +697,7 @@ router.post("/detail", async (req, res, next) => {
 
   const detailQuery = `
   SELECT  A.id, 
+          A.albumName,
           A.albumImage,
           A.albumImageName,
           A.bitRate,
@@ -762,6 +782,7 @@ router.post("/detail", async (req, res, next) => {
           A.platinumPrice,
           A.isTitle,
           A.AlbumId,
+          B.albumName,
           B.albumImage,
           B.albumImageName,
           A.createdAt,
@@ -802,7 +823,8 @@ router.post("/detail", async (req, res, next) => {
 
 /**
  * SUBJECT : 앨범 등록
- * PARAMETERS : albumImage,
+ * PARAMETERS : albumName,
+                albumImage,
                 albumImageName,
                 bitRate,
                 sampleRate,
@@ -842,6 +864,7 @@ router.post("/detail", async (req, res, next) => {
 // ];
 router.post("/create", isLoggedIn, async (req, res, next) => {
   const {
+    albumName,
     albumImage,
     albumImageName,
     bitRate,
@@ -865,6 +888,7 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
     const insertQuery = `
     INSERT  INTO    album
     (
+        albumName,
         albumImage,
         albumImageName,
         bitRate,
@@ -877,6 +901,7 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
     )
     VALUES
     (
+        "${albumName}",
         "${albumImage}",
         "${albumImageName}",
         "${bitRate}",
@@ -954,7 +979,8 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
 
 /**
  * SUBJECT : 관리자 프리미엄 앨범 등록
- * PARAMETERS : albumImage,
+ * PARAMETERS : albumName,
+                albumImage,
                 albumImageName,
                 bitRate,
                 sampleRate,
@@ -1021,6 +1047,7 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
 // ]
 router.post("/premium/create", isAdminCheck, async (req, res, next) => {
   const {
+    albumName,
     albumImage,
     albumImageName,
     bitRate,
@@ -1050,6 +1077,7 @@ router.post("/premium/create", isAdminCheck, async (req, res, next) => {
     const insertQuery = `
     INSERT  INTO    album
     (
+        albumName,
         albumImage,
         albumImageName,
         bitRate,
@@ -1065,6 +1093,7 @@ router.post("/premium/create", isAdminCheck, async (req, res, next) => {
     )
     VALUES
     (
+        "${albumName}",
         "${albumImage}",
         "${albumImageName}",
         "${bitRate}",

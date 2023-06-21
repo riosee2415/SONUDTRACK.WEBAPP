@@ -5,6 +5,10 @@ module.exports = class Album extends Model {
   static init(sequelize) {
     return super.init(
       {
+        albumName: {
+          type: DataTypes.STRING(300),
+          allowNull: false,
+        },
         albumImage: {
           type: DataTypes.STRING(600),
           allowNull: false,

@@ -29,6 +29,14 @@ module.exports = class WishItem extends Model {
           type: DataTypes.INTEGER, // 가격
           allowNull: false,
         },
+        songFile: {
+          type: DataTypes.STRING(600),
+          allowNull: false,
+        },
+        songFileName: {
+          type: DataTypes.STRING(2000),
+          allowNull: false,
+        },
         trackId: {
           type: DataTypes.INTEGER, // 트랙 아이디 값
           allowNull: true,

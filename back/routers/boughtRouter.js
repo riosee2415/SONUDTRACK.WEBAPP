@@ -26,7 +26,7 @@ router.post("/item/create", isLoggedIn, async (req, res, next) => {
 
   const findWishList = `
   SELECT  id
-    FROM  wishLists
+    FROM  wishList
    WHERE  UserId = ${req.user.id}
   `;
 
@@ -34,10 +34,11 @@ router.post("/item/create", isLoggedIn, async (req, res, next) => {
     const findResult = await models.sequelize.query(findWishList);
 
     let createResult = [];
+    let findDatum = [];
 
     if (findResult[0].length === 0) {
       const createWishListQuery = `
-        INSERT  INTO    wishLists
+        INSERT  INTO    wishList
         (
             createdAt,
             updatedAt,
@@ -54,30 +55,34 @@ router.post("/item/create", isLoggedIn, async (req, res, next) => {
       createResult = await models.sequelize.query(createWishListQuery);
     }
 
-    await Promise.all(
-      wishItems.map(async (data) => {
-        const findQuery = `
-                SELECT  id
-                  FROM  wishItem
-                 WHERE  WishListId = ${findResult[0][0].id}
-                   AND  BoughtHistoryId = NULL
-                   AND  trackId = ${data.trackId}
-                `;
+    if (findResult[0].length !== 0) {
+      await Promise.all(
+        wishItems.map(async (data) => {
+          const findQuery = `
+                  SELECT  id
+                    FROM  wishItem
+                   WHERE  WishListId = ${findResult[0][0].id}
+                     AND  BoughtHistoryId IS NULL
+                     AND  trackId = ${data.trackId}
+                  `;
 
-        const findData = await models.sequelize.query(findQuery);
+          const findData = await models.sequelize.query(findQuery);
 
-        if (findData[0].length !== 0) {
-          return res
-            .status(401)
-            .send("이미 장바구니에 담긴 상품이 존재합니다.");
-        }
-      })
-    );
+          if (findData[0].length !== 0) {
+            findDatum.push(findData[0]);
+          }
+        })
+      );
+    }
+
+    if (findDatum.length > 0) {
+      return res.status(401).send("이미 장바구니에 등록된 상품이 존재합니다.");
+    }
 
     await Promise.all(
       wishItems.map(async (data) => {
         const insertQuery = `
-            INSERT    INTO    wishItems
+            INSERT    INTO    wishItem
             (
                 thumbnail,
                 albumName,
@@ -85,6 +90,8 @@ router.post("/item/create", isLoggedIn, async (req, res, next) => {
                 singerName,
                 lisenceName,
                 price,
+                songFile,
+                songFileName,
                 trackId,
                 isArtWorks,
                 isMonopoly,
@@ -101,10 +108,12 @@ router.post("/item/create", isLoggedIn, async (req, res, next) => {
                 "${data.singerName}",
                 "${data.lisenceName}",
                 ${data.price},
+                "${data.songFile}",
+                "${data.songFileName}",
                 ${data.trackId},
                 ${data.isArtWorks},
                 ${data.isMonopoly},
-                ${data.ticketName},
+                ${data.ticketName ? `"${data.ticketName}"` : null},
                 ${
                   findResult[0].length !== 0
                     ? findResult[0][0].id
@@ -138,7 +147,7 @@ router.post("/item/update", isLoggedIn, async (req, res, next) => {
   const { id, lisenceName, price } = req.body;
 
   const updateQuery = `
-  UPDATE    wishItems
+  UPDATE    wishItem
      SET    price = ${price},
             lisenceName = "${lisenceName}",
             updatedAt = NOW()
@@ -163,7 +172,7 @@ router.post("/item/update", isLoggedIn, async (req, res, next) => {
  * DEVELOPMENT : 시니어 개발자 신태섭
  * DEV DATE : 2023/06/14
  */
-router.post("/item/deleteAll", isLoggedIn, async (req, res, next) => {
+router.post("/item/delete", isLoggedIn, async (req, res, next) => {
   const { itemId } = req.body;
   // 배열로 받아주세요.
 
@@ -173,7 +182,7 @@ router.post("/item/deleteAll", isLoggedIn, async (req, res, next) => {
 
   const deleteQuery = `
   DELETE
-    FROM    wishItems
+    FROM    wishItem
    WHERE    id IN (${itemId})
   `;
 
@@ -202,7 +211,7 @@ router.post("/item/deleteAll", isLoggedIn, async (req, res, next) => {
 router.post("/list/view", isLoggedIn, async (req, res, next) => {
   const findWishList = `
   SELECT  id
-    FROM  wishLists
+    FROM  wishList
    WHERE  UserId = ${req.user.id}
   `;
 
@@ -214,10 +223,28 @@ router.post("/list/view", isLoggedIn, async (req, res, next) => {
     }
 
     const selectQuery = `
-      SELECT  A.id
-        FROM  wishItems			A
+      SELECT  A.id,
+              A.thumbnail,
+              A.albumName,
+              A.songName,
+              A.singerName,
+              A.lisenceName,
+              A.price,
+              CONCAT(FORMAT(A.price, 0), "원")								                                                            AS viewPrice,
+              A.songFile,
+              A.songFileName,
+              A.trackId,
+              A.isArtWorks,
+              A.isMonopoly,
+              A.ticketName,
+              CASE
+                  WHEN	A.isArtWorks = 1 AND A.isMonopoly = 1 THEN "독점"
+                  WHEN  A.isArtWorks = 1 AND A.isMonopoly = 0 THEN "비독점"
+                  ELSE  NULL
+              END														                                          	                                  AS monopolyName
+        FROM  wishItem			   A
        INNER
-        JOIN  wishLists         B
+        JOIN  wishList         B
           ON  A.WishListId = B.id
        WHERE  A.BoughtHistoryId IS NULL
          AND  A.WishListId = ${findResult[0][0].id}
