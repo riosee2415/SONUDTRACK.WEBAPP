@@ -28,7 +28,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { NEW_ARTIST_LIST_REQUEST } from "../../reducers/artist";
 import { ARTISTEM_LIST_REQUEST } from "../../reducers/seller";
-import { CATEGORY_LIST_REQUEST } from "../../reducers/product";
+import { CATE_ALL_LIST_REQUEST } from "../../reducers/category";
+import { TAG_LIST_REQUEST } from "../../reducers/tag";
 
 const CustomSelect = styled(Wrapper)`
   width: 240px;
@@ -80,8 +81,11 @@ const Index = () => {
   ////// GLOBAL STATE //////
   const { newArtistList } = useSelector((state) => state.artist);
   const { artistemList } = useSelector((state) => state.seller);
+  const { tagList, tagTypeList } = useSelector((state) => state.tag);
 
-  const { categorys } = useSelector((state) => state.product);
+  const { cateAllList } = useSelector((state) => state.category);
+
+  console.log(cateAllList);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -91,6 +95,7 @@ const Index = () => {
   const [orderType, setOrderType] = useState(1); // 더보기 정렬 1.추천 2.최신
 
   const [selectArtist, setSelectArtist] = useState(null);
+  const [tagData, setTagData] = useState(null); // 태그 아이디
 
   ////// USEEFFECT //////
 
@@ -141,6 +146,22 @@ const Index = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
+  const tagTypeHandler = useCallback((data) => {
+    dispatch({
+      type: TAG_LIST_REQUEST,
+      data: {
+        TagTypeId: data,
+      },
+    });
+  }, []);
+
+  const tagIdHandler = useCallback(
+    (data) => {
+      setTagData(data);
+    },
+    [tagData]
+  );
+
   ////// DATAVIEW //////
 
   return (
@@ -175,14 +196,16 @@ const Index = () => {
                 </Text>
                 <CustomSelect>
                   <Select>
-                    <Select.Option>ALL</Select.Option>
-                    {categorys &&
-                      categorys.map((data) => {
-                        return (
-                          <Select.Option key={data.id} value={data.id}>
-                            {data.value}
-                          </Select.Option>
-                        );
+                    {cateAllList &&
+                      cateAllList.map((data) => {
+                        if (data.label === "아티스탬")
+                          return data.options.map((value) => {
+                            return (
+                              <Select.Option key={value.id} value={value.id}>
+                                {value.label}
+                              </Select.Option>
+                            );
+                          });
                       })}
                   </Select>
                 </CustomSelect>
@@ -202,13 +225,28 @@ const Index = () => {
                 </Text>
                 <Wrapper dr={`row`} width={`auto`}>
                   <CustomSelect margin={`0 14px 0 0`}>
-                    <Select>
+                    <Select placeholder={"Tag"} onChange={tagTypeHandler}>
                       <Select.Option>ALL</Select.Option>
+                      {tagTypeList &&
+                        tagTypeList.map((data) => {
+                          return (
+                            <Select.Option key={data.id} value={data.id}>
+                              {data.value}
+                            </Select.Option>
+                          );
+                        })}
                     </Select>
                   </CustomSelect>
                   <CustomSelect>
-                    <Select>
-                      <Select.Option>ALL</Select.Option>
+                    <Select placeholder={"Tag"} onChange={tagIdHandler}>
+                      {tagList &&
+                        tagList.map((data) => {
+                          return (
+                            <Select.Option key={data.id} value={data.id}>
+                              {data.tagValue}
+                            </Select.Option>
+                          );
+                        })}
                     </Select>
                   </CustomSelect>
                 </Wrapper>
@@ -653,7 +691,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
     });
 
     context.store.dispatch({
-      type: CATEGORY_LIST_REQUEST,
+      type: CATE_ALL_LIST_REQUEST,
     });
 
     // 구현부 종료

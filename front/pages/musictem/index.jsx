@@ -81,8 +81,6 @@ const Index = () => {
 
   const { musictemList, newMusictemList } = useSelector((state) => state.album);
 
-  console.log(musictemList);
-
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
