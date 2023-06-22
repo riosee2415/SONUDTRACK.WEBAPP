@@ -55,7 +55,6 @@ const Index = () => {
     st_musictemInfoUpdateError,
   } = useSelector((state) => state.seller);
   const { detailData, albums } = useSelector((state) => state.album);
-  console.log(albums);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -78,9 +77,9 @@ const Index = () => {
 
   useEffect(() => {
     if (detailData) {
-      // artistNameInput.setValue(detailData.artistName);
+      artistNameInput.setValue(detailData.artistName);
       mypageForm.setFieldsValue({
-        artistName: artistNameInput.value,
+        artistName: detailData.artistName,
       });
       setProfileImageName(detailData.profileImageName);
     }

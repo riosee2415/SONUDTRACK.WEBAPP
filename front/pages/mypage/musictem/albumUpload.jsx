@@ -27,12 +27,7 @@ import {
   LeftOutlined,
   CloseOutlined,
 } from "@ant-design/icons";
-import {
-  PRODUCT_AGREEMENT_UPLOAD_REQUEST,
-  PRODUCT_COVER_UPLOAD_REQUEST,
-  PRODUCT_CREATE_REQUEST,
-  PRODUCT_GEN_ALL_REQUEST,
-} from "../../../reducers/product";
+import getBlobDuration from "get-blob-duration";
 import { TAG_TYPE_LIST_REQUEST } from "../../../reducers/tag";
 import { CATEGORY_LIST_REQUEST } from "../../../reducers/category";
 import {
@@ -234,7 +229,6 @@ const Index = () => {
       let resultTag = [];
 
       tagArr.map((value) => {
-        console.log(value);
         resultTag.push({
           TagTypeId: value.TagTypeId,
           TagId: value.TagId,
@@ -245,6 +239,7 @@ const Index = () => {
       dispatch({
         type: ALBUM_CREATE_REQUEST,
         data: {
+          albumName: data.albumName,
           albumImage: albumImage,
           albumImageName: covertName,
           bitRate: data.bitRate,
@@ -546,6 +541,31 @@ const Index = () => {
                 </Wrapper>
 
                 <Text>
+                  앨범명
+                  <SpanText>*</SpanText>
+                </Text>
+                <Wrapper
+                  dr={`row`}
+                  ju={`space-between`}
+                  margin={`12px 0 10px`}
+                  width={width < 700 ? `100%` : `440px`}
+                >
+                  <Form.Item
+                    name="albumName"
+                    rules={[
+                      { required: true, message: "앨범명은 필수 입니다." },
+                    ]}
+                  >
+                    <TextInput
+                      width={`100%`}
+                      height={`50px`}
+                      border={`1px solid ${Theme.lightGrey_C}`}
+                      placeholder="앨범명을 입력해주세요."
+                    />
+                  </Form.Item>
+                </Wrapper>
+
+                <Text>
                   Bit Rate
                   <SpanText>*</SpanText>
                 </Text>
@@ -739,10 +759,6 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: LOAD_MY_INFO_REQUEST,
-    });
-
-    context.store.dispatch({
-      type: PRODUCT_GEN_ALL_REQUEST,
     });
 
     context.store.dispatch({

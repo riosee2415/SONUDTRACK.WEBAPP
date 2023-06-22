@@ -68,9 +68,7 @@ const AlbumSlider = ({ list }) => {
               <Wrapper
                 width={width < 700 ? `150px !important` : `200px !important`}
               >
-                <CdWrapper
-                  onClick={() => moveLinkHandler(`/mypage/album/${data.id}`)}
-                >
+                <CdWrapper onClick={() => moveLinkHandler(`/album/${data.id}`)}>
                   <Image
                     radius={`100%`}
                     width={`100%`}

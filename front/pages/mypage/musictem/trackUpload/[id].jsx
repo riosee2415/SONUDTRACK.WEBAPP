@@ -45,6 +45,7 @@ import {
   ALBUM_TRACK_FILE_RESET,
   MUSICTEM_DETAIL_REQUEST,
 } from "../../../../reducers/album";
+import getBlobDuration from "get-blob-duration";
 
 const CustomForm = styled(Form)`
   width: 100%;
@@ -78,7 +79,10 @@ const Index = () => {
     //
     st_albumTrackCreateDone,
     st_albumTrackCreateError,
+    //
+    st_albumFileDone,
   } = useSelector((state) => state.album);
+
   ////// HOOKS //////
   const width = useWidth();
 
@@ -102,11 +106,29 @@ const Index = () => {
   // DATA
   const [trackData, setTrackData] = useState([]);
   const [trackname, setTrackname] = useState(null);
+  const [titleTrackLength, setTitleTrackLength] = useState(0);
   ////// REDUX //////
   const router = useRouter();
   const dispatch = useDispatch();
 
   ////// USEEFFECT //////
+
+  useEffect(() => {
+    dispatch({
+      type: MUSICTEM_DETAIL_REQUEST,
+      data: {
+        MusictemId: me && me.musictemId,
+      },
+    });
+  }, [me]);
+
+  useEffect(() => {
+    if (st_albumFileDone && albumFile) {
+      getBlobDuration(albumFile).then(function (duration) {
+        setTitleTrackLength(duration);
+      });
+    }
+  }, [st_albumFileDone]);
 
   useEffect(() => {
     if (st_albumTrackCreateDone) {
@@ -132,9 +154,12 @@ const Index = () => {
     if (albumTrackFile && trackname) {
       let arr = trackData ? trackData.map((data) => data) : [];
 
-      arr.push({
-        filename: trackname,
-        filepath: albumTrackFile,
+      getBlobDuration(albumTrackFile).then(function (duration) {
+        arr.push({
+          filename: trackname,
+          filepath: albumTrackFile,
+          fileLength: duration,
+        });
       });
 
       setTrackData(arr);
@@ -154,44 +179,6 @@ const Index = () => {
     }
   }, [me]);
 
-  // 트랙 생성
-  useEffect(() => {
-    if (st_productTrackCreateDone) {
-      modalToggle2();
-      setTrackThumbnailName("");
-      setTrackName("");
-
-      form.resetFields();
-
-      dispatch({
-        type: PRODUCT_TRACK_FILE_RESET,
-        data: {
-          trackThumbnailPath: null,
-          trackUploadPath: null,
-        },
-      });
-      return;
-    }
-
-    if (st_productTrackCreateError) {
-      return message.error(st_productTrackCreateError);
-    }
-  }, [st_productTrackCreateDone, st_productTrackCreateError]);
-
-  // 썸네일 업로드
-  useEffect(() => {
-    if (st_productTrackThumbnailUploadError) {
-      return message.error(st_productTrackThumbnailUploadError);
-    }
-  }, [st_productTrackThumbnailUploadError]);
-
-  // 트랙 업로드
-  useEffect(() => {
-    if (st_productTrackUploadError) {
-      return message.error(st_productTrackUploadError);
-    }
-  }, [st_productTrackUploadError]);
-
   ////// TOGGLE //////
   const modalToggle = useCallback(() => {
     setIsModal((prev) => !prev);
@@ -204,6 +191,12 @@ const Index = () => {
 
   // 신청하기
   const trackCreateHandler = useCallback(() => {
+    if (detailData && detailData.artistName === null) {
+      return message.error(
+        "뮤직템 기본정보 등록 후 트랙신청을 할 수 있습니다."
+      );
+    }
+
     let trackInfos = [];
 
     trackInfos.push({
@@ -211,7 +204,7 @@ const Index = () => {
       singerName: detailData && detailData.artistName,
       fileName: titleFileName,
       filePath: albumFile,
-      fileLength: "0",
+      fileLength: titleTrackLength,
       isTitle: 1,
     });
 
@@ -221,7 +214,7 @@ const Index = () => {
         singerName: detailData && detailData.artistName,
         fileName: data.filename,
         filePath: data.filenpath,
-        fileLength: "0",
+        fileLength: data.fileLength,
         isTitle: 1,
       });
     });
@@ -233,7 +226,7 @@ const Index = () => {
         AlbumId: router.query.id,
       },
     });
-  }, [trackData, detailData, titleFileName, albumFile]);
+  }, [trackData, detailData, titleFileName, albumFile, titleTrackLength]);
 
   // 트랙 삭제
   const trackDeleteHandler = useCallback(

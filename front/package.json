@@ -24,6 +24,7 @@
     "axios": "^0.21.1",
     "babel-plugin-styled-components": "^1.13.2",
     "file-saver": "^2.0.5",
+    "get-blob-duration": "1.2.0",
     "immer": "^9.0.5",
     "moment": "^2.29.4",
     "next": "^9.5.5",
