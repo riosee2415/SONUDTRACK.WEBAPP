@@ -17,6 +17,11 @@ module.exports = class BoughtHistory extends Model {
           type: DataTypes.STRING(100),
           allowNull: false,
         },
+        price: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          defaultValue: 0,
+        },
         usePoint: {
           type: DataTypes.INTEGER,
           allowNull: false,
