@@ -187,6 +187,7 @@ router.post("/snsLogin", (req, res, next) => {
               A.profileImage,
               A.userId,
               A.email,
+              A.point,
               A.username,
               A.nickname,
               A.mobile,
@@ -309,6 +310,7 @@ router.post("/snsLogin", (req, res, next) => {
               A.nickname,
               A.mobile,
               A.level,
+              A.point,
               A.isExit,
               CASE
                 WHEN	A.level = 1	THEN "일반회원"
@@ -550,6 +552,7 @@ router.get("/signin", async (req, res, next) => {
               A.nickname,
               A.mobile,
               A.level,
+              A.point,
               A.isExit,
               CASE
                 WHEN	A.level = 1	THEN "일반회원"
@@ -641,6 +644,7 @@ router.post("/signin", (req, res, next) => {
               A.nickname,
               A.mobile,
               A.level,
+              A.point,
               A.isExit,
               CASE
                 WHEN	A.level = 1	THEN "일반회원"

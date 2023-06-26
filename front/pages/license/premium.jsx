@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ClientLayout from "../../components/ClientLayout";
 import Head from "next/head";
 import wrapper from "../../store/configureStore";
@@ -16,17 +16,102 @@ import {
 } from "../../components/commonComponents";
 import Theme from "../../components/Theme";
 import styled from "styled-components";
-import { Modal } from "antd";
-import router from "next/router";
+import { Modal, message } from "antd";
+import { useRouter } from "next/router";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  ITEM_BUY_CREATE_REQUEST,
+  ITEM_CART_CREATE_REQUEST,
+} from "../../reducers/bought";
 
 const Premium = () => {
   ////// GLOBAL STATE //////
+  const { me } = useSelector((state) => state.user);
+  const {
+    st_itemCartCreateDone,
+    st_itemCartCreateError,
+    st_itemBuyCreateDone,
+    st_itemBuyCreateError,
+  } = useSelector((state) => state.bought);
+
+  const [albumData, setAlbumData] = useState(null); // 세션 저장값
+  const [standPrice, setStandPrice] = useState(0); // standard 가격
+  const [deluxePrice, setDeluxePrice] = useState(0); // Deluxe 가격
+  const [platiPrice, setPlatiPrice] = useState(0); // Platinum 가격
+
   const [cart, setCart] = useState(false);
   const [contact, setContact] = useState(false);
   ////// HOOKS //////
   const width = useWidth();
+  const router = useRouter();
+  const dispatch = useDispatch();
   ////// REDUX //////
   ////// USEEFFECT //////
+  useEffect(() => {
+    if (!me) {
+      router.push(`/user/login`);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      return message.error(`로그인이 필요한 페이지입니다.`);
+    }
+  }, [me]);
+
+  useEffect(() => {
+    const data = sessionStorage.getItem("ALBUM")
+      ? JSON.parse(sessionStorage.getItem("ALBUM"))
+      : null;
+
+    if (data) {
+      setAlbumData(data);
+    } else {
+      setAlbumData(data);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (albumData) {
+      if (albumData.length < 10) {
+        setStandPrice(2600);
+        setDeluxePrice(3900);
+        setPlatiPrice(`맞춤제작요청`);
+      } else if (albumData.length >= 10 && albumData.length < 30) {
+        setStandPrice(6500);
+        setDeluxePrice(9100);
+        setPlatiPrice(1300000);
+      } else if (albumData.length >= 30 && albumData.length < 90) {
+        setStandPrice(13000);
+        setDeluxePrice(15600);
+        setPlatiPrice(2600000);
+      } else if (albumData.length >= 90) {
+        setStandPrice(19500);
+        setDeluxePrice(22100);
+        setPlatiPrice(3250000);
+      }
+    }
+  }, [albumData]);
+
+  useEffect(() => {
+    if (st_itemBuyCreateDone) {
+      sessionStorage.removeItem("ALBUM");
+      return router.push("/order");
+    }
+    if (st_itemBuyCreateError) {
+      return message.error(st_itemBuyCreateError);
+    }
+  }, [st_itemBuyCreateDone, st_itemBuyCreateError]);
+
+  useEffect(() => {
+    if (st_itemCartCreateDone) {
+      sessionStorage.removeItem("ALBUM");
+      cartToggle();
+
+      return;
+    }
+    if (st_itemCartCreateError) {
+      return message.error(st_itemCartCreateError);
+    }
+  }, [st_itemCartCreateDone, st_itemCartCreateError]);
+
   ////// TOGGLE //////
   const cartToggle = useCallback(() => {
     setCart((prev) => !prev);
@@ -37,34 +122,80 @@ const Premium = () => {
   }, [contact]);
   ////// HANDLER //////
 
-  const selHandler = useCallback((type) => {
-    if (type === 1) {
-      sessionStorage.setItem(
-        "ORDER",
-        JSON.stringify({
-          title: "standard",
-          price: 15000,
-        })
-      );
-    } else if ((type = 2)) {
-      sessionStorage.setItem(
-        "ORDER",
-        JSON.stringify({
-          title: "Deluxe",
-          price: 15000,
-        })
-      );
-    } else if ((type = 3)) {
-      sessionStorage.setItem(
-        "ORDER",
-        JSON.stringify({
-          title: "Platinum",
-          price: 15000,
-        })
-      );
-    }
-    router.push("/order");
-  }, []);
+  const sellHandler = useCallback(
+    (price, lisenceName) => {
+      if (price === "맞춤제작요청") {
+        return message.error("맞춤제작을 요청해야합니다.");
+      } else {
+        if (albumData) {
+          const tempArr = [];
+
+          albumData.trackData.map((data) => {
+            tempArr.push({
+              thumbnail: data.albumImage,
+              albumName: data.albumName,
+              songName: data.songName,
+              singerName: data.singerName,
+              lisenceName: lisenceName,
+              price: price,
+              songFile: data.filePath,
+              songFileName: data.fileName,
+              trackId: data.id,
+              isArtWorks: false,
+              isMonopoly: false,
+              ticketName: null,
+            });
+          });
+
+          dispatch({
+            type: ITEM_BUY_CREATE_REQUEST,
+            data: {
+              wishItems: tempArr,
+            },
+          });
+        }
+      }
+    },
+    [albumData]
+  );
+
+  const cartHandler = useCallback(
+    (price, lisenceName) => {
+      if (price === "맞춤제작요청") {
+        return message.error("맞춤제작을 요청해야합니다.");
+      } else {
+        if (albumData) {
+          const tempArr = [];
+
+          albumData.trackData.map((data) => {
+            tempArr.push({
+              thumbnail: data.albumImage,
+              albumName: data.albumName,
+              songName: data.songName,
+              singerName: data.singerName,
+              lisenceName: lisenceName,
+              price: price,
+              songFile: data.filePath,
+              songFileName: data.fileName,
+              trackId: data.id,
+              isArtWorks: false,
+              isMonopoly: false,
+              ticketName: null,
+            });
+          });
+
+          dispatch({
+            type: ITEM_CART_CREATE_REQUEST,
+            data: {
+              wishItems: tempArr,
+            },
+          });
+        }
+      }
+    },
+    [albumData]
+  );
+
   ////// DATAVIEW //////
 
   return (
@@ -166,7 +297,7 @@ const Premium = () => {
                 Standard
               </Text>
               <Text fontSize={`20px`} color={Theme.basicTheme_C}>
-                15,000원
+                {standPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}원
               </Text>
               <Wrapper al={`flex-start`}>
                 <Text margin={`0 0 5px`}>
@@ -224,7 +355,7 @@ const Premium = () => {
                 height={`48px`}
                 fontSize={width < 800 ? `15px` : `18px`}
                 margin={`20px 0 8px`}
-                onClick={() => selHandler(1)}
+                onClick={() => sellHandler(standPrice, "Standard")}
               >
                 구매하기
               </CommonButton>
@@ -233,7 +364,7 @@ const Premium = () => {
                 height={`48px`}
                 fontSize={width < 800 ? `15px` : `18px`}
                 kindOf={`subTheme`}
-                onClick={cartToggle}
+                onClick={() => cartHandler(standPrice, "Standard")}
               >
                 장바구니 담기
               </CommonButton>
@@ -250,7 +381,7 @@ const Premium = () => {
                 Deluxe
               </Text>
               <Text fontSize={`20px`} color={Theme.basicTheme_C}>
-                15,000원
+                {deluxePrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}원
               </Text>
               <Wrapper al={`flex-start`}>
                 <Text margin={`0 0 5px`}>
@@ -308,7 +439,7 @@ const Premium = () => {
                 height={`48px`}
                 fontSize={width < 800 ? `15px` : `18px`}
                 margin={`20px 0 8px`}
-                onClick={() => selHandler(2)}
+                onClick={() => sellHandler(deluxePrice, "Deluxe")}
               >
                 구매하기
               </CommonButton>
@@ -317,7 +448,7 @@ const Premium = () => {
                 height={`48px`}
                 fontSize={width < 800 ? `15px` : `18px`}
                 kindOf={`subTheme`}
-                onClick={cartToggle}
+                onClick={() => cartHandler(standPrice, "Standard")}
               >
                 장바구니 담기
               </CommonButton>
@@ -336,7 +467,11 @@ const Premium = () => {
                   Platinum
                 </Text>
                 <Text fontSize={`20px`} color={Theme.basicTheme_C}>
-                  15,000원
+                  {platiPrice === "맞춤제작요청"
+                    ? platiPrice
+                    : `${platiPrice
+                        .toString()
+                        .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}원`}
                 </Text>
                 <Wrapper al={`flex-start`}>
                   <Text margin={`0 0 5px`}>
@@ -396,7 +531,7 @@ const Premium = () => {
                   height={`48px`}
                   fontSize={width < 800 ? `15px` : `18px`}
                   margin={`20px 0 8px`}
-                  onClick={() => selHandler(3)}
+                  onClick={() => sellHandler(platiPrice, "Platinum")}
                 >
                   구매하기
                 </CommonButton>
@@ -405,7 +540,7 @@ const Premium = () => {
                   height={`48px`}
                   fontSize={width < 800 ? `15px` : `18px`}
                   kindOf={`subTheme`}
-                  onClick={cartToggle}
+                  onClick={() => cartHandler(standPrice, "Standard")}
                 >
                   장바구니 담기
                 </CommonButton>
@@ -529,6 +664,7 @@ const Premium = () => {
                   fontWeight={`bold`}
                   kindOf={`subTheme`}
                   margin={`0 4px 0 0`}
+                  onClick={() => router.push("/mypage/cart")}
                 >
                   장바구니 이동
                 </CommonButton>

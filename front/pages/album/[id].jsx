@@ -193,13 +193,12 @@ const Index = () => {
   ////// HANDLER //////
 
   const allTrackHandler = useCallback(() => {
-    console.log(albumDetail);
-
     if (albumDetail && albumDetail.isPremium === 1) {
       sessionStorage.setItem(
-        "ORDER",
+        "ALBUM",
         JSON.stringify({
           albumData: albumDetail,
+          trackData: albumTrack,
           length: totalLength,
         })
       );
@@ -207,22 +206,49 @@ const Index = () => {
       router.push(`/license/premium`);
     } else {
       sessionStorage.setItem(
-        "ORDER",
+        "ALBUM",
         JSON.stringify({
           albumData: albumDetail,
+          trackData: albumTrack,
           length: totalLength,
         })
       );
 
       router.push(`/license`);
     }
-  }, [totalLength, albumDetail]);
+  }, [totalLength, albumDetail, albumTrack]);
+
   const trackHandler = useCallback(
     (data) => {
-      console.log(data);
+      if (albumDetail && albumDetail.isPremium === 1) {
+        sessionStorage.setItem(
+          "ALBUM",
+          JSON.stringify({
+            albumData: albumDetail,
+            trackData: [data],
+            length: parseInt(data.fileLength),
+          })
+        );
+
+        router.push(`/license/premium`);
+      } else {
+        sessionStorage.setItem(
+          "ALBUM",
+          JSON.stringify({
+            albumData: albumDetail,
+            trackData: [data],
+            length: parseInt(data.fileLength),
+          })
+        );
+
+        router.push(`/license`);
+      }
     },
     [albumDetail]
   );
+
+  // console.log(albumDetail);
+  // console.log(albumTrack);
 
   ////// DATAVIEW //////
 
