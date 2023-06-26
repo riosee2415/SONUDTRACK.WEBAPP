@@ -463,6 +463,7 @@ router.post("/track/apply/list", async (req, res, next) => {
     FROM  track   A 
    INNER
     JOIN  album   B
+      ON  A.AlbumId = B.id 
    ORDER  BY num DESC
   `;
   try {
@@ -627,6 +628,7 @@ router.post("/musictem/detail", async (req, res, next) => {
     FROM  track   A 
    INNER
     JOIN  album   B
+      ON  A.AlbumId = B.id
    WHERE  B.isTrackPermit = 1
    ORDER  BY num DESC
   `;
@@ -793,6 +795,7 @@ router.post("/detail", async (req, res, next) => {
     FROM  track   A 
    INNER
     JOIN  album   B
+      ON  A.AlbumId = B.id
    WHERE  B.isTrackPermit = 1
      AND  A.AlbumId = ${AlbumId}
    ORDER  BY num DESC
