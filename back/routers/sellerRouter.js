@@ -570,13 +570,22 @@ router.post("/artistem/myData", isLoggedIn, async (req, res, next) => {
 
 /**
  * SUBJECT : 아티스탬 리스트
- * PARAMETERS : ArtistemId
+ * PARAMETERS : searchName, TagTypeId, TagId, CategoryId, isTopSellOrder
  * ORDER BY : -
  * STATEMENT : -
  * DEVELOPMENT : 신태섭
  * DEV DATE : 2023/05/30
  */
 router.post("/artistem/list", async (req, res, next) => {
+  const { searchName, TagTypeId, TagId, CategoryId, isTopSellOrder } = req.body;
+
+  const _searchName = searchName ? searchName : ``;
+  const _TagTypeId = TagTypeId ? TagTypeId : false;
+  const _TagId = TagId ? TagId : false;
+  const _CategoryId = CategoryId ? CategoryId : false;
+
+  const _isTopSellOrder = parseInt(isTopSellOrder) || 2;
+
   const artistemQuery = `
  SELECT  ROW_NUMBER() OVER(ORDER BY A.createdAt)    AS num,
          A.id,
@@ -610,7 +619,256 @@ router.post("/artistem/list", async (req, res, next) => {
      ON  B.Userid = A.id
   WHERE  B.isUpdate = 1
     AND  A.artistemId IS NOT NULL
-  ORDER  BY num DESC
+    AND  B.artistName LIKE "%${_searchName}%"
+          ${
+            _TagTypeId
+              ? `
+          AND 0 < (
+                    SELECT  COUNT(id)
+                      FROM  artistTag
+                     WHERE  A.artistemId = ArtistemId
+                       AND  TagTypeId = ${_TagTypeId}
+                   )
+          `
+              : ``
+          }
+          ${
+            _TagId
+              ? `
+          AND 0 < (
+                    SELECT  COUNT(id)
+                      FROM  artistTag
+                     WHERE  A.artistemId = ArtistemId
+                       AND  TagId = ${_TagId}
+                   )
+          `
+              : ``
+          }
+          ${
+            _CategoryId
+              ? `
+          AND 0 < (
+                    SELECT  COUNT(id)
+                      FROM  artistCategory
+                     WHERE  A.artistemId = ArtistemId
+                       AND  CategoryId = ${_CategoryId}
+                   )
+          `
+              : ``
+          }
+  ${
+    _isTopSellOrder === 1
+      ? `ORDER  BY (
+            IFNULL((
+              SELECT  COUNT(id)
+              FROM  artistContact
+             WHERE  ArtistemId = B.id
+               AND  isOk = 1
+               AND  isReject = 0
+               AND  isPay = 1
+               AND  isCompleted = 1
+               AND  isDelete = 0
+            ), 0)
+        ) DESC`
+      : _isTopSellOrder === 2
+      ? `ORDER  BY num DESC`
+      : `ORDER  BY num DESC`
+  }
+  
+ `;
+
+  const findCountryInfoQuery = `
+ SELECT  ROW_NUMBER()  OVER(ORDER  BY sort)      AS num,
+         id,
+         value,
+         sort,
+         createdAt,
+         updatedAt,
+         ArtistemId,
+         DATE_FORMAT(createdAt, "%Y년 %m월 %d일")  AS viewCreatedAt,
+         DATE_FORMAT(updatedAt, "%Y년 %m월 %d일")  AS viewUpdatedAt
+   FROM  artistCountry
+  ORDER  BY num ASC
+ `;
+
+  const findFilmInfoQuery = `
+ SELECT  ROW_NUMBER()  OVER(ORDER  BY sort)      AS num,
+         id,
+         part,
+         comment,
+         singerName,
+         songName,
+         filename,
+         filePath,
+         imagePathName,
+         imagePath,
+         sort,
+         createdAt,
+         updatedAt,
+         ArtistemId,
+         DATE_FORMAT(createdAt, "%Y년 %m월 %d일")  AS viewCreatedAt,
+         DATE_FORMAT(updatedAt, "%Y년 %m월 %d일")  AS viewUpdatedAt
+   FROM  artistFilmography
+  ORDER  BY num ASC
+ `;
+
+  const findCateInfoQuery = `
+ SELECT  ROW_NUMBER()  OVER(ORDER  BY A.sort)      AS num,
+         A.id,
+         A.sort,
+         A.ArtistemId,
+         A.CateTypeId,
+         A.CategoryId,
+         A.createdAt,
+         A.updatedAt,
+         DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")  AS viewCreatedAt,
+         DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")  AS viewUpdatedAt,
+         B.category                                AS categoryTypeValue,
+         C.value                                   AS catagoryValue
+   FROM  artistCategory    A
+  INNER
+   JOIN  cateType          B
+     ON  A.CateTypeId = B.id
+  INNER
+   JOIN  category          C
+     ON  A.CategoryId = C.id
+  ORDER  BY num ASC
+ `;
+
+  const findTagInfoQuery = `
+ SELECT  ROW_NUMBER()  OVER(ORDER  BY A.sort)      AS num,
+         A.id,
+         A.sort,
+         A.ArtistemId,
+         A.TagTypeId,
+         A.TagId,
+         A.createdAt,
+         A.updatedAt,
+         DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")  AS viewCreatedAt,
+         DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")  AS viewUpdatedAt,
+         B.value                                   AS tagTypeValue,
+         C.tagValue
+   FROM  artistTag        A
+  INNER
+   JOIN  tagType          B
+     ON  A.TagTypeId = B.id
+  INNER
+   JOIN  tag              C
+     ON  A.TagId = C.id
+  ORDER  BY num ASC
+ `;
+
+  try {
+    const artistemData = await models.sequelize.query(artistemQuery);
+
+    const findCountryInfoData = await models.sequelize.query(
+      findCountryInfoQuery
+    );
+    const findFilmInfoData = await models.sequelize.query(findFilmInfoQuery);
+    const findCateInfoData = await models.sequelize.query(findCateInfoQuery);
+    const findTagInfoData = await models.sequelize.query(findTagInfoQuery);
+
+    artistemData[0].map((ele) => {
+      ele["countrys"] = [];
+
+      findCountryInfoData[0].map((innerItem) => {
+        if (parseInt(ele.artistemId) === parseInt(innerItem.ArtistemId)) {
+          ele.countrys.push(innerItem);
+        }
+      });
+    });
+
+    artistemData[0].map((ele) => {
+      ele["artistFilms"] = [];
+
+      findFilmInfoData[0].map((innerItem) => {
+        if (parseInt(ele.artistemId) === parseInt(innerItem.ArtistemId)) {
+          ele.artistFilms.push(innerItem);
+        }
+      });
+    });
+
+    artistemData[0].map((ele) => {
+      ele["categorys"] = [];
+
+      findCateInfoData[0].map((innerItem) => {
+        if (parseInt(ele.artistemId) === parseInt(innerItem.ArtistemId)) {
+          ele.categorys.push(innerItem);
+        }
+      });
+    });
+
+    artistemData[0].map((ele) => {
+      ele["tags"] = [];
+
+      findTagInfoData[0].map((innerItem) => {
+        if (parseInt(ele.artistemId) === parseInt(innerItem.ArtistemId)) {
+          ele.tags.push(innerItem);
+        }
+      });
+    });
+
+    return res.status(200).json(artistemData[0]);
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("아티스탬 정보를 조회할 수 없습니다.");
+  }
+});
+
+/**
+ * SUBJECT : 아티스탬 판매량 많은 순 리스트
+ * PARAMETERS : -
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/06/27
+ */
+router.post("/artistem/topSell/list", async (req, res, next) => {
+  const artistemQuery = `
+ SELECT  ROW_NUMBER() OVER(ORDER BY A.createdAt)    AS num,
+         A.id,
+         A.username,
+         A.type,
+         A.artistemId,
+         B.isVacation,
+         B.name,
+         B.companyNo,
+         B.artistName,
+         B.artistProfileImage,
+         B.artistInfo,
+         B.question1,
+         B.question2,
+         B.question3,
+         B.question4,
+         B.question5,
+         B.question6,
+         B.question7,
+         B.question8,
+         B.repMusicFile,
+         B.repMusicFilename,
+         B.isUpdate,
+         B.createdAt,
+         B.updatedAt,
+         DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")   AS viewCreatedAt,
+         DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")   AS viewUpdatedAt
+   FROM  users        A
+  INNER
+   JOIN  artistem     B
+     ON  B.Userid = A.id
+  WHERE  B.isUpdate = 1
+    AND  A.artistemId IS NOT NULL
+  ORDER  BY (
+            IFNULL((
+              SELECT  COUNT(id)
+              FROM  artistContact
+             WHERE  ArtistemId = B.id
+               AND  isOk = 1
+               AND  isReject = 0
+               AND  isPay = 1
+               AND  isCompleted = 1
+               AND  isDelete = 0
+            ), 0)
+        ) DESC
  `;
 
   const findCountryInfoQuery = `

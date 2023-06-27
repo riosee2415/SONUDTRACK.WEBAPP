@@ -264,14 +264,515 @@ router.post("/list/view", isLoggedIn, async (req, res, next) => {
 //////////////////🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀
 
 /**
+ * SUBJECT : 결제 내역
+ * PARAMETERS : page, startDate, endDate
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 시니어 개발자 신태섭
+ * DEV DATE : 2023/06/27
+ */
+// type === 1 ? 아티스탬
+// type === 2 ? 뮤직탬
+// type === 3 ? 아트웍스
+router.post("/all", isLoggedIn, async (req, res, next) => {
+  const { type, page, startDate, endDate } = req.body;
+
+  const LIMIT = 5;
+
+  const _page = page ? page : 1;
+
+  const __page = _page - 1;
+  const OFFSET = __page * 5;
+
+  const _startDate = startDate ? startDate : ``;
+  const _endDate = endDate ? endDate : ``;
+
+  const _type = parseInt(type) || 1;
+
+  try {
+    if (parseInt(_type) === 1) {
+      const lengthQuery = `
+      SELECT  ROW_NUMBER() OVER(ORDER BY A.createdAt) AS num,
+              A.id,
+              A.sendMessage,
+              A.isOk,
+              A.okMessage,
+              A.isReject,
+              A.rejectMessage,
+              A.endDate,
+              A.filename,
+              A.filepath,
+              A.totalPrice,
+              CONCAT(FORMAT(A.totalPrice, ","), "원")     AS viewTotalPrice,
+              CASE
+                WHEN  A.isOk = 0 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  "문의 완료"
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  "문의 수락"
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 0 THEN  "결제 완료"
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 1 THEN  "제작 완료"
+                WHEN  A.isOk = 0 AND A.isReject = 1 AND A.isPay = 0 AND A.isCompleted = 0 THEN  "문의 거절"
+              END                                         AS viewType,
+              CASE
+                WHEN  A.isOk = 0 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  1
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  2
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 0 THEN  3
+                WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 1 THEN  4
+                WHEN  A.isOk = 0 AND A.isReject = 1 AND A.isPay = 0 AND A.isCompleted = 0 THEN  5
+              END                                         AS type,
+              A.isPay,
+              A.payWay,
+              A.payPrice,
+              A.usePointPrice,
+              CONCAT(FORMAT(A.totalPrice, ","), "원")     AS viewTotalPrice,
+              CONCAT(FORMAT(A.usePointPrice, ","), "원")     AS viewUsePointPrice,
+              A.payDate,
+              A.payCardInfo,
+              A.impUid,
+              A.merchantUid,
+              A.isCompleted,
+              A.completedFilename,
+              A.completedFilepath,
+              A.createdAt,
+              DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")    AS viewCreatedAt, 
+              DATE_FORMAT(A.createdAt, "%Y.%m.%d")    AS viewFrontCreatedAt,
+              A.updatedAt,
+              DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
+              DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
+              B.username                                   AS requestUsername,
+              B.userId                                     AS requestUserLoginId,
+              B.profileImage                               AS requestUserProfileImage,
+              C.artistName,
+              C.artistProfileImage,
+              C.artistInfo
+        FROM  artistContact		A
+       INNER
+        JOIN  users             B
+          ON  A.UserId = B.id
+       INNER
+        JOIN  artistem          C
+          ON  A.ArtistemId = C.id
+       WHERE  1 = 1
+         AND  A.isDelete = 0
+         AND  A.UserId = ${req.user.id}
+         AND  A.isOk = 1
+         AND  A.isReject = 0
+         AND  A.isPay = 1
+         AND  A.isCompleted = 1
+              ${
+                _startDate !== `` && _endDate !== ``
+                  ? `
+                AND DATE_FORMAT(A.createdAt, "%Y-%m-%d") >= DATE_FORMAT("${_startDate}", "%Y-%m-%d")
+                AND DATE_FORMAT(A.createdAt, "%Y-%m-%d") <= DATE_FORMAT("${_endDate}", "%Y-%m-%d")
+                `
+                  : ``
+              }
+              `;
+
+      const selectQuery = `
+      SELECT  ROW_NUMBER() OVER(ORDER BY A.createdAt) AS num,
+              A.id,
+              A.sendMessage,
+              A.isOk,
+              A.okMessage,
+              A.isReject,
+              A.rejectMessage,
+              A.endDate,
+              A.filename,
+              A.filepath,
+              A.totalPrice,
+              CONCAT(FORMAT(A.totalPrice, ","), "원")     AS viewTotalPrice,
+              CASE
+              WHEN  A.isOk = 0 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  "문의 완료"
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  "문의 수락"
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 0 THEN  "결제 완료"
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 1 THEN  "제작 완료"
+              WHEN  A.isOk = 0 AND A.isReject = 1 AND A.isPay = 0 AND A.isCompleted = 0 THEN  "문의 거절"
+              END                                         AS viewType,
+              CASE
+              WHEN  A.isOk = 0 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  1
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  2
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 0 THEN  3
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 1 THEN  4
+              WHEN  A.isOk = 0 AND A.isReject = 1 AND A.isPay = 0 AND A.isCompleted = 0 THEN  5
+              END                                         AS type,
+              A.isPay,
+              A.payWay,
+              A.payPrice,
+              A.usePointPrice,
+              CONCAT(FORMAT(A.totalPrice, ","), "원")     AS viewTotalPrice,
+              CONCAT(FORMAT(A.usePointPrice, ","), "원")     AS viewUsePointPrice,
+              A.payDate,
+              A.payCardInfo,
+              A.impUid,
+              A.merchantUid,
+              A.isCompleted,
+              A.completedFilename,
+              A.completedFilepath,
+              A.createdAt,
+              DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")    AS viewCreatedAt, 
+              DATE_FORMAT(A.createdAt, "%Y.%m.%d")    AS viewFrontCreatedAt,
+              A.updatedAt,
+              DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
+              B.username                                   AS requestUsername,
+              B.userId                                     AS requestUserLoginId,
+              B.profileImage                               AS requestUserProfileImage,
+              C.artistName,
+              C.artistProfileImage,
+              C.artistInfo
+        FROM  artistContact		A
+       INNER
+        JOIN  users             B
+          ON  A.UserId = B.id
+       INNER
+        JOIN  artistem          C
+          ON  A.ArtistemId = C.id
+       WHERE  1 = 1
+         AND  A.isDelete = 0
+         AND  A.UserId = ${req.user.id}
+         AND  A.isOk = 1
+         AND  A.isReject = 0
+         AND  A.isPay = 1
+         AND  A.isCompleted = 1
+              ${
+                _startDate !== `` && _endDate !== ``
+                  ? `
+                AND DATE_FORMAT(A.createdAt, "%Y-%m-%d") >= DATE_FORMAT("${_startDate}", "%Y-%m-%d")
+                AND DATE_FORMAT(A.createdAt, "%Y-%m-%d") <= DATE_FORMAT("${_endDate}", "%Y-%m-%d")
+                `
+                  : ``
+              }
+       ORDER  BY num DESC
+       LIMIT  ${LIMIT}
+      OFFSET  ${OFFSET}
+      `;
+
+      const lengths = await models.sequelize.query(lengthQuery);
+      const contact = await models.sequelize.query(selectQuery);
+
+      const contactLen = lengths[0].length;
+
+      const lastPage =
+        contactLen % LIMIT > 0 ? contactLen / LIMIT + 1 : contactLen / LIMIT;
+
+      return res.status(200).json({
+        contacts: contact[0],
+        lastPage: parseInt(lastPage),
+      });
+    }
+
+    if (parseInt(_type) === 2) {
+      const lengthQuery = `
+      SELECT  ROW_NUMBER()  OVER(ORDER  BY A.createdAt)    AS num,
+              A.id,
+              A.name,
+              A.mobile,
+              A.email,
+              A.price,
+              A.usePoint,
+              A.payWay,
+              A.mileagePrice,
+              A.createdAt,
+              A.updatedAt,
+              DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")    AS viewCreatedAt,
+              DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
+              A.UserId
+        FROM  boughtHistory   A
+       WHERE  UserId = ${req.user.id}
+              ${
+                _startDate !== `` && _endDate !== ``
+                  ? `
+                AND DATE_FORMAT(A.createdAt, "%Y-%m-%d") >= DATE_FORMAT("${_startDate}", "%Y-%m-%d")
+                AND DATE_FORMAT(A.createdAt, "%Y-%m-%d") <= DATE_FORMAT("${_endDate}", "%Y-%m-%d")
+                `
+                  : ``
+              }
+              `;
+
+      const selectQuery = `
+      SELECT  ROW_NUMBER()  OVER(ORDER  BY A.createdAt)    AS num,
+              A.id,
+              A.name,
+              A.mobile,
+              A.email,
+              A.price,
+              A.usePoint,
+              A.payWay,
+              A.mileagePrice,
+              A.createdAt,
+              A.updatedAt,
+              DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")    AS viewCreatedAt,
+              DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
+              A.UserId
+        FROM  boughtHistory   A
+       WHERE  UserId = ${req.user.id}
+              ${
+                _startDate !== `` && _endDate !== ``
+                  ? `
+                AND DATE_FORMAT(A.createdAt, "%Y-%m-%d") >= DATE_FORMAT("${_startDate}", "%Y-%m-%d")
+                AND DATE_FORMAT(A.createdAt, "%Y-%m-%d") <= DATE_FORMAT("${_endDate}", "%Y-%m-%d")
+                `
+                  : ``
+              }
+        ORDER  BY num DESC
+        LIMIT  ${LIMIT}
+       OFFSET  ${OFFSET}
+              `;
+
+      const boughtItemQuery = `
+      SELECT  A.id,
+              A.thumbnail,
+              A.albumName,
+              A.songName,
+              A.singerName,
+              A.lisenceName,
+              A.price,
+              CONCAT(FORMAT(A.price, 0), "원")								                   AS viewPrice,
+              A.songFile,
+              A.songFileName,
+              A.trackId,
+              A.isArtWorks,
+              A.isMonopoly,
+              A.ticketName,
+              CASE
+                  WHEN	A.isArtWorks = 1 AND A.isMonopoly = 1 THEN "독점"
+                  WHEN  A.isArtWorks = 1 AND A.isMonopoly = 0 THEN "비독점"
+                  ELSE  NULL
+              END									                                              AS monopolyName,
+              A.BoughtHistoryId
+        FROM  wishItem			   A
+       INNER
+        JOIN  wishList         B
+          ON  A.WishListId = B.id
+       WHERE  A.BoughtHistoryId IS NOT NULL
+           `;
+
+      const lengths = await models.sequelize.query(lengthQuery);
+      const boughtHistory = await models.sequelize.query(selectQuery);
+
+      const boughtItems = await models.sequelize.query(boughtItemQuery);
+
+      boughtHistory[0].map((ele) => {
+        ele["boughtItems"] = [];
+
+        boughtItems[0].map((innerItem) => {
+          if (parseInt(ele.id) === parseInt(innerItem.BoughtHistoryId)) {
+            ele.boughtItems.push(innerItem);
+          }
+        });
+      });
+
+      const boughtHistoryLen = lengths[0].length;
+
+      const lastPage =
+        boughtHistoryLen % LIMIT > 0
+          ? boughtHistoryLen / LIMIT + 1
+          : boughtHistoryLen / LIMIT;
+
+      return res.status(200).json({
+        boughtHistorys: boughtHistory[0],
+        lastPage: parseInt(lastPage),
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("구매 내역을 조회할 수 없습니다.");
+  }
+});
+
+/**
+ * SUBJECT : 결제 내역 (관리자)
+ * PARAMETERS : type, name, UserId, startDate, endDate
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 시니어 개발자 신태섭
+ * DEV DATE : 2023/06/27
+ */
+// type === 1 ? 아티스탬
+// type === 2 ? 뮤직탬
+// type === 3 ? 아트웍스
+router.post("/all/admin", isLoggedIn, async (req, res, next) => {
+  const { type, name, UserId, startDate, endDate } = req.body;
+
+  const _type = parseInt(type) || 1;
+
+  const _startDate = startDate ? startDate : ``;
+  const _endDate = endDate ? endDate : ``;
+  const _name = name ? name : ``;
+  const _UserId = parseInt(UserId) || false;
+
+  try {
+    if (parseInt(_type) === 1) {
+      const selectQuery = `
+      SELECT  ROW_NUMBER() OVER(ORDER BY A.createdAt) AS num,
+              A.id,
+              A.sendMessage,
+              A.isOk,
+              A.okMessage,
+              A.isReject,
+              A.rejectMessage,
+              A.endDate,
+              A.filename,
+              A.filepath,
+              A.totalPrice,
+              CONCAT(FORMAT(A.totalPrice, ","), "원")     AS viewTotalPrice,
+              CASE
+              WHEN  A.isOk = 0 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  "문의 완료"
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  "문의 수락"
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 0 THEN  "결제 완료"
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 1 THEN  "제작 완료"
+              WHEN  A.isOk = 0 AND A.isReject = 1 AND A.isPay = 0 AND A.isCompleted = 0 THEN  "문의 거절"
+              END                                         AS viewType,
+              CASE
+              WHEN  A.isOk = 0 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  1
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 0 AND A.isCompleted = 0 THEN  2
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 0 THEN  3
+              WHEN  A.isOk = 1 AND A.isReject = 0 AND A.isPay = 1 AND A.isCompleted = 1 THEN  4
+              WHEN  A.isOk = 0 AND A.isReject = 1 AND A.isPay = 0 AND A.isCompleted = 0 THEN  5
+              END                                         AS type,
+              A.isPay,
+              A.payWay,
+              A.payPrice,
+              A.usePointPrice,
+              CONCAT(FORMAT(A.totalPrice, ","), "원")     AS viewTotalPrice,
+              CONCAT(FORMAT(A.usePointPrice, ","), "원")     AS viewUsePointPrice,
+              A.payDate,
+              A.payCardInfo,
+              A.impUid,
+              A.merchantUid,
+              A.isCompleted,
+              A.completedFilename,
+              A.completedFilepath,
+              A.createdAt,
+              DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")    AS viewCreatedAt, 
+              DATE_FORMAT(A.createdAt, "%Y.%m.%d")    AS viewFrontCreatedAt,
+              A.updatedAt,
+              DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
+              B.username                                   AS requestUsername,
+              B.userId                                     AS requestUserLoginId,
+              B.profileImage                               AS requestUserProfileImage,
+              C.artistName,
+              C.artistProfileImage,
+              C.artistInfo
+        FROM  artistContact		A
+       INNER
+        JOIN  users             B
+          ON  A.UserId = B.id
+       INNER
+        JOIN  artistem          C
+          ON  A.ArtistemId = C.id
+       WHERE  1 = 1
+         AND  A.isDelete = 0
+         AND  A.isOk = 1
+         AND  A.isReject = 0
+         AND  A.isPay = 1
+         AND  A.isCompleted = 1
+         AND  B.username LIKE "%${_name}%"
+              ${_UserId ? `AND A.UserId = ${_UserId}` : ``}
+              ${
+                _startDate !== `` && _endDate !== ``
+                  ? `
+                AND DATE_FORMAT(A.createdAt, "%Y-%m-%d") >= DATE_FORMAT("${_startDate}", "%Y-%m-%d")
+                AND DATE_FORMAT(A.createdAt, "%Y-%m-%d") <= DATE_FORMAT("${_endDate}", "%Y-%m-%d")
+                `
+                  : ``
+              }
+       ORDER  BY num DESC
+      `;
+
+      const contact = await models.sequelize.query(selectQuery);
+
+      return res.status(200).json(contact[0]);
+    }
+
+    if (parseInt(_type) === 2) {
+      const selectQuery = `
+      SELECT  ROW_NUMBER()  OVER(ORDER  BY A.createdAt)    AS num,
+              A.id,
+              A.name,
+              A.mobile,
+              A.email,
+              A.price,
+              A.usePoint,
+              A.payWay,
+              A.mileagePrice,
+              A.createdAt,
+              A.updatedAt,
+              DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")    AS viewCreatedAt,
+              DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
+              A.UserId
+        FROM  boughtHistory   A
+       WHERE  1 = 1
+         AND  A.name LIKE "${_name}"
+              ${_UserId ? `AND A.UserId = ${_UserId}` : ``}
+              ${
+                _startDate !== `` && _endDate !== ``
+                  ? `
+                AND DATE_FORMAT(A.createdAt, "%Y-%m-%d") >= DATE_FORMAT("${_startDate}", "%Y-%m-%d")
+                AND DATE_FORMAT(A.createdAt, "%Y-%m-%d") <= DATE_FORMAT("${_endDate}", "%Y-%m-%d")
+                `
+                  : ``
+              }
+        ORDER  BY num DESC
+              `;
+
+      const boughtItemQuery = `
+      SELECT  A.id,
+              A.thumbnail,
+              A.albumName,
+              A.songName,
+              A.singerName,
+              A.lisenceName,
+              A.price,
+              CONCAT(FORMAT(A.price, 0), "원")								                   AS viewPrice,
+              A.songFile,
+              A.songFileName,
+              A.trackId,
+              A.isArtWorks,
+              A.isMonopoly,
+              A.ticketName,
+              CASE
+                  WHEN	A.isArtWorks = 1 AND A.isMonopoly = 1 THEN "독점"
+                  WHEN  A.isArtWorks = 1 AND A.isMonopoly = 0 THEN "비독점"
+                  ELSE  NULL
+              END									                                              AS monopolyName,
+              A.BoughtHistoryId
+        FROM  wishItem			   A
+       INNER
+        JOIN  wishList         B
+          ON  A.WishListId = B.id
+       WHERE  A.BoughtHistoryId IS NOT NULL
+           `;
+
+      const boughtHistory = await models.sequelize.query(selectQuery);
+
+      const boughtItems = await models.sequelize.query(boughtItemQuery);
+
+      boughtHistory[0].map((ele) => {
+        ele["boughtItems"] = [];
+
+        boughtItems[0].map((innerItem) => {
+          if (parseInt(ele.id) === parseInt(innerItem.BoughtHistoryId)) {
+            ele.boughtItems.push(innerItem);
+          }
+        });
+      });
+
+      return res.status(200).json(boughtHistory[0]);
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("구매 내역을 조회할 수 없습니다.");
+  }
+});
+
+/**
  * SUBJECT : 음원 구매 내역
- * PARAMETERS : page
+ * PARAMETERS : page, startDate, endDate
  * ORDER BY : -
  * STATEMENT : -
  * DEVELOPMENT : 시니어 개발자 신태섭
  * DEV DATE : 2023/06/21
  */
-router.post("/all", isLoggedIn, async (req, res, next) => {
+router.post("/list", isLoggedIn, async (req, res, next) => {
   const { page } = req.body;
 
   const LIMIT = 5;
@@ -463,16 +964,18 @@ router.post("/detail", isLoggedIn, async (req, res, next) => {
 
 /**
  * SUBJECT : 관리자 음원 구매내역
- * PARAMETERS : name
+ * PARAMETERS : name, startDate, endDate
  * ORDER BY : -
  * STATEMENT : -
  * DEVELOPMENT : 시니어 개발자 신태섭
  * DEV DATE : 2023/06/21
  */
 router.post("/admin/list", isAdminCheck, async (req, res, next) => {
-  const { name } = req.body;
+  const { name, startDate, endDate } = req.body;
 
   const _name = name ? name : ``;
+  const _startDate = startDate ? startDate : ``;
+  const _endDate = endDate ? endDate : ``;
 
   const selectQuery = `
   SELECT  ROW_NUMBER()  OVER(ORDER  BY A.createdAt)    AS num,
@@ -491,6 +994,14 @@ router.post("/admin/list", isAdminCheck, async (req, res, next) => {
           A.UserId
     FROM  boughtHistory   A
    WHERE  A.name LIKE "%${_name}%"
+          ${
+            _startDate !== `` && _endDate !== ``
+              ? `
+            AND DATE_FORMAT(A.createdAt, "%Y-%m-%d") >= DATE_FORMAT("${_startDate}", "%Y-%m-%d")
+            AND DATE_FORMAT(A.createdAt, "%Y-%m-%d") <= DATE_FORMAT("${_endDate}", "%Y-%m-%d")
+            `
+              : ``
+          }
    ORDER  BY num DESC
   `;
 
