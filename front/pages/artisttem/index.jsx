@@ -20,7 +20,7 @@ import {
 import Theme from "../../components/Theme";
 import { SearchOutlined, StarFilled } from "@ant-design/icons";
 import styled from "styled-components";
-import { Empty, Modal, Select } from "antd";
+import { Empty, message, Modal, Select } from "antd";
 import MainSlider2 from "../../components/slide/MainSlider2";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
@@ -32,6 +32,7 @@ import {
 import { CATE_ALL_LIST_REQUEST } from "../../reducers/category";
 import { TAG_LIST_REQUEST } from "../../reducers/tag";
 import useInput from "../../hooks/useInput";
+import { ARTIST_CREATE_REQUEST } from "../../reducers/like";
 
 const CustomSelect = styled(Wrapper)`
   width: 240px;
@@ -88,6 +89,10 @@ const Index = () => {
   const { tagList, tagTypeList } = useSelector((state) => state.tag);
 
   const { cateAllList } = useSelector((state) => state.category);
+  const { st_artistCreateDone, st_artistCreateError } = useSelector(
+    (state) => state.like
+  );
+  const { me } = useSelector((state) => state.user);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -103,6 +108,23 @@ const Index = () => {
   const [cateData, setCateData] = useState(null); // 카테고리 아이디
 
   ////// USEEFFECT //////
+  ///////////////////////// 좋아요 후처리 /////////////////////////////
+  useEffect(() => {
+    if (st_artistCreateDone) {
+      dispatch({
+        type: ARTISTEM_LIST_REQUEST,
+        data: {
+          orderType,
+        },
+      });
+
+      return message.success("찜목록에 추가되었습니다.");
+    }
+
+    if (st_artistCreateError) {
+      return message.error(st_artistCreateError);
+    }
+  }, [st_artistCreateDone, st_artistCreateError]);
 
   useEffect(() => {
     dispatch({
@@ -185,6 +207,22 @@ const Index = () => {
       setTagData(data);
     },
     [tagData]
+  );
+
+  const likeHandler = useCallback(
+    (data) => {
+      if (me) {
+        dispatch({
+          type: ARTIST_CREATE_REQUEST,
+          data: {
+            ArtistemId: data.id,
+          },
+        });
+      } else {
+        return message.error("로그인이 필요합니다.");
+      }
+    },
+    [me]
   );
 
   ////// DATAVIEW //////
@@ -613,13 +651,12 @@ const Index = () => {
               ) : (
                 artistemList.map((data) => {
                   return (
-                    <ArtWrapper
-                      key={data.id}
-                      onClick={() =>
-                        movelinkHandler(`/artisttem/${data.artistemId}`)
-                      }
-                    >
-                      <SquareBox>
+                    <ArtWrapper key={data.id}>
+                      <SquareBox
+                        onClick={() =>
+                          movelinkHandler(`/artisttem/${data.artistemId}`)
+                        }
+                      >
                         <Image src={data.artistProfileImage} alt="thumbnail" />
                       </SquareBox>
                       <Text
@@ -676,6 +713,7 @@ const Index = () => {
                               alt="icon"
                               width={`14px`}
                               margin={`0 4px 0 0`}
+                              onClick={() => likeHandler(data)}
                               src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
                             />
                           )}

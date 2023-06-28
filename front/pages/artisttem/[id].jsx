@@ -337,12 +337,16 @@ const Index = () => {
                   </Text>
                   <Image
                     alt="icon"
-                    src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
+                    src={
+                      artistemData && artistemData.isLike
+                        ? `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`
+                        : `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`
+                    }
                     width={`26px`}
                     margin={`0 4px 0 0`}
                   />
                   <Text color={Theme.darkGrey_C} fontSize={`12px`}>
-                    00
+                    {artistemData && artistemData.likeCnt}
                   </Text>
                 </Wrapper>
 
