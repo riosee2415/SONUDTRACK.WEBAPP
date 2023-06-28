@@ -22,6 +22,7 @@ import artistContact from "./artistContact";
 import search from "./search";
 import bought from "./bought";
 import revenue from "./revenue";
+import like from "./like";
 
 const rootReducer = (state, action) => {
   switch (action.type) {
@@ -52,6 +53,7 @@ const rootReducer = (state, action) => {
         search,
         bought,
         revenue,
+        like,
       });
       return combinedReducer(state, action);
     }
