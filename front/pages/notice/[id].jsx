@@ -92,7 +92,7 @@ const Index = () => {
               dr={`row`}
               ju={`flex-start`}
               margin={`50px 0`}
-              fontSize={`18px`}
+              fontSize={width < 900 ? `16px` : `18px`}
               fontWeight={`bold`}
             >
               <Link href={`/notice`}>
@@ -136,15 +136,16 @@ const Index = () => {
               al={`flex-start`}
               borderBottom={`1px solid ${Theme.lightGrey_C}`}
             >
-              {noticeDetail && noticeDetail.file && (
-                <Image
-                  alt="thumbnail"
-                  src={noticeDetail && noticeDetail.file}
-                  width={width < 800 ? `100%` : `60%`}
-                />
-              )}
+              <Image
+                alt="thumbnail"
+                src={noticeDetail && noticeDetail.imagePath}
+                width={width < 800 ? `100%` : `60%`}
+              />
 
-              <Text fontSize={`18px`} margin={`30px 0 70px`}>
+              <Text
+                fontSize={width < 900 ? `16px` : `18px`}
+                margin={`30px 0 70px`}
+              >
                 {noticeDetail && noticeDetail.content}
               </Text>
             </Wrapper>
@@ -155,7 +156,7 @@ const Index = () => {
                   width={`180px`}
                   height={`50px`}
                   kindOf={`subTheme`}
-                  fontSize={`18px`}
+                  fontSize={width < 900 ? `16px` : `18px`}
                   margin={`40px 0 100px`}
                 >
                   이전으로

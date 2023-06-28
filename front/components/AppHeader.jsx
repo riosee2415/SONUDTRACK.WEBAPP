@@ -64,7 +64,7 @@ const AppHeader = () => {
       height={width < 900 ? `70px` : `84px`}
     >
       {width < 900 ? (
-        <RsWrapper dr={`row`} ju={`space-between`}>
+        <RsWrapper dr={`row`} ju={`space-between`} bgColor={Theme.white_C}>
           <Image
             width={`30px`}
             alt="menu icon"
