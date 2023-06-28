@@ -107,6 +107,10 @@ export const initailState = {
   st_userUploadLoading: false, // user 이미지 등록
   st_userUploadDone: false,
   st_userUploadError: null,
+  //
+  st_meAccountUpdateLoading: false, // 계좌정보 등록
+  st_meAccountUpdateDone: false,
+  st_meAccountUpdateError: null,
 };
 
 export const LOGIN_REQUEST = "LOGIN_REQUEST";
@@ -208,6 +212,10 @@ export const USER_IMG_UPDATE_FAILURE = "USER_IMG_UPDATE_FAILURE";
 export const USER_UPLOAD_REQUEST = "USER_UPLOAD_REQUEST";
 export const USER_UPLOAD_SUCCESS = "USER_UPLOAD_SUCCESS";
 export const USER_UPLOAD_FAILURE = "USER_UPLOAD_FAILURE";
+
+export const ME_ACCOUNT_UPDATE_REQUEST = "ME_ACCOUNT_UPDATE_REQUEST";
+export const ME_ACCOUNT_UPDATE_SUCCESS = "ME_ACCOUNT_UPDATE_SUCCESS";
+export const ME_ACCOUNT_UPDATE_FAILURE = "ME_ACCOUNT_UPDATE_FAILURE";
 
 export const UPDATE_MODAL_OPEN_REQUEST = "UPDATE_MODAL_OPEN_REQUEST";
 export const UPDATE_MODAL_CLOSE_REQUEST = "UPDATE_MODAL_CLOSE_REQUEST";
@@ -739,6 +747,27 @@ const reducer = (state = initailState, action) =>
         draft.st_userUploadLoading = false;
         draft.st_userUploadDone = false;
         draft.st_userUploadError = action.error;
+        break;
+      }
+
+      //////////////////////////////////////////////
+
+      case ME_ACCOUNT_UPDATE_REQUEST: {
+        draft.st_meAccountUpdateLoading = true;
+        draft.st_meAccountUpdateDone = false;
+        draft.st_meAccountUpdateError = null;
+        break;
+      }
+      case ME_ACCOUNT_UPDATE_SUCCESS: {
+        draft.st_meAccountUpdateLoading = false;
+        draft.st_meAccountUpdateDone = true;
+        draft.st_meAccountUpdateError = null;
+        break;
+      }
+      case ME_ACCOUNT_UPDATE_FAILURE: {
+        draft.st_meAccountUpdateLoading = false;
+        draft.st_meAccountUpdateDone = false;
+        draft.st_meAccountUpdateError = action.error;
         break;
       }
 

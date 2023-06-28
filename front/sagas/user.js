@@ -100,6 +100,10 @@ import {
   USER_UPLOAD_REQUEST,
   USER_UPLOAD_SUCCESS,
   USER_UPLOAD_FAILURE,
+  //
+  ME_ACCOUNT_UPDATE_REQUEST,
+  ME_ACCOUNT_UPDATE_SUCCESS,
+  ME_ACCOUNT_UPDATE_FAILURE,
 } from "../reducers/user";
 
 // SAGA AREA ********************************************************************************************************
@@ -773,6 +777,34 @@ function* logout(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 // ******************************************************************************************************************
+
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function meAccountUpdateAPI(data) {
+  return await axios.get(`/api/user/me/account/update`, data);
+}
+
+function* meAccountUpdate(action) {
+  try {
+    const result = yield call(meAccountUpdateAPI, action.data);
+
+    yield put({
+      type: ME_ACCOUNT_UPDATE_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: ME_ACCOUNT_UPDATE_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
 //////////////////////////////////////////////////////////////
 
 function* watchLoadMyInfo() {
@@ -875,6 +907,10 @@ function* watchLogout() {
   yield takeLatest(LOGOUT_REQUEST, logout);
 }
 
+function* watchMeAccountUpdate() {
+  yield takeLatest(ME_ACCOUNT_UPDATE_REQUEST, meAccountUpdate);
+}
+
 //////////////////////////////////////////////////////////////
 export default function* userSaga() {
   yield all([
@@ -903,6 +939,7 @@ export default function* userSaga() {
     fork(watchUserImgUpdate),
     fork(watchUserUpload),
     fork(watchLogout),
+    fork(watchMeAccountUpdate),
     //
   ]);
 }
