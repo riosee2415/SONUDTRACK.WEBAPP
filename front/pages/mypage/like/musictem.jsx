@@ -103,7 +103,14 @@ const CdWrapper = styled(Wrapper)`
   }
 `;
 
-const Musictem = ({ type, setType }) => {
+const Musictem = ({
+  type,
+  setType,
+  selectList,
+  setSelectList,
+  deleteclickHandler,
+  checkHandler,
+}) => {
   ////// GLOBAL STATE //////
   const { me } = useSelector((state) => state.user);
   const { myLikeList } = useSelector((state) => state.like);
@@ -165,13 +172,6 @@ const Musictem = ({ type, setType }) => {
     [playing2]
   );
   ////// HANDLER //////
-  // 페이지네이션
-  const otherPageCall = useCallback(
-    (changePage) => {
-      setCurrentPage(changePage);
-    },
-    [currentPage]
-  );
 
   ////// DATAVIEW //////
 
@@ -260,7 +260,7 @@ const Musictem = ({ type, setType }) => {
                         left={`0`}
                         width={`auto`}
                       >
-                        <Checkbox />
+                        <Checkbox onClick={() => checkHandler(data)} />
                       </Wrapper>
                     </CdWrapper>
                     <Text
@@ -349,12 +349,20 @@ const Musictem = ({ type, setType }) => {
                               : `30px 15px`
                             : `40px 32px`
                         }
+                        position={`relative`}
                       >
                         <audio
                           id={`audioTeg_recent_${idx}`}
                           src={data.filePath}
                           hidden
                         />
+                        <Wrapper
+                          position={`absolute`}
+                          left={`0`}
+                          width={`auto`}
+                        >
+                          <Checkbox onClick={() => checkHandler(data)} />
+                        </Wrapper>
                         <Wrapper width={`auto`} dr={`row`} ju={`flex-start`}>
                           <Image
                             alt="thumbnail"

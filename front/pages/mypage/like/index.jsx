@@ -25,7 +25,12 @@ import styled from "styled-components";
 import { StarFilled } from "@ant-design/icons";
 import { useState } from "react";
 import Musictem from "./musictem";
-import { MY_LIKE_LIST_REQUEST } from "../../../reducers/like";
+import {
+  ALBUM_DELETE_REQUEST,
+  ARTIST_DELETE_REQUEST,
+  MY_LIKE_LIST_REQUEST,
+  TRACK_DELETE_REQUEST,
+} from "../../../reducers/like";
 
 const Box = styled(Wrapper)`
   align-items: flex-start;
@@ -70,7 +75,16 @@ const Box = styled(Wrapper)`
 const Index = () => {
   ////// GLOBAL STATE //////
   const { me } = useSelector((state) => state.user);
-  const { myLikeList, lastPage } = useSelector((state) => state.like);
+  const {
+    myLikeList,
+    lastPage,
+    st_artistDeleteDone,
+    st_artistDeleteError,
+    st_albumDeleteDone,
+    st_albumDeleteError,
+    st_trackDeleteDone,
+    st_trackDeleteError,
+  } = useSelector((state) => state.like);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -87,6 +101,64 @@ const Index = () => {
   useEffect(() => {
     setSelectList([]);
   }, [type]);
+
+  useEffect(() => {
+    if (st_artistDeleteDone) {
+      dispatch({
+        type: MY_LIKE_LIST_REQUEST,
+        data: {
+          type,
+          page: currentPage,
+        },
+      });
+      setSelectList([]);
+      return message.success("찜목록에서 삭제되었씁니다.");
+    }
+
+    if (st_artistDeleteError) {
+      return message.error(st_artistDeleteError);
+    }
+
+    if (st_albumDeleteDone) {
+      dispatch({
+        type: MY_LIKE_LIST_REQUEST,
+        data: {
+          type,
+          page: currentPage,
+        },
+      });
+      setSelectList([]);
+      return message.success("찜목록에서 삭제되었씁니다.");
+    }
+
+    if (st_albumDeleteError) {
+      return message.error(st_albumDeleteError);
+    }
+
+    if (st_trackDeleteDone) {
+      dispatch({
+        type: MY_LIKE_LIST_REQUEST,
+        data: {
+          type,
+          page: currentPage,
+        },
+      });
+      setSelectList([]);
+      return message.success("찜목록에서 삭제되었씁니다.");
+    }
+
+    if (st_trackDeleteError) {
+      return message.error(st_trackDeleteError);
+    }
+  }, [
+    type,
+    st_artistDeleteDone,
+    st_artistDeleteError,
+    st_albumDeleteDone,
+    st_albumDeleteError,
+    st_trackDeleteDone,
+    st_trackDeleteError,
+  ]);
 
   useEffect(() => {
     if (!me) {
@@ -117,19 +189,32 @@ const Index = () => {
   );
 
   const deleteclickHandler = useCallback(() => {
-    console.log(selectList);
-
     switch (parseInt(type)) {
       case 1: {
-        console.log("아티스탬");
+        dispatch({
+          type: ARTIST_DELETE_REQUEST,
+          data: {
+            likeIds: selectList,
+          },
+        });
         break;
       }
       case 2: {
-        console.log("엘범");
+        dispatch({
+          type: ALBUM_DELETE_REQUEST,
+          data: {
+            likeIds: selectList,
+          },
+        });
         break;
       }
       case 3: {
-        console.log("곡");
+        dispatch({
+          type: TRACK_DELETE_REQUEST,
+          data: {
+            likeIds: selectList,
+          },
+        });
         break;
       }
 
@@ -144,7 +229,7 @@ const Index = () => {
 
       if (existFlag === -1) {
         const arr = selectList;
-        arr.push(snap);
+        arr.push(snap.id);
         setSelectList(arr);
       } else {
         const nextArr = selectList.filter(
@@ -177,18 +262,10 @@ const Index = () => {
             </Wrapper>
             <Wrapper
               dr={`row`}
-              ju={`flex-start`}
+              ju={`flex-end`}
               borderBottom={`1px solid ${Theme.lightGrey_C}`}
               padding={`0 0 16px`}
             >
-              <Checkbox>전체 선택</Checkbox>
-              <SpanText
-                fontSize={`10px`}
-                margin={`0 10px`}
-                color={Theme.lightGrey_C}
-              >
-                |
-              </SpanText>
               <Text isHover onClick={() => deleteclickHandler()}>
                 삭제
               </Text>
@@ -323,7 +400,26 @@ const Index = () => {
               </Wrapper>
             )}
 
-            {(type === 2 || 3) && <Musictem type={type} setType={setType} />}
+            {type === 2 && (
+              <Musictem
+                type={type}
+                setType={setType}
+                selectList={selectList}
+                setSelectList={setSelectList}
+                deleteclickHandler={deleteclickHandler}
+                checkHandler={checkHandler}
+              />
+            )}
+            {type === 3 && (
+              <Musictem
+                type={type}
+                setType={setType}
+                selectList={selectList}
+                setSelectList={setSelectList}
+                deleteclickHandler={deleteclickHandler}
+                checkHandler={checkHandler}
+              />
+            )}
 
             <CustomPage
               defaultCurrent={1}
