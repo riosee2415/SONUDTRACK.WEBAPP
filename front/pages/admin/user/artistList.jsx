@@ -23,6 +23,7 @@ import {
   Drawer,
   Checkbox,
   Image,
+  Popconfirm,
 } from "antd";
 import {
   HomeText,
@@ -44,7 +45,12 @@ import {
   PopWrapper,
 } from "../../../components/commonComponents";
 import Theme from "../../../components/Theme";
-import { CloseOutlined, HomeOutlined, RightOutlined } from "@ant-design/icons";
+import {
+  CheckOutlined,
+  CloseOutlined,
+  HomeOutlined,
+  RightOutlined,
+} from "@ant-design/icons";
 import {
   CATEGORY_ADMIN_LIST_REQUEST,
   CATEGORY_LIST_REQUEST,
@@ -55,6 +61,7 @@ import {
   ALBUM_PREMIUM_CREATE_REQUEST,
   ALBUM_TRACK_FILE_REQUEST,
   ALBUM_TRACK_FILE_RESET,
+  MUSICTEM_PREMIUM_ADMIN_LIST_REQUEST,
   MUSICTEM_LIST_REQUEST,
 } from "../../../reducers/album";
 import {
@@ -131,6 +138,7 @@ const ArtistList = ({}) => {
   const {
     albumFile,
     albumTrackFile,
+    musictemPremiumAdminList,
     //
     st_albumPremiumCreateDone,
     st_albumPremiumCreateError,
@@ -461,13 +469,10 @@ const ArtistList = ({}) => {
   );
 
   //   premiumModalToggle
-  const permiumModalToggle = useCallback(
-    (data) => {
-      setCurrentData(data);
-      setCreateModal(!createModal);
-    },
-    [createModal]
-  );
+  const permiumModalToggle = useCallback(() => {
+    // setCurrentData(data);
+    setCreateModal(!createModal);
+  }, [createModal]);
 
   const searchHandler = useCallback(
     (data) => {
@@ -502,45 +507,63 @@ const ArtistList = ({}) => {
 
     {
       width: "10%",
-      title: "회원이름",
-      dataIndex: "username",
+      title: "앨범이미지",
+      render: (data) => <Image src={data.albumImage} />,
     },
     {
       width: "10%",
-      title: "닉네임",
-      dataIndex: "nickname",
+      title: "앨범명",
+      dataIndex: "albumName",
+    },
+    {
+      width: "10%",
+      title: "타이틀여부",
+      render: (data) => {
+        return (
+          <div>
+            {data.isTitle ? (
+              <CheckOutlined style={{ color: Theme.naver_C }} />
+            ) : (
+              <CloseOutlined style={{ color: Theme.red_C }} />
+            )}
+          </div>
+        );
+      },
     },
     {
       width: "15%",
-      title: "이메일",
-      dataIndex: "email",
-    },
-    {
-      width: "15%",
-      title: "전화번호",
-      dataIndex: "mobile",
-    },
-    {
-      width: "15%",
-      title: "가입일",
-      dataIndex: "viewCreatedAt",
-    },
-    {
-      width: "15%",
-      title: "가입일",
-      dataIndex: "viewCreatedAt",
-    },
-    {
-      width: "15%",
-      title: "프리미엄등록",
+      title: "트랙곡",
       render: (data) => (
         <Button
           size="small"
           type="primary"
-          onClick={() => permiumModalToggle(data)}
+          download={true}
+          href={data.filePath}
         >
-          프리미엄등록
+          {data.fileName}
         </Button>
+      ),
+    },
+    {
+      width: "15%",
+      title: "아티스트명",
+      dataIndex: "singerName",
+    },
+
+    {
+      width: "15%",
+      title: "등록일",
+      dataIndex: "viewCreatedAt",
+    },
+    {
+      width: "5%",
+      title: "삭제",
+      render: (data) => (
+        <Popconfirm title="삭제하시겠습니까?" okText="삭제" cancelText="취소">
+          <Button type="danger" size="small">
+            삭제
+          </Button>
+        </Popconfirm>
       ),
     },
   ];
@@ -590,8 +613,8 @@ const ArtistList = ({}) => {
         </GuideUl>
       </Wrapper>
 
-      <Wrapper padding="0px 20px">
-        {/* SEARCH FORM */}
+      {/* SEARCH FORM */}
+      {/* <Wrapper padding="0px 20px">
         <SearchForm
           layout="inline"
           style={{ width: "100%" }}
@@ -612,14 +635,19 @@ const ArtistList = ({}) => {
             </Button>
           </SearchFormItem>
         </SearchForm>
-      </Wrapper>
+      </Wrapper> */}
 
       <Wrapper padding={`0px 20px`}>
+        <Wrapper al={`flex-end`} margin={`0 0 5px`}>
+          <Button size="small" type="primary" onClick={permiumModalToggle}>
+            프리미엄앨범등록
+          </Button>
+        </Wrapper>
         <Table
           style={{ width: "100%" }}
           rowKey="id"
           columns={columns}
-          dataSource={users ? users : []}
+          dataSource={musictemPremiumAdminList}
           size="small"
         />
       </Wrapper>
@@ -868,7 +896,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
     });
 
     context.store.dispatch({
-      type: MUSICTEM_LIST_REQUEST,
+      type: MUSICTEM_PREMIUM_ADMIN_LIST_REQUEST,
     });
 
     // 구현부 종료

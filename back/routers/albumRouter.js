@@ -66,14 +66,14 @@ router.post("/file", upload.single("file"), async (req, res, next) => {
 });
 
 /**
- * SUBJECT : 뮤직탬 관리자 리스트
+ * SUBJECT : 프리미엄 뮤직탬 관리자 리스트
  * PARAMETERS : -
  * ORDER BY : -
  * STATEMENT : -
  * DEVELOPMENT : 박은비
  * DEV DATE : 2023/06/28
  */
-router.post("/musictem/admin/list", async (req, res, next) => {
+router.post("/musictem/premium/admin/list", async (req, res, next) => {
   const { songName, TagTypeId, TagId, CategoryId } = req.body;
 
   const _songName = songName ? songName : ``;
@@ -177,15 +177,14 @@ router.post("/musictem/admin/list", async (req, res, next) => {
           `
               : ``
           }
+      AND A.isTitle = 1
    ORDER  BY num DESC
   `;
 
   try {
     const musictem = await models.sequelize.query(selectQuery);
 
-    return res.status(200).json({
-      musictems: musictem[0],
-    });
+    return res.status(200).json(musictem[0]);
   } catch (error) {
     console.error(error);
     return res.status(401).send("뮤직탬 목록을 조회할 수 없습니다.");

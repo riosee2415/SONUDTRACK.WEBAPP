@@ -48,6 +48,10 @@ import {
   TRACK_ADMIN_LIST_REQUEST,
   TRACK_ADMIN_LIST_SUCCESS,
   TRACK_ADMIN_LIST_FAILURE,
+  //
+  MUSICTEM_PREMIUM_ADMIN_LIST_REQUEST,
+  MUSICTEM_PREMIUM_ADMIN_LIST_SUCCESS,
+  MUSICTEM_PREMIUM_ADMIN_LIST_FAILURE,
 } from "../reducers/album";
 
 // ******************************************************************************************************************
@@ -368,6 +372,30 @@ function* trackAdminList(action) {
     });
   }
 }
+
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function musictemPremiumAdminListAPI(data) {
+  return await axios.post(`/api/album/musictem/premium/admin/list`, data);
+}
+
+function* musictemPremiumAdminList(action) {
+  try {
+    const result = yield call(musictemPremiumAdminListAPI, action.data);
+
+    yield put({
+      type: MUSICTEM_PREMIUM_ADMIN_LIST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: MUSICTEM_PREMIUM_ADMIN_LIST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 // ******************************************************************************************************************
@@ -409,6 +437,12 @@ function* watchAlbumDetail() {
 function* watchTrackAdminList() {
   yield takeLatest(TRACK_ADMIN_LIST_REQUEST, trackAdminList);
 }
+function* watchMusictemPremiumAdminList() {
+  yield takeLatest(
+    MUSICTEM_PREMIUM_ADMIN_LIST_REQUEST,
+    musictemPremiumAdminList
+  );
+}
 
 //////////////////////////////////////////////////////////////
 export default function* albumSaga() {
@@ -425,6 +459,7 @@ export default function* albumSaga() {
     fork(watchNewMusictemList),
     fork(watchAlbumDetail),
     fork(watchTrackAdminList),
+    fork(watchMusictemPremiumAdminList),
 
     //
   ]);
