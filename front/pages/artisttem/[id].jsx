@@ -319,13 +319,13 @@ const Index = () => {
                     Artisttem
                   </Text>
 
-                  {artistemData && artistemData.isVacation && (
+                  {artistemData && artistemData.isVacation ? (
                     <Switch
                       checkedChildren="휴가 중"
                       unCheckedChildren="off"
                       checked={artistemData && artistemData.isVacation}
                     />
-                  )}
+                  ) : null}
                 </Wrapper>
                 <Wrapper dr={`row`} ju={`flex-start`} margin={`16px 0 24px`}>
                   <Text
@@ -345,6 +345,7 @@ const Index = () => {
                     00
                   </Text>
                 </Wrapper>
+
                 <Text fontSize={width < 900 ? `16px` : `20px`}>
                   {artistemData && artistemData.artistInfo}
                 </Text>
