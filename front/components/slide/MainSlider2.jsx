@@ -241,7 +241,7 @@ const MainSlider2 = ({ datum }) => {
                 return (
                   <Circle
                     key={value.id}
-                    bgImg={`url("${value.profileImage}")`}
+                    bgImg={`url("${value.artistProfileImage}")`}
                     onClick={() => musicToggle(value)}
                   >
                     <Wrapper bgColor={`rgba(0, 0, 0, 0.4)`} height={`100%`}>

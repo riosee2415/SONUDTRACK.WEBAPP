@@ -55,11 +55,13 @@ import {
   ALBUM_PREMIUM_CREATE_REQUEST,
   ALBUM_TRACK_FILE_REQUEST,
   ALBUM_TRACK_FILE_RESET,
+  MUSICTEM_LIST_REQUEST,
 } from "../../../reducers/album";
 import {
   SELLER_IMAGE_REQUEST,
   SELLER_IMAGE_RESET,
 } from "../../../reducers/seller";
+import getBlobDuration from "get-blob-duration";
 
 const TypeView = styled.span`
   padding: 2px 5px;
@@ -132,6 +134,9 @@ const ArtistList = ({}) => {
     //
     st_albumPremiumCreateDone,
     st_albumPremiumCreateError,
+    //
+    st_albumTrackFileDone,
+    st_albumTrackFileError,
   } = useSelector((state) => state.album);
   const { sellerImage } = useSelector((state) => state.seller);
 
@@ -167,6 +172,9 @@ const ArtistList = ({}) => {
   const [trackData, setTrackData] = useState([]);
   const [trackname, setTrackname] = useState(null);
   const [albumImageName, setAlbumImageName] = useState(null);
+  const [titleTrackLength, setTitleTrackLength] = useState(0);
+
+  console.log(trackData);
 
   // REF
   const trackRef = useRef();
@@ -174,15 +182,30 @@ const ArtistList = ({}) => {
   ////// USEEFFECT //////
 
   useEffect(() => {
+    if (st_albumTrackFileDone && albumTrackFile) {
+      getBlobDuration(albumTrackFile).then(function (duration) {
+        setTitleTrackLength(duration);
+      });
+      return;
+    }
+
+    if (st_albumTrackFileError) {
+      return message.error(st_albumTrackFileError);
+    }
+  }, [st_albumTrackFileDone, st_albumTrackFileError]);
+
+  useEffect(() => {
     if (st_albumPremiumCreateDone) {
-      setIsCreate(false);
-      albumForm.resetFields();
       dispatch({
         type: SELLER_IMAGE_RESET,
       });
       dispatch({
         type: ALBUM_FILE_RESET,
       });
+      setTrackData([]);
+      setTitleTrackLength(0);
+      setIsCreate(false);
+      albumForm.resetFields();
       return message.success("앨범 프리미엄이 등록되었습니다.");
     }
 
@@ -214,13 +237,14 @@ const ArtistList = ({}) => {
   }, [tagTypeList]);
 
   useEffect(() => {
-    if (albumTrackFile && trackname) {
+    if (albumTrackFile && trackname && titleTrackLength) {
       let arr = trackData ? trackData.map((data) => data) : [];
 
       arr.push({
         filename: trackname,
         filepath: albumTrackFile,
         title: isTitle,
+        fileLength: titleTrackLength,
       });
 
       setTrackData(arr);
@@ -229,7 +253,7 @@ const ArtistList = ({}) => {
         type: ALBUM_TRACK_FILE_RESET,
       });
     }
-  }, [albumTrackFile]);
+  }, [albumTrackFile, titleTrackLength]);
 
   useEffect(() => {
     const currentMenus = items[level1];
@@ -294,6 +318,7 @@ const ArtistList = ({}) => {
   // 프리미엄 앨범 등록하기
   const premiumCreateHandler = useCallback(
     (data) => {
+      console.log(data);
       if (!sellerImage) {
         return message.error("앨범 이미지를 등록해주세요.");
       }
@@ -317,10 +342,10 @@ const ArtistList = ({}) => {
       trackData.map((value) => {
         trackResult.push({
           songName: value.filename,
-          singerName: "-",
+          singerName: data.singerName,
           fileName: value.filename,
           filePath: value.filepath,
-          fileLength: "0",
+          fileLength: value.fileLength,
           isTitle: value.title,
         });
       });
@@ -328,12 +353,17 @@ const ArtistList = ({}) => {
       dispatch({
         type: ALBUM_PREMIUM_CREATE_REQUEST,
         data: {
+          albumName: data.albumName,
           albumImage: sellerImage,
           albumImageName: albumImageName,
           bitRate: data.bitRate,
           sampleRate: data.sampleRate,
-          fileName: "",
-          filePath: "",
+          fileName:
+            trackData.find((value) => value.title) &&
+            trackData.find((value) => value.title).filename,
+          filePath:
+            trackData.find((value) => value.title) &&
+            trackData.find((value) => value.title).filepath,
           categorys: [
             {
               CateTypeId: data.category[1],
@@ -342,7 +372,7 @@ const ArtistList = ({}) => {
             },
           ],
           tags: result,
-          MusictemId: currentData && currentData.musictemId,
+          MusictemId: 1,
           trackInfos: trackResult,
         },
       });
@@ -643,6 +673,30 @@ const ArtistList = ({}) => {
             rules={[
               {
                 required: true,
+                message: "앨범명을 입력해주세요.",
+              },
+            ]}
+            label="앨범명"
+            name={"albumName"}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            rules={[
+              {
+                required: true,
+                message: "아티스트명을 입력해주세요.",
+              },
+            ]}
+            label="아티스트명"
+            name={"singerName"}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            rules={[
+              {
+                required: true,
                 message: "bitRate를 입력해주세요.",
               },
             ]}
@@ -811,6 +865,10 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: TAG_TYPE_LIST_REQUEST,
+    });
+
+    context.store.dispatch({
+      type: MUSICTEM_LIST_REQUEST,
     });
 
     // 구현부 종료
