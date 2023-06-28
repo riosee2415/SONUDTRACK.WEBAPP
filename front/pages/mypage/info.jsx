@@ -39,6 +39,8 @@ const Index = () => {
     st_userPassCompareError,
   } = useSelector((state) => state.user);
 
+  console.log(me);
+
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
@@ -330,14 +332,14 @@ const Index = () => {
               </Text>
               <Wrapper dr={`row`} ju={`space-between`} margin={`12px 0 30px`}>
                 <TextInput
-                  width={`calc(100% - 150px)`}
+                  width={`100%`}
                   height={`50px`}
                   type="number"
                   border={`1px solid ${Theme.lightGrey_C}`}
                   placeholder="휴대폰 번호를 입력해주세요."
                   {...mobile}
                 />
-                <CommonButton
+                {/* <CommonButton
                   width={`136px`}
                   height={`50px`}
                   fontSize={`16px`}
@@ -345,7 +347,7 @@ const Index = () => {
                   kindOf={`subTheme2`}
                 >
                   다른번호 인증
-                </CommonButton>
+                </CommonButton> */}
               </Wrapper>
 
               <Text fontSize={`16px`} color={Theme.grey_C} margin={`0 0 12px`}>
