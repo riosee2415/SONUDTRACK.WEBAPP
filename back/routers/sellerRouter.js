@@ -589,19 +589,21 @@ router.post("/artistem/myData", isLoggedIn, async (req, res, next) => {
 
 /**
  * SUBJECT : 아티스탬 리스트
- * PARAMETERS : searchName, TagTypeId, TagId, CategoryId,
+ * PARAMETERS : searchName, TagTypeId, TagId, CategoryId, orderType
  * ORDER BY : -
  * STATEMENT : -
  * DEVELOPMENT : 신태섭
  * DEV DATE : 2023/05/30
  */
 router.post("/artistem/list", async (req, res, next) => {
-  const { searchName, TagTypeId, TagId, CategoryId } = req.body;
+  const { searchName, TagTypeId, TagId, CategoryId, orderType } = req.body;
 
   const _searchName = searchName ? searchName : ``;
   const _TagTypeId = TagTypeId ? TagTypeId : false;
   const _TagId = TagId ? TagId : false;
   const _CategoryId = CategoryId ? CategoryId : false;
+
+  const _orderType = parseInt(orderType) || 1;
 
   const artistemQuery = `
  SELECT  ROW_NUMBER() OVER(ORDER BY A.createdAt)    AS num,
@@ -692,7 +694,20 @@ router.post("/artistem/list", async (req, res, next) => {
           `
               : ``
           }
-   ORDER  BY num DESC
+          ${
+            _orderType === 1
+              ? `ORDER  BY num DESC`
+              : _orderType === 2
+              ? `ORDER  BY (
+                                      IFNULL(
+                                        (
+                                          SELECT  COUNT(id)
+                                            FROM  artistLike
+                                           WHERE  ArtistemId = B.id
+                                         ), 0)
+                                    ) DESC`
+              : `ORDER  BY num DESC`
+          }
  `;
 
   const findCountryInfoQuery = `
@@ -1577,4 +1592,32 @@ router.post("/artistem/info/update", isLoggedIn, async (req, res, next) => {
   }
 });
 
+/**
+ * SUBJECT : 아티스탬 휴가중 토글
+ * PARAMETERS : ArtistemId, isVacation
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/06/28
+ */
+router.post("/vacation/update", isLoggedIn, async (req, res, next) => {
+  const { ArtistemId, isVacation } = req.body;
+
+  const upateQuery = `
+  UPDATE  artistem
+     SET  isVacation = ${isVacation},
+          updatedAt = NOW()
+   WHERE  id = ${ArtistemId} 
+     
+  `;
+
+  try {
+    await models.sequelize.query(upateQuery);
+
+    return res.status(200).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("휴가중 여부를 변경할 수 없습니다.");
+  }
+});
 module.exports = router;

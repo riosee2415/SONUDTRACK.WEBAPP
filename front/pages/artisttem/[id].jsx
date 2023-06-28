@@ -21,7 +21,7 @@ import {
 import Theme from "../../components/Theme";
 import { CloseOutlined, StarFilled } from "@ant-design/icons";
 import styled from "styled-components";
-import { Checkbox, DatePicker, message, Modal, Rate } from "antd";
+import { Checkbox, DatePicker, message, Modal, Rate, Switch } from "antd";
 import useInput from "../../hooks/useInput";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
@@ -314,9 +314,18 @@ const Index = () => {
                     fontWeight={`500`}
                     fontSize={`16px`}
                     color={Theme.basicTheme_C}
+                    margin={`0 10px 0 0`}
                   >
                     Artisttem
                   </Text>
+
+                  {artistemData && artistemData.isVacation && (
+                    <Switch
+                      checkedChildren="휴가 중"
+                      unCheckedChildren="off"
+                      checked={artistemData && artistemData.isVacation}
+                    />
+                  )}
                 </Wrapper>
                 <Wrapper dr={`row`} ju={`flex-start`} margin={`16px 0 24px`}>
                   <Text
@@ -502,7 +511,7 @@ const Index = () => {
               </CommonButton>
             </Wrapper> */}
 
-            <Wrapper
+            {/* <Wrapper
               al={`flex-start`}
               fontSize={width < 900 ? `25px` : `32px`}
               fontWeight={`bold`}
@@ -558,9 +567,9 @@ const Index = () => {
                   등록
                 </CommonButton>
               </Wrapper>
-            </Wrapper>
+            </Wrapper> */}
 
-            <Wrapper
+            {/* <Wrapper
               borderTop={`1px solid ${Theme.lightGrey_C}`}
               margin={`0 0 100px`}
             >
@@ -582,7 +591,7 @@ const Index = () => {
                 </Text>
               </Wrapper>
 
-              {/* <Wrapper
+              <Wrapper
                 padding={width < 900 ? `20px 10px` : `30px`}
                 borderBottom={`1px solid ${Theme.lightGrey_C}`}
               >
@@ -689,8 +698,8 @@ const Index = () => {
                     <Text color={Theme.darkGrey_C}>98</Text>
                   </Wrapper>
                 </Wrapper>
-              </Wrapper> */}
-            </Wrapper>
+              </Wrapper>
+            </Wrapper> */}
 
             {/* <Wrapper margin={`60px 0 100px`}>
               <CommonButton kindOf={`grey`} width={`150px`} height={`48px`}>

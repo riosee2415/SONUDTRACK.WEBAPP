@@ -26,7 +26,7 @@ import {
   ARTISTEM_LIST_REQUEST,
   ARTISTEM_SLIDE_LIST_REQUEST,
 } from "../reducers/artist";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   PRODUCT_TRACK_ALL_LIST_REQUEST,
   PRODUCT_TRACK_RECENT_REQUEST,
@@ -84,16 +84,16 @@ const Home = ({}) => {
   const { artistemSlideList } = useSelector((state) => state.artist);
   const { musictemList } = useSelector((state) => state.album);
 
-  console.log(musictemList);
-
   const [playing1, setPlaying1] = useState(null);
   const [down, setDown] = useState(false);
+  const [type, setType] = useState(1);
 
   const [newAudioTime, setNewAudioTime] = useState([]);
 
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
+  const dispatch = useDispatch();
 
   ////// REDUX //////
   ////// USEEFFECT //////
@@ -134,6 +134,20 @@ const Home = ({}) => {
   const downToggle = useCallback(() => {
     setDown((prev) => !prev);
   }, [down]);
+
+  const typeHandler = useCallback(
+    (data) => {
+      setType(data);
+
+      dispatch({
+        type: MUSICTEM_LIST_REQUEST,
+        data: {
+          orderType: data,
+        },
+      });
+    },
+    [type]
+  );
 
   ////// HANDLER //////
   const movelinkHandler = useCallback((link) => {
@@ -240,8 +254,12 @@ const Home = ({}) => {
                 Musictem
               </Wrapper>
               <Wrapper dr={`row`} width={`auto`} fontSize={`16px`}>
-                <Text color={Theme.grey_C} isHover>
-                  추천순
+                <Text
+                  color={type === 1 ? Theme.basicTheme_C : Theme.grey_C}
+                  isHover
+                  onClick={() => typeHandler(1)}
+                >
+                  최신순
                 </Text>
                 <SpanText
                   fontSize={`10px`}
@@ -250,8 +268,12 @@ const Home = ({}) => {
                 >
                   |
                 </SpanText>
-                <Text color={Theme.grey_C} isHover>
-                  최신순
+                <Text
+                  color={type === 2 ? Theme.basicTheme_C : Theme.grey_C}
+                  isHover
+                  onClick={() => typeHandler(2)}
+                >
+                  추천순
                 </Text>
               </Wrapper>
             </Wrapper>

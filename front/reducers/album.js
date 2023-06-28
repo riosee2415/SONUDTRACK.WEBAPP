@@ -5,8 +5,12 @@ export const initailState = {
   albumFile: null,
   albumTrackFile: null,
   musictemList: [], // 뮤직템 리스트
+  musictemPremiumAdminList: [], // 프리미엄 뮤직템 관리자 리스트
+  musictemAdminList: [], // 뮤직템 관리자 리스트
   newMusictemList: [], // new 뮤직템 리스트
   trackAdminList: [], // 관리자 트랙 리스트
+  topMusictemList: [], // top5 뮤직템 리스트
+
   //   뮤직템디테일
   detailData: null,
   albums: null,
@@ -52,6 +56,14 @@ export const initailState = {
   st_musictemListDone: false,
   st_musictemListError: null,
   //
+  st_musictemPremiumAdminListLoading: false, // 프리미엄 뮤직템 관리자 리스트
+  st_musictemPremiumAdminListDone: false,
+  st_musictemPremiumAdminListError: null,
+  //
+  st_musictemAdminListLoading: false, // 뮤직템 관리자 리스트
+  st_musictemAdminListDone: false,
+  st_musictemAdminListError: null,
+  //
   st_newMusictemListLoading: false, // new 뮤직템 리스트
   st_newMusictemListDone: false,
   st_newMusictemListError: null,
@@ -63,6 +75,10 @@ export const initailState = {
   st_trackAdminListLoading: false, // 트랙 관리자 리스트
   st_trackAdminListDone: false,
   st_trackAdminListError: null,
+  //
+  st_topMusictemListLoading: false, // top5 뮤직템 리스트
+  st_topMusictemListDone: false,
+  st_topMusictemListError: null,
 };
 
 export const ALBUM_IMAGE_REQUEST = "ALBUM_IMAGE_REQUEST";
@@ -101,6 +117,17 @@ export const MUSICTEM_LIST_REQUEST = "MUSICTEM_LIST_REQUEST";
 export const MUSICTEM_LIST_SUCCESS = "MUSICTEM_LIST_SUCCESS";
 export const MUSICTEM_LIST_FAILURE = "MUSICTEM_LIST_FAILURE";
 
+export const MUSICTEM_PREMIUM_ADMIN_LIST_REQUEST =
+  "MUSICTEM_PREMIUM_ADMIN_LIST_REQUEST";
+export const MUSICTEM_PREMIUM_ADMIN_LIST_SUCCESS =
+  "MUSICTEM_PREMIUM_ADMIN_LIST_SUCCESS";
+export const MUSICTEM_PREMIUM_ADMIN_LIST_FAILURE =
+  "MUSICTEM_PREMIUM_ADMIN_LIST_FAILURE";
+
+export const MUSICTEM_ADMIN_LIST_REQUEST = "MUSICTEM_ADMIN_LIST_REQUEST";
+export const MUSICTEM_ADMIN_LIST_SUCCESS = "MUSICTEM_ADMIN_LIST_SUCCESS";
+export const MUSICTEM_ADMIN_LIST_FAILURE = "MUSICTEM_ADMIN_LIST_FAILURE";
+
 export const NEW_MUSICTEM_LIST_REQUEST = "NEW_MUSICTEM_LIST_REQUEST";
 export const NEW_MUSICTEM_LIST_SUCCESS = "NEW_MUSICTEM_LIST_SUCCESS";
 export const NEW_MUSICTEM_LIST_FAILURE = "NEW_MUSICTEM_LIST_FAILURE";
@@ -112,6 +139,10 @@ export const ALBUM_DETAIL_FAILURE = "ALBUM_DETAIL_FAILURE";
 export const TRACK_ADMIN_LIST_REQUEST = "TRACK_ADMIN_LIST_REQUEST";
 export const TRACK_ADMIN_LIST_SUCCESS = "TRACK_ADMIN_LIST_SUCCESS";
 export const TRACK_ADMIN_LIST_FAILURE = "TRACK_ADMIN_LIST_FAILURE";
+
+export const TOP_MUSICTEM_LIST_REQUEST = "TOP_MUSICTEM_LIST_REQUEST";
+export const TOP_MUSICTEM_LIST_SUCCESS = "TOP_MUSICTEM_LIST_SUCCESS";
+export const TOP_MUSICTEM_LIST_FAILURE = "TOP_MUSICTEM_LIST_FAILURE";
 
 export const ALBUM_IMAGE_RESET = "ALBUM_IMAGE_RESET";
 export const ALBUM_FILE_RESET = "ALBUM_FILE_RESET";
@@ -372,6 +403,74 @@ const reducer = (state = initailState, action) =>
         draft.st_trackAdminListLoading = false;
         draft.st_trackAdminListDone = false;
         draft.st_trackAdminListError = action.error;
+        break;
+      }
+
+      //////////////////////////////////////////////
+
+      case MUSICTEM_PREMIUM_ADMIN_LIST_REQUEST: {
+        draft.st_musictemPremiumAdminListLoading = true;
+        draft.st_musictemPremiumAdminListDone = false;
+        draft.st_musictemPremiumAdminListError = null;
+        break;
+      }
+      case MUSICTEM_PREMIUM_ADMIN_LIST_SUCCESS: {
+        draft.st_musictemPremiumAdminListLoading = false;
+        draft.st_musictemPremiumAdminListDone = true;
+        draft.st_musictemPremiumAdminListError = null;
+        draft.musictemPremiumAdminList = action.data;
+
+        break;
+      }
+      case MUSICTEM_PREMIUM_ADMIN_LIST_FAILURE: {
+        draft.st_musictemPremiumAdminListLoading = false;
+        draft.st_musictemPremiumAdminListDone = false;
+        draft.st_musictemPremiumAdminListError = action.error;
+        break;
+      }
+      //////////////////////////////////////////////
+
+      case MUSICTEM_ADMIN_LIST_REQUEST: {
+        draft.st_musictemAdminListLoading = true;
+        draft.st_musictemAdminListDone = false;
+        draft.st_musictemAdminListError = null;
+        break;
+      }
+      case MUSICTEM_ADMIN_LIST_SUCCESS: {
+        draft.st_musictemAdminListLoading = false;
+        draft.st_musictemAdminListDone = true;
+        draft.st_musictemAdminListError = null;
+        draft.musictemAdminList = action.data;
+
+        break;
+      }
+      case MUSICTEM_ADMIN_LIST_FAILURE: {
+        draft.st_musictemAdminListLoading = false;
+        draft.st_musictemAdminListDone = false;
+        draft.st_musictemAdminListError = action.error;
+        break;
+      }
+
+      //////////////////////////////////////////////
+
+      case TOP_MUSICTEM_LIST_REQUEST: {
+        draft.st_topMusictemListLoading = true;
+        draft.st_topMusictemListDone = false;
+        draft.st_topMusictemListError = null;
+        break;
+      }
+      case TOP_MUSICTEM_LIST_SUCCESS: {
+        draft.st_topMusictemListLoading = false;
+        draft.st_topMusictemListDone = true;
+        draft.st_topMusictemListError = null;
+        draft.topMusictemList = action.data;
+
+        break;
+      }
+      case TOP_MUSICTEM_LIST_FAILURE: {
+        draft.st_topMusictemListLoading = false;
+        draft.st_topMusictemListDone = false;
+        draft.st_topMusictemListError = action.error;
         break;
       }
 

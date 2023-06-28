@@ -52,6 +52,10 @@ import {
   ARTISTEM_TOP_SELL_LIST_REQUEST,
   ARTISTEM_TOP_SELL_LIST_SUCCESS,
   ARTISTEM_TOP_SELL_LIST_FAILURE,
+  //
+  ARTISTEM_VACATION_UPDATE_REQUEST,
+  ARTISTEM_VACATION_UPDATE_SUCCESS,
+  ARTISTEM_VACATION_UPDATE_FAILURE,
 } from "../reducers/seller";
 
 // SAGA AREA ********************************************************************************************************
@@ -353,6 +357,29 @@ function* artistemTopSellList(action) {
   }
 }
 
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function artistemVacationUpdateAPI(data) {
+  return await axios.post(`/api/seller/vacation/update`, data);
+}
+
+function* artistemVacationUpdate(action) {
+  try {
+    const result = yield call(artistemVacationUpdateAPI, action.data);
+
+    yield put({
+      type: ARTISTEM_VACATION_UPDATE_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: ARTISTEM_VACATION_UPDATE_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 // ******************************************************************************************************************
@@ -401,6 +428,10 @@ function* watchArtistemTopSellList() {
   yield takeLatest(ARTISTEM_TOP_SELL_LIST_REQUEST, artistemTopSellList);
 }
 
+function* watchArtistemVacationUpdate() {
+  yield takeLatest(ARTISTEM_VACATION_UPDATE_REQUEST, artistemVacationUpdate);
+}
+
 //////////////////////////////////////////////////////////////
 export default function* sellerSaga() {
   yield all([
@@ -420,6 +451,7 @@ export default function* sellerSaga() {
     fork(watchMusictemInfoUpdate),
     //
     fork(watchArtistemTopSellList),
+    fork(watchArtistemVacationUpdate),
 
     //
   ]);

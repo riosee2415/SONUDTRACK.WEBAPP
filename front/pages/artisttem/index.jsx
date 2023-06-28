@@ -132,9 +132,10 @@ const Index = () => {
         searchName: searchInput.value,
         TagId: tagData,
         CategoryId: cateData === 15 ? null : cateData,
+        orderType,
       },
     });
-  }, [searchInput.value, tagData, cateData]);
+  }, [searchInput.value, tagData, cateData, orderType]);
 
   ////// TOGGLE //////
 
@@ -226,9 +227,9 @@ const Index = () => {
                     {cateAllList &&
                       cateAllList.map((data) => {
                         if (data.label === "아티스탬")
-                          return data.options.map((value) => {
+                          return data.options.map((value, idx) => {
                             return (
-                              <Select.Option key={value.id} value={value.id}>
+                              <Select.Option key={idx} value={value.value}>
                                 {value.label}
                               </Select.Option>
                             );
@@ -572,7 +573,7 @@ const Index = () => {
                   isHover
                   onClick={() => orderTypeHandler(1)}
                 >
-                  추천순
+                  최신순
                 </Text>
                 <SpanText
                   fontSize={`10px`}
@@ -586,7 +587,7 @@ const Index = () => {
                   isHover
                   onClick={() => orderTypeHandler(2)}
                 >
-                  최신순
+                  추천순
                 </Text>
               </Wrapper>
             </Wrapper>

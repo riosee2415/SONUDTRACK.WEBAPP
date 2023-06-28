@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { Checkbox, Empty, message } from "antd";
 import dynamic from "next/dynamic";
+import { MY_LIKE_LIST_REQUEST } from "../../../reducers/like";
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
 });
@@ -105,14 +106,17 @@ const CdWrapper = styled(Wrapper)`
 const Musictem = () => {
   ////// GLOBAL STATE //////
   const { me } = useSelector((state) => state.user);
+  const { myLikeList } = useSelector((state) => state.like);
 
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
   const dispatch = useDispatch();
-  const [playing, setPlaying] = useState(false);
+  const [playing1, setPlaying1] = useState(null);
+  const [playing2, setPlaying2] = useState(null);
 
-  const [currentTab, setCurrentTab] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1); // 페이지네이션
+  const [type, setType] = useState(2); // 2 - 뮤직템
   ////// REDUX //////
   ////// USEEFFECT //////
   useEffect(() => {
@@ -124,11 +128,49 @@ const Musictem = () => {
     }
   }, [me]);
 
+  useEffect(() => {
+    dispatch({
+      type: MY_LIKE_LIST_REQUEST,
+      data: {
+        type,
+        page: currentPage,
+      },
+    });
+  }, [type, currentPage]);
+
   ////// TOGGLE //////
-  const playingToggle = useCallback(() => {
-    setPlaying((prev) => !prev);
-  }, [playing]);
+
+  // 재생 버튼 1
+  const playing1Toggle = useCallback(
+    (id) => {
+      if (playing1 && playing1 === id) {
+        setPlaying1(null);
+      } else {
+        setPlaying1(id);
+      }
+    },
+    [playing1]
+  );
+
+  // 재생 버튼 2
+  const playing2Toggle = useCallback(
+    (id) => {
+      if (playing2 && playing2 === id) {
+        setPlaying2(null);
+      } else {
+        setPlaying2(id);
+      }
+    },
+    [playing2]
+  );
   ////// HANDLER //////
+  // 페이지네이션
+  const otherPageCall = useCallback(
+    (changePage) => {
+      setCurrentPage(changePage);
+    },
+    [currentPage]
+  );
 
   ////// DATAVIEW //////
 
@@ -141,8 +183,8 @@ const Musictem = () => {
       <WholeWrapper>
         <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 40px`}>
           <CommonButton
-            kindOf={currentTab === 0 ? `subTheme2` : `grey`}
-            onClick={() => setCurrentTab(0)}
+            kindOf={type === 2 ? `subTheme2` : `grey`}
+            onClick={() => setType(2)}
             width={`73px`}
             height={`54px`}
             radius={`50px`}
@@ -151,8 +193,8 @@ const Musictem = () => {
             앨범
           </CommonButton>
           <CommonButton
-            kindOf={currentTab === 1 ? `subTheme2` : `grey`}
-            onClick={() => setCurrentTab(1)}
+            kindOf={type === 3 ? `subTheme2` : `grey`}
+            onClick={() => setType(3)}
             width={`73px`}
             height={`54px`}
             radius={`50px`}
@@ -161,284 +203,368 @@ const Musictem = () => {
           </CommonButton>
         </Wrapper>
 
-        {currentTab === 0 && (
+        {type === 2 && (
           <Wrapper dr={`row`} al={`flex-start`} ju={`flex-start`}>
-            {/* <Wrapper
-              height={`400px`}
-              borderBottom={`1px solid ${Theme.lightGrey_C}`}
-            >
-              <Image
-                alt="icon"
-                src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/blank.png`}
-                width={`76px`}
-              />
-              <Text
-                fontSize={width < 900 ? `18px` : `22px`}
-                color={Theme.grey2_C}
-                margin={`25px 0 0`}
+            {myLikeList &&
+            myLikeList.albums &&
+            myLikeList.albums.length === 0 ? (
+              <Wrapper
+                height={`400px`}
+                borderBottom={`1px solid ${Theme.lightGrey_C}`}
               >
-                관심 있는 음악을 미리 찜해두세요!
-              </Text>
-            </Wrapper> */}
-
-            <Box>
-              <CdWrapper>
                 <Image
-                  position={`absolute`}
-                  top={`0`}
-                  left={`0`}
-                  height={`100%`}
-                  radius={`100%`}
-                  src={
-                    "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/artisttem/new_big.png"
-                  }
-                  alt="thumbnail"
+                  alt="icon"
+                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/blank.png`}
+                  width={`76px`}
                 />
-                <Image
-                  className="playicon"
-                  width={`21px`}
-                  src="https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/play_purple.png"
-                  alt="play icon"
-                />
-
-                <Wrapper
-                  position={`absolute`}
-                  top={`0`}
-                  left={`0`}
-                  width={`auto`}
+                <Text
+                  fontSize={width < 900 ? `18px` : `22px`}
+                  color={Theme.grey2_C}
+                  margin={`25px 0 0`}
                 >
-                  <Checkbox />
-                </Wrapper>
-              </CdWrapper>
-              <Text
-                fontSize={`20px`}
-                color={Theme.darkGrey_C}
-                margin={`20px 0 0`}
-              >
-                Star Night
-              </Text>
-              <Text
-                fontSize={`16px`}
-                color={Theme.subTheme4_C}
-                margin={`0 0 20px`}
-              >
-                Pokerface
-              </Text>
-              <Wrapper dr={`row`}>
-                <Wrapper width={`60px`} cursor={`pointer`}>
-                  <Image
-                    alt="icon"
-                    width={`22px`}
-                    src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
-                  />
-                  <Text fontSize={`12px`} color={Theme.grey_C}>
-                    15,000
-                  </Text>
-                </Wrapper>
-
-                <Wrapper width={`60px`}>
-                  <Image
-                    alt="icon"
-                    width={`22px`}
-                    src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
-                  />
-                  <Text fontSize={`12px`} color={Theme.grey_C}>
-                    98
-                  </Text>
-                </Wrapper>
+                  관심 있는 음악을 미리 찜해두세요!
+                </Text>
               </Wrapper>
-            </Box>
+            ) : (
+              myLikeList.albums &&
+              myLikeList.albums.map((data, idx) => {
+                return (
+                  <Box key={data.id}>
+                    <audio
+                      id={`audioTeg_recent_${idx}`}
+                      src={data.filePath}
+                      hidden
+                    />
+                    <CdWrapper>
+                      <Image
+                        position={`absolute`}
+                        top={`0`}
+                        left={`0`}
+                        height={`100%`}
+                        radius={`100%`}
+                        src={data.albumImage}
+                        alt="thumbnail"
+                      />
+                      <Image
+                        className="playicon"
+                        width={`21px`}
+                        onClick={() => playing1Toggle(data.id)}
+                        src="https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/play_purple.png"
+                        alt="play icon"
+                      />
+
+                      <Wrapper
+                        position={`absolute`}
+                        top={`0`}
+                        left={`0`}
+                        width={`auto`}
+                      >
+                        <Checkbox />
+                      </Wrapper>
+                    </CdWrapper>
+                    <Text
+                      fontSize={`20px`}
+                      color={Theme.darkGrey_C}
+                      margin={`20px 0 0`}
+                    >
+                      {data.albumName}
+                    </Text>
+                    {/* <Text
+                      fontSize={`16px`}
+                      color={Theme.subTheme4_C}
+                      margin={`0 0 20px`}
+                    >
+                      {data.bitRate}
+                    </Text> */}
+                    <Wrapper dr={`row`}>
+                      <Wrapper width={`60px`} cursor={`pointer`}>
+                        <Image
+                          alt="icon"
+                          width={`22px`}
+                          src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
+                        />
+                        <Text fontSize={`12px`} color={Theme.grey_C}>
+                          0
+                        </Text>
+                      </Wrapper>
+
+                      <Wrapper width={`60px`}>
+                        <Image
+                          alt="icon"
+                          width={`22px`}
+                          src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`}
+                        />
+                        <Text fontSize={`12px`} color={Theme.grey_C}>
+                          {data.likeCnt}
+                        </Text>
+                      </Wrapper>
+                    </Wrapper>
+                  </Box>
+                );
+              })
+            )}
           </Wrapper>
         )}
 
-        {currentTab === 1 && (
+        {type === 3 && (
           <Wrapper>
             <Wrapper
               borderTop={`1px solid ${Theme.lightGrey_C}`}
               margin={`0 0 100px`}
             >
-              <Wrapper
-                borderBottom={`1px solid ${Theme.lightGrey_C}`}
-                dr={`row`}
-                ju={`space-between`}
-                padding={
-                  width < 1360 ? (width < 700 ? ` 5px 0` : `30px 0`) : `40px 0`
-                }
-              >
-                <Wrapper width={`auto`} dr={`row`} ju={`flex-start`}>
-                  <Checkbox />
-                  <Image
-                    alt="thumbnail"
-                    src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/musictem1.png`}
-                    width={width < 700 ? `80px` : `100px`}
-                    height={width < 700 ? `80px` : `100px`}
-                    margin={`0 0 0 14px`}
-                    radius={`7px`}
-                    shadow={`3px 3px 15px rgba(0, 0, 0, 0.15)`}
-                  />
-                  {playing ? (
+              {myLikeList &&
+                myLikeList.tracks &&
+                (myLikeList.tracks.length === 0 ? (
+                  <Wrapper
+                    height={`400px`}
+                    borderBottom={`1px solid ${Theme.lightGrey_C}`}
+                  >
                     <Image
-                      alt="pause icon"
-                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/pause_purple.png`}
-                      width={width < 700 ? `20px` : `24px`}
-                      margin={width < 700 ? `0 15px` : `0 30px`}
-                      onClick={playingToggle}
-                      cursor={`pointer`}
+                      alt="icon"
+                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/blank.png`}
+                      width={`76px`}
                     />
-                  ) : (
-                    <Image
-                      alt="play icon"
-                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/play_purple.png`}
-                      width={width < 700 ? `20px` : `24px`}
-                      margin={width < 700 ? `0 15px` : `0 30px`}
-                      onClick={playingToggle}
-                      cursor={`pointer`}
-                    />
-                  )}
-
-                  <Wrapper width={`auto`} al={`flex-start`}>
                     <Text
-                      fontSize={width < 700 ? `18px` : `22px`}
-                      color={Theme.darkGrey_C}
-                      margin={width < 700 ? `0` : `0 0 8px`}
-                      width={
-                        width < 1600
-                          ? width < 700
-                            ? `180px`
-                            : `200px`
-                          : `280px`
-                      }
-                      isEllipsis
+                      fontSize={width < 900 ? `18px` : `22px`}
+                      color={Theme.grey2_C}
+                      margin={`25px 0 0`}
                     >
-                      Star Night
+                      음원이 존재하지 않습니다.
                     </Text>
-                    <Text
-                      fontSize={width < 700 ? `14px` : `16px`}
-                      color={Theme.subTheme4_C}
-                    >
-                      Pokerface
-                    </Text>
-                    {width < 1520 ? (
-                      <Text
-                        width={`160px`}
-                        fontSize={width < 700 ? `14px` : `18px`}
-                        color={Theme.grey2_C}
-                        isEllipsis
-                      >
-                        Pop, Funk, Rock, L...
-                      </Text>
-                    ) : null}
-
-                    {width < 900 ? (
+                  </Wrapper>
+                ) : (
+                  myLikeList.tracks &&
+                  myLikeList.tracks.map((data, idx) => {
+                    return (
                       <Wrapper
-                        width={`auto`}
+                        key={idx}
+                        borderBottom={`1px solid ${Theme.lightGrey_C}`}
                         dr={`row`}
-                        al={`flex-start`}
-                        ju={`center`}
-                        margin={`10px 0 0`}
+                        ju={`space-between`}
+                        padding={
+                          width < 1360
+                            ? width < 700
+                              ? ` 5px 0`
+                              : `30px 15px`
+                            : `40px 32px`
+                        }
                       >
-                        <Wrapper width={`50px`} cursor={`pointer`}>
+                        <audio
+                          id={`audioTeg_recent_${idx}`}
+                          src={data.filePath}
+                          hidden
+                        />
+                        <Wrapper width={`auto`} dr={`row`} ju={`flex-start`}>
                           <Image
-                            alt="icon"
-                            width={`22px`}
-                            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
+                            alt="thumbnail"
+                            src={data.albumImage}
+                            width={width < 700 ? `80px` : `100px`}
+                            height={width < 700 ? `80px` : `100px`}
+                            radius={`7px`}
+                            shadow={`3px 3px 15px rgba(0, 0, 0, 0.15)`}
                           />
-                          <Text fontSize={`12px`} color={Theme.grey_C}>
-                            15,000
+                          {playing2 === data.id ? (
+                            <Image
+                              alt="pause icon"
+                              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/pause_purple.png`}
+                              width={width < 700 ? `20px` : `24px`}
+                              margin={width < 700 ? `0 15px` : `0 30px`}
+                              onClick={() => playing2Toggle(data.id)}
+                              cursor={`pointer`}
+                            />
+                          ) : (
+                            <Image
+                              alt="play icon"
+                              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/play_purple.png`}
+                              width={width < 700 ? `20px` : `24px`}
+                              margin={width < 700 ? `0 15px` : `0 30px`}
+                              onClick={() => playing2Toggle(data.id)}
+                              cursor={`pointer`}
+                            />
+                          )}
+
+                          <Wrapper width={`auto`} al={`flex-start`}>
+                            <Text
+                              fontSize={width < 700 ? `18px` : `22px`}
+                              color={Theme.darkGrey_C}
+                              margin={width < 700 ? `0` : `0 0 8px`}
+                              width={width < 1600 ? `200px` : `280px`}
+                              isEllipsis
+                            >
+                              {data.songName}
+                            </Text>
+                            <Text
+                              onClick={() =>
+                                movelinkHandler(
+                                  `/musictem/artist/${data.ProductId}`
+                                )
+                              }
+                              isHover
+                              fontSize={width < 700 ? `14px` : `16px`}
+                              color={Theme.subTheme4_C}
+                            >
+                              {data.singerName}
+                            </Text>
+                            {width < 1520 ? (
+                              <Text
+                                width={`160px`}
+                                fontSize={width < 700 ? `14px` : `18px`}
+                                color={Theme.grey2_C}
+                                isEllipsis
+                              >
+                                {/* {data.genList.map(
+                                  (value, idx) =>
+                                    value.value +
+                                    (data.genList.length === idx + 1 ? "" : ",")
+                                )} */}
+                              </Text>
+                            ) : null}
+
+                            {width < 900 ? (
+                              <Wrapper
+                                width={`auto`}
+                                dr={`row`}
+                                al={`flex-start`}
+                                ju={`center`}
+                                margin={`10px 0 0`}
+                              >
+                                <Wrapper width={`50px`} cursor={`pointer`}>
+                                  <Image
+                                    alt="icon"
+                                    width={`22px`}
+                                    src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
+                                  />
+                                  <Text fontSize={`12px`} color={Theme.grey_C}>
+                                    {data.viewDownLoadCnt}
+                                  </Text>
+                                </Wrapper>
+                                <Wrapper
+                                  width={`50px`}
+                                  onClick={() => movelinkHandler(`/license`)}
+                                  cursor={`pointer`}
+                                >
+                                  <Image
+                                    alt="icon"
+                                    width={`22px`}
+                                    src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/cart.png`}
+                                  />
+                                </Wrapper>
+                                <Wrapper width={`50px`}>
+                                  <Image
+                                    alt="icon"
+                                    width={`22px`}
+                                    src={
+                                      data.isLike
+                                        ? `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`
+                                        : `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`
+                                    }
+                                  />
+                                  <Text fontSize={`12px`} color={Theme.grey_C}>
+                                    {data.likeCnt}
+                                  </Text>
+                                </Wrapper>
+                              </Wrapper>
+                            ) : null}
+                          </Wrapper>
+                        </Wrapper>
+                        {width < 1520 ? null : (
+                          <Wrapper
+                            width={`auto`}
+                            fontSize={`18px`}
+                            color={Theme.grey2_C}
+                          >
+                            <Text width={`160px`} isEllipsis>
+                              {/* {data.genList.map(
+                                (value, idx) =>
+                                  value.value +
+                                  (data.genList.length === idx + 1 ? "" : ",")
+                              )} */}
+                            </Text>
+                          </Wrapper>
+                        )}
+
+                        <Wrapper
+                          visibility={width < 1360 ? `hidden` : ``}
+                          opacity={width < 1360 ? `0` : ``}
+                          height={width < 1360 ? `0` : ``}
+                          width={`auto`}
+                          dr={`row`}
+                        >
+                          <Text
+                            fontSize={width < 900 ? `14px` : `16px`}
+                            color={Theme.darkGrey_C}
+                            margin={`0 20px 0 0`}
+                          >
+                            {data.fileLength}
                           </Text>
+                          <Wrapper width={width < 1360 ? `180px` : `236px`}>
+                            <ReactWaves
+                              options={{
+                                barHeight: 1,
+                                cursorWidth: 0,
+                                height: width < 1360 ? 0 : 53,
+                                hideScrollbar: true,
+                                progressColor: Theme.basicTheme_C,
+                                responsive: true,
+                                waveColor: Theme.lightGrey_C,
+                              }}
+                              volume={1}
+                              zoom={2}
+                              playing={playing1 === data.id}
+                              audioFile={data.filePath}
+                            />
+                          </Wrapper>
                         </Wrapper>
 
-                        <Wrapper width={`50px`}>
-                          <Image
-                            alt="icon"
-                            width={`22px`}
-                            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
-                          />
-                          <Text fontSize={`12px`} color={Theme.grey_C}>
-                            98
-                          </Text>
-                        </Wrapper>
+                        {width < 900 ? null : (
+                          <Wrapper
+                            width={`auto`}
+                            margin={`0`}
+                            dr={`row`}
+                            al={`flex-start`}
+                            ju={`center`}
+                          >
+                            <Wrapper width={`60px`} cursor={`pointer`}>
+                              <Image
+                                alt="icon"
+                                width={`22px`}
+                                src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
+                              />
+                              <Text fontSize={`12px`} color={Theme.grey_C}>
+                                {data.viewDownLoadCnt}
+                              </Text>
+                            </Wrapper>
+                            <Wrapper
+                              width={`50px`}
+                              onClick={() => movelinkHandler(`/license`)}
+                              cursor={`pointer`}
+                            >
+                              <Image
+                                alt="icon"
+                                width={`22px`}
+                                src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/cart.png`}
+                              />
+                            </Wrapper>
+                            <Wrapper width={`60px`}>
+                              <Image
+                                alt="icon"
+                                width={`22px`}
+                                src={
+                                  data.isLike
+                                    ? `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`
+                                    : `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`
+                                }
+                              />
+                              <Text fontSize={`12px`} color={Theme.grey_C}>
+                                {data.likeCnt}
+                              </Text>
+                            </Wrapper>
+                          </Wrapper>
+                        )}
                       </Wrapper>
-                    ) : null}
-                  </Wrapper>
-                </Wrapper>
-                {width < 1520 ? null : (
-                  <Wrapper
-                    width={`auto`}
-                    fontSize={`18px`}
-                    color={Theme.grey2_C}
-                  >
-                    <Text width={width < 900 ? `120px` : `160px`} isEllipsis>
-                      Pop, Funk, Rock, L...
-                    </Text>
-                  </Wrapper>
-                )}
-
-                <Wrapper
-                  visibility={width < 1360 ? `hidden` : ``}
-                  opacity={width < 1360 ? `0` : ``}
-                  height={width < 1360 ? `0` : ``}
-                  width={`auto`}
-                  dr={`row`}
-                >
-                  <Text
-                    fontSize={`16px`}
-                    color={Theme.darkGrey_C}
-                    margin={`0 20px 0 0`}
-                  >
-                    3:04
-                  </Text>
-                  <Wrapper width={width < 1360 ? `180px` : `236px`}>
-                    <ReactWaves
-                      options={{
-                        barHeight: 1,
-                        cursorWidth: 0,
-                        height: width < 1360 ? 0 : 53,
-                        hideScrollbar: true,
-                        progressColor: Theme.basicTheme_C,
-                        responsive: true,
-                        waveColor: Theme.lightGrey_C,
-                      }}
-                      volume={1}
-                      zoom={2}
-                      playing={playing}
-                      audioFile={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/mp3/mp3_sample.mp3`}
-                    />
-                  </Wrapper>
-                </Wrapper>
-
-                {width < 900 ? null : (
-                  <Wrapper
-                    width={`auto`}
-                    margin={`0`}
-                    dr={`row`}
-                    al={`flex-start`}
-                    ju={`center`}
-                  >
-                    <Wrapper width={`60px`} cursor={`pointer`}>
-                      <Image
-                        alt="icon"
-                        width={`22px`}
-                        src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
-                      />
-                      <Text fontSize={`12px`} color={Theme.grey_C}>
-                        15,000
-                      </Text>
-                    </Wrapper>
-
-                    <Wrapper width={`60px`}>
-                      <Image
-                        alt="icon"
-                        width={`22px`}
-                        src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
-                      />
-                      <Text fontSize={`12px`} color={Theme.grey_C}>
-                        98
-                      </Text>
-                    </Wrapper>
-                  </Wrapper>
-                )}
-              </Wrapper>
+                    );
+                  })
+                ))}
             </Wrapper>
           </Wrapper>
         )}

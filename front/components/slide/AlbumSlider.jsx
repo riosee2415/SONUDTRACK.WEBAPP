@@ -87,14 +87,40 @@ const AlbumSlider = ({ list }) => {
                 </Wrapper>
 
                 <Wrapper>
-                  <CommonButton
-                    kindOf={`subTheme2`}
-                    onClick={() =>
-                      moveLinkHandler(`/mypage/musictem/trackUpload/${data.id}`)
-                    }
-                  >
-                    Track 등록하기
-                  </CommonButton>
+                  {data.isTrackPermit ? (
+                    <>
+                      <Wrapper
+                        width={`auto`}
+                        padding={`5px 10px`}
+                        fontSize={`18px`}
+                        bgColor={Theme.lightGrey_C}
+                        color={Theme.darkGrey_C}
+                      >
+                        Track 등록완료
+                      </Wrapper>
+                    </>
+                  ) : (
+                    <>
+                      <Text
+                        color={Theme.red_C}
+                        fontSize={`11px`}
+                        textAlign={`center`}
+                        margin={`0 0 5px`}
+                      >
+                        * Track을 등록한 후에는 삭제가 불가합니다.
+                      </Text>
+                      <CommonButton
+                        kindOf={`subTheme2`}
+                        onClick={() =>
+                          moveLinkHandler(
+                            `/mypage/musictem/trackUpload/${data.id}`
+                          )
+                        }
+                      >
+                        Track 등록하기
+                      </CommonButton>
+                    </>
+                  )}
                 </Wrapper>
               </Wrapper>
             );

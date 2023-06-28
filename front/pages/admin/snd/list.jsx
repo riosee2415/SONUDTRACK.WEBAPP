@@ -3,117 +3,129 @@ import AdminLayout from "../../../components/AdminLayout";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  Form,
-  Popover,
-  Select,
-  Button,
-  Input,
-  Switch,
-  message,
-  Drawer,
-  Image,
-} from "antd";
-import { useRouter, withRouter } from "next/router";
-import wrapper from "../../../store/configureStore";
-import { END } from "redux-saga";
-import axios from "axios";
+  LOAD_MY_INFO_REQUEST,
+  UPDATE_MODAL_CLOSE_REQUEST,
+  UPDATE_MODAL_OPEN_REQUEST,
+  USERLIST_REQUEST,
+  USERLIST_UPDATE_REQUEST,
+} from "../../../reducers/user";
 import {
-  Wrapper,
-  Text,
+  Table,
+  Button,
+  Popover,
+  message,
+  Modal,
+  Select,
+  notification,
+  Input,
+  Form,
+  Switch,
+  Drawer,
+  Checkbox,
+  Image,
+  Popconfirm,
+} from "antd";
+import {
   HomeText,
-  PopWrapper,
   OtherMenu,
   GuideUl,
   GuideLi,
-  CustomForm,
-  CustomTable,
+  SearchForm,
+  SearchFormItem,
+  SettingBtn,
 } from "../../../components/commonComponents";
-import { LOAD_MY_INFO_REQUEST } from "../../../reducers/user";
-import Theme from "../../../components/Theme";
+import { useRouter, withRouter } from "next/router";
+import wrapper from "../../../store/configureStore";
+import { END } from "redux-saga";
 import { items } from "../../../components/AdminLayout";
-import { HomeOutlined, RightOutlined } from "@ant-design/icons";
+import axios from "axios";
 import {
+  Text,
+  Wrapper,
+  PopWrapper,
+} from "../../../components/commonComponents";
+import Theme from "../../../components/Theme";
+import {
+  CheckOutlined,
+  CloseOutlined,
+  HomeOutlined,
+  RightOutlined,
+} from "@ant-design/icons";
+import {
+  CATEGORY_ADMIN_LIST_REQUEST,
   CATEGORY_LIST_REQUEST,
-  PRODUCT_LIST_REQUEST,
-  PRODUCT_ING_REQUEST,
-  PRODUCT_TOP_REQUEST,
-  PRODUCT_TAG_REQUEST,
-  PRODUCT_GEN_REQUEST,
-  PRODUCT_TRACK_LIST_REQUEST,
-} from "../../../reducers/product";
-import { saveAs } from "file-saver";
+} from "../../../reducers/category";
+import { TAG_TYPE_LIST_REQUEST } from "../../../reducers/tag";
+import {
+  ALBUM_FILE_RESET,
+  ALBUM_PREMIUM_CREATE_REQUEST,
+  ALBUM_TRACK_FILE_REQUEST,
+  ALBUM_TRACK_FILE_RESET,
+  MUSICTEM_PREMIUM_ADMIN_LIST_REQUEST,
+  MUSICTEM_LIST_REQUEST,
+  MUSICTEM_ADMIN_LIST_REQUEST,
+} from "../../../reducers/album";
+import {
+  SELLER_IMAGE_REQUEST,
+  SELLER_IMAGE_RESET,
+} from "../../../reducers/seller";
+import getBlobDuration from "get-blob-duration";
 
-const PriceText = styled(Text)`
-  font-weight: bold;
-  color: ${Theme.basicTheme_C};
-  padding: 4px 12px;
-  border-radius: 13px;
-  background-color: ${(props) => props.theme.subTheme_C};
-`;
-
-const TagBox = styled.span`
-  padding: 4px 12px;
-  border-radius: 13px;
-  background-color: ${(props) => props.theme.adminTheme_4};
+const TypeView = styled.span`
+  padding: 2px 5px;
+  background: ${(props) =>
+    props.isArtist ? props.theme.subTheme3_C : props.theme.adminTheme_4};
   color: #fff;
-  margin-right: 15px;
-
-  cursor: pointer;
-
-  transition: 0.4s;
-
-  &:hover {
-    color: ${(props) => props.theme.adminTheme_4};
-    background-color: #fff;
-  }
+  border-radius: 7px;
+  font-size: 13px;
 `;
 
-const CateBox = styled.span`
-  padding: 2px 9px;
-  border-radius: 10px;
-  background-color: ${(props) => props.theme.subTheme3_C};
-  color: #fff;
-  margin-right: 2px;
+const TypeButton = styled(Button)``;
+
+const GuideDiv = styled.div`
+  width: 100%;
+  color: ${(props) => (props.isImpo ? props.theme.red_C : "")};
+  margin-left: 3px;
 `;
+
+const PointText = styled.div`
+  color: ${(props) => props.theme.adminTheme_4};
+`;
+
+const LoadNotification = (msg, content) => {
+  notification.open({
+    message: msg,
+    description: content,
+    onClick: () => {},
+  });
+};
 
 const List = ({}) => {
-  const { st_loadMyInfoDone, me } = useSelector((state) => state.user);
-  const {
-    categorys, //
-    products, //
-    targetTags, //
-    targetGens, //
-    trackList, //
-    //
-    // 판매여부 수정
-    st_productIngLoading,
-    st_productIngDone,
-    st_productIngError,
-    //
-    // 판매여부 수정
-    st_productTopLoading,
-    st_productTopDone,
-    st_productTopError,
-  } = useSelector((state) => state.product);
+  // LOAD CURRENT INFO AREA /////////////////////////////////////////////
+  const { me, st_loadMyInfoDone } = useSelector((state) => state.user);
 
   const router = useRouter();
-  const dispatch = useDispatch();
-
-  // 상위메뉴 변수
-  const [level1, setLevel1] = useState("음원관리");
-  const [level2, setLevel2] = useState("");
-  const [sameDepth, setSameDepth] = useState([]);
-  const [imageDr, setImageDr] = useState(false);
-  const [tagDr, setTagDr] = useState(false);
-  const [genDr, setGenDr] = useState(false);
-  const [musicDr, setMusicDr] = useState(false);
-  const [cd, setCd] = useState(null);
-
-  const [sForm] = Form.useForm();
 
   const moveLinkHandler = useCallback((link) => {
     router.push(link);
   }, []);
+
+  const [sameDepth, setSameDepth] = useState([]);
+  const [level1, setLevel1] = useState("음원관리");
+  const [level2, setLevel2] = useState("");
+
+  useEffect(() => {
+    if (st_loadMyInfoDone) {
+      if (!me || parseInt(me.level) < 3) {
+        moveLinkHandler(`/admin`);
+      }
+
+      if (!(me && me.menuRight5)) {
+        message.error("접근권한이 없는 페이지 입니다.");
+        moveLinkHandler(`/admin`);
+      }
+    }
+  }, [st_loadMyInfoDone]);
 
   const content = (
     <PopWrapper>
@@ -128,406 +140,99 @@ const List = ({}) => {
       })}
     </PopWrapper>
   );
-
   /////////////////////////////////////////////////////////////////////////
 
+  const { musictemAdminList } = useSelector((state) => state.album);
   ////// HOOKS //////
+  const dispatch = useDispatch();
+
+  // FORM
+  const [sForm] = Form.useForm();
 
   ////// USEEFFECT //////
 
-  // 판매여부 수정 후 처리
-  useEffect(() => {
-    if (st_productIngDone) {
-      message.info("판매여부가 변경되었습니다.");
-
-      dispatch({
-        type: PRODUCT_LIST_REQUEST,
-        data: {
-          CategoryId:
-            sForm.getFieldValue("categoryId") === "---전체---"
-              ? null
-              : sForm.getFieldValue("categoryId"),
-          isTop:
-            sForm.getFieldValue("isTop") === "---전체---"
-              ? null
-              : sForm.getFieldValue("isTop"),
-          isIng:
-            sForm.getFieldValue("isIng") === "---전체---"
-              ? null
-              : sForm.getFieldValue("isIng"),
-          title: sForm.getFieldValue("title"),
-          username: sForm.getFieldValue("username"),
-        },
-      });
-    }
-
-    if (st_productIngError) {
-      return message.error(st_productIngError);
-    }
-  }, [st_productIngDone, st_productIngError, sForm]);
-
-  // 상단고정여부 수정 후 처리
-  useEffect(() => {
-    if (st_productTopDone) {
-      message.info("상단고정 여부가 변경되었습니다.");
-
-      dispatch({
-        type: PRODUCT_LIST_REQUEST,
-        data: {
-          CategoryId:
-            sForm.getFieldValue("categoryId") === "---전체---"
-              ? null
-              : sForm.getFieldValue("categoryId"),
-          isTop:
-            sForm.getFieldValue("isTop") === "---전체---"
-              ? null
-              : sForm.getFieldValue("isTop"),
-          isIng:
-            sForm.getFieldValue("isIng") === "---전체---"
-              ? null
-              : sForm.getFieldValue("isIng"),
-          title: sForm.getFieldValue("title"),
-          username: sForm.getFieldValue("username"),
-        },
-      });
-    }
-
-    if (st_productTopError) {
-      return message.error(st_productTopError);
-    }
-  }, [st_productTopDone, st_productTopError, sForm]);
-
-  useEffect(() => {
-    if (st_loadMyInfoDone) {
-      if (!me || parseInt(me.level) < 3) {
-        moveLinkHandler(`/admin`);
-      }
-
-      if (!(me && me.menuRight6)) {
-        message.error("접근권한이 없는 페이지 입니다.");
-        moveLinkHandler(`/admin`);
-      }
-    }
-  }, [st_loadMyInfoDone]);
-
-  useEffect(() => {
-    const currentMenus = items[level1];
-
-    setSameDepth(currentMenus);
-
-    currentMenus.map((data) => {
-      if (data.link === router.pathname) {
-        setLevel2(data.name);
-      }
-    });
-  }, []);
+  ////// TOGGLE //////
 
   ////// HANDLER //////
 
-  const musicDrToggle = useCallback(
-    (data) => {
-      if (data) {
-        setCd(data);
-
-        dispatch({
-          type: PRODUCT_TRACK_LIST_REQUEST,
-          data: {
-            ProductId: data.id,
-          },
-        });
-      }
-
-      setMusicDr((p) => !p);
-    },
-    [musicDr]
-  );
-
-  const tagDrToggle = useCallback(
-    (data) => {
-      if (data) {
-        setCd(data);
-
-        dispatch({
-          type: PRODUCT_TAG_REQUEST,
-          data: {
-            id: data.id,
-          },
-        });
-      }
-
-      setTagDr((p) => !p);
-    },
-    [tagDr]
-  );
-
-  const genDrToggle = useCallback(
-    (data) => {
-      if (data) {
-        setCd(data);
-
-        dispatch({
-          type: PRODUCT_GEN_REQUEST,
-          data: {
-            id: data.id,
-          },
-        });
-      }
-
-      setGenDr((p) => !p);
-    },
-    [genDr]
-  );
-
-  const imageDrToggle = useCallback(
-    (data) => {
-      if (data) {
-        setCd(data);
-      }
-
-      setImageDr((p) => !p);
-    },
-    [imageDr]
-  );
-
-  const ingHandler = useCallback((data) => {
-    const nextIng = !data.isIng ? 1 : 0;
-
-    dispatch({
-      type: PRODUCT_ING_REQUEST,
-      data: {
-        id: data.id,
-        nextIng,
-      },
-    });
-  }, []);
-
-  const topHandler = useCallback((data) => {
-    const nextTop = data.isTop === 1 ? 0 : 1;
-
-    dispatch({
-      type: PRODUCT_TOP_REQUEST,
-      data: {
-        id: data.id,
-        nextTop,
-      },
-    });
-  }, []);
-
-  const allSearch = useCallback(() => {
-    sForm.resetFields();
-
-    dispatch({
-      type: PRODUCT_LIST_REQUEST,
-    });
-  }, []);
-
   const searchHandler = useCallback((data) => {
     dispatch({
-      type: PRODUCT_LIST_REQUEST,
+      type: MUSICTEM_ADMIN_LIST_REQUEST,
       data: {
-        CategoryId: data.categoryId === "---전체---" ? null : data.categoryId,
-        isTop: data.isTop === "---전체---" ? null : data.isTop,
-        isIng: data.isIng === "---전체---" ? null : data.isIng,
-        title: data.title,
-        username: data.username,
+        songName: data.sData,
       },
     });
-  }, []);
-
-  // 파일 다운로드
-  const fileDownloadHandler = useCallback(async (fileName, filePath) => {
-    let blob = await fetch(filePath).then((r) => r.blob());
-
-    const file = new Blob([blob]);
-
-    const ext = filePath.substring(
-      filePath.lastIndexOf(".") + 1,
-      filePath.length
-    );
-
-    const originName = `${fileName}.${ext}`;
-
-    saveAs(file, originName);
   }, []);
 
   ////// DATAVIEW //////
 
-  ////// DATA COLUMNS //////
-
   const columns = [
     {
+      align: "center",
+      width: "5%",
       title: "번호",
       dataIndex: "num",
     },
-    {
-      title: "음원(앨범)명",
-      render: (data) => (
-        <Text fontSize="12px" color="#000" fontWeight="bold">
-          {data.title}
-        </Text>
-      ),
-    },
-    {
-      title: "카테고리",
-      render: (data) => <CateBox>{data.value}</CateBox>,
-    },
-    {
-      title: "부제",
-      render: (data) => (
-        <Text fontSize="10px" color="#999">
-          {data.subTitle}
-        </Text>
-      ),
-    },
-    {
-      title: "판매여부",
-      render: (data) => (
-        <Switch
-          checked={!data.isIng}
-          onChange={() => ingHandler(data)}
-          loading={st_productIngLoading}
-        />
-      ),
-    },
-    {
-      title: "판매중인 사용자",
-      dataIndex: "username",
-    },
-    {
-      title: "음원(앨범)등록일",
-      dataIndex: "viewCreatedAt",
-    },
-    {
-      title: "비트주파수",
-      dataIndex: "bitRate",
-    },
-    {
-      title: "샘플링주파수",
-      dataIndex: "sampleRate",
-    },
-    {
-      title: "상단고정여부",
-      render: (data) => (
-        <Switch
-          checked={data.isTop}
-          onClick={() => topHandler(data)}
-          loading={st_productTopLoading}
-        />
-      ),
-    },
-    {
-      title: "이미지 정보",
-      render: (data) => (
-        <Button
-          size="small"
-          type="primary"
-          style={{ fontSize: "12px", height: "19px" }}
-          onClick={() => imageDrToggle(data)}
-        >
-          이미지정보
-        </Button>
-      ),
-    },
-    {
-      title: "테그 정보",
-      render: (data) => (
-        <Button
-          size="small"
-          type="primary"
-          style={{ fontSize: "12px", height: "19px" }}
-          onClick={() => tagDrToggle(data)}
-        >
-          테그정보
-        </Button>
-      ),
-    },
-    {
-      title: "장르 정보",
-      render: (data) => (
-        <Button
-          size="small"
-          type="primary"
-          style={{ fontSize: "12px", height: "19px" }}
-          onClick={() => genDrToggle(data)}
-        >
-          장르정보
-        </Button>
-      ),
-    },
-    {
-      title: "음원리스트",
-      render: (data) => (
-        <Button
-          size="small"
-          type="primary"
-          style={{ fontSize: "12px", height: "19px" }}
-          onClick={() => musicDrToggle(data)}
-        >
-          음원리스트
-        </Button>
-      ),
-    },
-  ];
 
-  const columns2 = [
     {
-      title: "번호",
-      dataIndex: "id",
+      width: "10%",
+      title: "앨범이미지",
+      render: (data) => <Image src={data.albumImage} />,
     },
     {
-      title: "음원명",
-      dataIndex: "title",
+      width: "10%",
+      title: "앨범명",
+      dataIndex: "albumName",
     },
     {
-      title: "제작자",
-      dataIndex: "author",
+      width: "10%",
+      title: "타이틀여부",
+      render: (data) => {
+        return (
+          <div>
+            {data.isTitle ? (
+              <CheckOutlined style={{ color: Theme.naver_C }} />
+            ) : (
+              <CloseOutlined style={{ color: Theme.red_C }} />
+            )}
+          </div>
+        );
+      },
     },
     {
-      title: "타이틀곡",
-      render: (data) => <Switch size="small" checked={data.isTitle} />,
-    },
-    {
-      align: "end",
-      title: "스텐다드 금액",
-      render: (data) => <PriceText>{data.viewsPrice}</PriceText>,
-    },
-    {
-      align: "end",
-      title: "디럭스 금액",
-      render: (data) => <PriceText>{data.viewdPrice}</PriceText>,
-    },
-    {
-      align: "end",
-      title: "플레티넘 금액",
-      render: (data) => <PriceText>{data.viewpPrice}</PriceText>,
-    },
-    {
-      title: "음원등록일",
-      dataIndex: "viewCreatedAt",
-    },
-    {
-      title: "장르",
-      render: (data) =>
-        data.gens.map((v) => {
-          return <CateBox key={v}>{v}</CateBox>;
-        }),
-    },
-    {
-      title: "다운로드",
+      width: "15%",
+      title: "트랙곡",
       render: (data) => (
         <Button
           size="small"
           type="primary"
-          style={{ height: "20px", fontSize: "11px" }}
-          onClick={() => fileDownloadHandler(data.filename, data.filepath)}
+          download={true}
+          href={data.filePath}
         >
-          내려받기
+          {data.fileName}
         </Button>
       ),
     },
     {
-      title: "다운로드 수",
-      dataIndex: "downloadCnt",
+      width: "10%",
+      title: "곡 길이",
+      dataIndex: "fileLength",
+    },
+    {
+      width: "10%",
+      title: "좋아요수",
+      dataIndex: "likeCnt",
+    },
+    {
+      width: "15%",
+      title: "아티스트명",
+      dataIndex: "singerName",
+    },
+
+    {
+      width: "15%",
+      title: "등록일",
+      dataIndex: "viewCreatedAt",
     },
   ];
 
@@ -555,219 +260,55 @@ const List = ({}) => {
         <RightOutlined />
         <Popover content={content}>
           <HomeText cur={true} margin={`3px 20px 0px 20px`}>
-            {level2}{" "}
+            {level2}
           </HomeText>
         </Popover>
       </Wrapper>
 
       {/* GUIDE */}
-      <Wrapper margin={`10px 0px 0px 0px`}>
+      <Wrapper margin={`10px 0px 0px 10px`}>
         <GuideUl>
-          <GuideLi>
-            판매자 별 등록된 음원을 탐색할 수 있으며, 등록된 음원의 정보는
-            관리자가 변경할 수 없습니다.
-          </GuideLi>
+          <GuideLi>모든 뮤직템을 확인할 수 있습니다.</GuideLi>
           <GuideLi isImpo={true}>
-            초기 데이터는 모든 데이터가 조회됩니다. 삭제처리는 불가능하며 판매
-            중단처리가 가능합니다.
+            뮤직템을 확인만 가능할 뿐 다른기능은 포함되어있지 않습니다.
           </GuideLi>
         </GuideUl>
       </Wrapper>
 
-      <Wrapper dr="row" padding="0px 20px">
-        <CustomForm
-          form={sForm}
+      {/* SEARCH FORM */}
+      <Wrapper padding="0px 20px">
+        <SearchForm
           layout="inline"
-          colon={false}
+          style={{ width: "100%" }}
+          form={sForm}
           onFinish={searchHandler}
         >
-          <Form.Item name="categoryId">
-            <Select
-              size="small"
-              placeholder="카테고리를 선택하세요."
-              style={{ width: "200px", marginRight: "10px" }}
-            >
-              <Select.Option value="---전체---">---전체---</Select.Option>
-              {categorys.map((data) => {
-                return (
-                  <Select.Option key={data.id} value={data.id}>
-                    {data.value}
-                  </Select.Option>
-                );
-              })}
-            </Select>
-          </Form.Item>
-
-          <Form.Item name="isTop">
-            <Select
-              size="small"
-              placeholder="상단고정 여부를 선택하세요."
-              style={{ width: "220px", marginRight: "10px" }}
-            >
-              <Select.Option value="---전체---">---전체---</Select.Option>
-              <Select.Option value={-1}>미고정</Select.Option>
-              <Select.Option value={1}>고정</Select.Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item name="isIng">
-            <Select
-              size="small"
-              placeholder="판매 여부를 선택하세요."
-              style={{ width: "220px", marginRight: "10px" }}
-            >
-              <Select.Option value="---전체---">---전체---</Select.Option>
-              <Select.Option value={-1}>판매중</Select.Option>
-              <Select.Option value={1}>판매중단</Select.Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item name="title">
+          <SearchFormItem name="sData" style={{ margin: `0px 0px 0px 5px` }}>
             <Input
               size="small"
+              style={{ width: "320px" }}
+              placeholder={`검색할 곡명을 입력해주세요.`}
               allowClear
-              style={{ width: "220px", marginRight: "10px" }}
-              placeholder="타이틀을 입력하세요."
             />
-          </Form.Item>
+          </SearchFormItem>
 
-          <Form.Item name="username">
-            <Input
-              size="small"
-              allowClear
-              style={{ width: "220px", marginRight: "10px" }}
-              placeholder="사용자이름을 입력하세요."
-            />
-          </Form.Item>
-
-          <Form.Item>
-            <Button type="primary" size="small" htmlType="submit">
-              조회
+          <SearchFormItem>
+            <Button size="small" type="primary" htmlType="submit">
+              검색
             </Button>
-          </Form.Item>
-
-          <Form.Item>
-            <Button type="default" size="small" onClick={allSearch}>
-              전체조회
-            </Button>
-          </Form.Item>
-        </CustomForm>
+          </SearchFormItem>
+        </SearchForm>
       </Wrapper>
 
-      <Wrapper padding="0px 20px">
-        <CustomTable
+      <Wrapper padding={`0px 20px`}>
+        <Table
+          style={{ width: "100%" }}
           rowKey="id"
           columns={columns}
-          dataSource={products}
+          dataSource={musictemAdminList}
           size="small"
         />
       </Wrapper>
-
-      <Drawer
-        width="100%"
-        visible={imageDr}
-        title={`[${cd && cd.title}] 이미지 정보`}
-        onClose={() => imageDrToggle(null)}
-      >
-        <GuideUl>
-          <GuideLi>
-            음원(앨범)의 커버 이미지 입니다. 해당 앨범에 수록된 곡들에게 모두
-            부여되는 이미지 입니다.
-          </GuideLi>
-          <GuideLi>
-            이미지 사이즈 및 비율은 1:1 이며, 비율이 상이할 경우 화면에
-            정상적으로 보이지 않을 수 있습니다.
-          </GuideLi>
-          <GuideLi isImpo={true}>
-            이미지파일의 크기가 5MB 이상의 경우, 이미지가 업로드되지 않아 보이지
-            않을 수 있습니다.
-          </GuideLi>
-          <GuideLi isImpo={true}>
-            커버 이미지는 관리자 또는 운영자가 수정이 불가능합니다.
-          </GuideLi>
-        </GuideUl>
-
-        <Wrapper>
-          <Image
-            src={cd && cd.coverImage}
-            style={{ width: "400px", height: "400px", objectFit: "cover" }}
-          />
-        </Wrapper>
-      </Drawer>
-
-      <Drawer
-        width="100%"
-        visible={tagDr}
-        title={`[${cd && cd.title}] 테그 정보`}
-        onClose={() => tagDrToggle(null)}
-      >
-        <GuideUl>
-          <GuideLi>
-            음원(앨범)의 테그 입니다. 테그는 여러개 등록될 수 있습니다.
-          </GuideLi>
-          <GuideLi>
-            테그명은 대소문자가 구분되기 때문에 중복된 태그가 발생될 수
-            있습니다.
-          </GuideLi>
-          <GuideLi isImpo={true}>
-            테그는 관리자 또는 운영자가 수정이 불가능합니다.
-          </GuideLi>
-        </GuideUl>
-
-        <Wrapper dr="row" ju="flex-start" padding="10px">
-          {targetTags.length === 0 && <Text>등록된 테그가 없습니다.</Text>}
-
-          {targetTags.map((item) => {
-            return <TagBox key={item.id}>{item.value}</TagBox>;
-          })}
-        </Wrapper>
-      </Drawer>
-
-      <Drawer
-        width="100%"
-        visible={genDr}
-        title={`[${cd && cd.title}] 장르 정보`}
-        onClose={() => genDrToggle(null)}
-      >
-        <GuideUl>
-          <GuideLi>
-            음원(앨범)의 장르 입니다. 장르는 여러개 등록될 수 있습니다.
-          </GuideLi>
-          <GuideLi>
-            장르명은 대소문자가 구분되기 때문에 중복된 장르가 발생될 수
-            있습니다.
-          </GuideLi>
-          <GuideLi isImpo={true}>
-            장르는 관리자 또는 운영자가 수정이 불가능합니다.
-          </GuideLi>
-        </GuideUl>
-
-        <Wrapper dr="row" ju="flex-start" padding="10px">
-          {targetGens.length === 0 && <Text>등록된 장르가 없습니다.</Text>}
-
-          {targetGens.map((item) => {
-            return <TagBox key={item.id}>{item.value}</TagBox>;
-          })}
-        </Wrapper>
-      </Drawer>
-      <Drawer
-        width="100%"
-        visible={musicDr}
-        title={`[${cd && cd.title}] 음원 정보`}
-        onClose={() => musicDrToggle(null)}
-      >
-        {/* <Wrapper padding="0px 20px" dr="row" ju="flex-start">
-          {trackList.map((data, idx) => {
-            return <M_Box item={data} idx={idx + 1} key={data.id} />;
-          })}
-        </Wrapper> */}
-        <CustomTable
-          rowKey="id"
-          columns={columns2}
-          dataSource={trackList}
-          size="small"
-        />
-      </Drawer>
     </AdminLayout>
   );
 };
@@ -788,11 +329,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
     });
 
     context.store.dispatch({
-      type: CATEGORY_LIST_REQUEST,
-    });
-
-    context.store.dispatch({
-      type: PRODUCT_LIST_REQUEST,
+      type: MUSICTEM_ADMIN_LIST_REQUEST,
     });
 
     // 구현부 종료
