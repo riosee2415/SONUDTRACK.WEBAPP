@@ -22,15 +22,12 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   ITEM_BUY_CREATE_REQUEST,
   ITEM_CART_CREATE_REQUEST,
-  ITEM_LIST_REQUEST,
 } from "../../reducers/bought";
 
-const Index = () => {
+const Premium = () => {
   ////// GLOBAL STATE //////
   const { me } = useSelector((state) => state.user);
   const {
-    wishItems,
-    st_itemListDone,
     st_itemCartCreateDone,
     st_itemCartCreateError,
     st_itemBuyCreateDone,
@@ -74,21 +71,21 @@ const Index = () => {
   useEffect(() => {
     if (albumData) {
       if (albumData.length < 10) {
-        setStandPrice(2000);
-        setDeluxePrice(3000);
+        setStandPrice(2600);
+        setDeluxePrice(3900);
         setPlatiPrice(`맞춤제작요청`);
       } else if (albumData.length >= 10 && albumData.length < 30) {
-        setStandPrice(5000);
-        setDeluxePrice(7000);
-        setPlatiPrice(1000000);
+        setStandPrice(6500);
+        setDeluxePrice(9100);
+        setPlatiPrice(1300000);
       } else if (albumData.length >= 30 && albumData.length < 90) {
-        setStandPrice(10000);
-        setDeluxePrice(12000);
-        setPlatiPrice(2000000);
+        setStandPrice(13000);
+        setDeluxePrice(15600);
+        setPlatiPrice(2600000);
       } else if (albumData.length >= 90) {
-        setStandPrice(15000);
-        setDeluxePrice(17000);
-        setPlatiPrice(2500000);
+        setStandPrice(19500);
+        setDeluxePrice(22100);
+        setPlatiPrice(3250000);
       }
     }
   }, [albumData]);
@@ -96,35 +93,12 @@ const Index = () => {
   useEffect(() => {
     if (st_itemBuyCreateDone) {
       sessionStorage.removeItem("ALBUM");
-
-      dispatch({
-        type: ITEM_LIST_REQUEST,
-      });
-
-      if (st_itemListDone) {
-        let tempPrice = 0;
-
-        wishItems.map((data) => {
-          tempPrice += data.price;
-        });
-
-        sessionStorage.setItem(
-          "ORDER",
-          JSON.stringify({
-            items: wishItems,
-            price: tempPrice,
-          })
-        );
-
-        router.push("/order");
-      }
-
-      return;
+      return router.push("/order");
     }
     if (st_itemBuyCreateError) {
       return message.error(st_itemBuyCreateError);
     }
-  }, [st_itemBuyCreateDone, st_itemBuyCreateError, st_itemListDone]);
+  }, [st_itemBuyCreateDone, st_itemBuyCreateError]);
 
   useEffect(() => {
     if (st_itemCartCreateDone) {
@@ -770,4 +744,4 @@ export const getServerSideProps = wrapper.getServerSideProps(
   }
 );
 
-export default Index;
+export default Premium;

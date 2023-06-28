@@ -8,8 +8,6 @@ import { END } from "redux-saga";
 import useWidth from "../../hooks/useWidth";
 import {
   ArtWrapper,
-  CommonButton,
-  CustomPage,
   Image,
   RsWrapper,
   SpanText,
@@ -30,6 +28,7 @@ import { NEW_ARTIST_LIST_REQUEST } from "../../reducers/artist";
 import { ARTISTEM_LIST_REQUEST } from "../../reducers/seller";
 import { CATE_ALL_LIST_REQUEST } from "../../reducers/category";
 import { TAG_LIST_REQUEST } from "../../reducers/tag";
+import useInput from "../../hooks/useInput";
 
 const CustomSelect = styled(Wrapper)`
   width: 240px;
@@ -85,17 +84,18 @@ const Index = () => {
 
   const { cateAllList } = useSelector((state) => state.category);
 
-  console.log(cateAllList);
-
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
   const dispatch = useDispatch();
 
+  const searchInput = useInput();
+
   const [orderType, setOrderType] = useState(1); // 더보기 정렬 1.추천 2.최신
 
   const [selectArtist, setSelectArtist] = useState(null);
   const [tagData, setTagData] = useState(null); // 태그 아이디
+  const [cateData, setCateData] = useState(null); // 카테고리 아이디
 
   ////// USEEFFECT //////
 
@@ -146,6 +146,14 @@ const Index = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
+  // 카테고리 선택
+  const categoryTypeHandler = useCallback(
+    (data) => {
+      setCateData(data);
+    },
+    [cateData]
+  );
+
   const tagTypeHandler = useCallback((data) => {
     dispatch({
       type: TAG_LIST_REQUEST,
@@ -195,7 +203,10 @@ const Index = () => {
                   Category
                 </Text>
                 <CustomSelect>
-                  <Select>
+                  <Select
+                    onChange={categoryTypeHandler}
+                    placeholder={"Category"}
+                  >
                     {cateAllList &&
                       cateAllList.map((data) => {
                         if (data.label === "아티스탬")
@@ -284,6 +295,7 @@ const Index = () => {
                     radius={`30px`}
                     padding={`0 10px 0 50px`}
                     shadow={`0 3px 10px rgba(0, 0, 0, 0.1)`}
+                    {...searchInput}
                   />
                 </Wrapper>
               </Wrapper>

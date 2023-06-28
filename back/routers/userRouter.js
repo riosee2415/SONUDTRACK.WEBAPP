@@ -187,6 +187,7 @@ router.post("/snsLogin", (req, res, next) => {
               A.profileImage,
               A.userId,
               A.email,
+              A.point,
               A.username,
               A.nickname,
               A.mobile,
@@ -210,7 +211,12 @@ router.post("/snsLogin", (req, res, next) => {
               A.exitedAt,
               DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")		AS viewCreatedAt,
               DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")		AS viewUpdatedAt,
-              DATE_FORMAT(A.exitedAt, "%Y년 %m월 %d일")		AS viewExitedAt
+              DATE_FORMAT(A.exitedAt, "%Y년 %m월 %d일")		AS viewExitedAt,
+              A.type,
+              A.bankName,
+              A.acconuntNum,
+              A.artistemId,
+              A.musictemId
         FROM	users     A
        WHERE  A.id = ${user.id}
 `;
@@ -309,6 +315,7 @@ router.post("/snsLogin", (req, res, next) => {
               A.nickname,
               A.mobile,
               A.level,
+              A.point,
               A.isExit,
               CASE
                 WHEN	A.level = 1	THEN "일반회원"
@@ -328,7 +335,12 @@ router.post("/snsLogin", (req, res, next) => {
               A.exitedAt,
               DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")		AS viewCreatedAt,
               DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")		AS viewUpdatedAt,
-              DATE_FORMAT(A.exitedAt, "%Y년 %m월 %d일")		AS viewExitedAt
+              DATE_FORMAT(A.exitedAt, "%Y년 %m월 %d일")		AS viewExitedAt,
+              A.type,
+              A.bankName,
+              A.acconuntNum,
+              A.artistemId,
+              A.musictemId
         FROM	users     A
        WHERE  A.id = ${insertResult[0].insertId}
 `;
@@ -550,6 +562,7 @@ router.get("/signin", async (req, res, next) => {
               A.nickname,
               A.mobile,
               A.level,
+              A.point,
               A.isExit,
               CASE
                 WHEN	A.level = 1	THEN "일반회원"
@@ -641,6 +654,7 @@ router.post("/signin", (req, res, next) => {
               A.nickname,
               A.mobile,
               A.level,
+              A.point,
               A.isExit,
               CASE
                 WHEN	A.level = 1	THEN "일반회원"
@@ -971,6 +985,36 @@ router.post("/me/password/compare", isLoggedIn, async (req, res, next) => {
   } catch (error) {
     console.error(error);
     return res.status(401).send("비밀번호 일치 여부를 판별할 수 없습니다.");
+  }
+});
+
+/**
+ * SUBJECT : 계좌정보 등록
+ * PARAMETERS : bankName, acconuntNum
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/06/27
+ */
+
+router.post("/me/account/update", isLoggedIn, async (req, res, next) => {
+  const { bankName, acconuntNum } = req.body;
+
+  const userUpdateQuery = `
+  UPDATE  users
+     SET  bankName = ${bankName ? `"${bankName}"` : null},
+          acconuntNum = ${acconuntNum ? `"${acconuntNum}"` : null},
+          updatedAt = NOW()
+   WHERE  id = ${req.user.id}
+  `;
+
+  try {
+    await models.sequelize.query(userUpdateQuery);
+
+    return res.status(200).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("계좌 정보를 수정할 수 없습니다.");
   }
 });
 

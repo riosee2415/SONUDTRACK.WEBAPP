@@ -47,6 +47,9 @@ const artistcontact = require("./artistcontact");
 const boughthistory = require("./boughthistory");
 const wishlist = require("./wishlist");
 const wishitem = require("./wishitem");
+const albumlike = require("./albumlike");
+const artistlike = require("./artistlike");
+const tracklike = require("./tracklike");
 
 const env = process.env.NODE_ENV || "development";
 const config = require("../config/config")[env];
@@ -107,6 +110,9 @@ db.ArtistContact = artistcontact;
 db.BoughtHistory = boughthistory;
 db.WishList = wishlist;
 db.WishItem = wishitem;
+db.AlbumLike = albumlike;
+db.ArtistLike = artistlike;
+db.TrackLike = tracklike;
 
 Object.keys(db).forEach((modelName) => {
   db[modelName].init(sequelize);
