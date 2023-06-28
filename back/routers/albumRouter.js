@@ -116,7 +116,26 @@ router.post("/musictem/list", async (req, res, next) => {
            SELECT	albumName 
              FROM	album
             WHERE	A.AlbumId = id 
-          ) 										  AS albumName
+          ) 										  AS albumName,
+          (
+            SELECT  COUNT(id)
+              FROM  trackLike
+             WHERE  TrackId = A.id
+          )                                          AS likeCnt,
+          ${
+            req.user
+              ? `
+            (
+              SELECT	TL.id
+                FROM	trackLike	TL
+               WHERE	TL.UserId = ${req.user.id}
+                 AND	TL.TrackId = A.id 
+            )	AS isLike`
+              : `(
+              SELECT	null
+                FROM	DUAL
+            )	AS isLike`
+          }
     FROM  track   A
    WHERE  TRUE = (
    				SELECT	isTrackPermit 
@@ -190,7 +209,31 @@ router.post("/musictem/list", async (req, res, next) => {
             SELECT	albumName 
               FROM	album
              WHERE	A.AlbumId = id 
-           ) 										  AS albumName
+           ) 										  AS albumName,
+           (
+           SELECT	albumName 
+             FROM	album
+            WHERE	A.AlbumId = id 
+          ) 										  AS albumName,
+          (
+            SELECT  COUNT(id)
+              FROM  trackLike
+             WHERE  TrackId = A.id
+          )                                          AS likeCnt,
+          ${
+            req.user
+              ? `
+            (
+              SELECT	TL.id
+                FROM	trackLike	TL
+               WHERE	TL.UserId = ${req.user.id}
+                 AND	TL.TrackId = A.id 
+            )	AS isLike`
+              : `(
+              SELECT	null
+                FROM	DUAL
+            )	AS isLike`
+          }
     FROM  track   A
    WHERE  TRUE = (
    				SELECT	isTrackPermit 
@@ -295,14 +338,33 @@ router.post("/musictem/topSell/list", async (req, res, next) => {
             SELECT	albumName 
               FROM	album
              WHERE	A.AlbumId = id 
-           ) 										  AS albumName
-    FROM  track   A
-   WHERE  TRUE = (
+           ) 										  AS albumName,
+           (
+            SELECT  COUNT(id)
+              FROM  trackLike
+             WHERE  TrackId = A.id
+           )                                          AS likeCnt,
+           ${
+             req.user
+               ? `
+            (
+              SELECT	TL.id
+                FROM	trackLike	TL
+               WHERE	TL.UserId = ${req.user.id}
+                 AND	TL.TrackId = A.id 
+            )	AS isLike`
+               : `(
+              SELECT	null
+                FROM	DUAL
+            )	AS isLike`
+           }
+     FROM  track   A
+    WHERE  TRUE = (
    				SELECT	isTrackPermit 
    				  FROM	album
    				 WHERE	A.AlbumId = id 
                  )
-   ORDER  BY (
+    ORDER  BY (
                  IFNULL((
                         SELECT  COUNT(id)
                           FROM  wishItem
@@ -366,7 +428,26 @@ router.post("/musictem/new/list", async (req, res, next) => {
             SELECT	albumName 
               FROM	album
              WHERE	A.AlbumId = id 
-          ) 										  AS albumName
+          ) 										  AS albumName,
+          (
+            SELECT  COUNT(id)
+              FROM  trackLike
+             WHERE  TrackId = A.id
+          )                                          AS likeCnt,
+          ${
+            req.user
+              ? `
+            (
+              SELECT	TL.id
+                FROM	trackLike	TL
+               WHERE	TL.UserId = ${req.user.id}
+                 AND	TL.TrackId = A.id 
+            )	AS isLike`
+              : `(
+              SELECT	null
+                FROM	DUAL
+            )	AS isLike`
+          }
     FROM  track   A
    WHERE  TRUE = (
    				SELECT	isTrackPermit 
@@ -574,7 +655,7 @@ router.post("/track/apply/list", async (req, res, next) => {
   }
 });
 /**
- * SUBJECT : 뮤직탬 상세정보 조회
+ * SUBJECT : 뮤직탬 판매자 상세정보 조회
  * PARAMETERS : MusictemId
  * ORDER BY : -
  * STATEMENT : -
@@ -599,26 +680,45 @@ router.post("/musictem/detail", async (req, res, next) => {
   `;
 
   const albumQuery = `
-  SELECT  ROW_NUMBER()  OVER(ORDER  BY createdAt)   AS num,
-          id, 
-          albumName,
-          albumImage,
-          albumImageName,
-          bitRate,
-          sampleRate,
-          fileName,
-          filePath,
-          isPremium,
-          isTrackPermit,
-          permitAt,
-          createdAt,
-          updatedAt,
-          DATE_FORMAT(createdAt, "%Y년 %m월 %d일")    AS viewCreatedAt,
-          DATE_FORMAT(createdAt, "%Y.%m.%d")        AS viewFrontCreatedAt,
-          DATE_FORMAT(updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
-          MusictemId
-    FROM  album
-   WHERE  MusictemId = ${MusictemId}
+  SELECT  ROW_NUMBER()  OVER(ORDER  BY A.createdAt)   AS num,
+          A.id, 
+          A.albumName,
+          A.albumImage,
+          A.albumImageName,
+          A.bitRate,
+          A.sampleRate,
+          A.fileName,
+          A.filePath,
+          A.isPremium,
+          A.isTrackPermit,
+          A.permitAt,
+          A.createdAt,
+          A.updatedAt,
+          DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")    AS viewCreatedAt,
+          DATE_FORMAT(A.createdAt, "%Y.%m.%d")        AS viewFrontCreatedAt,
+          DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
+          A.MusictemId,
+          (
+            SELECT  COUNT(id)
+              FROM  albumLike
+             WHERE  AlbumId = A.id
+          )                                          AS likeCnt,
+          ${
+            req.user
+              ? `
+            (
+              SELECT	AL.id
+                FROM	albumLike	AL
+               WHERE	AL.UserId = ${req.user.id}
+                 AND	AL.AlbumId = A.id 
+            )	AS isLike`
+              : `(
+              SELECT	null
+                FROM	DUAL
+            )	AS isLike`
+          }
+    FROM  album   A
+   WHERE  A.MusictemId = ${MusictemId}
    ORDER  BY num DESC
   `;
 
@@ -688,7 +788,26 @@ router.post("/musictem/detail", async (req, res, next) => {
           A.updatedAt,
           DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")    AS viewCreatedAt,
           DATE_FORMAT(A.createdAt, "%Y.%m.%d")        AS viewFrontCreatedAt,
-          DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt
+          DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
+          (
+            SELECT  COUNT(id)
+              FROM  trackLike
+             WHERE  TrackId = A.id
+          )                                          AS likeCnt,
+          ${
+            req.user
+              ? `
+            (
+              SELECT	TL.id
+                FROM	trackLike	TL
+               WHERE	TL.UserId = ${req.user.id}
+                 AND	TL.TrackId = A.id 
+            )	AS isLike`
+              : `(
+              SELECT	null
+                FROM	DUAL
+            )	AS isLike`
+          }
     FROM  track   A 
    INNER
     JOIN  album   B
