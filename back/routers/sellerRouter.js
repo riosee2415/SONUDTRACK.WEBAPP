@@ -1592,4 +1592,32 @@ router.post("/artistem/info/update", isLoggedIn, async (req, res, next) => {
   }
 });
 
+/**
+ * SUBJECT : 아티스탬 휴가중 토글
+ * PARAMETERS : ArtistemId, isVacation
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/06/28
+ */
+router.post("/vacation/update", isLoggedIn, async (req, res, next) => {
+  const { ArtistemId, isVacation } = req.body;
+
+  const upateQuery = `
+  UPDATE  artistem
+     SET  isVacation = ${isVacation},
+          updatedAt = NOW()
+   WHERE  id = ${ArtistemId} 
+     
+  `;
+
+  try {
+    await models.sequelize.query(upateQuery);
+
+    return res.status(200).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("휴가중 여부를 변경할 수 없습니다.");
+  }
+});
 module.exports = router;
