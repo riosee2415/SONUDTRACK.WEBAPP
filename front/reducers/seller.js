@@ -68,6 +68,10 @@ export const initailState = {
   st_artistemTopSellListLoading: false,
   st_artistemTopSellListDone: false,
   st_artistemTopSellListError: null,
+  // 아티스템 휴가 업데이트
+  st_artistemVacationUpdateLoading: false,
+  st_artistemVacationUpdateDone: false,
+  st_artistemVacationUpdateError: null,
 };
 
 export const SELLER_LIST_REQUEST = "SELLER_LIST_REQUEST";
@@ -121,6 +125,13 @@ export const MUSICTEM_INFO_UPDATE_FAILURE = "MUSICTEM_INFO_UPDATE_FAILURE";
 export const ARTISTEM_TOP_SELL_LIST_REQUEST = "ARTISTEM_TOP_SELL_LIST_REQUEST";
 export const ARTISTEM_TOP_SELL_LIST_SUCCESS = "ARTISTEM_TOP_SELL_LIST_SUCCESS";
 export const ARTISTEM_TOP_SELL_LIST_FAILURE = "ARTISTEM_TOP_SELL_LIST_FAILURE";
+
+export const ARTISTEM_VACATION_UPDATE_REQUEST =
+  "ARTISTEM_VACATION_UPDATE_REQUEST";
+export const ARTISTEM_VACATION_UPDATE_SUCCESS =
+  "ARTISTEM_VACATION_UPDATE_SUCCESS";
+export const ARTISTEM_VACATION_UPDATE_FAILURE =
+  "ARTISTEM_VACATION_UPDATE_FAILURE";
 
 export const SELLER_IMAGE_RESET = "SELLER_IMAGE_RESET";
 export const ARTISTEM_FILE_RESET = "ARTISTEM_FILE_RESET";
@@ -397,6 +408,26 @@ const reducer = (state = initailState, action) =>
         draft.st_musictemInfoUpdateLoading = false;
         draft.st_musictemInfoUpdateDone = false;
         draft.st_musictemInfoUpdateError = action.error;
+        break;
+      }
+      ///////////////////////////////////////////////////////
+      case ARTISTEM_VACATION_UPDATE_REQUEST: {
+        draft.st_artistemVacationUpdateLoading = true;
+        draft.st_artistemVacationUpdateDone = false;
+        draft.st_artistemVacationUpdateError = null;
+        break;
+      }
+      case ARTISTEM_VACATION_UPDATE_SUCCESS: {
+        draft.st_artistemVacationUpdateLoading = false;
+        draft.st_artistemVacationUpdateDone = true;
+        draft.st_artistemVacationUpdateError = null;
+
+        break;
+      }
+      case ARTISTEM_VACATION_UPDATE_FAILURE: {
+        draft.st_artistemVacationUpdateLoading = false;
+        draft.st_artistemVacationUpdateDone = false;
+        draft.st_artistemVacationUpdateError = action.error;
         break;
       }
       ///////////////////////////////////////////////////////
