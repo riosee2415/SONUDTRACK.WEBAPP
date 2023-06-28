@@ -288,7 +288,7 @@ const reducer = (state = initailState, action) =>
         draft.st_boughtListLoading = false;
         draft.st_boughtListDone = true;
         draft.st_boughtListError = null;
-        draft.boughtList = action.data.boughtHistorys;
+        draft.boughtList = action.data.trackLists;
         draft.lastPage = action.data.lastPage;
 
         break;

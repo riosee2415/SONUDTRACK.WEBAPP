@@ -266,7 +266,7 @@ function* boughtAllAdmin(action) {
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
 async function boughtListAPI(data) {
-  return await axios.post(`/api/bought/list`, data);
+  return await axios.post(`/api/bought/track/list`, data);
 }
 
 function* boughtList(action) {

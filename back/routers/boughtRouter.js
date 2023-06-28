@@ -935,16 +935,21 @@ router.post("/track/list", isLoggedIn, async (req, res, next) => {
                   ELSE  NULL
               END														                                          	                                  AS monopolyName,
               A.BoughtHistoryId,
+              DATE_FORMAT(A.createdAt, "%Y-%m-%d")    AS viewCreatedAt,
               B.name,
               B.mobile,
               B.email,
               B.price,
               B.usePoint,
-              B.payWay
+              B.payWay,
+              C.fileLength
         FROM  wishItem			   A
        INNER
         JOIN  boughtHistory    B
           ON  A.BoughtHistoryId = B.id
+       INNER
+        JOIN  track    C
+          ON  A.trackId = C.id
        WHERE  B.UserId = ${req.user.id}
   `;
 
@@ -970,16 +975,21 @@ router.post("/track/list", isLoggedIn, async (req, res, next) => {
                   ELSE  NULL
               END														                                          	                                  AS monopolyName,
               A.BoughtHistoryId,
+              DATE_FORMAT(A.createdAt, "%Y-%m-%d")    AS viewCreatedAt,
               B.name,
               B.mobile,
               B.email,
               B.price,
               B.usePoint,
-              B.payWay
+              B.payWay,
+              C.fileLength
         FROM  wishItem			   A
        INNER
         JOIN  boughtHistory    B
           ON  A.BoughtHistoryId = B.id
+       INNER
+        JOIN  track    C
+          ON  A.trackId = C.id
        WHERE  B.UserId = ${req.user.id}
        ORDER  BY num DESC
        LIMIT  ${LIMIT}

@@ -23,6 +23,7 @@ import { useRouter } from "next/router";
 import { message, Modal, Popover } from "antd";
 import dynamic from "next/dynamic";
 import { BOUGHT_LIST_REQUEST } from "../../reducers/bought";
+import moment from "moment";
 
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
@@ -119,7 +120,7 @@ const Index = () => {
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const [playing, setPlaying] = useState(false);
+  const [playing, setPlaying] = useState(null);
   const [premium, setPremium] = useState(false);
   ////// REDUX //////
   ////// USEEFFECT //////
@@ -142,9 +143,16 @@ const Index = () => {
   }, [currentPage]);
 
   ////// TOGGLE //////
-  const playingToggle = useCallback(() => {
-    setPlaying((prev) => !prev);
-  }, [playing]);
+  const playingToggle = useCallback(
+    (id) => {
+      if (playing && playing === id) {
+        setPlaying(null);
+      } else {
+        setPlaying(id);
+      }
+    },
+    [playing]
+  );
 
   const premiumToggle = useCallback(() => {
     setPremium((prev) => !prev);
@@ -159,9 +167,12 @@ const Index = () => {
     [currentPage]
   );
 
-  ////// DATAVIEW //////
+  const movelinkHandler = useCallback((link) => {
+    router.push(link);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
-  console.log(boughtList);
+  ////// DATAVIEW //////
 
   const albums = [
     {
@@ -213,7 +224,7 @@ const Index = () => {
             >
               구매 내역
             </Wrapper>
-            <Wrapper
+            {/* <Wrapper
               al={`flex-start`}
               fontSize={width < 900 ? `18px` : `24px`}
               margin={`0 0 40px`}
@@ -278,7 +289,7 @@ const Index = () => {
                   </Box>
                 );
               })}
-            </Wrapper>
+            </Wrapper> */}
 
             <Wrapper
               al={`flex-start`}
@@ -289,9 +300,7 @@ const Index = () => {
             </Wrapper>
 
             <Wrapper borderTop={`1px solid ${Theme.lightGrey_C}`}>
-              {boughtList &&
-              boughtList.boughtItems &&
-              boughtList.boughtItems.length === 0 ? (
+              {boughtList && boughtList.length === 0 ? (
                 <Wrapper
                   height={`400px`}
                   borderBottom={`1px solid ${Theme.lightGrey_C}`}
@@ -311,10 +320,29 @@ const Index = () => {
                 </Wrapper>
               ) : (
                 boughtList &&
-                boughtList.boughtItems &&
-                boughtList.boughtItems.map((data) => {
+                boughtList.map((data, idx) => {
+                  const now = moment();
+
+                  const addDate = moment(data.viewCreatedAt)
+                    .add(30, "day")
+                    .format("YYYY-MM-DD HH:mm:ss");
+
+                  const vDay = Math.floor(
+                    Math.abs(moment.duration(now.diff(addDate)).asDays())
+                  );
+                  const vHour = Math.abs(
+                    moment.duration(now.diff(addDate)).hours()
+                  );
+                  const vMin = Math.abs(
+                    moment.duration(now.diff(addDate)).minutes()
+                  );
+                  const vSec = Math.abs(
+                    moment.duration(now.diff(addDate)).seconds()
+                  );
+
                   return (
                     <Wrapper
+                      key={data.id}
                       borderBottom={`1px solid ${Theme.lightGrey_C}`}
                       dr={`row`}
                       ju={`space-between`}
@@ -326,22 +354,27 @@ const Index = () => {
                           : `40px 32px`
                       }
                     >
+                      <audio
+                        id={`audioTeg_recent_${idx}`}
+                        src={data.songFile}
+                        hidden
+                      />
                       <Wrapper width={`auto`} dr={`row`} ju={`flex-start`}>
                         <Image
                           alt="thumbnail"
-                          src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/musictem1.png`}
+                          src={data.thumbnail}
                           width={width < 700 ? `80px` : `100px`}
                           height={width < 700 ? `80px` : `100px`}
                           radius={`7px`}
                           shadow={`3px 3px 15px rgba(0, 0, 0, 0.15)`}
                         />
-                        {playing ? (
+                        {playing === data.id ? (
                           <Image
                             alt="pause icon"
                             src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/pause_purple.png`}
                             width={width < 700 ? `20px` : `24px`}
                             margin={width < 700 ? `0 15px` : `0 30px`}
-                            onClick={playingToggle}
+                            onClick={() => playingToggle(data.id)}
                             cursor={`pointer`}
                           />
                         ) : (
@@ -350,7 +383,7 @@ const Index = () => {
                             src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/play_purple.png`}
                             width={width < 700 ? `20px` : `24px`}
                             margin={width < 700 ? `0 15px` : `0 30px`}
-                            onClick={playingToggle}
+                            onClick={() => playingToggle(data.id)}
                             cursor={`pointer`}
                           />
                         )}
@@ -363,13 +396,13 @@ const Index = () => {
                             width={width < 1600 ? `200px` : `230px`}
                             isEllipsis
                           >
-                            Star Night
+                            {data.songName}
                           </Text>
                           <Text
                             fontSize={width < 700 ? `14px` : `16px`}
                             color={Theme.subTheme4_C}
                           >
-                            Pokerface
+                            {data.singerName}
                           </Text>
                           {width < 1520 ? (
                             <Text
@@ -378,7 +411,11 @@ const Index = () => {
                               color={Theme.grey2_C}
                               isEllipsis
                             >
-                              Pop, Funk, Rock, L...
+                              {/* {data.genList.map(
+                                  (value, idx) =>
+                                    value.value +
+                                    (data.genList.length === idx + 1 ? "" : ",")
+                                )} */}
                             </Text>
                           ) : null}
 
@@ -396,7 +433,7 @@ const Index = () => {
                                 fontSize={width < 900 ? `16px` : `18px`}
                                 fontWeight={`bold`}
                               >
-                                License
+                                {data.lisenceName}
                               </CommonButton>
                               <Wrapper
                                 width={`50px`}
@@ -427,7 +464,7 @@ const Index = () => {
                                   color={Theme.grey_C}
                                   margin={`4px 0 0`}
                                 >
-                                  15,000
+                                  {data.viewDownLoadCnt}
                                 </Text>
                               </Wrapper>
                             </Wrapper>
@@ -440,9 +477,11 @@ const Index = () => {
                           fontSize={`18px`}
                           color={Theme.grey2_C}
                         >
-                          <Text width={`160px`} isEllipsis>
-                            Pop, Funk, Rock, L...
-                          </Text>
+                          {/* {data.genList.map(
+                                  (value, idx) =>
+                                    value.value +
+                                    (data.genList.length === idx + 1 ? "" : ",")
+                                )} */}
                         </Wrapper>
                       )}
 
@@ -458,7 +497,7 @@ const Index = () => {
                           color={Theme.darkGrey_C}
                           margin={`0 20px 0 0`}
                         >
-                          3:04
+                          {data.fileLength}
                         </Text>
                         <Wrapper width={width < 1360 ? `120px` : `236px`}>
                           <ReactWaves
@@ -473,8 +512,8 @@ const Index = () => {
                             }}
                             volume={1}
                             zoom={2}
-                            playing={playing}
-                            audioFile={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/mp3/mp3_sample.mp3`}
+                            playing={playing === data.id}
+                            audioFile={data.songFile}
                           />
                         </Wrapper>
                       </Wrapper>
@@ -486,7 +525,7 @@ const Index = () => {
                             fontSize={`18px`}
                             fontWeight={`bold`}
                           >
-                            License
+                            {data.lisenceName}
                           </CommonButton>
 
                           <Wrapper
@@ -525,7 +564,9 @@ const Index = () => {
                                   >
                                     잔여기간
                                   </Text>
-                                  <Text>7일 15시 30분 7초 남음</Text>
+                                  <Text>
+                                    {vDay}일 {vHour}시 {vMin}분 {vSec}초 남음
+                                  </Text>
                                 </Wrapper>
                               }
                             >
@@ -540,7 +581,7 @@ const Index = () => {
                                   color={Theme.grey_C}
                                   margin={`4px 0 0`}
                                 >
-                                  15,000
+                                  {data.viewDownLoadCnt}
                                 </Text>
                               </Wrapper>
                             </Popover>
