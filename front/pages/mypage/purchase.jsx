@@ -22,6 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { message, Modal, Popover } from "antd";
 import dynamic from "next/dynamic";
+import { BOUGHT_LIST_REQUEST } from "../../reducers/bought";
 
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
@@ -110,6 +111,9 @@ const CdWrapper = styled(Wrapper)`
 const Index = () => {
   ////// GLOBAL STATE //////
   const { me } = useSelector((state) => state.user);
+  const { boughtList, lastPage } = useSelector((state) => state.bought);
+
+  const [currentPage, setCurrentPage] = useState(1); // 페이지네이션
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
@@ -128,6 +132,15 @@ const Index = () => {
     }
   }, [me]);
 
+  useEffect(() => {
+    dispatch({
+      type: BOUGHT_LIST_REQUEST,
+      data: {
+        page: currentPage,
+      },
+    });
+  }, [currentPage]);
+
   ////// TOGGLE //////
   const playingToggle = useCallback(() => {
     setPlaying((prev) => !prev);
@@ -138,7 +151,17 @@ const Index = () => {
   }, [premium]);
 
   ////// HANDLER //////
+  // 페이지네이션
+  const pageChangeHandler = useCallback(
+    (page) => {
+      setCurrentPage(page);
+    },
+    [currentPage]
+  );
+
   ////// DATAVIEW //////
+
+  console.log(boughtList);
 
   const albums = [
     {
@@ -266,243 +289,277 @@ const Index = () => {
             </Wrapper>
 
             <Wrapper borderTop={`1px solid ${Theme.lightGrey_C}`}>
-              <Wrapper
-                borderBottom={`1px solid ${Theme.lightGrey_C}`}
-                dr={`row`}
-                ju={`space-between`}
-                padding={
-                  width < 1360
-                    ? width < 700
-                      ? ` 5px 0`
-                      : `30px 15px`
-                    : `40px 32px`
-                }
-              >
-                <Wrapper width={`auto`} dr={`row`} ju={`flex-start`}>
+              {boughtList &&
+              boughtList.boughtItems &&
+              boughtList.boughtItems.length === 0 ? (
+                <Wrapper
+                  height={`400px`}
+                  borderBottom={`1px solid ${Theme.lightGrey_C}`}
+                >
                   <Image
-                    alt="thumbnail"
-                    src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/musictem1.png`}
-                    width={width < 700 ? `80px` : `100px`}
-                    height={width < 700 ? `80px` : `100px`}
-                    radius={`7px`}
-                    shadow={`3px 3px 15px rgba(0, 0, 0, 0.15)`}
+                    alt="icon"
+                    src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/blank.png`}
+                    width={`76px`}
                   />
-                  {playing ? (
-                    <Image
-                      alt="pause icon"
-                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/pause_purple.png`}
-                      width={width < 700 ? `20px` : `24px`}
-                      margin={width < 700 ? `0 15px` : `0 30px`}
-                      onClick={playingToggle}
-                      cursor={`pointer`}
-                    />
-                  ) : (
-                    <Image
-                      alt="play icon"
-                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/play_purple.png`}
-                      width={width < 700 ? `20px` : `24px`}
-                      margin={width < 700 ? `0 15px` : `0 30px`}
-                      onClick={playingToggle}
-                      cursor={`pointer`}
-                    />
-                  )}
-
-                  <Wrapper width={`auto`} al={`flex-start`}>
-                    <Text
-                      fontSize={width < 700 ? `18px` : `22px`}
-                      color={Theme.darkGrey_C}
-                      margin={width < 700 ? `0` : `0 0 8px`}
-                      width={width < 1600 ? `200px` : `230px`}
-                      isEllipsis
+                  <Text
+                    fontSize={width < 900 ? `18px` : `22px`}
+                    color={Theme.grey2_C}
+                    margin={`25px 0 0`}
+                  >
+                    구매 내역이 존재하지 않습니다.
+                  </Text>
+                </Wrapper>
+              ) : (
+                boughtList &&
+                boughtList.boughtItems &&
+                boughtList.boughtItems.map((data) => {
+                  return (
+                    <Wrapper
+                      borderBottom={`1px solid ${Theme.lightGrey_C}`}
+                      dr={`row`}
+                      ju={`space-between`}
+                      padding={
+                        width < 1360
+                          ? width < 700
+                            ? ` 5px 0`
+                            : `30px 15px`
+                          : `40px 32px`
+                      }
                     >
-                      Star Night
-                    </Text>
-                    <Text
-                      fontSize={width < 700 ? `14px` : `16px`}
-                      color={Theme.subTheme4_C}
-                    >
-                      Pokerface
-                    </Text>
-                    {width < 1520 ? (
-                      <Text
-                        width={`160px`}
-                        fontSize={width < 700 ? `14px` : `18px`}
-                        color={Theme.grey2_C}
-                        isEllipsis
-                      >
-                        Pop, Funk, Rock, L...
-                      </Text>
-                    ) : null}
+                      <Wrapper width={`auto`} dr={`row`} ju={`flex-start`}>
+                        <Image
+                          alt="thumbnail"
+                          src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/musictem1.png`}
+                          width={width < 700 ? `80px` : `100px`}
+                          height={width < 700 ? `80px` : `100px`}
+                          radius={`7px`}
+                          shadow={`3px 3px 15px rgba(0, 0, 0, 0.15)`}
+                        />
+                        {playing ? (
+                          <Image
+                            alt="pause icon"
+                            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/pause_purple.png`}
+                            width={width < 700 ? `20px` : `24px`}
+                            margin={width < 700 ? `0 15px` : `0 30px`}
+                            onClick={playingToggle}
+                            cursor={`pointer`}
+                          />
+                        ) : (
+                          <Image
+                            alt="play icon"
+                            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/play_purple.png`}
+                            width={width < 700 ? `20px` : `24px`}
+                            margin={width < 700 ? `0 15px` : `0 30px`}
+                            onClick={playingToggle}
+                            cursor={`pointer`}
+                          />
+                        )}
 
-                    {width < 900 ? (
+                        <Wrapper width={`auto`} al={`flex-start`}>
+                          <Text
+                            fontSize={width < 700 ? `18px` : `22px`}
+                            color={Theme.darkGrey_C}
+                            margin={width < 700 ? `0` : `0 0 8px`}
+                            width={width < 1600 ? `200px` : `230px`}
+                            isEllipsis
+                          >
+                            Star Night
+                          </Text>
+                          <Text
+                            fontSize={width < 700 ? `14px` : `16px`}
+                            color={Theme.subTheme4_C}
+                          >
+                            Pokerface
+                          </Text>
+                          {width < 1520 ? (
+                            <Text
+                              width={`160px`}
+                              fontSize={width < 700 ? `14px` : `18px`}
+                              color={Theme.grey2_C}
+                              isEllipsis
+                            >
+                              Pop, Funk, Rock, L...
+                            </Text>
+                          ) : null}
+
+                          {width < 900 ? (
+                            <Wrapper
+                              width={`auto`}
+                              dr={`row`}
+                              al={`flex-start`}
+                              ju={`center`}
+                              margin={`10px 0 0`}
+                            >
+                              <CommonButton
+                                height={`37px`}
+                                kindOf={`subTheme2`}
+                                fontSize={width < 900 ? `16px` : `18px`}
+                                fontWeight={`bold`}
+                              >
+                                License
+                              </CommonButton>
+                              <Wrapper
+                                width={`50px`}
+                                cursor={`pointer`}
+                                onClick={premiumToggle}
+                              >
+                                <Image
+                                  alt="icon"
+                                  width={`22px`}
+                                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/premium_mypage.png`}
+                                />
+                                <Text
+                                  fontSize={`12px`}
+                                  color={Theme.grey_C}
+                                  margin={`4px 0 0`}
+                                >
+                                  프리미엄
+                                </Text>
+                              </Wrapper>
+                              <Wrapper width={`50px`} cursor={`pointer`}>
+                                <Image
+                                  alt="icon"
+                                  width={`22px`}
+                                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
+                                />
+                                <Text
+                                  fontSize={`12px`}
+                                  color={Theme.grey_C}
+                                  margin={`4px 0 0`}
+                                >
+                                  15,000
+                                </Text>
+                              </Wrapper>
+                            </Wrapper>
+                          ) : null}
+                        </Wrapper>
+                      </Wrapper>
+                      {width < 1520 ? null : (
+                        <Wrapper
+                          width={`auto`}
+                          fontSize={`18px`}
+                          color={Theme.grey2_C}
+                        >
+                          <Text width={`160px`} isEllipsis>
+                            Pop, Funk, Rock, L...
+                          </Text>
+                        </Wrapper>
+                      )}
+
                       <Wrapper
+                        visibility={width < 1360 ? `hidden` : ``}
+                        opacity={width < 1360 ? `0` : ``}
+                        height={width < 1360 ? `0` : ``}
                         width={`auto`}
                         dr={`row`}
-                        al={`flex-start`}
-                        ju={`center`}
-                        margin={`10px 0 0`}
                       >
-                        <CommonButton
-                          height={`37px`}
-                          kindOf={`subTheme2`}
-                          fontSize={width < 900 ? `16px` : `18px`}
-                          fontWeight={`bold`}
-                        >
-                          License
-                        </CommonButton>
-                        <Wrapper
-                          width={`50px`}
-                          cursor={`pointer`}
-                          onClick={premiumToggle}
-                        >
-                          <Image
-                            alt="icon"
-                            width={`22px`}
-                            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/premium_mypage.png`}
-                          />
-                          <Text
-                            fontSize={`12px`}
-                            color={Theme.grey_C}
-                            margin={`4px 0 0`}
-                          >
-                            프리미엄
-                          </Text>
-                        </Wrapper>
-                        <Wrapper width={`50px`} cursor={`pointer`}>
-                          <Image
-                            alt="icon"
-                            width={`22px`}
-                            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
-                          />
-                          <Text
-                            fontSize={`12px`}
-                            color={Theme.grey_C}
-                            margin={`4px 0 0`}
-                          >
-                            15,000
-                          </Text>
-                        </Wrapper>
-                      </Wrapper>
-                    ) : null}
-                  </Wrapper>
-                </Wrapper>
-                {width < 1520 ? null : (
-                  <Wrapper
-                    width={`auto`}
-                    fontSize={`18px`}
-                    color={Theme.grey2_C}
-                  >
-                    <Text width={`160px`} isEllipsis>
-                      Pop, Funk, Rock, L...
-                    </Text>
-                  </Wrapper>
-                )}
-
-                <Wrapper
-                  visibility={width < 1360 ? `hidden` : ``}
-                  opacity={width < 1360 ? `0` : ``}
-                  height={width < 1360 ? `0` : ``}
-                  width={`auto`}
-                  dr={`row`}
-                >
-                  <Text
-                    fontSize={`16px`}
-                    color={Theme.darkGrey_C}
-                    margin={`0 20px 0 0`}
-                  >
-                    3:04
-                  </Text>
-                  <Wrapper width={width < 1360 ? `120px` : `236px`}>
-                    <ReactWaves
-                      options={{
-                        barHeight: 1,
-                        cursorWidth: 0,
-                        height: width < 1360 ? 0 : 53,
-                        hideScrollbar: true,
-                        progressColor: Theme.basicTheme_C,
-                        responsive: true,
-                        waveColor: Theme.lightGrey_C,
-                      }}
-                      volume={1}
-                      zoom={2}
-                      playing={playing}
-                      audioFile={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/mp3/mp3_sample.mp3`}
-                    />
-                  </Wrapper>
-                </Wrapper>
-                {width < 900 ? null : (
-                  <>
-                    <CommonButton
-                      height={`37px`}
-                      kindOf={`subTheme2`}
-                      fontSize={`18px`}
-                      fontWeight={`bold`}
-                    >
-                      License
-                    </CommonButton>
-
-                    <Wrapper
-                      width={`auto`}
-                      margin={`0`}
-                      dr={`row`}
-                      al={`flex-start`}
-                      ju={`center`}
-                    >
-                      <Wrapper
-                        width={`56px`}
-                        cursor={`pointer`}
-                        onClick={premiumToggle}
-                      >
-                        <Image
-                          alt="icon"
-                          width={`22px`}
-                          src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/premium_mypage.png`}
-                        />
                         <Text
-                          fontSize={`12px`}
-                          color={Theme.grey_C}
-                          margin={`4px 0 0`}
+                          fontSize={`16px`}
+                          color={Theme.darkGrey_C}
+                          margin={`0 20px 0 0`}
                         >
-                          프리미엄
+                          3:04
                         </Text>
-                      </Wrapper>
-                      <Popover
-                        placement="bottom"
-                        content={
-                          <Wrapper al={`flex-start`}>
-                            <Text
-                              fontSize={`12px`}
-                              fontWeight={`bold`}
-                              color={Theme.grey2_C}
-                            >
-                              잔여기간
-                            </Text>
-                            <Text>7일 15시 30분 7초 남음</Text>
-                          </Wrapper>
-                        }
-                      >
-                        <Wrapper width={`56px`} cursor={`pointer`}>
-                          <Image
-                            alt="icon"
-                            width={`22px`}
-                            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
+                        <Wrapper width={width < 1360 ? `120px` : `236px`}>
+                          <ReactWaves
+                            options={{
+                              barHeight: 1,
+                              cursorWidth: 0,
+                              height: width < 1360 ? 0 : 53,
+                              hideScrollbar: true,
+                              progressColor: Theme.basicTheme_C,
+                              responsive: true,
+                              waveColor: Theme.lightGrey_C,
+                            }}
+                            volume={1}
+                            zoom={2}
+                            playing={playing}
+                            audioFile={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/mp3/mp3_sample.mp3`}
                           />
-                          <Text
-                            fontSize={`12px`}
-                            color={Theme.grey_C}
-                            margin={`4px 0 0`}
-                          >
-                            15,000
-                          </Text>
                         </Wrapper>
-                      </Popover>
+                      </Wrapper>
+                      {width < 900 ? null : (
+                        <>
+                          <CommonButton
+                            height={`37px`}
+                            kindOf={`subTheme2`}
+                            fontSize={`18px`}
+                            fontWeight={`bold`}
+                          >
+                            License
+                          </CommonButton>
+
+                          <Wrapper
+                            width={`auto`}
+                            margin={`0`}
+                            dr={`row`}
+                            al={`flex-start`}
+                            ju={`center`}
+                          >
+                            <Wrapper
+                              width={`56px`}
+                              cursor={`pointer`}
+                              onClick={premiumToggle}
+                            >
+                              <Image
+                                alt="icon"
+                                width={`22px`}
+                                src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/premium_mypage.png`}
+                              />
+                              <Text
+                                fontSize={`12px`}
+                                color={Theme.grey_C}
+                                margin={`4px 0 0`}
+                              >
+                                프리미엄
+                              </Text>
+                            </Wrapper>
+                            <Popover
+                              placement="bottom"
+                              content={
+                                <Wrapper al={`flex-start`}>
+                                  <Text
+                                    fontSize={`12px`}
+                                    fontWeight={`bold`}
+                                    color={Theme.grey2_C}
+                                  >
+                                    잔여기간
+                                  </Text>
+                                  <Text>7일 15시 30분 7초 남음</Text>
+                                </Wrapper>
+                              }
+                            >
+                              <Wrapper width={`56px`} cursor={`pointer`}>
+                                <Image
+                                  alt="icon"
+                                  width={`22px`}
+                                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
+                                />
+                                <Text
+                                  fontSize={`12px`}
+                                  color={Theme.grey_C}
+                                  margin={`4px 0 0`}
+                                >
+                                  15,000
+                                </Text>
+                              </Wrapper>
+                            </Popover>
+                          </Wrapper>
+                        </>
+                      )}
                     </Wrapper>
-                  </>
-                )}
-              </Wrapper>
+                  );
+                })
+              )}
             </Wrapper>
 
-            <CustomPage />
+            <CustomPage
+              defaultCurrent={1}
+              current={parseInt(currentPage)}
+              total={lastPage * 10}
+              pageSize={10}
+              onChange={(page) => pageChangeHandler(page)}
+            />
           </RsWrapper>
 
           <Modal
