@@ -857,12 +857,12 @@ router.post("/me/update", isLoggedIn, async (req, res, next) => {
     nickname,
     email,
     mobile,
-    terms,
-    terms2,
-    terms3,
-    terms4,
-    terms5,
-    terms6,
+    terms = false,
+    terms2 = false,
+    terms3 = false,
+    terms4 = false,
+    terms5 = false,
+    terms6 = false,
   } = req.body;
 
   const findNicknameQuery = `
@@ -884,16 +884,12 @@ router.post("/me/update", isLoggedIn, async (req, res, next) => {
                                      SET  nickname = "${nickname}",
                                           email = "${email}",
                                           mobile = "${mobile}",
-                                          terms = ${terms ? `${terms}` : null},
+                                          terms = ${terms},
                                           terms2 = ${terms2},
                                           terms3 = ${terms3},
                                           terms4 = ${terms4},
-                                          terms5 = ${
-                                            terms5 ? `${terms5}` : null
-                                          },
-                                          terms6 = ${
-                                            terms6 ? `${terms6}` : null
-                                          },
+                                          terms5 = ${terms5},
+                                          terms6 = ${terms6},
                                           updatedAt = NOW()
                                    WHERE  id = ${req.user.id}
                                   `;
