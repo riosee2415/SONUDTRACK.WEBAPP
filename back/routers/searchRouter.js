@@ -60,11 +60,30 @@ router.post("/list", async (req, res, next) => {
          B.createdAt,
          B.updatedAt,
          DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")   AS viewCreatedAt,
-         DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")   AS viewUpdatedAt
+         DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")   AS viewUpdatedAt,
+         (
+          SELECT  COUNT(id)
+            FROM  artistLike
+           WHERE  ArtistemId = B.id
+         )                                          AS likeCnt,
+         ${
+           req.user
+             ? `
+         (
+           SELECT	AL.id
+             FROM	artistLike	AL
+            WHERE	AL.UserId = ${req.user.id}
+              AND	AL.ArtistemId = B.id
+         )	AS isLike`
+             : `(
+           SELECT	null
+             FROM	DUAL
+         )	AS isLike`
+         }
    FROM  users        A
   INNER
    JOIN  artistem     B
-     ON  B.Userid = A.id
+     ON  B.UserId = A.id
   WHERE  B.isUpdate = 1
     AND  A.artistemId IS NOT NULL
     AND  B.artistName LIKE "%${_title}%"
@@ -120,11 +139,30 @@ router.post("/list", async (req, res, next) => {
          B.createdAt,
          B.updatedAt,
          DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")   AS viewCreatedAt,
-         DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")   AS viewUpdatedAt
+         DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")   AS viewUpdatedAt,
+         (
+          SELECT  COUNT(id)
+            FROM  artistLike
+           WHERE  ArtistemId = B.id
+         )                                          AS likeCnt,
+         ${
+           req.user
+             ? `
+         (
+           SELECT	AL.id
+             FROM	artistLike	AL
+            WHERE	AL.UserId = ${req.user.id}
+              AND	AL.ArtistemId = B.id
+         )	AS isLike`
+             : `(
+           SELECT	null
+             FROM	DUAL
+         )	AS isLike`
+         }
    FROM  users        A
   INNER
    JOIN  artistem     B
-     ON  B.Userid = A.id
+     ON  B.UserId = A.id
   WHERE  B.isUpdate = 1
     AND  A.artistemId IS NOT NULL
     AND  B.artistName LIKE "%${_title}%"
@@ -180,7 +218,26 @@ router.post("/list", async (req, res, next) => {
            SELECT	albumImage 
              FROM	album
             WHERE	A.AlbumId = id 
-          ) 										  AS albumImage 
+          ) 										  AS albumImage,
+          (
+            SELECT  COUNT(id)
+              FROM  trackLike
+             WHERE  TrackId = A.id
+          )                                          AS likeCnt,
+          ${
+            req.user
+              ? `
+            (
+              SELECT	TL.id
+                FROM	trackLike	TL
+               WHERE	TL.UserId = ${req.user.id}
+                 AND	TL.TrackId = A.id 
+            )	AS isLike`
+              : `(
+              SELECT	null
+                FROM	DUAL
+            )	AS isLike`
+          }
     FROM  track   A
    WHERE  TRUE = (
    				SELECT	isTrackPermit 
@@ -236,7 +293,26 @@ router.post("/list", async (req, res, next) => {
            SELECT	albumImage 
              FROM	album
             WHERE	A.AlbumId = id 
-          ) 										  AS albumImage 
+          ) 										  AS albumImage,
+          (
+            SELECT  COUNT(id)
+              FROM  trackLike
+             WHERE  TrackId = A.id
+          )                                          AS likeCnt,
+          ${
+            req.user
+              ? `
+            (
+              SELECT	TL.id
+                FROM	trackLike	TL
+               WHERE	TL.UserId = ${req.user.id}
+                 AND	TL.TrackId = A.id 
+            )	AS isLike`
+              : `(
+              SELECT	null
+                FROM	DUAL
+            )	AS isLike`
+          }
     FROM  track   A
    WHERE  TRUE = (
    				SELECT	isTrackPermit 

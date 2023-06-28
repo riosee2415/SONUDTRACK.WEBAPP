@@ -434,28 +434,47 @@ router.post("/artistem/myData", isLoggedIn, async (req, res, next) => {
   const { ArtistemId } = req.body;
 
   const artistemQuery = `
-  SELECT  id,
-          isVacation,
-          name,
-          companyNo,
-          artistName,
-          artistProfileImage,
-          artistInfo,
-          question1,
-          question2,
-          question3,
-          question4,
-          question5,
-          question6,
-          question7,
-          question8,
-          repMusicFile,
-          repMusicFilename,
-          isUpdate,
-          createdAt,
-          updatedAt
-    FROM  artistem
-   WHERE  id = ${ArtistemId}
+  SELECT  A.id,
+          A.isVacation,
+          A.name,
+          A.companyNo,
+          A.artistName,
+          A.artistProfileImage,
+          A.artistInfo,
+          A.question1,
+          A.question2,
+          A.question3,
+          A.question4,
+          A.question5,
+          A.question6,
+          A.question7,
+          A.question8,
+          A.repMusicFile,
+          A.repMusicFilename,
+          A.isUpdate,
+          A.createdAt,
+          A.updatedAt,
+          (
+            SELECT  COUNT(id)
+              FROM  artistLike
+             WHERE  ArtistemId = A.id
+          )                                          AS likeCnt,
+          ${
+            req.user
+              ? `
+           (
+             SELECT	AL.id
+               FROM	artistLike	AL
+              WHERE	AL.UserId = ${req.user.id}
+                AND	AL.ArtistemId = A.id
+           )	AS isLike`
+              : `(
+             SELECT	null
+               FROM	DUAL
+           )	AS isLike`
+          }
+    FROM  artistem    A
+   WHERE  A.id = ${ArtistemId}
   `;
 
   const findCountryInfoQuery = `
@@ -570,21 +589,19 @@ router.post("/artistem/myData", isLoggedIn, async (req, res, next) => {
 
 /**
  * SUBJECT : 아티스탬 리스트
- * PARAMETERS : searchName, TagTypeId, TagId, CategoryId, isTopSellOrder
+ * PARAMETERS : searchName, TagTypeId, TagId, CategoryId,
  * ORDER BY : -
  * STATEMENT : -
  * DEVELOPMENT : 신태섭
  * DEV DATE : 2023/05/30
  */
 router.post("/artistem/list", async (req, res, next) => {
-  const { searchName, TagTypeId, TagId, CategoryId, isTopSellOrder } = req.body;
+  const { searchName, TagTypeId, TagId, CategoryId } = req.body;
 
   const _searchName = searchName ? searchName : ``;
   const _TagTypeId = TagTypeId ? TagTypeId : false;
   const _TagId = TagId ? TagId : false;
   const _CategoryId = CategoryId ? CategoryId : false;
-
-  const _isTopSellOrder = parseInt(isTopSellOrder) || 2;
 
   const artistemQuery = `
  SELECT  ROW_NUMBER() OVER(ORDER BY A.createdAt)    AS num,
@@ -612,11 +629,30 @@ router.post("/artistem/list", async (req, res, next) => {
          B.createdAt,
          B.updatedAt,
          DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")   AS viewCreatedAt,
-         DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")   AS viewUpdatedAt
+         DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")   AS viewUpdatedAt,
+         (
+          SELECT  COUNT(id)
+            FROM  artistLike
+           WHERE  ArtistemId = B.id
+         )                                          AS likeCnt,
+         ${
+           req.user
+             ? `
+         (
+           SELECT	AL.id
+             FROM	artistLike	AL
+            WHERE	AL.UserId = ${req.user.id}
+              AND	AL.ArtistemId = B.id
+         )	AS isLike`
+             : `(
+           SELECT	null
+             FROM	DUAL
+         )	AS isLike`
+         }
    FROM  users        A
   INNER
    JOIN  artistem     B
-     ON  B.Userid = A.id
+     ON  B.UserId = A.id
   WHERE  B.isUpdate = 1
     AND  A.artistemId IS NOT NULL
     AND  B.artistName LIKE "%${_searchName}%"
@@ -656,25 +692,7 @@ router.post("/artistem/list", async (req, res, next) => {
           `
               : ``
           }
-  ${
-    _isTopSellOrder === 1
-      ? `ORDER  BY (
-            IFNULL((
-              SELECT  COUNT(id)
-              FROM  artistContact
-             WHERE  ArtistemId = B.id
-               AND  isOk = 1
-               AND  isReject = 0
-               AND  isPay = 1
-               AND  isCompleted = 1
-               AND  isDelete = 0
-            ), 0)
-        ) DESC`
-      : _isTopSellOrder === 2
-      ? `ORDER  BY num DESC`
-      : `ORDER  BY num DESC`
-  }
-  
+   ORDER  BY num DESC
  `;
 
   const findCountryInfoQuery = `
@@ -850,11 +868,30 @@ router.post("/artistem/topSell/list", async (req, res, next) => {
          B.createdAt,
          B.updatedAt,
          DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")   AS viewCreatedAt,
-         DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")   AS viewUpdatedAt
+         DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")   AS viewUpdatedAt,
+         (
+          SELECT  COUNT(id)
+            FROM  artistLike
+           WHERE  ArtistemId = B.id
+         )                                          AS likeCnt,
+         ${
+           req.user
+             ? `
+         (
+           SELECT	AL.id
+             FROM	artistLike	AL
+            WHERE	AL.UserId = ${req.user.id}
+              AND	AL.ArtistemId = B.id
+         )	AS isLike`
+             : `(
+           SELECT	null
+             FROM	DUAL
+         )	AS isLike`
+         }
    FROM  users        A
   INNER
    JOIN  artistem     B
-     ON  B.Userid = A.id
+     ON  B.UserId = A.id
   WHERE  B.isUpdate = 1
     AND  A.artistemId IS NOT NULL
   ORDER  BY (
@@ -1021,30 +1058,49 @@ router.post("/artistem/detail", async (req, res, next) => {
   const { ArtistemId } = req.body;
 
   const artistemQuery = `
-  SELECT  id,
-          UserId,
-          isVacation,
-          name,
-          companyNo,
-          artistName,
-          artistProfileImage,
-          artistInfo,
-          question1,
-          question2,
-          question3,
-          question4,
-          question5,
-          question6,
-          question7,
-          question8,
-          repMusicFile,
-          repMusicFilename,
-          isUpdate,
-          createdAt,
-          updatedAt
-    FROM  artistem
-   WHERE  id = ${ArtistemId}
-     AND  isUpdate = 1
+  SELECT  A.id,
+          A.UserId,
+          A.isVacation,
+          A.name,
+          A.companyNo,
+          A.artistName,
+          A.artistProfileImage,
+          A.artistInfo,
+          A.question1,
+          A.question2,
+          A.question3,
+          A.question4,
+          A.question5,
+          A.question6,
+          A.question7,
+          A.question8,
+          A.repMusicFile,
+          A.repMusicFilename,
+          A.isUpdate,
+          A.createdAt,
+          A.updatedAt,
+          (
+            SELECT  COUNT(id)
+              FROM  artistLike
+             WHERE  ArtistemId = A.id
+          )                                          AS likeCnt,
+          ${
+            req.user
+              ? `
+           (
+             SELECT	AL.id
+               FROM	artistLike	AL
+              WHERE	AL.UserId = ${req.user.id}
+                AND	AL.ArtistemId = A.id
+           )	AS isLike`
+              : `(
+             SELECT	null
+               FROM	DUAL
+           )	AS isLike`
+          }
+    FROM  artistem    A
+   WHERE  A.id = ${ArtistemId}
+     AND  A.isUpdate = 1
   `;
 
   const findCountryInfoQuery = `
