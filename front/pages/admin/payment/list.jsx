@@ -2,7 +2,16 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import AdminLayout from "../../../components/AdminLayout";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Form, Input, Popconfirm, Popover, Table } from "antd";
+import {
+  Button,
+  Drawer,
+  Form,
+  Image,
+  Input,
+  Popconfirm,
+  Popover,
+  Table,
+} from "antd";
 import { useRouter, withRouter } from "next/router";
 import wrapper from "../../../store/configureStore";
 import { END } from "redux-saga";
@@ -27,6 +36,7 @@ import {
   HomeOutlined,
   RightOutlined,
 } from "@ant-design/icons";
+import { BOUGHT_ADMIN_LIST_REQUEST } from "../../../reducers/bought";
 
 const InfoTitle = styled.div`
   font-size: 19px;
@@ -80,12 +90,6 @@ const List = ({}) => {
     </PopWrapper>
   );
 
-  /////////////////////////////////////////////////////////////////////////
-
-  ////// HOOKS //////
-
-  ////// USEEFFECT //////
-
   useEffect(() => {
     if (st_loadMyInfoDone) {
       if (!me || parseInt(me.level) < 3) {
@@ -106,28 +110,45 @@ const List = ({}) => {
     });
   }, []);
 
+  /////////////////////////////////////////////////////////////////////////
+
+  const { adminBoughtList } = useSelector((state) => state.bought);
+
+  ////// HOOKS //////
+
+  //   MODAL
+  const [isDetail, setIsDetail] = useState(false);
+
+  //  FORM
+  const [detailForm] = Form.useForm();
+
+  ////// USEEFFECT //////
+
   ////// HANDLER //////
 
-  const beforeSetDataHandler = useCallback(
-    (record) => {
-      setCurrentData(record);
-
-      infoForm.setFieldsValue({
-        title: record.title,
-        typeId: record.NoticeTypeId,
-        content: record.content,
-        hit: record.hit,
-        createdAt: record.viewCreatedAt,
-        updatedAt: record.viewUpdatedAt,
-        updator: record.updator,
+  //   상세보기
+  const detailHandler = useCallback(
+    (data) => {
+      setCurrentData(data);
+      setIsDetail(true);
+      detailForm.setFieldsValue({
+        name: data.name,
+        mobile: data.mobile,
+        email: data.email,
+        payWay: data.payWay,
+        price: data.price,
+        usePoint: data.usePoint,
+        mileagePrice: data.mileagePrice,
+        viewCreatedAt: data.viewCreatedAt,
       });
     },
-    [currentData, infoForm]
+    [detailForm]
   );
 
   ////// DATAVIEW //////
 
   ////// DATA COLUMNS //////
+  console.log(adminBoughtList);
 
   const col = [
     {
@@ -135,38 +156,43 @@ const List = ({}) => {
       dataIndex: "num",
     },
     {
-      title: "이미지 명칭",
-      dataIndex: "title",
+      title: "구매자",
+      dataIndex: "name",
     },
-
+    {
+      title: "구매자전화번호",
+      dataIndex: "mobile",
+    },
+    {
+      title: "구매자이메일",
+      dataIndex: "email",
+    },
+    {
+      title: "구매방식",
+      dataIndex: "payWay",
+    },
+    {
+      title: "구매금액",
+      dataIndex: "price",
+    },
+    {
+      title: "사용포인트",
+      dataIndex: "usePoint",
+    },
+    {
+      title: "적립금",
+      dataIndex: "mileagePrice",
+    },
     {
       title: "생성일",
       dataIndex: "viewCreatedAt",
     },
     {
-      title: "상태창",
+      title: "상세보기",
       render: (data) => (
-        <>
-          <ViewStatusIcon
-            active={
-              parseInt(data.id) === (currentData && parseInt(currentData.id))
-            }
-          />
-        </>
-      ),
-    },
-
-    {
-      title: "삭제",
-      render: (data) => (
-        <Popconfirm
-          title="정말 삭제하시겠습니까?"
-          onConfirm={() => {}}
-          okText="삭제"
-          cancelText="취소"
-        >
-          <DelBtn />
-        </Popconfirm>
+        <Button size="small" type="primary" onClick={() => detailHandler(data)}>
+          상세보기
+        </Button>
       ),
     },
   ];
@@ -214,120 +240,104 @@ const List = ({}) => {
       {/* TAB */}
 
       <Wrapper dr="row" padding="0px 20px" al="flex-start" ju="space-between">
-        <Wrapper
-          width="50%"
-          padding="0px 10px"
-          shadow={`3px 3px 6px ${Theme.lightGrey_C}`}
-        >
+        <Wrapper padding="0px 10px" shadow={`3px 3px 6px ${Theme.lightGrey_C}`}>
           <Table
             style={{ width: "100%" }}
             rowKey="id"
             columns={col}
-            dataSource={[]}
+            dataSource={adminBoughtList}
             size="small"
-            onRow={(record, index) => {
-              return {
-                onClick: (e) => beforeSetDataHandler(record),
-              };
-            }}
           />
         </Wrapper>
-
-        <Wrapper
-          width={`calc(50% - 10px)`}
-          padding="5px"
-          shadow={`3px 3px 6px ${Theme.lightGrey_C}`}
-        >
-          {currentData ? (
-            <Wrapper>
-              <Wrapper margin={`0px 0px 5px 0px`}>
-                <InfoTitle>
-                  <CheckOutlined />
-                  공지사항 기본정보
-                </InfoTitle>
-              </Wrapper>
-
-              <Form form={infoForm} style={{ width: `100%` }}>
-                <Form.Item
-                  label="제목"
-                  name="title"
-                  rules={[
-                    { required: true, message: "제목은 필수 입력사항 입니다." },
-                  ]}
-                >
-                  <Input size="small" />
-                </Form.Item>
-
-                <Form.Item
-                  label="내용"
-                  name="content"
-                  rules={[
-                    { required: true, message: "내용은 필수 입력사항 입니다." },
-                  ]}
-                >
-                  <Input.TextArea rows={10} />
-                </Form.Item>
-
-                <Form.Item label="조회수" name="hit">
-                  <Input
-                    size="small"
-                    style={{ background: Theme.lightGrey_C, border: "none" }}
-                    readOnly
-                  />
-                </Form.Item>
-
-                <Form.Item label="작성일" name="createdAt">
-                  <Input
-                    size="small"
-                    style={{ background: Theme.lightGrey_C, border: "none" }}
-                    readOnly
-                  />
-                </Form.Item>
-
-                <Form.Item label="수정일" name="updatedAt">
-                  <Input
-                    size="small"
-                    style={{ background: Theme.lightGrey_C, border: "none" }}
-                    readOnly
-                  />
-                </Form.Item>
-
-                <Form.Item label="최근작업자" name="updator">
-                  <Input
-                    size="small"
-                    style={{ background: Theme.lightGrey_C, border: "none" }}
-                    readOnly
-                  />
-                </Form.Item>
-              </Form>
-
-              <Wrapper al="flex-end">
-                <Button type="primary" size="small" htmlType="submit">
-                  정보 업데이트
-                </Button>
-              </Wrapper>
-
-              <Wrapper
-                width="100%"
-                height="1px"
-                bgColor={Theme.lightGrey_C}
-                margin={`30px 0px`}
-              ></Wrapper>
-            </Wrapper>
-          ) : (
-            <Wrapper padding={`50px 0px`} dr="row">
-              <AlertOutlined
-                style={{
-                  fontSize: "20px",
-                  color: Theme.red_C,
-                  marginRight: "5px",
-                }}
-              />
-              좌측 데이터를 선택하여 상세정보를 확인하세요.
-            </Wrapper>
-          )}
-        </Wrapper>
       </Wrapper>
+
+      <Drawer
+        visible={isDetail}
+        onClose={() => setIsDetail(false)}
+        title="결제내역 상세보기"
+        width="600px"
+      >
+        <Wrapper>
+          <Form
+            size="small"
+            style={{ width: `100%` }}
+            labelCol={{ span: 5 }}
+            form={detailForm}
+          >
+            <Form.Item name="name" label="구매자이름">
+              <Input disabled />
+            </Form.Item>
+            <Form.Item name="mobile" label="구매자전화번호">
+              <Input disabled />
+            </Form.Item>
+            <Form.Item name="email" label="구매자이메일">
+              <Input disabled />
+            </Form.Item>
+            <Form.Item name="payWay" label="구매방식">
+              <Input disabled />
+            </Form.Item>
+            <Form.Item name="price" label="구매금액">
+              <Input disabled />
+            </Form.Item>
+            <Form.Item name="usePoint" label="포인트 사용금액">
+              <Input disabled />
+            </Form.Item>
+            <Form.Item name="mileagePrice" label="적립금액">
+              <Input disabled />
+            </Form.Item>
+            <Form.Item name="viewCreatedAt" label="구매일">
+              <Input disabled />
+            </Form.Item>
+            <Form.Item label="구매음원">
+              {currentData &&
+                currentData.boughtItems.map((data) => {
+                  return (
+                    <Wrapper dr={`row`} margin={`0 0 10px`}>
+                      <Image width={`100px`} src={data.thumbnail} />
+
+                      <Wrapper
+                        width={`calc(100% - 100px)`}
+                        padding={`0 20px`}
+                        al={`flex-start`}
+                      >
+                        <Wrapper width={`auto`} dr={`row`}>
+                          <Text color={Theme.grey_C} margin={`0 10px 0 0`}>
+                            앨범명 :
+                          </Text>
+                          <Text>{data.albumName}</Text>
+                        </Wrapper>
+                        <Wrapper width={`auto`} dr={`row`}>
+                          <Text color={Theme.grey_C} margin={`0 10px 0 0`}>
+                            아티스트명 :
+                          </Text>
+                          <Text>{data.singerName}</Text>
+                        </Wrapper>
+                        <Wrapper width={`auto`} dr={`row`}>
+                          <Text color={Theme.grey_C} margin={`0 10px 0 0`}>
+                            곡명 :
+                          </Text>
+                          <Text>{data.songName}</Text>
+                        </Wrapper>
+                        <Wrapper width={`auto`} dr={`row`}>
+                          <Text color={Theme.grey_C} margin={`0 10px 0 0`}>
+                            라이센스명 :
+                          </Text>
+                          <Text>{data.lisenceName}</Text>
+                        </Wrapper>
+                        <Wrapper width={`auto`} dr={`row`}>
+                          <Text color={Theme.grey_C} margin={`0 10px 0 0`}>
+                            금액 :
+                          </Text>
+                          <Text>{data.viewPrice}</Text>
+                        </Wrapper>
+                      </Wrapper>
+                    </Wrapper>
+                  );
+                })}
+            </Form.Item>
+          </Form>
+        </Wrapper>
+      </Drawer>
     </AdminLayout>
   );
 };
@@ -345,6 +355,10 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: LOAD_MY_INFO_REQUEST,
+    });
+
+    context.store.dispatch({
+      type: BOUGHT_ADMIN_LIST_REQUEST,
     });
 
     // 구현부 종료

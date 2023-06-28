@@ -515,7 +515,7 @@ const MypageMenu = ({}) => {
           </Wrapper>
         )}
 
-        {me && me.isArtist === "아티스트" && (
+        {me && me.type === 2 && (
           <>
             <Menu>수익 관리</Menu>
             <Menu onClick={mypageMenuOpen2Toggle}>
@@ -574,7 +574,7 @@ const MypageMenu = ({}) => {
           포인트 관리
         </Menu>
 
-        {me && me.isArtist === "아티스트" ? (
+        {me && me.type === 2 ? (
           <>
             <Menu onClick={mypageMenuOpen3Toggle}>
               <Wrapper

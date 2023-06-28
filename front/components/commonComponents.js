@@ -688,6 +688,46 @@ export const SquareBox = styled(Wrapper)`
   }
 `;
 
+export const CustomSelect = styled(Wrapper)`
+  width: ${(props) => props.width || `200px`};
+  height: ${(props) => props.height || `50px`};
+
+  .ant-select {
+    width: 100%;
+  }
+
+  .ant-select-single:not(.ant-select-customize-input) .ant-select-selector,
+  .ant-select-single:not(.ant-select-customize-input)
+    .ant-select-selector
+    .ant-select-selection-search-input {
+    width: 100%;
+    height: ${(props) => props.height || `50px`};
+    border-radius: ${(props) => props.radius};
+    border: 1px solid ${(props) => props.theme.lightGrey_C};
+  }
+
+  .ant-select-single .ant-select-selector .ant-select-selection-item,
+  .ant-select-single .ant-select-selector .ant-select-selection-placeholder {
+    width: 100%;
+    line-height: ${(props) => props.height || `50px`};
+  }
+
+  .ant-select-selector {
+    align-items: center !important;
+  }
+
+  /* 클릭했을 시 색 */
+  .ant-select-focused:not(.ant-select-disabled).ant-select:not(
+      .ant-select-customize-input
+    )
+    .ant-select-selector {
+    border-color: ${(props) => props.theme.basicTheme_C} !important;
+  }
+  html {
+    --antd-wave-shadow-color: ${(props) => props.theme.basicTheme_C} !important;
+  }
+`;
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////ADMIN///////////////////////////////////////////////////////////////////
