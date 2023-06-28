@@ -355,7 +355,7 @@ function* artistemNaerList(action) {
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
 async function artistemSlideListAPI(data) {
-  return await axios.post("/api/artist/artistem/slideList", data);
+  return await axios.post("/api/artist/new/main", data);
 }
 
 function* artistemSlideList(action) {

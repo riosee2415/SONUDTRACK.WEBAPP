@@ -22,13 +22,17 @@ import MainSlider2 from "../components/slide/MainSlider2";
 import dynamic from "next/dynamic";
 import { Modal } from "antd";
 import { useRouter } from "next/router";
-import { ARTISTEM_SLIDE_LIST_REQUEST } from "../reducers/artist";
+import {
+  ARTISTEM_LIST_REQUEST,
+  ARTISTEM_SLIDE_LIST_REQUEST,
+} from "../reducers/artist";
 import { useSelector } from "react-redux";
 import {
   PRODUCT_TRACK_ALL_LIST_REQUEST,
   PRODUCT_TRACK_RECENT_REQUEST,
 } from "../reducers/product";
 import moment from "moment";
+import { MUSICTEM_LIST_REQUEST } from "../reducers/album";
 
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
@@ -78,7 +82,9 @@ const Home = ({}) => {
   ////// GLOBAL STATE //////
 
   const { artistemSlideList } = useSelector((state) => state.artist);
-  const { trackRecentList } = useSelector((state) => state.product);
+  const { musictemList } = useSelector((state) => state.album);
+
+  console.log(musictemList);
 
   const [playing1, setPlaying1] = useState(null);
   const [down, setDown] = useState(false);
@@ -92,13 +98,13 @@ const Home = ({}) => {
   ////// REDUX //////
   ////// USEEFFECT //////
   useEffect(() => {
-    if (trackRecentList) {
+    if (musictemList) {
       setTimeout(() => {
         let allAudioTimeArr = newAudioTime
           ? newAudioTime.map((data) => data)
           : [];
 
-        for (let i = 0; i < trackRecentList.length; i++) {
+        for (let i = 0; i < musictemList.length; i++) {
           const trackId = document.getElementById(`audioTeg_recent_${i}`);
 
           if (trackId) {
@@ -110,7 +116,7 @@ const Home = ({}) => {
         setNewAudioTime(allAudioTimeArr);
       }, 2000);
     }
-  }, [trackRecentList]);
+  }, [musictemList]);
 
   ////// TOGGLE //////
   // 재생 버튼 1
@@ -254,8 +260,8 @@ const Home = ({}) => {
               borderTop={`1px solid ${Theme.lightGrey_C}`}
               margin={`0 0 100px`}
             >
-              {trackRecentList &&
-                (trackRecentList.length === 0 ? (
+              {musictemList &&
+                (musictemList.length === 0 ? (
                   <Wrapper
                     height={`400px`}
                     borderBottom={`1px solid ${Theme.lightGrey_C}`}
@@ -274,7 +280,7 @@ const Home = ({}) => {
                     </Text>
                   </Wrapper>
                 ) : (
-                  trackRecentList.map((data, idx) => {
+                  musictemList.map((data, idx) => {
                     return (
                       <Wrapper
                         key={idx}
@@ -297,7 +303,7 @@ const Home = ({}) => {
                         <Wrapper width={`auto`} dr={`row`} ju={`flex-start`}>
                           <Image
                             alt="thumbnail"
-                            src={data.thumbnail}
+                            src={data.albumImage}
                             width={width < 700 ? `80px` : `100px`}
                             height={width < 700 ? `80px` : `100px`}
                             radius={`7px`}
@@ -331,7 +337,7 @@ const Home = ({}) => {
                               width={width < 1600 ? `200px` : `280px`}
                               isEllipsis
                             >
-                              {data.title}
+                              {data.songName}
                             </Text>
                             <Text
                               onClick={() =>
@@ -343,7 +349,7 @@ const Home = ({}) => {
                               fontSize={width < 700 ? `14px` : `16px`}
                               color={Theme.subTheme4_C}
                             >
-                              {data.author}
+                              {data.singerName}
                             </Text>
                             {width < 1520 ? (
                               <Text
@@ -352,11 +358,11 @@ const Home = ({}) => {
                                 color={Theme.grey2_C}
                                 isEllipsis
                               >
-                                {data.genList.map(
+                                {/* {data.genList.map(
                                   (value, idx) =>
                                     value.value +
                                     (data.genList.length === idx + 1 ? "" : ",")
-                                )}
+                                )} */}
                               </Text>
                             ) : null}
 
@@ -418,11 +424,11 @@ const Home = ({}) => {
                             color={Theme.grey2_C}
                           >
                             <Text width={`160px`} isEllipsis>
-                              {data.genList.map(
+                              {/* {data.genList.map(
                                 (value, idx) =>
                                   value.value +
                                   (data.genList.length === idx + 1 ? "" : ",")
-                              )}
+                              )} */}
                             </Text>
                           </Wrapper>
                         )}
@@ -439,7 +445,7 @@ const Home = ({}) => {
                             color={Theme.darkGrey_C}
                             margin={`0 20px 0 0`}
                           >
-                            {newAudioTime[idx]}
+                            {data.fileLength}
                           </Text>
                           <Wrapper width={width < 1360 ? `180px` : `236px`}>
                             <ReactWaves
@@ -576,7 +582,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
     });
 
     context.store.dispatch({
-      type: PRODUCT_TRACK_RECENT_REQUEST,
+      type: MUSICTEM_LIST_REQUEST,
     });
 
     // 구현부 종료
