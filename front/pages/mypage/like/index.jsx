@@ -79,8 +79,15 @@ const Index = () => {
 
   const [currentPage, setCurrentPage] = useState(1); // 페이지네이션
   const [type, setType] = useState(1); // 1 - 아티스템
+  const [selectList, setSelectList] = useState([]);
+
   ////// REDUX //////
   ////// USEEFFECT //////
+
+  useEffect(() => {
+    setSelectList([]);
+  }, [type]);
+
   useEffect(() => {
     if (!me) {
       router.push(`/user/login`);
@@ -107,6 +114,46 @@ const Index = () => {
       setCurrentPage(changePage);
     },
     [currentPage]
+  );
+
+  const deleteclickHandler = useCallback(() => {
+    console.log(selectList);
+
+    switch (parseInt(type)) {
+      case 1: {
+        console.log("아티스탬");
+        break;
+      }
+      case 2: {
+        console.log("엘범");
+        break;
+      }
+      case 3: {
+        console.log("곡");
+        break;
+      }
+
+      default:
+        break;
+    }
+  }, [type, selectList]);
+
+  const checkHandler = useCallback(
+    (snap) => {
+      const existFlag = selectList.indexOf(snap);
+
+      if (existFlag === -1) {
+        const arr = selectList;
+        arr.push(snap);
+        setSelectList(arr);
+      } else {
+        const nextArr = selectList.filter(
+          (item) => parseInt(item.id) !== parseInt(snap.id)
+        );
+        setSelectList(nextArr);
+      }
+    },
+    [selectList]
   );
 
   ////// DATAVIEW //////
@@ -142,7 +189,9 @@ const Index = () => {
               >
                 |
               </SpanText>
-              <Text isHover>삭제</Text>
+              <Text isHover onClick={() => deleteclickHandler()}>
+                삭제
+              </Text>
             </Wrapper>
 
             <Wrapper dr={`row`} ju={`flex-start`} margin={`22px 0 30px`}>
@@ -210,7 +259,7 @@ const Index = () => {
                             left={`16px`}
                             width={`auto`}
                           >
-                            <Checkbox />
+                            <Checkbox onClick={() => checkHandler(data)} />
                           </Wrapper>
                         </SquareBox>
                         <Text
@@ -274,7 +323,7 @@ const Index = () => {
               </Wrapper>
             )}
 
-            {type === 2 && <Musictem />}
+            {(type === 2 || 3) && <Musictem type={type} setType={setType} />}
 
             <CustomPage
               defaultCurrent={1}

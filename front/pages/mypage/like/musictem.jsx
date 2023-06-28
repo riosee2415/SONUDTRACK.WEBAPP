@@ -103,7 +103,7 @@ const CdWrapper = styled(Wrapper)`
   }
 `;
 
-const Musictem = () => {
+const Musictem = ({ type, setType }) => {
   ////// GLOBAL STATE //////
   const { me } = useSelector((state) => state.user);
   const { myLikeList } = useSelector((state) => state.like);
@@ -116,7 +116,6 @@ const Musictem = () => {
   const [playing2, setPlaying2] = useState(null);
 
   const [currentPage, setCurrentPage] = useState(1); // 페이지네이션
-  const [type, setType] = useState(2); // 2 - 뮤직템
   ////// REDUX //////
   ////// USEEFFECT //////
   useEffect(() => {
@@ -129,6 +128,8 @@ const Musictem = () => {
   }, [me]);
 
   useEffect(() => {
+    console.log(type);
+
     dispatch({
       type: MY_LIKE_LIST_REQUEST,
       data: {
