@@ -25,11 +25,15 @@ import { useRouter } from "next/router";
 
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
-import { COMMON_TAG_LIST_REQUEST } from "../../reducers/product";
+import {
+  COMMON_TAG_LIST_REQUEST,
+  PRODUCT_TRACK_ALL_LIST_REQUEST,
+} from "../../reducers/product";
 import useInput from "../../hooks/useInput";
 import {
   MUSICTEM_LIST_REQUEST,
   NEW_MUSICTEM_LIST_REQUEST,
+  TOP_MUSICTEM_LIST_REQUEST,
 } from "../../reducers/album";
 import { CATE_ALL_LIST_REQUEST } from "../../reducers/category";
 import { TAG_LIST_REQUEST } from "../../reducers/tag";
@@ -72,10 +76,15 @@ const CustomSelect = styled(Wrapper)`
 const Index = () => {
   ////// GLOBAL STATE //////
 
-  const { productTrackSellDesc, trackAllList, trackRecentList, commonTags } =
-    useSelector((state) => state.product);
+  const { trackAllList, trackRecentList, commonTags } = useSelector(
+    (state) => state.product
+  );
 
-  const { musictemList, newMusictemList } = useSelector((state) => state.album);
+  const { topMusictemList, musictemList, newMusictemList } = useSelector(
+    (state) => state.album
+  );
+  console.log(topMusictemList);
+
   const { tagList, tagTypeList } = useSelector((state) => state.tag);
 
   const { cateAllList } = useSelector((state) => state.category);
@@ -317,9 +326,9 @@ const Index = () => {
                     {cateAllList &&
                       cateAllList.map((data) => {
                         if (data.label === "뮤직탬")
-                          return data.options.map((value) => {
+                          return data.options.map((value, idx) => {
                             return (
-                              <Select.Option key={value.id} value={value.id}>
+                              <Select.Option key={idx} value={value.value}>
                                 {value.label}
                               </Select.Option>
                             );
@@ -721,8 +730,8 @@ const Index = () => {
               borderTop={`1px solid ${Theme.lightGrey_C}`}
               margin={`0 0 100px`}
             >
-              {productTrackSellDesc &&
-                (productTrackSellDesc.length === 0 ? (
+              {topMusictemList &&
+                (topMusictemList.length === 0 ? (
                   <Wrapper
                     height={`400px`}
                     borderBottom={`1px solid ${Theme.lightGrey_C}`}
@@ -741,7 +750,7 @@ const Index = () => {
                     </Text>
                   </Wrapper>
                 ) : (
-                  productTrackSellDesc.map((data, idx) => {
+                  topMusictemList.map((data, idx) => {
                     return (
                       <Wrapper
                         key={idx}
@@ -764,7 +773,7 @@ const Index = () => {
                         <Wrapper width={`auto`} dr={`row`} ju={`flex-start`}>
                           <Image
                             alt="thumbnail"
-                            src={data.thumbnail}
+                            src={data.albumImage}
                             width={width < 700 ? `80px` : `100px`}
                             height={width < 700 ? `80px` : `100px`}
                             radius={`7px`}
@@ -798,7 +807,7 @@ const Index = () => {
                               width={width < 1600 ? `200px` : `280px`}
                               isEllipsis
                             >
-                              {data.title}
+                              {data.songName}
                             </Text>
                             <Text
                               onClick={() =>
@@ -810,7 +819,7 @@ const Index = () => {
                               fontSize={width < 700 ? `14px` : `16px`}
                               color={Theme.subTheme4_C}
                             >
-                              {data.author}
+                              {data.singerName}
                             </Text>
                             {width < 1520 ? (
                               <Text
@@ -1556,6 +1565,10 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: CATE_ALL_LIST_REQUEST,
+    });
+
+    context.store.dispatch({
+      type: TOP_MUSICTEM_LIST_REQUEST,
     });
 
     // 구현부 종료

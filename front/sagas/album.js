@@ -56,6 +56,10 @@ import {
   MUSICTEM_ADMIN_LIST_REQUEST,
   MUSICTEM_ADMIN_LIST_SUCCESS,
   MUSICTEM_ADMIN_LIST_FAILURE,
+  //
+  TOP_MUSICTEM_LIST_REQUEST,
+  TOP_MUSICTEM_LIST_SUCCESS,
+  TOP_MUSICTEM_LIST_FAILURE,
 } from "../reducers/album";
 
 // ******************************************************************************************************************
@@ -428,6 +432,33 @@ function* musictemAdminList(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function topMusictemListAPI(data) {
+  return await axios.post(`/api/album/musictem/topSell/limit/list`, data);
+}
+
+function* topMusictemList(action) {
+  try {
+    const result = yield call(topMusictemListAPI, action.data);
+
+    yield put({
+      type: TOP_MUSICTEM_LIST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: TOP_MUSICTEM_LIST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 function* watchAlbumImage() {
   yield takeLatest(ALBUM_IMAGE_REQUEST, albumImage);
@@ -475,6 +506,10 @@ function* watchMusictemAdminList() {
   yield takeLatest(MUSICTEM_ADMIN_LIST_REQUEST, musictemAdminList);
 }
 
+function* watchTopMusictemList() {
+  yield takeLatest(TOP_MUSICTEM_LIST_REQUEST, topMusictemList);
+}
+
 //////////////////////////////////////////////////////////////
 export default function* albumSaga() {
   yield all([
@@ -492,6 +527,7 @@ export default function* albumSaga() {
     fork(watchTrackAdminList),
     fork(watchMusictemPremiumAdminList),
     fork(watchMusictemAdminList),
+    fork(watchTopMusictemList),
 
     //
   ]);

@@ -227,9 +227,9 @@ const Index = () => {
                     {cateAllList &&
                       cateAllList.map((data) => {
                         if (data.label === "아티스탬")
-                          return data.options.map((value) => {
+                          return data.options.map((value, idx) => {
                             return (
-                              <Select.Option key={value.id} value={value.id}>
+                              <Select.Option key={idx} value={value.value}>
                                 {value.label}
                               </Select.Option>
                             );

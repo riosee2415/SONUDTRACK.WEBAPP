@@ -9,6 +9,7 @@ export const initailState = {
   musictemAdminList: [], // 뮤직템 관리자 리스트
   newMusictemList: [], // new 뮤직템 리스트
   trackAdminList: [], // 관리자 트랙 리스트
+  topMusictemList: [], // top5 뮤직템 리스트
 
   //   뮤직템디테일
   detailData: null,
@@ -74,6 +75,10 @@ export const initailState = {
   st_trackAdminListLoading: false, // 트랙 관리자 리스트
   st_trackAdminListDone: false,
   st_trackAdminListError: null,
+  //
+  st_topMusictemListLoading: false, // top5 뮤직템 리스트
+  st_topMusictemListDone: false,
+  st_topMusictemListError: null,
 };
 
 export const ALBUM_IMAGE_REQUEST = "ALBUM_IMAGE_REQUEST";
@@ -134,6 +139,10 @@ export const ALBUM_DETAIL_FAILURE = "ALBUM_DETAIL_FAILURE";
 export const TRACK_ADMIN_LIST_REQUEST = "TRACK_ADMIN_LIST_REQUEST";
 export const TRACK_ADMIN_LIST_SUCCESS = "TRACK_ADMIN_LIST_SUCCESS";
 export const TRACK_ADMIN_LIST_FAILURE = "TRACK_ADMIN_LIST_FAILURE";
+
+export const TOP_MUSICTEM_LIST_REQUEST = "TOP_MUSICTEM_LIST_REQUEST";
+export const TOP_MUSICTEM_LIST_SUCCESS = "TOP_MUSICTEM_LIST_SUCCESS";
+export const TOP_MUSICTEM_LIST_FAILURE = "TOP_MUSICTEM_LIST_FAILURE";
 
 export const ALBUM_IMAGE_RESET = "ALBUM_IMAGE_RESET";
 export const ALBUM_FILE_RESET = "ALBUM_FILE_RESET";
@@ -439,6 +448,29 @@ const reducer = (state = initailState, action) =>
         draft.st_musictemAdminListLoading = false;
         draft.st_musictemAdminListDone = false;
         draft.st_musictemAdminListError = action.error;
+        break;
+      }
+
+      //////////////////////////////////////////////
+
+      case TOP_MUSICTEM_LIST_REQUEST: {
+        draft.st_topMusictemListLoading = true;
+        draft.st_topMusictemListDone = false;
+        draft.st_topMusictemListError = null;
+        break;
+      }
+      case TOP_MUSICTEM_LIST_SUCCESS: {
+        draft.st_topMusictemListLoading = false;
+        draft.st_topMusictemListDone = true;
+        draft.st_topMusictemListError = null;
+        draft.topMusictemList = action.data;
+
+        break;
+      }
+      case TOP_MUSICTEM_LIST_FAILURE: {
+        draft.st_topMusictemListLoading = false;
+        draft.st_topMusictemListDone = false;
+        draft.st_topMusictemListError = action.error;
         break;
       }
 
