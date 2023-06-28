@@ -29,6 +29,7 @@ import { ARTISTEM_LIST_REQUEST } from "../../reducers/seller";
 import { CATE_ALL_LIST_REQUEST } from "../../reducers/category";
 import { TAG_LIST_REQUEST } from "../../reducers/tag";
 import useInput from "../../hooks/useInput";
+import { CATEGORY_LIST_REQUEST } from "../../reducers/product";
 
 const CustomSelect = styled(Wrapper)`
   width: 240px;
@@ -119,6 +120,17 @@ const Index = () => {
       },
     });
   }, [orderType]);
+
+  useEffect(() => {
+    dispatch({
+      type: ARTISTEM_LIST_REQUEST,
+      data: {
+        searchName: searchInput.value,
+        TagId: tagData,
+        CategoryId: cateData === 15 ? null : cateData,
+      },
+    });
+  }, [searchInput.value, tagData, cateData]);
 
   ////// TOGGLE //////
 
