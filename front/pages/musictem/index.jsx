@@ -8,7 +8,6 @@ import { END } from "redux-saga";
 import useWidth from "../../hooks/useWidth";
 import {
   CommonButton,
-  CustomPage,
   Image,
   RsWrapper,
   SpanText,
@@ -23,12 +22,7 @@ import styled from "styled-components";
 import { Empty, message, Modal, Select } from "antd";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-import {
-  PRODUCT_TAG_REQUEST,
-  PRODUCT_TRACK_ALL_LIST_REQUEST,
-  PRODUCT_TRACK_RECENT_REQUEST,
-  PRODUCT_TRACK_SELLDESC_REQUEST,
-} from "../../reducers/product";
+
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
 import { COMMON_TAG_LIST_REQUEST } from "../../reducers/product";
@@ -115,40 +109,15 @@ const Index = () => {
 
   useEffect(() => {
     dispatch({
-      type: PRODUCT_TRACK_ALL_LIST_REQUEST,
-      data: {
-        tagId: searchSmallTag,
-        searchTitle: searchValue.value,
-      },
-    });
-
-    dispatch({
-      type: PRODUCT_TRACK_RECENT_REQUEST,
-      data: {
-        tagId: searchSmallTag,
-        searchTitle: searchValue.value,
-      },
-    });
-
-    dispatch({
-      type: PRODUCT_TRACK_SELLDESC_REQUEST,
-      data: {
-        tagId: searchSmallTag,
-        searchTitle: searchValue.value,
-      },
-    });
-  }, [searchSmallTag, searchValue.value]);
-
-  useEffect(() => {
-    dispatch({
       type: MUSICTEM_LIST_REQUEST,
       data: {
         songName: searchValue.value,
         TagId: searchSmallTag,
         CategoryId: cateData === 15 ? null : cateData,
+        orderType: selectOrderType,
       },
     });
-  }, [searchValue.value, searchSmallTag, cateData]);
+  }, [searchValue.value, searchSmallTag, cateData, selectOrderType]);
 
   // 더보기 후 처리
   useEffect(() => {
@@ -1138,7 +1107,7 @@ const Index = () => {
                   isHover
                   onClick={() => selectOrderTypeHandler(1)}
                 >
-                  추천순
+                  최신순
                 </Text>
                 <SpanText
                   fontSize={`10px`}
@@ -1154,7 +1123,7 @@ const Index = () => {
                   isHover
                   onClick={() => selectOrderTypeHandler(2)}
                 >
-                  최신순
+                  추천순
                 </Text>
               </Wrapper>
             </Wrapper>
@@ -1570,18 +1539,6 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: LOAD_MY_INFO_REQUEST,
-    });
-
-    context.store.dispatch({
-      type: PRODUCT_TRACK_ALL_LIST_REQUEST,
-    });
-
-    context.store.dispatch({
-      type: PRODUCT_TRACK_RECENT_REQUEST,
-    });
-
-    context.store.dispatch({
-      type: PRODUCT_TRACK_SELLDESC_REQUEST,
     });
 
     context.store.dispatch({

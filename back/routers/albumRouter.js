@@ -650,6 +650,90 @@ router.post("/musictem/topSell/list", async (req, res, next) => {
 });
 
 /**
+ * SUBJECT : 뮤직탬 판매량 많은 순 5개 제한 리스트
+ * PARAMETERS : -
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/06/27
+ */
+router.post("/musictem/topSell/limit/list", async (req, res, next) => {
+  const selectQuery = `
+  SELECT  DISTINCT
+          ROW_NUMBER()	OVER(ORDER	BY A.createdAt)  AS num,
+   	 	    A.id,
+          A.songName,
+          A.singerName,
+          A.fileName,
+          A.filePath,
+          A.fileLength,
+          A.standardPrice,
+          A.deluxePrice,
+          A.platinumPrice,
+          A.isTitle,
+          A.AlbumId,
+          A.createdAt,
+          A.updatedAt,
+          DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")    AS viewCreatedAt,
+          DATE_FORMAT(A.createdAt, "%Y.%m.%d")        AS viewFrontCreatedAt,
+          DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
+          (
+           SELECT	albumImage 
+             FROM	album
+            WHERE	A.AlbumId = id 
+          ) 										  AS albumImage,
+          (
+            SELECT	albumName 
+              FROM	album
+             WHERE	A.AlbumId = id 
+           ) 										  AS albumName,
+           (
+            SELECT  COUNT(id)
+              FROM  trackLike
+             WHERE  TrackId = A.id
+           )                                          AS likeCnt,
+           ${
+             req.user
+               ? `
+            (
+              SELECT	TL.id
+                FROM	trackLike	TL
+               WHERE	TL.UserId = ${req.user.id}
+                 AND	TL.TrackId = A.id 
+            )	AS isLike`
+               : `(
+              SELECT	null
+                FROM	DUAL
+            )	AS isLike`
+           }
+     FROM  track   A
+    WHERE  TRUE = (
+   				SELECT	isTrackPermit 
+   				  FROM	album
+   				 WHERE	A.AlbumId = id 
+                 )
+    ORDER  BY (
+                 IFNULL((
+                        SELECT  COUNT(id)
+                          FROM  wishItem
+                         WHERE  trackId = A.id
+                           AND  BoughtHistoryId IS NOT NULL
+                        ), 0)
+             ) DESC
+    LIMIT  5
+  `;
+
+  try {
+    const musictem = await models.sequelize.query(selectQuery);
+
+    return res.status(200).json(musictem[0]);
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("뮤직탬 목록을 조회할 수 없습니다.");
+  }
+});
+
+/**
  * SUBJECT : 최신 5개 뮤직탬 리스트
  * PARAMETERS : songName, TagTypeId, TagId, CategoryId
  * ORDER BY : -
