@@ -20,7 +20,7 @@ import Head from "next/head";
 import Popup from "../components/popup/popup";
 import MainSlider2 from "../components/slide/MainSlider2";
 import dynamic from "next/dynamic";
-import { Modal } from "antd";
+import { message, Modal } from "antd";
 import { useRouter } from "next/router";
 import {
   ARTISTEM_LIST_REQUEST,
@@ -33,6 +33,7 @@ import {
 } from "../reducers/product";
 import moment from "moment";
 import { MUSICTEM_LIST_REQUEST } from "../reducers/album";
+import { TRACK_CREATE_REQUEST } from "../reducers/like";
 
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
@@ -83,6 +84,10 @@ const Home = ({}) => {
 
   const { artistemSlideList } = useSelector((state) => state.artist);
   const { musictemList } = useSelector((state) => state.album);
+  const { me } = useSelector((state) => state.user);
+  const { st_trackCreateDone, st_trackCreateError } = useSelector(
+    (state) => state.like
+  );
 
   const [playing1, setPlaying1] = useState(null);
   const [down, setDown] = useState(false);
@@ -97,6 +102,24 @@ const Home = ({}) => {
 
   ////// REDUX //////
   ////// USEEFFECT //////
+  ///////////////////////// 좋아요 후처리 /////////////////////////////
+  useEffect(() => {
+    if (st_trackCreateDone) {
+      dispatch({
+        type: MUSICTEM_LIST_REQUEST,
+        data: {
+          orderType: type,
+        },
+      });
+
+      return message.success("찜목록에 추가되었습니다.");
+    }
+
+    if (st_trackCreateError) {
+      return message.error(st_trackCreateError);
+    }
+  }, [st_trackCreateDone, st_trackCreateError]);
+
   useEffect(() => {
     if (musictemList) {
       setTimeout(() => {
@@ -154,6 +177,22 @@ const Home = ({}) => {
     router.push(link);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
+
+  const likeHandler = useCallback(
+    (data) => {
+      if (me) {
+        dispatch({
+          type: TRACK_CREATE_REQUEST,
+          data: {
+            TrackId: data.id,
+          },
+        });
+      } else {
+        return message.error("로그인이 필요합니다.");
+      }
+    },
+    [me]
+  );
   ////// DATAVIEW //////
 
   return (
@@ -425,6 +464,8 @@ const Home = ({}) => {
                                   <Image
                                     alt="icon"
                                     width={`22px`}
+                                    onClick={() => likeHandler(data)}
+                                    cursor={`pointer`}
                                     src={
                                       data.isLike
                                         ? `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`
@@ -525,6 +566,8 @@ const Home = ({}) => {
                               <Image
                                 alt="icon"
                                 width={`22px`}
+                                onClick={() => likeHandler(data)}
+                                cursor={`pointer`}
                                 src={
                                   data.isLike
                                     ? `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`
