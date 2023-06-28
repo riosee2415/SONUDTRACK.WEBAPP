@@ -193,6 +193,13 @@ export const items = {
       useYn: true,
     },
   ],
+  결제관리: [
+    {
+      name: "결제내역리스트",
+      link: "/admin/payment/list",
+      useYn: true,
+    },
+  ],
 };
 
 const AdminLayout = ({ children }) => {
@@ -340,6 +347,11 @@ const AdminLayout = ({ children }) => {
             right={me && me.menuRight8}
             title={`음원관리`}
             menus={items["음원관리"]}
+          />
+          <AdminMenuBox
+            right={me && me.menuRight8}
+            title={`결제관리`}
+            menus={items["결제관리"]}
           />
         </Wrapper>
       ) : (
