@@ -682,12 +682,16 @@ router.post("/payment", isLoggedIn, async (req, res, next) => {
   } = req.body;
 
   const selectQ = `
-  SELECT  id,
-          isReject,
-          isOk,
-          UserId
-    FROM  artistContact    
-   WHERE  id = ${id}
+  SELECT  A.id,
+          A.isReject,
+          A.isOk,
+          A.UserId,
+          B.artistName
+    FROM  artistContact     A
+   INNER
+    JOIN  artistem          B
+      ON  A.ArtistemId = B.id
+   WHERE  A.id = ${id}
   `;
 
   const updateQuery = `
@@ -702,6 +706,9 @@ router.post("/payment", isLoggedIn, async (req, res, next) => {
             payDate = NOW()
    WHERE    id = ${id}
   `;
+
+  let userMileagePoint = parseInt(payPrice) * (parseFloat(1.0) / 100);
+  let usersPoint = parseInt(req.user.point);
 
   try {
     const checkList = await models.sequelize.query(selectQ);
@@ -719,6 +726,82 @@ router.post("/payment", isLoggedIn, async (req, res, next) => {
     }
 
     await models.sequelize.query(updateQuery);
+
+    if (parseInt(usePointPrice) > 0) {
+      if (parseInt(req.user.point) < parseInt(usePointPrice)) {
+        return res
+          .status(401)
+          .send("보유중인 포인트보다 더 많은 금액을 입력했습니다.");
+      }
+
+      const userPointUpdateQuery = `
+        UPDATE  users
+           SET  point = ${parseInt(usersPoint) - parseInt(usePointPrice)}
+         WHERE  id = ${req.user.id}
+        `;
+
+      usersPoint = parseInt(usersPoint) - parseInt(usePointPrice);
+
+      await models.sequelize.query(userPointUpdateQuery);
+
+      const insertPointQuery = `
+      INSERT  INTO  userPoint
+      (
+        pointType,
+        type,
+        content,
+        price,
+        UserId,
+        createdAt,
+        updatedAt
+      )
+      VALUES
+      (
+        "사용",
+        "Artisttem",
+        "${checkList[0][0].artistName}",
+        ${usePointPrice},
+        ${req.user.id},
+        NOW(),
+        NOW()
+      )
+      `;
+
+      await models.sequelize.query(insertPointQuery);
+    }
+
+    const userUpdateQuery = `
+      UPDATE    users
+         SET    point = ${parseInt(usersPoint) + parseInt(userMileagePoint)}
+       WHERE    id = ${req.user.id}
+      `;
+
+    const insertPointHistoryQuery = `
+      INSERT  INTO  userPoint
+      (
+        pointType,
+        type,
+        content,
+        price,
+        UserId,
+        createdAt,
+        updatedAt
+      )
+      VALUES
+      (
+        "적립",
+        "Artisttem",
+        "${checkList[0][0].artistName}",
+        ${userMileagePoint},
+        ${req.user.id},
+        NOW(),
+        NOW()
+      )
+      `;
+
+    await models.sequelize.query(insertPointHistoryQuery);
+
+    await models.sequelize.query(userUpdateQuery);
 
     return res.status(200).json({ result: true });
   } catch (error) {
