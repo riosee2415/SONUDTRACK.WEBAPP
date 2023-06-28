@@ -199,6 +199,11 @@ export const items = {
       link: "/admin/payment/list",
       useYn: true,
     },
+    {
+      name: "수익관리리스트",
+      link: "/admin/payment",
+      useYn: true,
+    },
   ],
 };
 

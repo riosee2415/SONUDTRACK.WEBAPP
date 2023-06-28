@@ -437,7 +437,8 @@ router.post("/admin/list", isAdminCheck, async (req, res, next) => {
                 DATE_FORMAT(B.createdAt, "%Y.%m.%d")			AS viewCreatedAt,
                 B.payWay,
                 B.usePoint,
-                CONCAT(FORMAT(B.usePoint, 0), "원")              AS viewUsePrice
+                CONCAT(FORMAT(B.usePoint, 0), "원")              AS viewUsePointPrice,
+                CONCAT(FORMAT(A.price, 0), "원")              AS viewTotalPrice
         FROM	wishItem		A
        INNER
         JOIN	boughtHistory 	B
