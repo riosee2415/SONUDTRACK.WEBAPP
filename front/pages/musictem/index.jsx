@@ -83,7 +83,6 @@ const Index = () => {
   const { topMusictemList, musictemList, newMusictemList } = useSelector(
     (state) => state.album
   );
-  console.log(topMusictemList);
 
   const { tagList, tagTypeList } = useSelector((state) => state.tag);
 

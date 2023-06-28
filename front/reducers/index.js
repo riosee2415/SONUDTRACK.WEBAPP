@@ -23,6 +23,7 @@ import search from "./search";
 import bought from "./bought";
 import revenue from "./revenue";
 import like from "./like";
+import point from "./point";
 
 const rootReducer = (state, action) => {
   switch (action.type) {
@@ -54,6 +55,7 @@ const rootReducer = (state, action) => {
         bought,
         revenue,
         like,
+        point,
       });
       return combinedReducer(state, action);
     }

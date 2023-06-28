@@ -398,6 +398,7 @@ router.post("/all", isLoggedIn, async (req, res, next) => {
               A.payWay,
               A.payPrice,
               A.usePointPrice,
+              CONCAT(FORMAT(A.payPrice, ","), "원")     AS viewPayPrice,
               CONCAT(FORMAT(A.totalPrice, ","), "원")     AS viewTotalPrice,
               CONCAT(FORMAT(A.usePointPrice, ","), "원")     AS viewUsePointPrice,
               A.payDate,
@@ -454,7 +455,7 @@ router.post("/all", isLoggedIn, async (req, res, next) => {
         contactLen % LIMIT > 0 ? contactLen / LIMIT + 1 : contactLen / LIMIT;
 
       return res.status(200).json({
-        contacts: contact[0],
+        boughtHistorys: contact[0],
         lastPage: parseInt(lastPage),
       });
     }
@@ -494,12 +495,15 @@ router.post("/all", isLoggedIn, async (req, res, next) => {
               A.mobile,
               A.email,
               A.price,
+              CONCAT(FORMAT(A.price, ","), "원")          AS viewPrice,
               A.usePoint,
+              CONCAT(FORMAT(A.usePoint, ","), "원")       AS viewUsePoint,
               A.payWay,
               A.mileagePrice,
               A.createdAt,
               A.updatedAt,
               DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")    AS viewCreatedAt,
+              DATE_FORMAT(A.createdAt, "%Y.%m.%d")        AS viewFrontCreatedAt,
               DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
               A.UserId
         FROM  boughtHistory   A
@@ -570,6 +574,13 @@ router.post("/all", isLoggedIn, async (req, res, next) => {
       return res.status(200).json({
         boughtHistorys: boughtHistory[0],
         lastPage: parseInt(lastPage),
+      });
+    }
+
+    if (parseInt(_type) === 3) {
+      return res.status(200).json({
+        boughtHistorys: [],
+        lastPage: 1,
       });
     }
   } catch (error) {

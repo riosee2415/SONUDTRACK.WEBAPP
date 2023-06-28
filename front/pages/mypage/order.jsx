@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Head from "next/head";
 import ClientLayout from "../../components/ClientLayout";
 import wrapper from "../../store/configureStore";
@@ -19,8 +19,10 @@ import {
 import Theme from "../../components/Theme";
 import styled from "styled-components";
 import { Checkbox, DatePicker, message, Select } from "antd";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
+import { BOUGHT_ALL_REQUEST } from "../../reducers/bought";
+import moment from "moment";
 
 const Box = styled(Wrapper)`
   border-radius: 7px;
@@ -38,9 +40,18 @@ const Box = styled(Wrapper)`
 const Index = () => {
   ////// GLOBAL STATE //////
   const { me } = useSelector((state) => state.user);
+  const { lastPage, boughtHistorys } = useSelector((state) => state.bought);
+
+  const [currentPage, setCurrentPage] = useState(1); // 페이지네이션
+  const [boughtType, setBoughtType] = useState(1); // 유형 type:1(아티스템) type:2(뮤직템) type:3(아트윅스)
+  const [startDate, setStartDate] = useState(""); // 시작날짜
+  const [endDate, setEndDate] = useState(""); // 끝날짜
+
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
+  const dispatch = useDispatch();
+
   ////// REDUX //////
   ////// USEEFFECT //////
   useEffect(() => {
@@ -51,9 +62,69 @@ const Index = () => {
       return message.error(`로그인이 필요한 페이지입니다.`);
     }
   }, [me]);
+
+  useEffect(() => {
+    dispatch({
+      type: BOUGHT_ALL_REQUEST,
+      data: {
+        type: boughtType,
+        page: currentPage,
+      },
+    });
+  }, [currentPage, boughtType]);
   ////// TOGGLE //////
+
   ////// HANDLER //////
+  // 페이지네이션
+  const pageChangeHandler = useCallback(
+    (page) => {
+      setCurrentPage(page);
+    },
+    [currentPage]
+  );
+
+  // 유형선택
+  const boughtTypehandler = useCallback(
+    (data) => {
+      setBoughtType(data);
+      setStartDate("");
+      setEndDate("");
+    },
+    [boughtType, startDate, endDate]
+  );
+
+  // 시작날짜
+  const startDateHandler = useCallback(
+    (data) => {
+      setStartDate(data);
+    },
+    [startDate]
+  );
+
+  // 끝날짜
+  const endDateHandler = useCallback(
+    (data) => {
+      setEndDate(data);
+    },
+    [endDate]
+  );
+
+  // 날짜 조회
+  const dateSearchHandler = useCallback(() => {
+    dispatch({
+      type: BOUGHT_ALL_REQUEST,
+      data: {
+        type: boughtType,
+        page: currentPage,
+        startDate: startDate.format("YYYY-MM-DD"),
+        endDate: endDate.format("YYYY-MM-DD"),
+      },
+    });
+  }, [startDate, endDate]);
+
   ////// DATAVIEW //////
+
+  console.log(boughtHistorys);
 
   return (
     <>
@@ -79,28 +150,31 @@ const Index = () => {
                 }
                 height={`54px`}
                 fontWeight={`bold`}
-                kindOf={`subTheme2`}
+                kindOf={boughtType === 1 ? `subTheme2` : `grey3`}
+                onClick={() => boughtTypehandler(1)}
               >
                 Artisttem
               </CommonButton>
               <CommonButton
-                kindOf={`grey3`}
                 width={
                   width < 1000 ? (width < 700 ? `105px` : `200px`) : `246px`
                 }
                 height={`54px`}
                 fontWeight={`bold`}
                 margin={width < 700 ? `0 10px` : `0 20px`}
+                kindOf={boughtType === 2 ? `subTheme2` : `grey3`}
+                onClick={() => boughtTypehandler(2)}
               >
                 Musictem
               </CommonButton>
               <CommonButton
-                kindOf={`grey3`}
                 width={
                   width < 1000 ? (width < 700 ? `105px` : `200px`) : `246px`
                 }
                 height={`54px`}
                 fontWeight={`bold`}
+                kindOf={boughtType === 3 ? `subTheme2` : `grey3`}
+                onClick={() => boughtTypehandler(3)}
               >
                 Artworks
               </CommonButton>
@@ -111,6 +185,8 @@ const Index = () => {
                   width: width < 1000 ? (width < 700 ? 120 : 180) : 218,
                   height: 42,
                 }}
+                onChange={startDateHandler}
+                value={startDate}
               />
               <SpanText margin={`0 6px`} fontSize={`16px`}>
                 ~
@@ -120,89 +196,152 @@ const Index = () => {
                   width: width < 1000 ? (width < 700 ? 120 : 180) : 218,
                   height: 42,
                 }}
+                onChange={endDateHandler}
+                value={endDate}
               />
               <CommonButton
                 width={width < 700 ? `70px` : `100px`}
                 height={`42px`}
                 fontSize={`18px`}
                 margin={`0 0 0 12px`}
+                onClick={dateSearchHandler}
               >
                 조회
               </CommonButton>
             </Wrapper>
 
-            <Box>
-              <Wrapper width={`auto`} al={`flex-start`}>
-                <Wrapper
-                  dr={`row`}
-                  ju={`flex-start`}
-                  fontSize={`16px`}
-                  color={Theme.grey_C}
-                  margin={`0 0 18px`}
-                >
-                  <Text fontWeight={`bold`} margin={`0 32px 0 0`}>
-                    2022.10.01
-                  </Text>
-                  <Text>주문번호 : 20221116-00000000</Text>
-                </Wrapper>
-                <Text fontSize={`18px`} fontWeight={`600`}>
-                  아티스트명
-                  {/* musictem, artworks일때 
-                  [앨범명] 곡 제목 */}
-                </Text>
+            {boughtHistorys && boughtHistorys.length === 0 ? (
+              <Wrapper
+                height={`400px`}
+                borderBottom={`1px solid ${Theme.lightGrey_C}`}
+              >
+                <Image
+                  alt="icon"
+                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/blank.png`}
+                  width={`76px`}
+                />
                 <Text
-                  fontWeight={`600`}
-                  color={Theme.darkGrey_C}
-                  margin={`5px 0 0`}
+                  fontSize={width < 900 ? `18px` : `22px`}
+                  color={Theme.grey2_C}
+                  margin={`25px 0 0`}
                 >
-                  아티스트의 한마디가 들어올 곳입니다.
-                  {/* musictem, artworks일때 
-                  Album by 판매자 */}
-                </Text>
-
-                <Text
-                  fontWeight={`600`}
-                  color={Theme.grey_C}
-                  margin={`23px 0 5px`}
-                >
-                  <Image
-                    alt="icon"
-                    src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/head.png`}
-                    width={`10px`}
-                    margin={`0 4px 0 0`}
-                  />
-                  결제방법
-                </Text>
-                <Text padding={`0 0 0 14px`} color={Theme.grey_C}>
-                  신용카드 결제 (120,000원)
-                </Text>
-                <Text padding={`0 0 0 14px`} color={Theme.grey_C}>
-                  적립포인트 사용 (10,000원)
+                  결제 내역이 존재하지 않습니다.
                 </Text>
               </Wrapper>
-              <Wrapper width={width < 700 ? `100%` : `auto`} al={`flex-end`}>
-                <Text
-                  fontSize={`18px`}
-                  fontWeight={`bold`}
-                  color={Theme.basicTheme_C}
-                  margin={`0 0 8px`}
-                >
-                  130,000원
-                </Text>
+            ) : (
+              boughtHistorys &&
+              boughtHistorys.map((data) => {
+                return (
+                  <Box key={data.id}>
+                    <Wrapper width={`auto`} al={`flex-start`}>
+                      <Wrapper
+                        dr={`row`}
+                        ju={`flex-start`}
+                        fontSize={`16px`}
+                        color={Theme.grey_C}
+                        margin={`0 0 18px`}
+                      >
+                        <Text fontWeight={`bold`} margin={`0 32px 0 0`}>
+                          {data.viewFrontCreatedAt}
+                        </Text>
+                        <Text>
+                          주문번호 :&nbsp;
+                          {boughtType === 1
+                            ? data.merchantUid
+                            : `ORD${moment(data.createdAt).format(
+                                "YYYYMMDDHHmmss"
+                              )}`}
+                        </Text>
+                      </Wrapper>
+                      <Text fontSize={`18px`} fontWeight={`600`}>
+                        {boughtType === 1
+                          ? data.artistName
+                          : `[${
+                              data.boughtItems && data.boughtItems[0].albumName
+                            }] ${
+                              data.boughtItems && data.boughtItems[0].songName
+                            } ${
+                              data.boughtItems && data.boughtItems.length === 1
+                                ? ""
+                                : `외 ${
+                                    data.boughtItems && data.boughtItems.length
+                                  }개`
+                            } `}
+                      </Text>
+                      <Text
+                        fontWeight={`600`}
+                        color={Theme.darkGrey_C}
+                        margin={`5px 0 0`}
+                      >
+                        {boughtType === 1
+                          ? data.artistInfo
+                          : `Album by ${
+                              data.boughtItems && data.boughtItems[0].singerName
+                            }`}
+                      </Text>
 
-                <CommonButton
-                  padding={`0`}
-                  width={`83px`}
-                  height={`45px`}
-                  kindOf={`grey`}
-                  margin={width < 700 ? `10px 0 0` : `54px 0 0`}
-                >
-                  전표 출력
-                </CommonButton>
-              </Wrapper>
-            </Box>
+                      <Text
+                        fontWeight={`600`}
+                        color={Theme.grey_C}
+                        margin={`23px 0 5px`}
+                      >
+                        <Image
+                          alt="icon"
+                          src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/head.png`}
+                          width={`10px`}
+                          margin={`0 4px 0 0`}
+                        />
+                        결제방법
+                      </Text>
+                      <Text padding={`0 0 0 14px`} color={Theme.grey_C}>
+                        신용카드 결제 (
+                        {boughtType === 1 ? data.viewPayPrice : data.viewPrice})
+                      </Text>
+                      <Text padding={`0 0 0 14px`} color={Theme.grey_C}>
+                        적립포인트 사용&nbsp;(
+                        {boughtType === 1
+                          ? data.viewUsePointPrice
+                          : data.viewUsePoint}
+                        )
+                      </Text>
+                    </Wrapper>
+                    <Wrapper
+                      width={width < 700 ? `100%` : `auto`}
+                      al={`flex-end`}
+                    >
+                      <Text
+                        fontSize={`18px`}
+                        fontWeight={`bold`}
+                        color={Theme.basicTheme_C}
+                        margin={`0 0 8px`}
+                      >
+                        {boughtType === 1
+                          ? data.viewTotalPrice
+                          : data.viewPrice}
+                      </Text>
 
-            <CustomPage />
+                      {/* <CommonButton
+                        padding={`0`}
+                        width={`83px`}
+                        height={`45px`}
+                        kindOf={`grey`}
+                        margin={width < 700 ? `10px 0 0` : `54px 0 0`}
+                      >
+                        전표 출력
+                      </CommonButton> */}
+                    </Wrapper>
+                  </Box>
+                );
+              })
+            )}
+
+            <CustomPage
+              defaultCurrent={1}
+              current={parseInt(currentPage)}
+              total={lastPage * 10}
+              pageSize={10}
+              onChange={(page) => pageChangeHandler(page)}
+            />
           </RsWrapper>
         </WholeWrapper>
       </ClientLayout>
