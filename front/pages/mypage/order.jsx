@@ -120,11 +120,9 @@ const Index = () => {
         endDate: endDate.format("YYYY-MM-DD"),
       },
     });
-  }, [startDate, endDate]);
+  }, [boughtType, currentPage, startDate, endDate]);
 
   ////// DATAVIEW //////
-
-  console.log(boughtHistorys);
 
   return (
     <>

@@ -66,10 +66,12 @@ router.post("/list", isLoggedIn, async (req, res, next) => {
             type,
             content,
             price,
+            CONCAT(FORMAT(price, ","), "원")                AS viewPrice,
             createdAt,
             updatedAt,
             DATE_FORMAT(createdAt, "%Y년 %m월 %d일")          AS viewCreatedAt,
-            DATE_FORMAT(createdAt, "%Y.%m.%d %H:%i")        AS viewFrontCreatedAt,
+            DATE_FORMAT(createdAt, "%Y.%m.%d")              AS viewFrontDateAt,
+            DATE_FORMAT(createdAt, "%H:%i")                 AS viewFrontHourAt,
             DATE_FORMAT(updatedAt, "%Y년 %m월 %d일")          AS viewUpdatedAt,
             UserId
     FROM    userPoint

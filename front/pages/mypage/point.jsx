@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Head from "next/head";
 import wrapper from "../../store/configureStore";
 import { LOAD_MY_INFO_REQUEST } from "../../reducers/user";
@@ -18,9 +18,10 @@ import {
 import Theme from "../../components/Theme";
 import styled from "styled-components";
 import { Checkbox, DatePicker, message, Select } from "antd";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import ClientLayout from "../../components/ClientLayout";
+import { MY_POINT_LIST_REQUEST } from "../../reducers/point";
 
 const CustomSelect = styled(Wrapper)`
   width: 180px;
@@ -80,9 +81,18 @@ const Box = styled(Wrapper)`
 const Index = () => {
   ////// GLOBAL STATE //////
   const { me } = useSelector((state) => state.user);
+  const { myPointList, myPointPage } = useSelector((state) => state.point);
+
+  const [currentPage, setCurrentPage] = useState(1); // 페이지네이션
+  const [pointType, setPointType] = useState(1); // 유형 type:1(적립) type:2(사용)
+  const [startDate, setStartDate] = useState(""); // 시작날짜
+  const [endDate, setEndDate] = useState(""); // 끝날짜
+
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
+  const dispatch = useDispatch();
+
   ////// REDUX //////
   ////// USEEFFECT //////
   useEffect(() => {
@@ -93,8 +103,66 @@ const Index = () => {
       return message.error(`로그인이 필요한 페이지입니다.`);
     }
   }, [me]);
+
+  useEffect(() => {
+    dispatch({
+      type: MY_POINT_LIST_REQUEST,
+      data: {
+        pointType,
+        page: currentPage,
+      },
+    });
+  }, [currentPage, pointType]);
+
   ////// TOGGLE //////
   ////// HANDLER //////
+  // 페이지네이션
+  const pageChangeHandler = useCallback(
+    (page) => {
+      setCurrentPage(page);
+    },
+    [currentPage]
+  );
+
+  // 유형선택
+  const pointTypehandler = useCallback(
+    (data) => {
+      setPointType(data);
+      setStartDate("");
+      setEndDate("");
+    },
+    [pointType, startDate, endDate]
+  );
+
+  // 시작날짜
+  const startDateHandler = useCallback(
+    (data) => {
+      setStartDate(data);
+    },
+    [startDate]
+  );
+
+  // 끝날짜
+  const endDateHandler = useCallback(
+    (data) => {
+      setEndDate(data);
+    },
+    [endDate]
+  );
+
+  // 날짜 조회
+  const dateSearchHandler = useCallback(() => {
+    dispatch({
+      type: MY_POINT_LIST_REQUEST,
+      data: {
+        pointType,
+        page: currentPage,
+        startDate: startDate.format("YYYY-MM-DD"),
+        endDate: endDate.format("YYYY-MM-DD"),
+      },
+    });
+  }, [pointType, currentPage, startDate, endDate]);
+
   ////// DATAVIEW //////
 
   return (
@@ -122,6 +190,8 @@ const Index = () => {
                     width: width < 1000 ? (width < 700 ? 120 : 180) : 218,
                     height: 42,
                   }}
+                  onChange={startDateHandler}
+                  value={startDate}
                 />
                 <SpanText margin={`0 6px`} fontSize={`16px`}>
                   ~
@@ -131,20 +201,23 @@ const Index = () => {
                     width: width < 1000 ? (width < 700 ? 120 : 180) : 218,
                     height: 42,
                   }}
+                  onChange={endDateHandler}
+                  value={endDate}
                 />
                 <CommonButton
                   width={width < 700 ? `70px` : `100px`}
                   height={`42px`}
                   fontSize={`18px`}
                   margin={`0 0 0 12px`}
+                  onClick={dateSearchHandler}
                 >
                   조회
                 </CommonButton>
               </Wrapper>
               <CustomSelect>
-                <Select>
-                  <Select.Option>적립</Select.Option>
-                  <Select.Option>사용</Select.Option>
+                <Select onChange={pointTypehandler} value={pointType}>
+                  <Select.Option value={1}>적립</Select.Option>
+                  <Select.Option value={2}>사용</Select.Option>
                 </Select>
               </CustomSelect>
             </Wrapper>
@@ -164,46 +237,81 @@ const Index = () => {
               <Wrapper width={`15%`}>적립금</Wrapper>
             </Wrapper>
 
-            <Box>
+            {myPointList && myPointList.length === 0 ? (
               <Wrapper
-                width={width < 700 ? `100%` : `15%`}
-                ju={width < 700 ? `flex-start` : `center`}
-                dr={`row`}
+                height={`400px`}
+                borderBottom={`1px solid ${Theme.lightGrey_C}`}
               >
-                <Text color={Theme.darkGrey_C} margin={`0 8px 0 0`}>
-                  2022.10.01
+                <Image
+                  alt="icon"
+                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/blank.png`}
+                  width={`76px`}
+                />
+                <Text
+                  fontSize={width < 900 ? `18px` : `22px`}
+                  color={Theme.grey2_C}
+                  margin={`25px 0 0`}
+                >
+                  포인트 내역이 존재하지 않습니다.
                 </Text>
-                <Text color={Theme.grey_C}>00:00</Text>
               </Wrapper>
+            ) : (
+              myPointList &&
+              myPointList.map((data) => {
+                return (
+                  <Box key={data.id}>
+                    <Wrapper
+                      width={width < 700 ? `100%` : `15%`}
+                      ju={width < 700 ? `flex-start` : `center`}
+                      dr={`row`}
+                    >
+                      <Text color={Theme.darkGrey_C} margin={`0 8px 0 0`}>
+                        {data.viewFrontDateAt}
+                      </Text>
+                      <Text color={Theme.grey_C}>{data.viewFrontHourAt}</Text>
+                    </Wrapper>
 
-              <Wrapper
-                width={width < 700 ? `100%` : `10%`}
-                al={width < 700 ? `flex-start` : `center`}
-              >
-                <CommonButton height={`35px`}>Artisttem</CommonButton>
-                {/* <CommonButton height={`35px`} kindOf={`subTheme`}>
-                  Musictem
-                </CommonButton> */}
-              </Wrapper>
-              <Wrapper
-                width={width < 700 ? `100%` : `60%`}
-                fontSize={`18px`}
-                padding={width < 700 ? `5px 0` : `0 40px`}
-                al={`flex-start`}
-              >
-                아티스트명/앨범명/곡명
-              </Wrapper>
-              <Wrapper
-                width={width < 700 ? `100%` : `15%`}
-                fontSize={width < 700 ? `18px` : `20px`}
-                fontWeight={`600`}
-                al={width < 700 ? `flex-start` : `center`}
-              >
-                +620원
-              </Wrapper>
-            </Box>
+                    <Wrapper
+                      width={width < 700 ? `100%` : `10%`}
+                      al={width < 700 ? `flex-start` : `center`}
+                    >
+                      <CommonButton
+                        height={`35px`}
+                        kindOf={data.type === "Artisttem" ? "" : `subTheme`}
+                      >
+                        {data.type}
+                      </CommonButton>
+                    </Wrapper>
+                    <Wrapper
+                      width={width < 700 ? `100%` : `60%`}
+                      fontSize={`18px`}
+                      padding={width < 700 ? `5px 0` : `0 40px`}
+                      al={`flex-start`}
+                    >
+                      {data.content}
+                    </Wrapper>
+                    <Wrapper
+                      width={width < 700 ? `100%` : `15%`}
+                      fontSize={width < 700 ? `18px` : `20px`}
+                      fontWeight={`600`}
+                      al={width < 700 ? `flex-start` : `center`}
+                    >
+                      {pointType === 1
+                        ? `+${data.viewPrice}`
+                        : `-${data.viewPrice}`}
+                    </Wrapper>
+                  </Box>
+                );
+              })
+            )}
 
-            <CustomPage />
+            <CustomPage
+              defaultCurrent={1}
+              current={parseInt(currentPage)}
+              total={myPointPage * 10}
+              pageSize={10}
+              onChange={(page) => pageChangeHandler(page)}
+            />
           </RsWrapper>
         </WholeWrapper>
       </ClientLayout>
