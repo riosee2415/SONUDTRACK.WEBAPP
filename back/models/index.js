@@ -50,6 +50,7 @@ const wishitem = require("./wishitem");
 const albumlike = require("./albumlike");
 const artistlike = require("./artistlike");
 const tracklike = require("./tracklike");
+const userpoint = require("./userpoint");
 
 const env = process.env.NODE_ENV || "development";
 const config = require("../config/config")[env];
@@ -113,6 +114,7 @@ db.WishItem = wishitem;
 db.AlbumLike = albumlike;
 db.ArtistLike = artistlike;
 db.TrackLike = tracklike;
+db.UserPoint = userpoint;
 
 Object.keys(db).forEach((modelName) => {
   db[modelName].init(sequelize);

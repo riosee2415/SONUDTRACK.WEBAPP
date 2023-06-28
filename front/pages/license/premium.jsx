@@ -22,12 +22,15 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   ITEM_BUY_CREATE_REQUEST,
   ITEM_CART_CREATE_REQUEST,
+  ITEM_LIST_REQUEST,
 } from "../../reducers/bought";
 
 const Premium = () => {
   ////// GLOBAL STATE //////
   const { me } = useSelector((state) => state.user);
   const {
+    wishItems,
+    st_itemListDone,
     st_itemCartCreateDone,
     st_itemCartCreateError,
     st_itemBuyCreateDone,
@@ -93,7 +96,30 @@ const Premium = () => {
   useEffect(() => {
     if (st_itemBuyCreateDone) {
       sessionStorage.removeItem("ALBUM");
-      return router.push("/order");
+
+      dispatch({
+        type: ITEM_LIST_REQUEST,
+      });
+
+      if (st_itemListDone) {
+        let tempPrice = 0;
+
+        wishItems.map((data) => {
+          tempPrice += data.price;
+        });
+
+        sessionStorage.setItem(
+          "ORDER",
+          JSON.stringify({
+            items: wishItems,
+            price: tempPrice,
+          })
+        );
+
+        router.push("/order");
+      }
+
+      return;
     }
     if (st_itemBuyCreateError) {
       return message.error(st_itemBuyCreateError);

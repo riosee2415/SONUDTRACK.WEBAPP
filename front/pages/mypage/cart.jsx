@@ -197,10 +197,10 @@ const Index = () => {
         })
       );
 
-      dispatch({
-        type: ITEM_DELETE_REQUEST,
-        data: { itemId: currentData },
-      });
+      // dispatch({
+      //   type: ITEM_DELETE_REQUEST,
+      //   data: { itemId: currentData },
+      // });
 
       router.push("/order");
     } else {

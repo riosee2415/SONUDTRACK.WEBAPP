@@ -1063,7 +1063,6 @@ router.post("/admin/list", isAdminCheck, async (req, res, next) => {
                 price,
                 usePoint,
                 payWay,
-                mileagePrice,
                 wishItemIds
  * ORDER BY : -
  * STATEMENT : -
@@ -1071,22 +1070,71 @@ router.post("/admin/list", isAdminCheck, async (req, res, next) => {
  * DEV DATE : 2023/06/21
  */
 router.post("/create", isLoggedIn, async (req, res, next) => {
-  const {
-    name,
-    mobile,
-    email,
-    price,
-    usePoint,
-    payWay,
-    mileagePrice,
-    wishItemIds,
-  } = req.body;
+  const { name, mobile, email, price, usePoint, payWay, wishItemIds } =
+    req.body;
 
   if (!Array.isArray(wishItemIds)) {
     return res.status(401).send("잘못된 요청입니다.");
   }
 
-  const insertQuery = `
+  let userMileagePoint = parseInt(price) * (parseFloat(1.0) / 100);
+  let usersPoint = parseInt(req.user.point);
+
+  try {
+    const findWishItemQuery = `
+      SELECT  songName
+        FROM  wishItem
+       WHERE  id = ${wishItemIds[0]}
+      `;
+
+    const findWishResult = await models.sequelize.query(findWishItemQuery);
+
+    if (parseInt(usePoint) > 0) {
+      if (parseInt(req.user.point) < parseInt(usePoint)) {
+        return res
+          .status(401)
+          .send("보유중인 포인트보다 더 많은 금액을 입력했습니다.");
+      }
+
+      const userPointUpdateQuery = `
+        UPDATE  users
+           SET  point = ${parseInt(usersPoint) - parseInt(usePoint)}
+         WHERE  id = ${req.user.id}
+        `;
+
+      usersPoint = parseInt(usersPoint) - parseInt(usePoint);
+
+      await models.sequelize.query(userPointUpdateQuery);
+
+      const insertPointQuery = `
+      INSERT  INTO  userPoint
+      (
+        pointType,
+        type,
+        content,
+        price,
+        UserId,
+        createdAt,
+        updatedAt
+      )
+      VALUES
+      (
+        "사용",
+        "Musictem",
+        "${findWishResult[0][0].songName}${
+        wishItemIds.length - 1 !== 0 ? `외 ${wishItemIds.length - 1}개` : ``
+      }",
+        ${usePoint},
+        ${req.user.id},
+        NOW(),
+        NOW()
+      )
+      `;
+
+      await models.sequelize.query(insertPointQuery);
+    }
+
+    const insertQuery = `
     INSERT  INTO  boughtHistory
     (
       name,
@@ -1108,34 +1156,12 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
       ${price},
       ${usePoint},
       "${payWay}",
-      ${mileagePrice},
+      ${userMileagePoint},
       NOW(),
       NOW(),
       ${req.user.id}
     )
     `;
-
-  let userMileagePoint = parseInt(price) * (parseFloat(1.0) / 100);
-  let usersPoint = parseInt(req.user.point);
-
-  try {
-    if (parseInt(usePoint) > 0) {
-      if (parseInt(req.user.point) < parseInt(usePoint)) {
-        return res
-          .status(401)
-          .send("보유중인 포인트보다 더 많은 금액을 입력했습니다.");
-      }
-
-      const userPointUpdateQuery = `
-        UPDATE  users
-           SET  point = ${parseInt(usersPoint) - parseInt(usePoint)}
-         WHERE  id = ${req.user.id}
-        `;
-
-      usersPoint = parseInt(usersPoint) - parseInt(usePoint);
-
-      await models.sequelize.query(userPointUpdateQuery);
-    }
 
     const insertResult = await models.sequelize.query(insertQuery);
 
@@ -1158,6 +1184,33 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
       `;
 
     await models.sequelize.query(userUpdateQuery);
+
+    const insertPointHistoryQuery = `
+      INSERT  INTO  userPoint
+      (
+        pointType,
+        type,
+        content,
+        price,
+        UserId,
+        createdAt,
+        updatedAt
+      )
+      VALUES
+      (
+        "적립",
+        "Musictem",
+        "${findWishResult[0][0].songName}${
+      wishItemIds.length - 1 !== 0 ? `외 ${wishItemIds.length - 1}개` : ``
+    }",
+        ${userMileagePoint},
+        ${req.user.id},
+        NOW(),
+        NOW()
+      )
+      `;
+
+    await models.sequelize.query(insertPointHistoryQuery);
 
     return res.status(201).json({ result: true });
   } catch (error) {
