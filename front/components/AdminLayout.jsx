@@ -102,11 +102,6 @@ export const items = {
       link: "/admin/user/buyStatus",
       useYn: true,
     },
-    {
-      name: "판매자 회원 관리",
-      link: "/admin/user/artistList",
-      useYn: true,
-    },
   ],
   고객지원관리: [
     {
@@ -183,13 +178,18 @@ export const items = {
   ],
   음원관리: [
     {
-      name: "등록앨범관리",
+      name: "뮤직템관리",
       link: "/admin/snd/list",
       useYn: true,
     },
     {
       name: "음원승인관리",
       link: "/admin/snd/track",
+      useYn: true,
+    },
+    {
+      name: "프리미엄 앨범 관리",
+      link: "/admin/user/artistList",
       useYn: true,
     },
   ],

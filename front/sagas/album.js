@@ -52,6 +52,10 @@ import {
   MUSICTEM_PREMIUM_ADMIN_LIST_REQUEST,
   MUSICTEM_PREMIUM_ADMIN_LIST_SUCCESS,
   MUSICTEM_PREMIUM_ADMIN_LIST_FAILURE,
+  //
+  MUSICTEM_ADMIN_LIST_REQUEST,
+  MUSICTEM_ADMIN_LIST_SUCCESS,
+  MUSICTEM_ADMIN_LIST_FAILURE,
 } from "../reducers/album";
 
 // ******************************************************************************************************************
@@ -396,6 +400,30 @@ function* musictemPremiumAdminList(action) {
     });
   }
 }
+
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function musictemAdminListAPI(data) {
+  return await axios.post(`/api/album/musictem/admin/list`, data);
+}
+
+function* musictemAdminList(action) {
+  try {
+    const result = yield call(musictemAdminListAPI, action.data);
+
+    yield put({
+      type: MUSICTEM_ADMIN_LIST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: MUSICTEM_ADMIN_LIST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 // ******************************************************************************************************************
@@ -443,6 +471,9 @@ function* watchMusictemPremiumAdminList() {
     musictemPremiumAdminList
   );
 }
+function* watchMusictemAdminList() {
+  yield takeLatest(MUSICTEM_ADMIN_LIST_REQUEST, musictemAdminList);
+}
 
 //////////////////////////////////////////////////////////////
 export default function* albumSaga() {
@@ -460,6 +491,7 @@ export default function* albumSaga() {
     fork(watchAlbumDetail),
     fork(watchTrackAdminList),
     fork(watchMusictemPremiumAdminList),
+    fork(watchMusictemAdminList),
 
     //
   ]);

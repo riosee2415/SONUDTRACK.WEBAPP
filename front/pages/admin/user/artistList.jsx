@@ -163,7 +163,7 @@ const ArtistList = ({}) => {
 
   const [searchType, setSearchType] = useState(1);
 
-  const [level1, setLevel1] = useState("회원관리");
+  const [level1, setLevel1] = useState("음원관리");
   const [level2, setLevel2] = useState("");
 
   //   MODAL
@@ -181,8 +181,6 @@ const ArtistList = ({}) => {
   const [trackname, setTrackname] = useState(null);
   const [albumImageName, setAlbumImageName] = useState(null);
   const [titleTrackLength, setTitleTrackLength] = useState(0);
-
-  console.log(trackData);
 
   // REF
   const trackRef = useRef();
@@ -326,7 +324,6 @@ const ArtistList = ({}) => {
   // 프리미엄 앨범 등록하기
   const premiumCreateHandler = useCallback(
     (data) => {
-      console.log(data);
       if (!sellerImage) {
         return message.error("앨범 이미지를 등록해주세요.");
       }
@@ -555,17 +552,17 @@ const ArtistList = ({}) => {
       title: "등록일",
       dataIndex: "viewCreatedAt",
     },
-    {
-      width: "5%",
-      title: "삭제",
-      render: (data) => (
-        <Popconfirm title="삭제하시겠습니까?" okText="삭제" cancelText="취소">
-          <Button type="danger" size="small">
-            삭제
-          </Button>
-        </Popconfirm>
-      ),
-    },
+    // {
+    //   width: "5%",
+    //   title: "삭제",
+    //   render: (data) => (
+    //     <Popconfirm title="삭제하시겠습니까?" okText="삭제" cancelText="취소">
+    //       <Button type="danger" size="small">
+    //         삭제
+    //       </Button>
+    //     </Popconfirm>
+    //   ),
+    // },
   ];
 
   return (

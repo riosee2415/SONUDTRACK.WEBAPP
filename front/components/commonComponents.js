@@ -738,7 +738,7 @@ export const AdminContent = styled.div`
 `;
 
 export const SearchForm = styled(Form)`
-  background-color: ${(props) => props.theme.grey_C};
+  background-color: ${(props) => props.theme.lightGrey_C};
   padding: 0px 5px;
   margin-bottom: 10px;
   border-radius: 5px;

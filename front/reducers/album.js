@@ -5,7 +5,8 @@ export const initailState = {
   albumFile: null,
   albumTrackFile: null,
   musictemList: [], // 뮤직템 리스트
-  musictemPremiumAdminList: [], // 뮤직템 관리자 리스트
+  musictemPremiumAdminList: [], // 프리미엄 뮤직템 관리자 리스트
+  musictemAdminList: [], // 뮤직템 관리자 리스트
   newMusictemList: [], // new 뮤직템 리스트
   trackAdminList: [], // 관리자 트랙 리스트
 
@@ -54,9 +55,13 @@ export const initailState = {
   st_musictemListDone: false,
   st_musictemListError: null,
   //
-  st_musictemPremiumAdminListLoading: false, // 뮤직템 관리자 리스트
+  st_musictemPremiumAdminListLoading: false, // 프리미엄 뮤직템 관리자 리스트
   st_musictemPremiumAdminListDone: false,
   st_musictemPremiumAdminListError: null,
+  //
+  st_musictemAdminListLoading: false, // 뮤직템 관리자 리스트
+  st_musictemAdminListDone: false,
+  st_musictemAdminListError: null,
   //
   st_newMusictemListLoading: false, // new 뮤직템 리스트
   st_newMusictemListDone: false,
@@ -113,6 +118,10 @@ export const MUSICTEM_PREMIUM_ADMIN_LIST_SUCCESS =
   "MUSICTEM_PREMIUM_ADMIN_LIST_SUCCESS";
 export const MUSICTEM_PREMIUM_ADMIN_LIST_FAILURE =
   "MUSICTEM_PREMIUM_ADMIN_LIST_FAILURE";
+
+export const MUSICTEM_ADMIN_LIST_REQUEST = "MUSICTEM_ADMIN_LIST_REQUEST";
+export const MUSICTEM_ADMIN_LIST_SUCCESS = "MUSICTEM_ADMIN_LIST_SUCCESS";
+export const MUSICTEM_ADMIN_LIST_FAILURE = "MUSICTEM_ADMIN_LIST_FAILURE";
 
 export const NEW_MUSICTEM_LIST_REQUEST = "NEW_MUSICTEM_LIST_REQUEST";
 export const NEW_MUSICTEM_LIST_SUCCESS = "NEW_MUSICTEM_LIST_SUCCESS";
@@ -408,6 +417,28 @@ const reducer = (state = initailState, action) =>
         draft.st_musictemPremiumAdminListLoading = false;
         draft.st_musictemPremiumAdminListDone = false;
         draft.st_musictemPremiumAdminListError = action.error;
+        break;
+      }
+      //////////////////////////////////////////////
+
+      case MUSICTEM_ADMIN_LIST_REQUEST: {
+        draft.st_musictemAdminListLoading = true;
+        draft.st_musictemAdminListDone = false;
+        draft.st_musictemAdminListError = null;
+        break;
+      }
+      case MUSICTEM_ADMIN_LIST_SUCCESS: {
+        draft.st_musictemAdminListLoading = false;
+        draft.st_musictemAdminListDone = true;
+        draft.st_musictemAdminListError = null;
+        draft.musictemAdminList = action.data;
+
+        break;
+      }
+      case MUSICTEM_ADMIN_LIST_FAILURE: {
+        draft.st_musictemAdminListLoading = false;
+        draft.st_musictemAdminListDone = false;
+        draft.st_musictemAdminListError = action.error;
         break;
       }
 
