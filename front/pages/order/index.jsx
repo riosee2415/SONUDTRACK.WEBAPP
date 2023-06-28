@@ -78,6 +78,8 @@ const Intro = () => {
     }
   }, []);
 
+  console.log(orderData);
+
   useEffect(() => {
     if (st_boughtCreateDone) {
       sessionStorage.removeItem("ORDER");
