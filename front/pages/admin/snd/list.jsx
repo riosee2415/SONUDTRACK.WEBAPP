@@ -155,6 +155,15 @@ const List = ({}) => {
 
   ////// HANDLER //////
 
+  const searchHandler = useCallback((data) => {
+    dispatch({
+      type: MUSICTEM_ADMIN_LIST_REQUEST,
+      data: {
+        songName: data.sData,
+      },
+    });
+  }, []);
+
   ////// DATAVIEW //////
 
   const columns = [
@@ -272,13 +281,14 @@ const List = ({}) => {
           layout="inline"
           style={{ width: "100%" }}
           form={sForm}
-          // onFinish={searchHandler}
+          onFinish={searchHandler}
         >
           <SearchFormItem name="sData" style={{ margin: `0px 0px 0px 5px` }}>
             <Input
               size="small"
               style={{ width: "320px" }}
-              placeholder={`회원을 검색할 정보를 입력해주세요.`}
+              placeholder={`검색할 곡명을 입력해주세요.`}
+              allowClear
             />
           </SearchFormItem>
 
