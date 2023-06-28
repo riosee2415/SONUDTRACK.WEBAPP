@@ -25,11 +25,13 @@ import MainSlider2 from "../../components/slide/MainSlider2";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { NEW_ARTIST_LIST_REQUEST } from "../../reducers/artist";
-import { ARTISTEM_LIST_REQUEST } from "../../reducers/seller";
+import {
+  ARTISTEM_LIST_REQUEST,
+  ARTISTEM_TOP_SELL_LIST_REQUEST,
+} from "../../reducers/seller";
 import { CATE_ALL_LIST_REQUEST } from "../../reducers/category";
 import { TAG_LIST_REQUEST } from "../../reducers/tag";
 import useInput from "../../hooks/useInput";
-import { CATEGORY_LIST_REQUEST } from "../../reducers/product";
 
 const CustomSelect = styled(Wrapper)`
   width: 240px;
@@ -80,7 +82,9 @@ const Box = styled(Wrapper)`
 const Index = () => {
   ////// GLOBAL STATE //////
   const { newArtistList } = useSelector((state) => state.artist);
-  const { artistemList } = useSelector((state) => state.seller);
+  const { artistemList, artistemTopSell } = useSelector(
+    (state) => state.seller
+  );
   const { tagList, tagTypeList } = useSelector((state) => state.tag);
 
   const { cateAllList } = useSelector((state) => state.category);
@@ -448,9 +452,9 @@ const Index = () => {
             </Wrapper>
 
             {/* 아티스트탬 슬라이드 */}
-            {/* {artistemSlideList.length !== 0 && (
-              <MainSlider2 datum={artistemSlideList} />
-            )} */}
+            {artistemTopSell.length !== 0 && (
+              <MainSlider2 datum={artistemTopSell} />
+            )}
 
             <Wrapper margin={`100px 0 45px`}>
               <Text
@@ -716,6 +720,10 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: CATE_ALL_LIST_REQUEST,
+    });
+
+    context.store.dispatch({
+      type: ARTISTEM_TOP_SELL_LIST_REQUEST,
     });
 
     // 구현부 종료

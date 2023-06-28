@@ -4,6 +4,7 @@ import Head from "next/head";
 import wrapper from "../../store/configureStore";
 import {
   LOAD_MY_INFO_REQUEST,
+  ME_ACCOUNT_UPDATE_REQUEST,
   USER_INFO_PASS_UPDATE_REQUEST,
   USER_INFO_UPDATE_REQUEST,
   USER_PASS_COMPARE_REQUEST,
@@ -28,14 +29,33 @@ import { useRouter } from "next/router";
 
 const Account = () => {
   ////// GLOBAL STATE //////
-  const { me } = useSelector((state) => state.user);
+  const {
+    me,
+    //
+    st_meAccountUpdateDone,
+    st_meAccountUpdateError,
+  } = useSelector((state) => state.user);
 
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
   const dispatch = useDispatch();
 
+  //   INPUT
+  const accountInput = useInput(``);
+  const [bankName, setBankName] = useState(null);
+
   ////// USEEFFECT //////
+
+  useEffect(() => {
+    if (st_meAccountUpdateDone) {
+      return message.success("계좌정보가 수정되었습니다.");
+    }
+    if (st_meAccountUpdateError) {
+      return message.error(st_meAccountUpdateError);
+    }
+  }, [st_meAccountUpdateDone, st_meAccountUpdateError]);
+
   useEffect(() => {
     if (!me) {
       router.push(`/user/login`);
@@ -43,11 +63,37 @@ const Account = () => {
 
       return message.error(`로그인이 필요한 페이지입니다.`);
     }
+
+    if (me) {
+      setBankName(me.bankName);
+      accountInput.setValue(me.acconuntNum);
+    }
   }, [me]);
+
+  console.log(me);
 
   ////// TOGGLE //////
 
   ////// HANDLER //////
+
+  //   계좌 등록하기
+  const accountUpdateHandler = useCallback(() => {
+    if (!bankName) {
+      return message.error("은행명을 선택해주세요.");
+    }
+
+    if (!accountInput.value) {
+      return message.error("계좌번호를 입력해주세요.");
+    }
+
+    dispatch({
+      type: ME_ACCOUNT_UPDATE_REQUEST,
+      data: {
+        bankName,
+        acconuntNum: accountInput.value,
+      },
+    });
+  }, [bankName, accountInput]);
 
   ////// DATAVIEW //////
 
@@ -78,10 +124,14 @@ const Account = () => {
               </Text>
 
               <Text fontSize={`16px`} color={Theme.grey_C} margin={`0 0 5px`}>
-                아이디
+                은행명
               </Text>
               <CustomSelect margin={`0 0 30px`}>
-                <Select placeholder="선택">
+                <Select
+                  placeholder="선택"
+                  onChange={(data) => setBankName(data)}
+                  value={bankName}
+                >
                   <Select.Option value="하나은행">하나은행</Select.Option>
                   <Select.Option value="국민은행">국민은행</Select.Option>
                   <Select.Option value="신한은행">신한은행</Select.Option>
@@ -98,8 +148,10 @@ const Account = () => {
                   height={`50px`}
                   border={`1px solid ${Theme.lightGrey_C}`}
                   placeholder="`-`를 제외한 계좌번호를 입력해주세요."
+                  {...accountInput}
+                  type="number"
                 />
-                <CommonButton
+                {/* <CommonButton
                   width={`100px`}
                   height={`50px`}
                   fontSize={`16px`}
@@ -107,7 +159,7 @@ const Account = () => {
                   kindOf={`subTheme2`}
                 >
                   계좌확인
-                </CommonButton>
+                </CommonButton> */}
               </Wrapper>
             </Wrapper>
 
@@ -116,6 +168,7 @@ const Account = () => {
               width={`180px`}
               height={`50px`}
               fontSize={`18px`}
+              onClick={accountUpdateHandler}
             >
               계좌 정보 등록
             </CommonButton>

@@ -782,7 +782,7 @@ function* logout(action) {
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
 async function meAccountUpdateAPI(data) {
-  return await axios.get(`/api/user/me/account/update`, data);
+  return await axios.post(`/api/user/me/account/update`, data);
 }
 
 function* meAccountUpdate(action) {

@@ -423,7 +423,7 @@ const MypageMenu = ({}) => {
               ? `4px solid ${Theme.subTheme_C}`
               : `4px solid ${Theme.white_C}`
           }
-          onClick={() => movelinkHandler(`/mypage`)}
+          onClick={() => movelinkHandler(`/`)}
         >
           메인으로
         </Menu>
@@ -611,6 +611,7 @@ const MypageMenu = ({}) => {
                     router.pathname === `/` ? Theme.black_C : Theme.grey2_C
                   }
                   isHover
+                  onClick={() => movelinkHandler(`/mypage/account`)}
                 >
                   계좌 관리
                 </Text>

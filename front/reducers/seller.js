@@ -8,6 +8,7 @@ export const initailState = {
   filmoFile: null, // 필모그래피 파일
   artistemList: [], // 아티스템 리스트
   artistemDetail: [], // 아티스템 디테일
+  artistemTopSell: [], // 아티스템 판매량 많은 순
   //   아티스템 상세 조회
   artistemData: null,
   findCountryInfoData: [],
@@ -63,6 +64,10 @@ export const initailState = {
   st_musicTemInfoUpdateLoading: false,
   st_musicTemInfoUpdateDone: false,
   st_musicTemInfoUpdateError: null,
+  // 아티스템 판매량 많은순
+  st_artistemTopSellListLoading: false,
+  st_artistemTopSellListDone: false,
+  st_artistemTopSellListError: null,
 };
 
 export const SELLER_LIST_REQUEST = "SELLER_LIST_REQUEST";
@@ -112,6 +117,10 @@ export const ARTISTEM_DETAIL_FAILURE = "ARTISTEM_DETAIL_FAILURE";
 export const MUSICTEM_INFO_UPDATE_REQUEST = "MUSICTEM_INFO_UPDATE_REQUEST";
 export const MUSICTEM_INFO_UPDATE_SUCCESS = "MUSICTEM_INFO_UPDATE_SUCCESS";
 export const MUSICTEM_INFO_UPDATE_FAILURE = "MUSICTEM_INFO_UPDATE_FAILURE";
+
+export const ARTISTEM_TOP_SELL_LIST_REQUEST = "ARTISTEM_TOP_SELL_LIST_REQUEST";
+export const ARTISTEM_TOP_SELL_LIST_SUCCESS = "ARTISTEM_TOP_SELL_LIST_SUCCESS";
+export const ARTISTEM_TOP_SELL_LIST_FAILURE = "ARTISTEM_TOP_SELL_LIST_FAILURE";
 
 export const SELLER_IMAGE_RESET = "SELLER_IMAGE_RESET";
 export const ARTISTEM_FILE_RESET = "ARTISTEM_FILE_RESET";
@@ -364,6 +373,27 @@ const reducer = (state = initailState, action) =>
         break;
       }
       case MUSICTEM_INFO_UPDATE_FAILURE: {
+        draft.st_musictemInfoUpdateLoading = false;
+        draft.st_musictemInfoUpdateDone = false;
+        draft.st_musictemInfoUpdateError = action.error;
+        break;
+      }
+      ///////////////////////////////////////////////////////
+      case ARTISTEM_TOP_SELL_LIST_REQUEST: {
+        draft.st_musictemInfoUpdateLoading = true;
+        draft.st_musictemInfoUpdateDone = false;
+        draft.st_musictemInfoUpdateError = null;
+        break;
+      }
+      case ARTISTEM_TOP_SELL_LIST_SUCCESS: {
+        draft.st_musictemInfoUpdateLoading = false;
+        draft.st_musictemInfoUpdateDone = true;
+        draft.st_musictemInfoUpdateError = null;
+        draft.artistemTopSell = action.data;
+
+        break;
+      }
+      case ARTISTEM_TOP_SELL_LIST_FAILURE: {
         draft.st_musictemInfoUpdateLoading = false;
         draft.st_musictemInfoUpdateDone = false;
         draft.st_musictemInfoUpdateError = action.error;

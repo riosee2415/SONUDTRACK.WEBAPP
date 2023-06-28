@@ -48,6 +48,10 @@ import {
   MUSICTEM_INFO_UPDATE_REQUEST,
   MUSICTEM_INFO_UPDATE_SUCCESS,
   MUSICTEM_INFO_UPDATE_FAILURE,
+  //
+  ARTISTEM_TOP_SELL_LIST_REQUEST,
+  ARTISTEM_TOP_SELL_LIST_SUCCESS,
+  ARTISTEM_TOP_SELL_LIST_FAILURE,
 } from "../reducers/seller";
 
 // SAGA AREA ********************************************************************************************************
@@ -326,6 +330,29 @@ function* musictemInfoUpdate(action) {
   }
 }
 
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function artistemTopSellListAPI(data) {
+  return await axios.post(`/api/seller/artistem/topSell/list`, data);
+}
+
+function* artistemTopSellList(action) {
+  try {
+    const result = yield call(artistemTopSellListAPI, action.data);
+
+    yield put({
+      type: ARTISTEM_TOP_SELL_LIST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: ARTISTEM_TOP_SELL_LIST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 // ******************************************************************************************************************
@@ -370,6 +397,10 @@ function* watchMusictemInfoUpdate() {
   yield takeLatest(MUSICTEM_INFO_UPDATE_REQUEST, musictemInfoUpdate);
 }
 
+function* watchArtistemTopSellList() {
+  yield takeLatest(ARTISTEM_TOP_SELL_LIST_REQUEST, artistemTopSellList);
+}
+
 //////////////////////////////////////////////////////////////
 export default function* sellerSaga() {
   yield all([
@@ -387,6 +418,8 @@ export default function* sellerSaga() {
     fork(watchArtistemList),
     fork(watchArtistemDetail),
     fork(watchMusictemInfoUpdate),
+    //
+    fork(watchArtistemTopSellList),
 
     //
   ]);

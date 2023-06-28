@@ -13,6 +13,7 @@ import Theme from "../Theme";
 import useWidth from "../../hooks/useWidth";
 import moment from "moment";
 import { useRouter } from "next/router";
+import { Rate } from "antd";
 
 const LeftBox = styled(Wrapper)`
   width: 50%;
@@ -84,6 +85,7 @@ const Audio = styled.audio`
 `;
 
 const MainSlider2 = ({ datum }) => {
+  console.log(datum);
   const width = useWidth();
   const router = useRouter();
 
@@ -148,7 +150,7 @@ const MainSlider2 = ({ datum }) => {
           radius={`14px`}
           alt="thumnail"
           height={`100%`}
-          src={datum[status] && datum[status].profileImage}
+          src={datum[status] && datum[status].artistProfileImage}
         />
       </LeftBox>
       <RightBox>
@@ -185,22 +187,25 @@ const MainSlider2 = ({ datum }) => {
             <Text color={Theme.darkGrey_C}>
               {datum[status] && datum[status].likeCnt}
             </Text>
-            <Wrapper
-              dr={`row`}
-              width={`auto`}
-              color={Theme.subTheme4_C}
-              margin={`0 0 0 14px`}
-              fontSize={`16px`}
-            >
+
+            <Wrapper dr={`row`} width={`auto`} margin={`0 0 0 14px`}>
+              {/* <StarFilled />
               <StarFilled />
               <StarFilled />
               <StarFilled />
-              <StarFilled />
-              <StarFilled />
+              <StarFilled /> */}
+              <Rate
+                value={datum[status] && datum[status].likeCnt}
+                disabled
+                style={{
+                  fontSize: `16px`,
+                  color: Theme.subTheme4_C,
+                }}
+              />
             </Wrapper>
           </Wrapper>
           <Text fontSize={width < 900 ? `14px` : `16px`}>
-            "{datum[status] && datum[status].info}"
+            "{datum[status] && datum[status].artistInfo}"
           </Text>
 
           <Wrapper dr={`row`} ju={`flex-start`} margin={`20px 0 0`}>
@@ -215,7 +220,7 @@ const MainSlider2 = ({ datum }) => {
                     padding={`0 15px`}
                     margin={`0 4px 0 0`}
                   >
-                    {data.value}
+                    {data.tagValue}
                   </Wrapper>
                 );
               })}
