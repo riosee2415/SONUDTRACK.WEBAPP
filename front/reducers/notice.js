@@ -115,7 +115,7 @@ const reducer = (state = initailState, action) =>
       case NOTICE_LIST_SUCCESS: {
         draft.st_noticeListLoading = false;
         draft.st_noticeListDone = true;
-        draft.notices = action.data;
+        draft.notices = action.data.notices;
         break;
       }
       case NOTICE_LIST_FAILURE: {

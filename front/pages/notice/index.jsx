@@ -21,7 +21,7 @@ import styled from "styled-components";
 import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
 import useInput from "../../hooks/useInput";
-import { FRONT_NOTICE_LIST_REQUEST } from "../../reducers/notice";
+import { NOTICE_LIST_REQUEST } from "../../reducers/notice";
 
 const List = styled(Wrapper)`
   flex-direction: row;
@@ -42,7 +42,7 @@ const List = styled(Wrapper)`
 
 const Index = () => {
   ////// GLOBAL STATE //////
-  const { noticeList, noticePage } = useSelector((state) => state.notice);
+  const { notices, noticePage } = useSelector((state) => state.notice);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -57,7 +57,7 @@ const Index = () => {
 
   useEffect(() => {
     dispatch({
-      type: FRONT_NOTICE_LIST_REQUEST,
+      type: NOTICE_LIST_REQUEST,
       data: {
         title: search.value,
         page: currentPage,
@@ -174,7 +174,7 @@ const Index = () => {
                 <Wrapper width={width < 900 ? `25%` : `20%`}>작성일자</Wrapper>
               </Wrapper>
 
-              {noticeList && noticeList.length === 0 ? (
+              {notices && notices.length === 0 ? (
                 <Wrapper
                   height={`300px`}
                   borderBottom={`1px solid ${Theme.lightGrey_C}`}
@@ -193,8 +193,7 @@ const Index = () => {
                   </Text>
                 </Wrapper>
               ) : (
-                noticeList &&
-                noticeList.map((data) => {
+                notices.map((data) => {
                   return (
                     <List
                       key={data.id}
