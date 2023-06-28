@@ -37,6 +37,8 @@ import {
   MUSICTEM_LIST_REQUEST,
   NEW_MUSICTEM_LIST_REQUEST,
 } from "../../reducers/album";
+import { CATE_ALL_LIST_REQUEST } from "../../reducers/category";
+import { TAG_LIST_REQUEST } from "../../reducers/tag";
 
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
@@ -80,6 +82,9 @@ const Index = () => {
     useSelector((state) => state.product);
 
   const { musictemList, newMusictemList } = useSelector((state) => state.album);
+  const { tagList, tagTypeList } = useSelector((state) => state.tag);
+
+  const { cateAllList } = useSelector((state) => state.category);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -97,6 +102,7 @@ const Index = () => {
   const [allAudioTime, setAllAudioTime] = useState([]);
   const [newAudioTime, setNewAudioTime] = useState([]);
   const [selectOrderType, setSelectOrderType] = useState(1);
+  const [cateData, setCateData] = useState(null); // 카테고리 아이디
 
   const [searchBigTag, setSearchBigTag] = useState(null);
   const [searchSmallTag, setSearchSmallTag] = useState(null);
@@ -226,6 +232,15 @@ const Index = () => {
   }, [contact]);
 
   ////// HANDLER //////
+  const tagTypeHandler = useCallback((data) => {
+    dispatch({
+      type: TAG_LIST_REQUEST,
+      data: {
+        TagTypeId: data,
+      },
+    });
+  }, []);
+
   const searchBigTagChangeHandler = useCallback(
     (data) => {
       setSearchBigTag(data);
@@ -274,6 +289,13 @@ const Index = () => {
     [selectOrderType, listPage, searchSmallTag, searchValue.value]
   );
 
+  // 카테고리 선택
+  const categoryTypeHandler = useCallback(
+    (data) => {
+      setCateData(data);
+    },
+    [cateData]
+  );
   ////// DATAVIEW //////
 
   return (
@@ -298,7 +320,7 @@ const Index = () => {
             </Wrapper>
 
             <Wrapper dr={`row`} ju={`flex-start`}>
-              {/* <Wrapper width={`auto`} al={`flex-start`}>
+              <Wrapper width={`auto`} al={`flex-start`}>
                 <Text
                   fontSize={width < 900 ? `16px` : `20px`}
                   fontWeight={`bold`}
@@ -308,15 +330,28 @@ const Index = () => {
                   Category
                 </Text>
                 <CustomSelect>
-                  <Select>
-                    <Select.Option>ALL</Select.Option>
+                  <Select
+                    onChange={categoryTypeHandler}
+                    placeholder={"Category"}
+                  >
+                    {cateAllList &&
+                      cateAllList.map((data) => {
+                        if (data.label === "뮤직탬")
+                          return data.options.map((value) => {
+                            return (
+                              <Select.Option key={value.id} value={value.id}>
+                                {value.label}
+                              </Select.Option>
+                            );
+                          });
+                      })}
                   </Select>
                 </CustomSelect>
-              </Wrapper> */}
+              </Wrapper>
               <Wrapper
                 width={`auto`}
                 al={`flex-start`}
-                margin={width < 900 ? `0 0 10px 0` : `0 50px 0 0`}
+                margin={width < 900 ? `10px 0` : `0 50px`}
               >
                 <Text
                   fontSize={width < 900 ? `16px` : `20px`}
@@ -328,38 +363,31 @@ const Index = () => {
                 </Text>
                 <Wrapper dr={`row`} width={`auto`}>
                   <CustomSelect margin={`0 14px 0 0`}>
-                    <Select
-                      onChange={searchBigTagChangeHandler}
-                      placeholder="태그유형을 선택해주세요."
-                    >
-                      {commonTags &&
-                        [...new Set(commonTags.map((data) => data.type))].map(
-                          (data, idx) => {
-                            return (
-                              <Select.Option key={idx} value={data}>
-                                {data}
-                              </Select.Option>
-                            );
-                          }
-                        )}
+                    <Select placeholder={"Tag"} onChange={tagTypeHandler}>
+                      <Select.Option>ALL</Select.Option>
+                      {tagTypeList &&
+                        tagTypeList.map((data) => {
+                          return (
+                            <Select.Option key={data.id} value={data.id}>
+                              {data.value}
+                            </Select.Option>
+                          );
+                        })}
                     </Select>
                   </CustomSelect>
                   <CustomSelect>
                     <Select
+                      placeholder={"Tag"}
                       onChange={searchSmallTagChangeHandler}
-                      placeholder="태그를 선택해주세요."
                     >
-                      {commonTags &&
-                        searchBigTag &&
-                        commonTags
-                          .filter((data) => data.type === searchBigTag)
-                          .map((data) => {
-                            return (
-                              <Select.Option key={data.id} value={data.id}>
-                                {data.value}
-                              </Select.Option>
-                            );
-                          })}
+                      {tagList &&
+                        tagList.map((data) => {
+                          return (
+                            <Select.Option key={data.id} value={data.id}>
+                              {data.tagValue}
+                            </Select.Option>
+                          );
+                        })}
                     </Select>
                   </CustomSelect>
                 </Wrapper>
@@ -1552,6 +1580,10 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: NEW_MUSICTEM_LIST_REQUEST,
+    });
+
+    context.store.dispatch({
+      type: CATE_ALL_LIST_REQUEST,
     });
 
     // 구현부 종료
