@@ -1,17 +1,15 @@
 import React, { useEffect, useRef } from "react";
-import styled, { keyframes } from "styled-components";
+import styled from "styled-components";
 import { useState } from "react";
 import {
   CaretLeftFilled,
   CaretRightFilled,
   PlusOutlined,
-  StarFilled,
 } from "@ant-design/icons";
 import { useCallback } from "react";
 import { Image, Text, Wrapper } from "../commonComponents";
 import Theme from "../Theme";
 import useWidth from "../../hooks/useWidth";
-import moment from "moment";
 import { useRouter } from "next/router";
 import { Rate } from "antd";
 
@@ -85,7 +83,6 @@ const Audio = styled.audio`
 `;
 
 const MainSlider2 = ({ datum }) => {
-  console.log(datum);
   const width = useWidth();
   const router = useRouter();
 
@@ -283,17 +280,17 @@ const MainSlider2 = ({ datum }) => {
               width={`61px`}
               height={`61px`}
               radius={`100%`}
-              src={musticData.profileImage}
+              src={musticData.artistProfileImage}
             />
             <Wrapper width={`auto`} al={`flex-start`} padding={`0 0 0 14px`}>
               <Text fontSize={`20px`} fontWeight={`bold`}>
                 {musticData.title}
               </Text>
-              <Text>{musticData.artistname}</Text>
+              <Text>{musticData.name}</Text>
             </Wrapper>
           </Wrapper>
           <Wrapper width={`calc(100% - 540px)`} dr={`row`}>
-            <Audio ref={aRef} controls src={musticData.repSongFilePath}></Audio>
+            <Audio ref={aRef} controls src={musticData.repMusicFile}></Audio>
             <Wrapper
               width={`150px`}
               dr={`row`}

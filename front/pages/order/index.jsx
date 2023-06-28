@@ -21,12 +21,16 @@ import { Checkbox, message, Radio } from "antd";
 import { useRouter } from "next/router";
 import useInput from "../../hooks/useInput";
 import { useDispatch, useSelector } from "react-redux";
-import { BOUGHT_CREATE_REQUEST } from "../../reducers/bought";
+import {
+  BOUGHT_CREATE_REQUEST,
+  ITEM_DELETE_REQUEST,
+} from "../../reducers/bought";
 
 const Intro = () => {
   ////// GLOBAL STATE //////
-  const { me, st_boughtCreateDone, st_boughtCreateError } = useSelector(
-    (state) => state.user
+  const { me } = useSelector((state) => state.user);
+  const { st_boughtCreateDone, st_boughtCreateError } = useSelector(
+    (state) => state.bought
   );
 
   const [payType, setPayType] = useState("card");
@@ -78,10 +82,20 @@ const Intro = () => {
     }
   }, []);
 
-  console.log(orderData);
-
   useEffect(() => {
     if (st_boughtCreateDone) {
+      let tempArr = [];
+
+      orderData &&
+        orderData.items.map((data) => {
+          tempArr.push(data.id);
+        });
+
+      dispatch({
+        type: ITEM_DELETE_REQUEST,
+        data: { itemId: tempArr },
+      });
+
       sessionStorage.removeItem("ORDER");
       router.push("/mypage/purchase");
 

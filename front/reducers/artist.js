@@ -419,7 +419,7 @@ const reducer = (state = initailState, action) =>
         draft.st_ArtistemSlideListLoading = false;
         draft.st_ArtistemSlideListDone = true;
         draft.st_ArtistemSlideListError = null;
-        draft.artistemSlideList = action.data.artistemList;
+        draft.artistemSlideList = action.data;
         break;
       }
 

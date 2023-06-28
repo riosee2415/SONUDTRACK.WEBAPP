@@ -193,14 +193,14 @@ router.post("/musictem/premium/admin/list", async (req, res, next) => {
 
 /**
  * SUBJECT : 뮤직탬 리스트
- * PARAMETERS : page, songName, TagTypeId, TagId, CategoryId
+ * PARAMETERS : page, songName, TagTypeId, TagId, CategoryId, orderType
  * ORDER BY : -
  * STATEMENT : -
  * DEVELOPMENT : 신태섭
  * DEV DATE : 2023/06/09
  */
 router.post("/musictem/list", async (req, res, next) => {
-  const { page, songName, TagTypeId, TagId, CategoryId } = req.body;
+  const { page, songName, TagTypeId, TagId, CategoryId, orderType } = req.body;
 
   const LIMIT = 5;
 
@@ -213,6 +213,8 @@ router.post("/musictem/list", async (req, res, next) => {
   const _TagTypeId = TagTypeId ? TagTypeId : false;
   const _TagId = TagId ? TagId : false;
   const _CategoryId = CategoryId ? CategoryId : false;
+
+  const _orderType = parseInt(orderType) || 1;
 
   const lengthQuery = `
   SELECT  DISTINCT 
@@ -403,7 +405,19 @@ router.post("/musictem/list", async (req, res, next) => {
           `
               : ``
           }
-   ORDER  BY num DESC
+          ${
+            _orderType === 1
+              ? `ORDER  BY num DESC`
+              : _orderType === 2
+              ? `ORDER  BY (
+                              IFNULL((
+                                SELECT  COUNT(id)
+                                  FROM  trackLike
+                                WHERE  TrackId = A.id
+                              ), 0)
+                            ) DESC`
+              : `ORDER  BY num DESC`
+          }
    LIMIT  ${LIMIT}
   OFFSET  ${OFFSET}
   `;
