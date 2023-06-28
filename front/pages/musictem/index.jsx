@@ -37,6 +37,7 @@ import {
 } from "../../reducers/album";
 import { CATE_ALL_LIST_REQUEST } from "../../reducers/category";
 import { TAG_LIST_REQUEST } from "../../reducers/tag";
+import { TRACK_CREATE_REQUEST } from "../../reducers/like";
 
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
@@ -85,8 +86,12 @@ const Index = () => {
   );
 
   const { tagList, tagTypeList } = useSelector((state) => state.tag);
+  const { st_trackCreateDone, st_trackCreateError } = useSelector(
+    (state) => state.like
+  );
 
   const { cateAllList } = useSelector((state) => state.category);
+  const { me } = useSelector((state) => state.user);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -106,7 +111,6 @@ const Index = () => {
   const [selectOrderType, setSelectOrderType] = useState(1);
   const [cateData, setCateData] = useState(null); // 카테고리 아이디
 
-  const [searchBigTag, setSearchBigTag] = useState(null);
   const [searchSmallTag, setSearchSmallTag] = useState(null);
 
   const searchValue = useInput("");
@@ -126,6 +130,31 @@ const Index = () => {
       },
     });
   }, [searchValue.value, searchSmallTag, cateData, selectOrderType]);
+
+  ///////////////////////// 좋아요 후처리 /////////////////////////////
+
+  useEffect(() => {
+    if (st_trackCreateDone) {
+      dispatch({
+        type: MUSICTEM_LIST_REQUEST,
+        data: {
+          orderType: selectOrderType,
+        },
+      });
+      dispatch({
+        type: TOP_MUSICTEM_LIST_REQUEST,
+      });
+      dispatch({
+        type: NEW_MUSICTEM_LIST_REQUEST,
+      });
+
+      return message.success("찜목록에 추가되었습니다.");
+    }
+
+    if (st_trackCreateError) {
+      return message.error(st_trackCreateError);
+    }
+  }, [st_trackCreateDone, st_trackCreateError]);
 
   // 더보기 후 처리
   useEffect(() => {
@@ -229,12 +258,6 @@ const Index = () => {
     });
   }, []);
 
-  const searchBigTagChangeHandler = useCallback(
-    (data) => {
-      setSearchBigTag(data);
-    },
-    [searchBigTag]
-  );
   const searchSmallTagChangeHandler = useCallback(
     (data) => {
       setSearchSmallTag(data);
@@ -283,6 +306,22 @@ const Index = () => {
       setCateData(data);
     },
     [cateData]
+  );
+
+  const likeHandler = useCallback(
+    (data) => {
+      if (me) {
+        dispatch({
+          type: TRACK_CREATE_REQUEST,
+          data: {
+            TrackId: data.id,
+          },
+        });
+      } else {
+        return message.error("로그인이 필요합니다.");
+      }
+    },
+    [me]
   );
   ////// DATAVIEW //////
 
@@ -595,6 +634,8 @@ const Index = () => {
                                   <Image
                                     alt="icon"
                                     width={`22px`}
+                                    onClick={() => likeHandler(data)}
+                                    cursor={`pointer`}
                                     src={
                                       data.isLike
                                         ? `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`
@@ -695,6 +736,8 @@ const Index = () => {
                               <Image
                                 alt="icon"
                                 width={`22px`}
+                                onClick={() => likeHandler(data)}
+                                cursor={`pointer`}
                                 src={
                                   data.isLike
                                     ? `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`
@@ -872,6 +915,8 @@ const Index = () => {
                                   <Image
                                     alt="icon"
                                     width={`22px`}
+                                    onClick={() => likeHandler(data)}
+                                    cursor={`pointer`}
                                     src={
                                       data.isLike
                                         ? `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`
@@ -972,6 +1017,8 @@ const Index = () => {
                               <Image
                                 alt="icon"
                                 width={`22px`}
+                                onClick={() => likeHandler(data)}
+                                cursor={`pointer`}
                                 src={
                                   data.isLike
                                     ? `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`
@@ -1282,7 +1329,13 @@ const Index = () => {
                                   <Image
                                     alt="icon"
                                     width={`22px`}
-                                    src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
+                                    onClick={() => likeHandler(data)}
+                                    cursor={`pointer`}
+                                    src={
+                                      data.isLike
+                                        ? `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`
+                                        : `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`
+                                    }
                                   />
                                   <Text fontSize={`12px`} color={Theme.grey_C}>
                                     {data.likeCnt}
@@ -1380,7 +1433,13 @@ const Index = () => {
                               <Image
                                 alt="icon"
                                 width={`22px`}
-                                src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
+                                onClick={() => likeHandler(data)}
+                                cursor={`pointer`}
+                                src={
+                                  data.isLike
+                                    ? `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`
+                                    : `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`
+                                }
                               />
                               <Text fontSize={`12px`} color={Theme.grey_C}>
                                 {data.likeCnt}
