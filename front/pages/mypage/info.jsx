@@ -133,12 +133,12 @@ const Index = () => {
         nickname: nickname.value,
         email: email.value,
         mobile: mobile.value,
-        terms: term1.value,
-        terms2: term2.value,
-        terms3: term3.value,
-        terms4: term4.value,
-        terms5: term5.value,
-        terms6: term6.value,
+        terms: term1.value || false,
+        terms2: term2.value || false,
+        terms3: term3.value || false,
+        terms4: term4.value || false,
+        terms5: term5.value || false,
+        terms6: term6.value || false,
       },
     });
   }, [
@@ -210,6 +210,10 @@ const Index = () => {
       },
     });
   }, [pass]);
+
+  const termsChange = useCallback((e) => {
+    term1.setValue(e.target.checked);
+  }, []);
 
   ////// DATAVIEW //////
 
@@ -353,10 +357,7 @@ const Index = () => {
               <Text fontSize={`16px`} color={Theme.grey_C} margin={`0 0 12px`}>
                 정보 수신 동의
               </Text>
-              <Checkbox
-                checked={term1.value}
-                onClick={() => term1.setValue(!term1.value)}
-              >
+              <Checkbox checked={term1.value} onChange={termsChange}>
                 (선택)프로모션/혜택 등 광고성 정보 수신 동의
               </Checkbox>
               <Wrapper dr={`row`} ju={`flex-start`} margin={`12px 0 30px`}>
