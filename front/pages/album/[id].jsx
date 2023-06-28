@@ -97,10 +97,8 @@ const Index = () => {
     (state) => state.album
   );
 
-  console.log(albumDetail);
-  console.log(albumTrack);
-  console.log(albumCate);
-  console.log(albumTag);
+  // console.log(albumDetail);
+  // console.log(albumTrack);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -112,6 +110,9 @@ const Index = () => {
   const [down, setDown] = useState(false);
   const [newAudioTime, setNewAudioTime] = useState([]);
   const [moreType, setMoreType] = useState(5);
+
+  const [totalLength, setTotalLength] = useState(0);
+
   ////// REDUX //////
   ////// USEEFFECT //////
 
@@ -147,6 +148,18 @@ const Index = () => {
     }
   }, [albumDetail]);
 
+  useEffect(() => {
+    if (albumTrack) {
+      let totalData = 0;
+
+      albumTrack.map((data) => {
+        totalData += parseFloat(data.fileLength);
+      });
+
+      setTotalLength(parseInt(totalData));
+    }
+  }, [albumTrack]);
+
   ////// TOGGLE //////
   // 프리미엄일때 나오는 모달
   const modalToggle = useCallback(() => {
@@ -178,45 +191,66 @@ const Index = () => {
   }, []);
 
   ////// HANDLER //////
+
+  const allTrackHandler = useCallback(() => {
+    if (albumDetail && albumDetail.isPremium === 1) {
+      sessionStorage.setItem(
+        "ALBUM",
+        JSON.stringify({
+          albumData: albumDetail,
+          trackData: albumTrack,
+          length: totalLength,
+        })
+      );
+
+      router.push(`/license/premium`);
+    } else {
+      sessionStorage.setItem(
+        "ALBUM",
+        JSON.stringify({
+          albumData: albumDetail,
+          trackData: albumTrack,
+          length: totalLength,
+        })
+      );
+
+      router.push(`/license`);
+    }
+  }, [totalLength, albumDetail, albumTrack]);
+
+  const trackHandler = useCallback(
+    (data) => {
+      if (albumDetail && albumDetail.isPremium === 1) {
+        sessionStorage.setItem(
+          "ALBUM",
+          JSON.stringify({
+            albumData: albumDetail,
+            trackData: [data],
+            length: parseInt(data.fileLength),
+          })
+        );
+
+        router.push(`/license/premium`);
+      } else {
+        sessionStorage.setItem(
+          "ALBUM",
+          JSON.stringify({
+            albumData: albumDetail,
+            trackData: [data],
+            length: parseInt(data.fileLength),
+          })
+        );
+
+        router.push(`/license`);
+      }
+    },
+    [albumDetail]
+  );
+
+  // console.log(albumDetail);
+  // console.log(albumTrack);
+
   ////// DATAVIEW //////
-  const albums = [
-    {
-      img: "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png",
-      title: "Star Night",
-      name: "이차미",
-      likeCnt: "90",
-    },
-    {
-      img: "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png",
-      title: "Star Night",
-      name: "이차미",
-      likeCnt: "90",
-    },
-    {
-      img: "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png",
-      title: "Star Night",
-      name: "이차미",
-      likeCnt: "90",
-    },
-    {
-      img: "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png",
-      title: "Star Night",
-      name: "이차미",
-      likeCnt: "90",
-    },
-    {
-      img: "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png",
-      title: "Star Night",
-      name: "이차미",
-      likeCnt: "90",
-    },
-    {
-      img: "https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/artisttem_big.png",
-      title: "Star Night",
-      name: "이차미",
-      likeCnt: "90",
-    },
-  ];
 
   return (
     <>
@@ -289,6 +323,7 @@ const Index = () => {
                           alt="icon"
                           width={`22px`}
                           src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/cart.png`}
+                          onClick={allTrackHandler}
                         />
                       </Popover>
                     </Wrapper>
@@ -511,7 +546,7 @@ const Index = () => {
                                 </Wrapper>
                                 <Wrapper
                                   width={`50px`}
-                                  onClick={() => movelinkHandler(`/license`)}
+                                  onClick={() => trackHandler(data)}
                                   cursor={`pointer`}
                                 >
                                   <Image
@@ -614,7 +649,7 @@ const Index = () => {
                             </Wrapper>
                             <Wrapper
                               width={`50px`}
-                              onClick={() => movelinkHandler(`/license`)}
+                              onClick={() => trackHandler(data)}
                               cursor={`pointer`}
                             >
                               <Image

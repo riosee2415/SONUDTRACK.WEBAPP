@@ -1196,6 +1196,10 @@ const Index = () => {
                             height={width < 700 ? `80px` : `100px`}
                             radius={`7px`}
                             shadow={`3px 3px 15px rgba(0, 0, 0, 0.15)`}
+                            cursor={`pointer`}
+                            onClick={() =>
+                              router.push(`/album/${data.AlbumId}`)
+                            }
                           />
                           {playing3 === data.id ? (
                             <Image

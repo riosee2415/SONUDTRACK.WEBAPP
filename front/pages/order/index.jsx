@@ -19,13 +19,32 @@ import {
 import Theme from "../../components/Theme";
 import { Checkbox, message, Radio } from "antd";
 import { useRouter } from "next/router";
+import useInput from "../../hooks/useInput";
+import { useDispatch, useSelector } from "react-redux";
+import { BOUGHT_CREATE_REQUEST } from "../../reducers/bought";
 
 const Intro = () => {
   ////// GLOBAL STATE //////
+  const { me, st_boughtCreateDone, st_boughtCreateError } = useSelector(
+    (state) => state.user
+  );
+
+  const [payType, setPayType] = useState("card");
+
+  const [orderData, setOrderData] = useState(null); // 세션 저장값
+
+  const [isTerms1, setIsTerms1] = useState(false); // 개인정보 수집·이용 및 처리 동의
+  const [isTerms2, setIsTerms2] = useState(false); // 개인정보 제3자 제공 동의
+  const [isTerms3, setIsTerms3] = useState(false); // 결제대행 서비스 약관 동의
+  const [isTerms4, setIsTerms4] = useState(false); // 전자지급 결제대행 서비스 이용약관 동의
+
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
-  const [payType, setPayType] = useState("card");
+  const dispatch = useDispatch();
+
+  const pointInput = useInput(0);
+
   // card
   // paypal
   // phone
@@ -33,10 +52,43 @@ const Intro = () => {
   ////// USEEFFECT //////
 
   useEffect(() => {
+    if (!me) {
+      router.push(`/user/login`);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      return message.error(`로그인이 필요한 페이지입니다.`);
+    }
+  }, [me]);
+
+  useEffect(() => {
     if (router && router.query) {
       window.scrollTo(0, 0);
     }
   }, [router.query]);
+
+  useEffect(() => {
+    const data = sessionStorage.getItem("ORDER")
+      ? JSON.parse(sessionStorage.getItem("ORDER"))
+      : null;
+
+    if (data) {
+      setOrderData(data);
+    } else {
+      setOrderData(data);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (st_boughtCreateDone) {
+      sessionStorage.removeItem("ORDER");
+      router.push("/mypage/purchase");
+
+      return message.success("구매가 되었습니다.");
+    }
+    if (st_boughtCreateError) {
+      return message.error(st_boughtCreateError);
+    }
+  }, [st_boughtCreateDone, st_boughtCreateError]);
 
   ////// TOGGLE //////
   ////// HANDLER //////
@@ -48,9 +100,21 @@ const Intro = () => {
   );
 
   const buyHandler = useCallback(() => {
-    const orderType = sessionStorage.getItem("ORDER")
-      ? JSON.parse(sessionStorage.getItem("ORDER"))
-      : null;
+    if (!isTerms1) {
+      return message.error("개인정보 수집·이용 및 처리 동의를 해주세요");
+    }
+
+    if (!isTerms2) {
+      return message.error("개인정보 제3자 제공 동의를 해주세요");
+    }
+
+    if (!isTerms3) {
+      return message.error("결제대행 서비스 약관 동의를 해주세요");
+    }
+
+    if (!isTerms4) {
+      return message.error("전자지급 결제대행 서비스 이용약관 동의를 해주세요");
+    }
 
     const d = new Date();
 
@@ -73,25 +137,48 @@ const Intro = () => {
 
     const IMP = window.IMP;
 
+    let tempArr = [];
+    orderData &&
+      orderData.items.map((data) => {
+        tempArr.push(data.id);
+      });
+
     if (payType === "paypal") {
       IMP.request_pay(
         {
           pg: "paypal",
           pay_method: "card",
           merchant_uid: orderPK,
-          name: `[${orderType && orderType.title}]` + "Star Night",
-          amount: 15000,
-          buyer_name: "test",
-          buyer_tel: "01000000000",
-          buyer_email: "test@test.com",
+          name:
+            `[${
+              orderData && orderData.items && orderData.items[0].albumName
+            }]` + orderData &&
+            orderData.items &&
+            orderData.items[0].songName,
+          amount: parseInt((orderData && orderData.price) - pointInput.value),
+          buyer_name: me && me.username,
+          buyer_tel: me && me.mobile,
+          buyer_email: me && me.email,
           m_redirect_url: "http://localhost:3000",
         },
         async (rsp) => {
           if (rsp.success) {
-            return message.success("결제 완료");
+            dispatch({
+              type: BOUGHT_CREATE_REQUEST,
+              data: {
+                name: me.username,
+                mobile: me.mobile,
+                email: me.email,
+                price: orderData && orderData.price,
+                usePoint: pointInput.value,
+                payWay: payType,
+                mileagePrice: 0,
+                wishItemIds: tempArr,
+              },
+            });
           } else {
             console.log(rsp);
-            return console.log("결제실패");
+            return message.error(rsp.error_msg);
           }
         }
       );
@@ -102,27 +189,53 @@ const Intro = () => {
             payType === "phone"
               ? "danal"
               : payType === "card"
-              ? "danal_tpay"
+              ? "danal_tpay.9810030929"
               : "paypal",
           pay_method: payType,
           merchant_uid: orderPK,
-          name: `[${orderType && orderType.title}]` + "Star Night",
-          amount: 15000,
-          buyer_name: "test",
-          buyer_tel: "01000000000",
-          buyer_email: "test@test.com",
+          name:
+            `[${
+              orderData && orderData.items && orderData.items[0].albumName
+            }]` + orderData &&
+            orderData.items &&
+            orderData.items[0].songName,
+          amount: parseInt((orderData && orderData.price) - pointInput.value),
+          buyer_name: me && me.username,
+          buyer_tel: me && me.mobile,
+          buyer_email: me && me.email,
         },
         async (rsp) => {
           if (rsp.success) {
-            return message.success("결제 완료");
+            dispatch({
+              type: BOUGHT_CREATE_REQUEST,
+              data: {
+                name: me.username,
+                mobile: me.mobile,
+                email: me.email,
+                price: orderData && orderData.price,
+                usePoint: pointInput.value,
+                payWay: payType,
+                mileagePrice: 0,
+                wishItemIds: tempArr,
+              },
+            });
           } else {
             console.log(rsp);
-            return console.log("결제실패");
+            return message.error(rsp.error_msg);
           }
         }
       );
     }
-  }, [payType]);
+  }, [
+    payType,
+    me,
+    orderData,
+    pointInput,
+    isTerms1,
+    isTerms2,
+    isTerms3,
+    isTerms4,
+  ]);
   ////// DATAVIEW //////
 
   return (
@@ -163,6 +276,7 @@ const Intro = () => {
                   kindOf={`grey2`}
                   margin={`0 0 0 12px`}
                   width={`105px`}
+                  onClick={() => router.push("/mypage/cart")}
                 >
                   장바구니 가기
                 </CommonButton>
@@ -176,7 +290,12 @@ const Intro = () => {
               >
                 <Image
                   alt="thumbnail"
-                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/main-img/musictem1.png`}
+                  src={
+                    orderData &&
+                    orderData.items &&
+                    orderData.items[0] &&
+                    orderData.items[0].thumbnail
+                  }
                   width={width < 900 ? `100px` : `160px`}
                   height={width < 900 ? `100px` : `160px`}
                   radius={`7px`}
@@ -192,13 +311,36 @@ const Intro = () => {
                     fontWeight={`bold`}
                     color={Theme.darkGrey_C}
                   >
-                    [앨범명] Star Night
+                    [
+                    {orderData &&
+                      orderData.items &&
+                      orderData.items[0] &&
+                      orderData.items[0].albumName}
+                    ]{" "}
+                    {orderData &&
+                      orderData.items &&
+                      orderData.items[0] &&
+                      orderData.items[0].songName}
                   </Text>
                   <Text color={Theme.grey2_C} margin={`5px 0 20px`}>
-                    Album by Pokerface
+                    Album by{" "}
+                    {orderData &&
+                      orderData.items &&
+                      orderData.items[0] &&
+                      orderData.items[0].singerName}
                   </Text>
                   <Text fontSize={`18px`} fontWeight={`500`}>
-                    [비독점] 15,000원
+                    [
+                    {orderData &&
+                      orderData.items &&
+                      orderData.items[0] &&
+                      orderData.items[0].lisenceName}
+                    ]{" "}
+                    {orderData &&
+                      orderData.price
+                        .toString()
+                        .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                    원
                     <SpanText color={Theme.grey_C} margin={`0 0 0 8px`}>
                       Semi-Pro
                     </SpanText>
@@ -226,18 +368,17 @@ const Intro = () => {
                     height={`50px`}
                     readOnly
                     placeholder="이름"
-                    value="test"
+                    value={me && me.username}
                   />
                 </Wrapper>
                 <Wrapper dr={`row`} height={`80px`} ju={`flex-start`}>
                   <Text width={width < 900 ? `90px` : `133px`}>연락처</Text>
                   <TextInput
-                    type="number"
                     width={width < 900 ? `calc(100% - 90px)` : `50%`}
                     height={`50px`}
                     readOnly
                     placeholder="연락처"
-                    value="01000000000"
+                    value={me && me.mobile}
                   />
                 </Wrapper>
                 <Wrapper dr={`row`} height={`80px`} ju={`flex-start`}>
@@ -248,7 +389,7 @@ const Intro = () => {
                     height={`50px`}
                     readOnly
                     placeholder="이메일"
-                    value="test@test.com"
+                    value={me && me.email}
                   />
                 </Wrapper>
               </Wrapper>
@@ -270,7 +411,11 @@ const Intro = () => {
                   <Text width={width < 900 ? `90px` : `133px`}>
                     보유 포인트
                   </Text>
-                  <Text>15,000원</Text>
+                  <Text>
+                    {me &&
+                      me.point.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                    원
+                  </Text>
                 </Wrapper>
                 <Wrapper
                   dr={`row`}
@@ -294,6 +439,7 @@ const Intro = () => {
                       height={`50px`}
                       placeholder="사용금액을 입력해주세요."
                       border={`1px solid ${Theme.lightGrey_C}`}
+                      {...pointInput}
                     />
                     <Text color={Theme.red_C} fontSize={`14px`}>
                       *포인트는 1,000원 부터 사용 가능합니다.
@@ -325,7 +471,7 @@ const Intro = () => {
               >
                 <Wrapper dr={`row`} height={`80px`} ju={`flex-start`}>
                   <Text width={width < 900 ? `90px` : `133px`}>적립</Text>
-                  <Text>1,000원</Text>
+                  <Text>0원</Text>
                 </Wrapper>
               </Wrapper>
 
@@ -398,7 +544,11 @@ const Intro = () => {
                     color={Theme.darkGrey_C}
                     fontWeight={`bold`}
                   >
-                    15,000원
+                    {orderData &&
+                      orderData.price
+                        .toString()
+                        .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                    원
                   </Text>
                 </Wrapper>
                 <Wrapper dr={`row`} ju={`space-between`} margin={`20px 0`}>
@@ -410,7 +560,7 @@ const Intro = () => {
                     color={Theme.darkGrey_C}
                     fontWeight={`bold`}
                   >
-                    0원
+                    {pointInput.value}원
                   </Text>
                 </Wrapper>
                 <Wrapper dr={`row`} ju={`space-between`}>
@@ -444,21 +594,42 @@ const Intro = () => {
                     color={Theme.basicTheme_C}
                     fontWeight={`bold`}
                   >
-                    15,000원
+                    {parseInt((orderData && orderData.price) - pointInput.value)
+                      .toString()
+                      .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                    원
                   </Text>
                 </Wrapper>
               </Wrapper>
               <Wrapper al={`flex-start`} margin={`24px 0 10px`}>
-                <Checkbox>(필수) 개인정보 수집·이용 및 처리 동의</Checkbox>
+                <Checkbox
+                  checked={isTerms1}
+                  onClick={() => setIsTerms1(!isTerms1)}
+                >
+                  (필수) 개인정보 수집·이용 및 처리 동의
+                </Checkbox>
               </Wrapper>
               <Wrapper al={`flex-start`} margin={`0 0 10px`}>
-                <Checkbox>(필수) 개인정보 제3자 제공 동의</Checkbox>
+                <Checkbox
+                  checked={isTerms2}
+                  onClick={() => setIsTerms2(!isTerms2)}
+                >
+                  (필수) 개인정보 제3자 제공 동의
+                </Checkbox>
               </Wrapper>
               <Wrapper al={`flex-start`} margin={`0 0 10px`}>
-                <Checkbox>(필수) 결제대행 서비스 약관 동의</Checkbox>
+                <Checkbox
+                  checked={isTerms3}
+                  onClick={() => setIsTerms3(!isTerms3)}
+                >
+                  (필수) 결제대행 서비스 약관 동의
+                </Checkbox>
               </Wrapper>
               <Wrapper al={`flex-start`} margin={`0 0 40px`}>
-                <Checkbox>
+                <Checkbox
+                  checked={isTerms4}
+                  onClick={() => setIsTerms4(!isTerms4)}
+                >
                   (필수) 전자지급 결제대행 서비스 이용약관 동의
                 </Checkbox>
               </Wrapper>
