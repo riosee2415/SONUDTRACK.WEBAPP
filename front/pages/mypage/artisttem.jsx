@@ -34,6 +34,7 @@ import {
   SELLER_IMAGE_RESET,
   ARTISTEM_INFO_UPDATE_REQUEST,
   ARTISTEM_MY_DATA_REQUEST,
+  ARTISTEM_VACATION_UPDATE_REQUEST,
 } from "../../reducers/seller";
 import { CATEGORY_LIST_REQUEST } from "../../reducers/category";
 import { TAG_TYPE_LIST_REQUEST } from "../../reducers/tag";
@@ -104,9 +105,15 @@ const Index = () => {
     //
     st_artistemInfoUpdateDone,
     st_artistemInfoUpdateError,
+    //
+    st_artistemVacationUpdateDone,
+    st_artistemVacationUpdateError,
   } = useSelector((state) => state.seller);
   const { categoryList } = useSelector((state) => state.category);
   const { tagTypeList } = useSelector((state) => state.tag);
+
+  console.log(artistemData);
+
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
@@ -156,6 +163,23 @@ const Index = () => {
   const [cateArr, setCateArr] = useState([]);
   ////// REDUX //////
   ////// USEEFFECT //////
+
+  useEffect(() => {
+    if (st_artistemVacationUpdateDone) {
+      dispatch({
+        type: ARTISTEM_MY_DATA_REQUEST,
+        data: {
+          ArtistemId: me && me.artistemId,
+        },
+      });
+
+      return message.success("휴가중으로 변경되었습니다.");
+    }
+
+    if (st_artistemVacationUpdateError) {
+      return message.error(st_artistemVacationUpdateError);
+    }
+  }, [st_artistemVacationUpdateDone, st_artistemVacationUpdateError]);
 
   useEffect(() => {
     if (st_artistemInfoUpdateDone) {
@@ -282,7 +306,15 @@ const Index = () => {
   ////// HANDLER //////
 
   // 휴가중으로 변경하기
-  const vacationUpdateHandler = useCallback(() => {}, []);
+  const vacationUpdateHandler = useCallback(() => {
+    dispatch({
+      type: ARTISTEM_VACATION_UPDATE_REQUEST,
+      data: {
+        ArtistemId: artistemData && artistemData.id,
+        isVacation: artistemData && !artistemData.isVacation,
+      },
+    });
+  }, [artistemData]);
 
   // 사업자번호 존재하면 기업명 가져오기
   const businessNumCheck = useCallback(() => {
@@ -572,9 +604,9 @@ const Index = () => {
       return message.error("담당자 성함을 입력해주세요.");
     }
 
-    // if (!isComNum) {
-    //   return message.error("사업자번호 인증해주세요.");
-    // }
+    if (!isComNum) {
+      return message.error("사업자번호 인증해주세요.");
+    }
 
     if (!artistName.value || artistName.value.trim() === "") {
       return message.error("아티스트명을 입력해주세요.");
@@ -711,7 +743,12 @@ const Index = () => {
               <Text fontSize={`16px`} margin={`0 8px 0 0`}>
                 휴가중
               </Text>
-              <Switch checkedChildren="on" unCheckedChildren="off" />
+              <Switch
+                checkedChildren="on"
+                unCheckedChildren="off"
+                checked={artistemData && artistemData.isVacation}
+                onChange={vacationUpdateHandler}
+              />
             </Wrapper>
 
             <Wrapper al={`flex-start`}>
@@ -770,7 +807,7 @@ const Index = () => {
                   fontSize={`18px`}
                   fontWeight={`600`}
                   kindOf={`subTheme2`}
-                  // onClick={businessNumCheck}
+                  onClick={businessNumCheck}
                 >
                   인증하기
                 </CommonButton>
@@ -1224,10 +1261,10 @@ const Index = () => {
                 al={`flex-start`}
                 margin={`0 0 30px`}
               >
-                {categoryList.map((data) => {
+                {categoryList.map((data, idx) => {
                   return (
                     <TagBtn
-                      key={data.id}
+                      key={idx}
                       kindOf={`grey`}
                       width={
                         width < 1100
@@ -1268,10 +1305,10 @@ const Index = () => {
                 {tagTypeList.map((data) => {
                   return (
                     data.value === "Mood" &&
-                    data.underValues.map((value) => {
+                    data.underValues.map((value, idx) => {
                       return (
                         <TagBtn
-                          key={data.id}
+                          key={idx}
                           kindOf={`grey`}
                           width={
                             width < 1100
@@ -1314,10 +1351,10 @@ const Index = () => {
                 {tagTypeList.map((data) => {
                   return (
                     data.value === "Genre" &&
-                    data.underValues.map((value) => {
+                    data.underValues.map((value, idx) => {
                       return (
                         <TagBtn
-                          key={data.id}
+                          key={idx}
                           kindOf={`grey`}
                           width={
                             width < 1100

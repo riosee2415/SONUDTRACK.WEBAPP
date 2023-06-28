@@ -20,6 +20,7 @@ import albumSaga from "./album";
 import artistContactSaga from "./artistContact";
 import searchSaga from "./search";
 import boughtSaga from "./bought";
+import revenueSaga from "./revenue";
 //
 import axios from "axios";
 import backURL from "../config/config";
@@ -50,6 +51,7 @@ export default function* rootSaga() {
     fork(artistContactSaga),
     fork(searchSaga),
     fork(boughtSaga),
+    fork(revenueSaga),
     //
   ]);
 }

@@ -21,6 +21,7 @@ import album from "./album";
 import artistContact from "./artistContact";
 import search from "./search";
 import bought from "./bought";
+import revenue from "./revenue";
 
 const rootReducer = (state, action) => {
   switch (action.type) {
@@ -50,6 +51,7 @@ const rootReducer = (state, action) => {
         artistContact,
         search,
         bought,
+        revenue,
       });
       return combinedReducer(state, action);
     }

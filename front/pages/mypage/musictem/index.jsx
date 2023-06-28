@@ -327,6 +327,15 @@ const Index = () => {
                   <Text fontSize={`16px`} color={Theme.grey_C}>
                     새로운 음원을 등록해주세요!
                   </Text>
+
+                  <Wrapper
+                    al={`flex-start`}
+                    color={Theme.red_C}
+                    fontSize={`11px`}
+                  >
+                    * 앨범을 등록 후 삭제만 가능하며, 수정이 불가능하오니
+                    신중하게 등록해주시기 바랍니다.
+                  </Wrapper>
                 </Wrapper>
 
                 <Link href={`/mypage/musictem/albumUpload`}>
