@@ -66,6 +66,133 @@ router.post("/file", upload.single("file"), async (req, res, next) => {
 });
 
 /**
+ * SUBJECT : 뮤직탬 관리자 리스트
+ * PARAMETERS : -
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 박은비
+ * DEV DATE : 2023/06/28
+ */
+router.post("/musictem/admin/list", async (req, res, next) => {
+  const { songName, TagTypeId, TagId, CategoryId } = req.body;
+
+  const _songName = songName ? songName : ``;
+  const _TagTypeId = TagTypeId ? TagTypeId : false;
+  const _TagId = TagId ? TagId : false;
+  const _CategoryId = CategoryId ? CategoryId : false;
+
+  const selectQuery = `
+  SELECT  DISTINCT
+          ROW_NUMBER()	OVER(ORDER	BY A.createdAt)  AS num,
+   	 	    A.id,
+          A.songName,
+          A.singerName,
+          A.fileName,
+          A.filePath,
+          A.fileLength,
+          A.standardPrice,
+          A.deluxePrice,
+          A.platinumPrice,
+          A.isTitle,
+          A.AlbumId,
+          A.createdAt,
+          A.updatedAt,
+          DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")    AS viewCreatedAt,
+          DATE_FORMAT(A.createdAt, "%Y.%m.%d")        AS viewFrontCreatedAt,
+          DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
+          (
+           SELECT	albumImage 
+             FROM	album
+            WHERE	A.AlbumId = id 
+          ) 										  AS albumImage,
+          (
+            SELECT	albumName 
+              FROM	album
+             WHERE	A.AlbumId = id 
+           ) 										  AS albumName,
+           (
+           SELECT	albumName 
+             FROM	album
+            WHERE	A.AlbumId = id 
+          ) 										  AS albumName,
+          (
+            SELECT  COUNT(id)
+              FROM  trackLike
+             WHERE  TrackId = A.id
+          )                                          AS likeCnt,
+          ${
+            req.user
+              ? `
+            (
+              SELECT	TL.id
+                FROM	trackLike	TL
+               WHERE	TL.UserId = ${req.user.id}
+                 AND	TL.TrackId = A.id 
+            )	AS isLike`
+              : `(
+              SELECT	null
+                FROM	DUAL
+            )	AS isLike`
+          }
+    FROM  track   A
+   WHERE  TRUE = (
+   				SELECT	isTrackPermit 
+   				  FROM	album
+   				 WHERE	A.AlbumId = id 
+                 )
+     AND  A.songName LIKE "%${_songName}%"
+          ${
+            _TagTypeId
+              ? `
+          AND 0 < (
+                    SELECT  COUNT(id)
+                      FROM  albumTag
+                     WHERE  A.AlbumId = AlbumId
+                       AND  TagTypeId = ${_TagTypeId}
+                   )
+          `
+              : ``
+          }
+          ${
+            _TagId
+              ? `
+          AND 0 < (
+                    SELECT  COUNT(id)
+                      FROM  albumTag
+                     WHERE  A.AlbumId = AlbumId
+                       AND  TagId = ${_TagId}
+                   )
+          `
+              : ``
+          }
+          ${
+            _CategoryId
+              ? `
+          AND 0 < (
+                    SELECT  COUNT(id)
+                      FROM  albumCategory
+                     WHERE  A.AlbumId = AlbumId
+                       AND  CategoryId = ${_CategoryId}
+                   )
+          `
+              : ``
+          }
+   ORDER  BY num DESC
+  `;
+
+  try {
+    const musictem = await models.sequelize.query(selectQuery);
+
+    return res.status(200).json({
+      musictems: musictem[0],
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("뮤직탬 목록을 조회할 수 없습니다.");
+  }
+});
+
+/**
  * SUBJECT : 뮤직탬 리스트
  * PARAMETERS : page, songName, TagTypeId, TagId, CategoryId
  * ORDER BY : -
