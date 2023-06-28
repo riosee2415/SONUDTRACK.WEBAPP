@@ -896,6 +896,118 @@ router.post("/list", isLoggedIn, async (req, res, next) => {
 });
 
 /**
+ * SUBJECT : 구매한 트랙 리스트
+ * PARAMETERS : page
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 시니어 개발자 신태섭
+ * DEV DATE : 2023/06/21
+ */
+router.post("/track/list", isLoggedIn, async (req, res, next) => {
+  const { page } = req.body;
+
+  const LIMIT = 5;
+
+  const _page = page ? page : 1;
+
+  const __page = _page - 1;
+  const OFFSET = __page * 5;
+
+  const lengthQuery = `
+      SELECT  ROW_NUMBER()  OVER(ORDER  BY A.createdAt)                                                                   AS num,
+              A.id,
+              A.thumbnail,
+              A.albumName,
+              A.songName,
+              A.singerName,
+              A.lisenceName,
+              A.price,
+              CONCAT(FORMAT(A.price, 0), "원")								                                                            AS viewPrice,
+              A.songFile,
+              A.songFileName,
+              A.trackId,
+              A.isArtWorks,
+              A.isMonopoly,
+              A.ticketName,
+              CASE
+                  WHEN	A.isArtWorks = 1 AND A.isMonopoly = 1 THEN "독점"
+                  WHEN  A.isArtWorks = 1 AND A.isMonopoly = 0 THEN "비독점"
+                  ELSE  NULL
+              END														                                          	                                  AS monopolyName,
+              A.BoughtHistoryId,
+              B.name,
+              B.mobile,
+              B.email,
+              B.price,
+              B.usePoint,
+              B.payWay
+        FROM  wishItem			   A
+       INNER
+        JOIN  boughtHistory    B
+          ON  A.BoughtHistoryId = B.id
+       WHERE  B.UserId = ${req.user.id}
+  `;
+
+  const selectQuery = `
+      SELECT  ROW_NUMBER()  OVER(ORDER  BY A.createdAt)                                                                   AS num,
+              A.id,
+              A.thumbnail,
+              A.albumName,
+              A.songName,
+              A.singerName,
+              A.lisenceName,
+              A.price,
+              CONCAT(FORMAT(A.price, 0), "원")								                                                            AS viewPrice,
+              A.songFile,
+              A.songFileName,
+              A.trackId,
+              A.isArtWorks,
+              A.isMonopoly,
+              A.ticketName,
+              CASE
+                  WHEN	A.isArtWorks = 1 AND A.isMonopoly = 1 THEN "독점"
+                  WHEN  A.isArtWorks = 1 AND A.isMonopoly = 0 THEN "비독점"
+                  ELSE  NULL
+              END														                                          	                                  AS monopolyName,
+              A.BoughtHistoryId,
+              B.name,
+              B.mobile,
+              B.email,
+              B.price,
+              B.usePoint,
+              B.payWay
+        FROM  wishItem			   A
+       INNER
+        JOIN  boughtHistory    B
+          ON  A.BoughtHistoryId = B.id
+       WHERE  B.UserId = ${req.user.id}
+       ORDER  BY num DESC
+       LIMIT  ${LIMIT}
+      OFFSET  ${OFFSET}
+  `;
+
+  try {
+    const lengths = await models.sequelize.query(lengthQuery);
+    const trackList = await models.sequelize.query(selectQuery);
+
+    const trackListLen = lengths[0].length;
+
+    const lastPage =
+      trackListLen % LIMIT > 0
+        ? trackListLen / LIMIT + 1
+        : trackListLen / LIMIT;
+
+    return res.status(200).json({
+      trackLists: trackList[0],
+      lastPage: parseInt(lastPage),
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("구매 내역을 조회할 수 없습니다.");
+  }
+});
+
+/**
  * SUBJECT : 음원 구매 내역 상세
  * PARAMETERS : BoughtHistoryId
  * ORDER BY : -
