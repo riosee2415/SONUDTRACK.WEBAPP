@@ -2,6 +2,7 @@ import produce from "../util/produce";
 
 export const initailState = {
   myLikeList: [],
+  lastPage: null,
 
   //
   st_myLikeListLoading: false, // 회원별 음원 구매 현황 리스트
@@ -27,6 +28,7 @@ const reducer = (state = initailState, action) =>
         draft.st_myLikeListDone = true;
         draft.st_myLikeListError = null;
         draft.myLikeList = action.data;
+        draft.lastPage = action.data.lastPage;
         break;
       }
       case MY_LIKE_LIST_FAILURE: {
