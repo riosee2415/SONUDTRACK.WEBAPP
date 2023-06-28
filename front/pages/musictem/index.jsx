@@ -139,6 +139,17 @@ const Index = () => {
     });
   }, [searchSmallTag, searchValue.value]);
 
+  useEffect(() => {
+    dispatch({
+      type: MUSICTEM_LIST_REQUEST,
+      data: {
+        songName: searchValue.value,
+        TagId: searchSmallTag,
+        CategoryId: cateData === 15 ? null : cateData,
+      },
+    });
+  }, [searchValue.value, searchSmallTag, cateData]);
+
   // 더보기 후 처리
   useEffect(() => {
     if (trackAllList) {
