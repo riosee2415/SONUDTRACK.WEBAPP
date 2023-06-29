@@ -54,7 +54,13 @@ const Index = () => {
     st_musictemInfoUpdateDone,
     st_musictemInfoUpdateError,
   } = useSelector((state) => state.seller);
-  const { detailData, albums } = useSelector((state) => state.album);
+  const {
+    detailData,
+    albums,
+    //
+    st_albumDeleteDone,
+    st_albumDeleteError,
+  } = useSelector((state) => state.album);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -74,6 +80,23 @@ const Index = () => {
   ////// REDUX //////
   const dispatch = useDispatch();
   ////// USEEFFECT //////
+
+  useEffect(() => {
+    if (st_albumDeleteDone) {
+      dispatch({
+        type: MUSICTEM_DETAIL_REQUEST,
+        data: {
+          MusictemId: me && me.musictemId,
+        },
+      });
+
+      return message.success("앨범이 삭제되었습니다.");
+    }
+
+    if (st_albumDeleteError) {
+      return message.error(st_albumDeleteError);
+    }
+  }, [st_albumDeleteDone, st_albumDeleteError]);
 
   useEffect(() => {
     if (detailData) {

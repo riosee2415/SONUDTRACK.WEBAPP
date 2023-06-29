@@ -79,6 +79,10 @@ export const initailState = {
   st_topMusictemListLoading: false, // top5 뮤직템 리스트
   st_topMusictemListDone: false,
   st_topMusictemListError: null,
+  //
+  st_albumDeleteLoading: false, // 앨범 삭제
+  st_albumDeleteDone: false,
+  st_albumDeleteError: null,
 };
 
 export const ALBUM_IMAGE_REQUEST = "ALBUM_IMAGE_REQUEST";
@@ -143,6 +147,10 @@ export const TRACK_ADMIN_LIST_FAILURE = "TRACK_ADMIN_LIST_FAILURE";
 export const TOP_MUSICTEM_LIST_REQUEST = "TOP_MUSICTEM_LIST_REQUEST";
 export const TOP_MUSICTEM_LIST_SUCCESS = "TOP_MUSICTEM_LIST_SUCCESS";
 export const TOP_MUSICTEM_LIST_FAILURE = "TOP_MUSICTEM_LIST_FAILURE";
+
+export const ALBUM_TRACK_DELETE_REQUEST = "ALBUM_TRACK_DELETE_REQUEST";
+export const ALBUM_TRACK_DELETE_SUCCESS = "ALBUM_TRACK_DELETE_SUCCESS";
+export const ALBUM_TRACK_DELETE_FAILURE = "ALBUM_TRACK_DELETE_FAILURE";
 
 export const ALBUM_IMAGE_RESET = "ALBUM_IMAGE_RESET";
 export const ALBUM_FILE_RESET = "ALBUM_FILE_RESET";
@@ -471,6 +479,28 @@ const reducer = (state = initailState, action) =>
         draft.st_topMusictemListLoading = false;
         draft.st_topMusictemListDone = false;
         draft.st_topMusictemListError = action.error;
+        break;
+      }
+
+      //////////////////////////////////////////////
+
+      case ALBUM_TRACK_DELETE_REQUEST: {
+        draft.st_albumDeleteLoading = true;
+        draft.st_albumDeleteDone = false;
+        draft.st_albumDeleteError = null;
+        break;
+      }
+      case ALBUM_TRACK_DELETE_SUCCESS: {
+        draft.st_albumDeleteLoading = false;
+        draft.st_albumDeleteDone = true;
+        draft.st_albumDeleteError = null;
+
+        break;
+      }
+      case ALBUM_TRACK_DELETE_FAILURE: {
+        draft.st_albumDeleteLoading = false;
+        draft.st_albumDeleteDone = false;
+        draft.st_albumDeleteError = action.error;
         break;
       }
 

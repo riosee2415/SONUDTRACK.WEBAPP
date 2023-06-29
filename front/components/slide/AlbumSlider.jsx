@@ -5,6 +5,8 @@ import styled from "styled-components";
 import Theme from "../Theme";
 import useWidth from "../../hooks/useWidth";
 import { useRouter } from "next/router";
+import { useDispatch, useSelector } from "react-redux";
+import { ALBUM_TRACK_DELETE_REQUEST } from "../../reducers/album";
 
 const AlbumSliderWrapper = styled(Wrapper)`
   & .ant-carousel {
@@ -49,13 +51,28 @@ const CdWrapper = styled(Wrapper)`
 `;
 
 const AlbumSlider = ({ list }) => {
+  const { st_albumDeleteDone, st_albumDeleteError } = useSelector(
+    (state) => state.album
+  );
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
+  const dispatch = useDispatch();
 
   ////// HANDLER //////
   const moveLinkHandler = useCallback((link) => {
     router.push(link);
+  }, []);
+
+  // 앨범삭제
+  const deleteHandler = useCallback((data) => {
+    console.log(data);
+    dispatch({
+      type: ALBUM_TRACK_DELETE_REQUEST,
+      data: {
+        AlbumId: data.id,
+      },
+    });
   }, []);
 
   return (
@@ -63,7 +80,6 @@ const AlbumSlider = ({ list }) => {
       <Carousel slide="div" slidesToShow={6} slidesToScroll={6}>
         {list &&
           list.map((data) => {
-            console.log(data);
             return (
               <Wrapper
                 width={width < 700 ? `150px !important` : `200px !important`}
@@ -101,6 +117,14 @@ const AlbumSlider = ({ list }) => {
                     </>
                   ) : (
                     <>
+                      <CommonButton
+                        fontSize={`10px`}
+                        padding={`5px`}
+                        margin={`0 0 5px`}
+                        onClick={() => deleteHandler(data)}
+                      >
+                        앨범 삭제하기
+                      </CommonButton>
                       <Text
                         color={Theme.red_C}
                         fontSize={`11px`}
