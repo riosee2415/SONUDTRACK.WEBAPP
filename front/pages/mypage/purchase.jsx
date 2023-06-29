@@ -24,6 +24,7 @@ import { message, Modal, Popover } from "antd";
 import dynamic from "next/dynamic";
 import { BOUGHT_LIST_REQUEST } from "../../reducers/bought";
 import moment from "moment";
+import { saveAs } from "file-saver";
 
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
@@ -172,6 +173,17 @@ const Index = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
+  // 파일 다운로드
+  const fileDownloadHandler = useCallback(async (filepath, filename) => {
+    let blob = await fetch(filepath).then((r) => r.blob());
+
+    const file = new Blob([blob]);
+
+    const originName = `${filename}`;
+
+    saveAs(file, originName);
+  }, []);
+
   ////// DATAVIEW //////
 
   const albums = [
@@ -206,6 +218,8 @@ const Index = () => {
       likeCnt: "90",
     },
   ];
+
+  console.log(boughtList);
 
   return (
     <>
@@ -395,6 +409,12 @@ const Index = () => {
                             margin={width < 700 ? `0` : `0 0 8px`}
                             width={width < 1600 ? `200px` : `230px`}
                             isEllipsis
+                            cursor={`pointer`}
+                            onClick={() =>
+                              movelinkHandler(
+                                `/musictem/artist/${data.MusictemId}`
+                              )
+                            }
                           >
                             {data.songName}
                           </Text>
@@ -435,25 +455,36 @@ const Index = () => {
                               >
                                 {data.lisenceName}
                               </CommonButton>
+                              {data.isPremium === 1 && (
+                                <Wrapper
+                                  width={`50px`}
+                                  cursor={`pointer`}
+                                  onClick={premiumToggle}
+                                >
+                                  <Image
+                                    alt="icon"
+                                    width={`22px`}
+                                    src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/premium_mypage.png`}
+                                  />
+                                  <Text
+                                    fontSize={`12px`}
+                                    color={Theme.grey_C}
+                                    margin={`4px 0 0`}
+                                  >
+                                    프리미엄
+                                  </Text>
+                                </Wrapper>
+                              )}
                               <Wrapper
                                 width={`50px`}
                                 cursor={`pointer`}
-                                onClick={premiumToggle}
+                                onClick={() =>
+                                  fileDownloadHandler(
+                                    data.songFile,
+                                    data.songName
+                                  )
+                                }
                               >
-                                <Image
-                                  alt="icon"
-                                  width={`22px`}
-                                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/premium_mypage.png`}
-                                />
-                                <Text
-                                  fontSize={`12px`}
-                                  color={Theme.grey_C}
-                                  margin={`4px 0 0`}
-                                >
-                                  프리미엄
-                                </Text>
-                              </Wrapper>
-                              <Wrapper width={`50px`} cursor={`pointer`}>
                                 <Image
                                   alt="icon"
                                   width={`22px`}
@@ -535,25 +566,28 @@ const Index = () => {
                             al={`flex-start`}
                             ju={`center`}
                           >
-                            <Wrapper
-                              width={`56px`}
-                              cursor={`pointer`}
-                              onClick={premiumToggle}
-                            >
-                              <Image
-                                alt="icon"
-                                width={`22px`}
-                                src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/premium_mypage.png`}
-                              />
-                              <Text
-                                fontSize={`12px`}
-                                color={Theme.grey_C}
-                                margin={`4px 0 0`}
+                            {data.isPremium === 1 && (
+                              <Wrapper
+                                width={`56px`}
+                                cursor={`pointer`}
+                                onClick={premiumToggle}
                               >
-                                프리미엄
-                              </Text>
-                            </Wrapper>
+                                <Image
+                                  alt="icon"
+                                  width={`22px`}
+                                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/premium_mypage.png`}
+                                />
+                                <Text
+                                  fontSize={`12px`}
+                                  color={Theme.grey_C}
+                                  margin={`4px 0 0`}
+                                >
+                                  프리미엄
+                                </Text>
+                              </Wrapper>
+                            )}
                             <Popover
+                              trigger={data.isPremium === 1 ? "hover" : ""}
                               placement="bottom"
                               content={
                                 <Wrapper al={`flex-start`}>
@@ -570,7 +604,16 @@ const Index = () => {
                                 </Wrapper>
                               }
                             >
-                              <Wrapper width={`56px`} cursor={`pointer`}>
+                              <Wrapper
+                                width={`56px`}
+                                cursor={`pointer`}
+                                onClick={() =>
+                                  fileDownloadHandler(
+                                    data.songFile,
+                                    data.songName
+                                  )
+                                }
+                              >
                                 <Image
                                   alt="icon"
                                   width={`22px`}
