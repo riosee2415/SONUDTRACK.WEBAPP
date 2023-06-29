@@ -35,10 +35,7 @@ export const initailState = {
   st_permmWaitingCreateLoading: false,
   st_permmWaitingCreateDone: false,
   st_permmWaitingCreateError: null,
-  //
-  st_artistemListLoading: false,
-  st_artistemListDone: false,
-  st_artistemListError: null,
+
   //
   st_artistemIngUpLoading: false,
   st_artistemIngUpDone: false,
@@ -105,10 +102,6 @@ export const PERMM_WAITING_DEL_FAILURE = "PERMM_WAITING_DEL_FAILURE";
 export const PERMM_WAITING_CREATE_REQUEST = "PERMM_WAITING_CREATE_REQUEST";
 export const PERMM_WAITING_CREATE_SUCCESS = "PERMM_WAITING_CREATE_SUCCESS";
 export const PERMM_WAITING_CREATE_FAILURE = "PERMM_WAITING_CREATE_FAILURE";
-
-export const ARTISTEM_LIST_REQUEST = "ARTISTEM_LIST_REQUEST";
-export const ARTISTEM_LIST_SUCCESS = "ARTISTEM_LIST_SUCCESS";
-export const ARTISTEM_LIST_FAILURE = "ARTISTEM_LIST_FAILURE";
 
 export const ARTISTEM_ING_UP_REQUEST = "ARTISTEM_ING_UP_REQUEST";
 export const ARTISTEM_ING_UP_SUCCESS = "ARTISTEM_ING_UP_SUCCESS";
@@ -287,30 +280,7 @@ const reducer = (state = initailState, action) =>
       }
 
       ////////////////////////////////////////////////////
-      ////////////////////////////////////////////////////
-      case ARTISTEM_LIST_REQUEST: {
-        draft.st_artistemListLoading = true;
-        draft.st_artistemListDone = false;
-        draft.st_artistemListError = null;
-        break;
-      }
 
-      case ARTISTEM_LIST_SUCCESS: {
-        draft.st_artistemListLoading = false;
-        draft.st_artistemListDone = true;
-        draft.st_artistemListError = null;
-        draft.artistems = action.data;
-        break;
-      }
-
-      case ARTISTEM_LIST_FAILURE: {
-        draft.st_artistemListLoading = false;
-        draft.st_artistemListDone = false;
-        draft.st_artistemListError = action.error;
-        break;
-      }
-
-      ////////////////////////////////////////////////////
       ////////////////////////////////////////////////////
       case ARTISTEM_ING_UP_REQUEST: {
         draft.st_artistemIngUpLoading = true;

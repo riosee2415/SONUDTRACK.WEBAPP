@@ -128,7 +128,7 @@ const Index = () => {
         },
       });
       setSelectList([]);
-      return message.success("찜목록에서 삭제되었씁니다.");
+      return message.success("찜목록에서 삭제되었습니다.");
     }
 
     if (st_albumDeleteError) {
@@ -144,7 +144,7 @@ const Index = () => {
         },
       });
       setSelectList([]);
-      return message.success("찜목록에서 삭제되었씁니다.");
+      return message.success("찜목록에서 삭제되었습니다.");
     }
 
     if (st_trackDeleteError) {
@@ -240,6 +240,12 @@ const Index = () => {
     },
     [selectList]
   );
+
+  // 페이지 이동
+  const movelinkHandler = useCallback((link) => {
+    router.push(link);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   ////// DATAVIEW //////
 
@@ -343,6 +349,9 @@ const Index = () => {
                           fontSize={`18px`}
                           fontWeight={`bold`}
                           margin={`20px 0 7px`}
+                          onClick={() =>
+                            movelinkHandler(`/artisttem/${data.artistemId}`)
+                          }
                         >
                           {data.artistName}
                         </Text>

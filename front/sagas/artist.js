@@ -20,10 +20,7 @@ import {
   PERMM_WAITING_CREATE_REQUEST,
   PERMM_WAITING_CREATE_SUCCESS,
   PERMM_WAITING_CREATE_FAILURE,
-  //
-  ARTISTEM_LIST_REQUEST,
-  ARTISTEM_LIST_SUCCESS,
-  ARTISTEM_LIST_FAILURE,
+
   //
   ARTISTEM_ING_UP_REQUEST,
   ARTISTEM_ING_UP_SUCCESS,
@@ -202,34 +199,6 @@ function* permmWaitingCreate(action) {
     console.error(err);
     yield put({
       type: PERMM_WAITING_CREATE_FAILURE,
-      error: err.response.data,
-    });
-  }
-}
-
-// ******************************************************************************************************************
-// ******************************************************************************************************************
-// ******************************************************************************************************************
-
-// ******************************************************************************************************************
-// SAGA AREA ********************************************************************************************************
-// ******************************************************************************************************************
-async function artistemListAPI(data) {
-  return await axios.post("/api/artist/target/list", data);
-}
-
-function* artistemList(action) {
-  try {
-    const result = yield call(artistemListAPI, action.data);
-
-    yield put({
-      type: ARTISTEM_LIST_SUCCESS,
-      data: result.data,
-    });
-  } catch (err) {
-    console.error(err);
-    yield put({
-      type: ARTISTEM_LIST_FAILURE,
       error: err.response.data,
     });
   }
@@ -563,9 +532,7 @@ function* watchFaqTypeDel() {
 function* watchFaqTypeCreate() {
   yield takeLatest(PERMM_WAITING_CREATE_REQUEST, permmWaitingCreate);
 }
-function* watchArtistemList() {
-  yield takeLatest(ARTISTEM_LIST_REQUEST, artistemList);
-}
+
 function* watchArtistemIngUp() {
   yield takeLatest(ARTISTEM_ING_UP_REQUEST, artistemIngUp);
 }
@@ -609,7 +576,6 @@ export default function* artistSaga() {
     fork(watchFaqTypeOk),
     fork(watchFaqTypeDel),
     fork(watchFaqTypeCreate),
-    fork(watchArtistemList),
     fork(watchArtistemIngUp),
     fork(watchArtistemTopUp),
     fork(watchAllArtistemList),

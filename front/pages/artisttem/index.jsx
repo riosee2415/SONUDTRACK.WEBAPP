@@ -8,6 +8,7 @@ import { END } from "redux-saga";
 import useWidth from "../../hooks/useWidth";
 import {
   ArtWrapper,
+  CommonButton,
   Image,
   RsWrapper,
   SpanText,
@@ -225,6 +226,18 @@ const Index = () => {
     [me]
   );
 
+  const allSearchHandler = useCallback(() => {
+    dispatch({
+      type: ARTISTEM_LIST_REQUEST,
+      data: {
+        orderType,
+      },
+    });
+    searchInput.setValue("");
+    setTagData();
+    setCateData();
+  }, [orderType, searchInput, tagData, cateData]);
+
   ////// DATAVIEW //////
 
   return (
@@ -261,6 +274,7 @@ const Index = () => {
                   <Select
                     onChange={categoryTypeHandler}
                     placeholder={"Category"}
+                    value={cateData}
                   >
                     {cateAllList &&
                       cateAllList.map((data) => {
@@ -304,7 +318,11 @@ const Index = () => {
                     </Select>
                   </CustomSelect>
                   <CustomSelect>
-                    <Select placeholder={"Tag"} onChange={tagIdHandler}>
+                    <Select
+                      placeholder={"Tag"}
+                      onChange={tagIdHandler}
+                      value={tagData}
+                    >
                       {tagList &&
                         tagList.map((data) => {
                           return (
@@ -317,7 +335,10 @@ const Index = () => {
                   </CustomSelect>
                 </Wrapper>
               </Wrapper>
-              <Wrapper width={width < 700 ? `100%` : `auto`} al={`flex-start`}>
+              <Wrapper
+                width={width < 700 ? `calc(100% - 130px)` : `auto`}
+                al={`flex-start`}
+              >
                 <Text
                   fontSize={`20px`}
                   fontWeight={`bold`}
@@ -327,7 +348,7 @@ const Index = () => {
                   Search
                 </Text>
                 <Wrapper
-                  width={width < 700 ? `100%` : `430px`}
+                  width={width < 700 ? `calc(100% - )` : `430px`}
                   position={`relative`}
                   height={`54px`}
                   color={Theme.black_C}
@@ -353,6 +374,28 @@ const Index = () => {
                     {...searchInput}
                   />
                 </Wrapper>
+              </Wrapper>
+              <Wrapper
+                width={`auto`}
+                al={`flex-start`}
+                margin={width < 900 ? `0 0 0 10px` : `0 0 0 50px`}
+              >
+                <Text
+                  fontSize={`20px`}
+                  fontWeight={`bold`}
+                  color={Theme.grey_C}
+                  margin={`10px 0 16px`}
+                >
+                  All
+                </Text>
+                <CommonButton
+                  width={`120px`}
+                  height={`54px`}
+                  radius={`50px`}
+                  onClick={allSearchHandler}
+                >
+                  전체 검색
+                </CommonButton>
               </Wrapper>
             </Wrapper>
             <Wrapper dr={`row`} ju={`flex-start`} margin={`70px 0 40px`}>

@@ -172,7 +172,11 @@ const Musictem = ({
     [playing2]
   );
   ////// HANDLER //////
-
+  // 페이지 이동
+  const movelinkHandler = useCallback((link) => {
+    router.push(link);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
   ////// DATAVIEW //////
 
   return (
@@ -404,9 +408,7 @@ const Musictem = ({
                             </Text>
                             <Text
                               onClick={() =>
-                                movelinkHandler(
-                                  `/musictem/artist/${data.ProductId}`
-                                )
+                                movelinkHandler(`/musictem/artist/${data.id}`)
                               }
                               isHover
                               fontSize={width < 700 ? `14px` : `16px`}
@@ -447,7 +449,7 @@ const Musictem = ({
                                     {data.viewDownLoadCnt}
                                   </Text>
                                 </Wrapper>
-                                <Wrapper
+                                {/* <Wrapper
                                   width={`50px`}
                                   onClick={() => movelinkHandler(`/license`)}
                                   cursor={`pointer`}
@@ -457,7 +459,7 @@ const Musictem = ({
                                     width={`22px`}
                                     src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/cart.png`}
                                   />
-                                </Wrapper>
+                                </Wrapper> */}
                                 <Wrapper width={`50px`}>
                                   <Image
                                     alt="icon"
@@ -543,7 +545,7 @@ const Musictem = ({
                                 {data.viewDownLoadCnt}
                               </Text>
                             </Wrapper>
-                            <Wrapper
+                            {/* <Wrapper
                               width={`50px`}
                               onClick={() => movelinkHandler(`/license`)}
                               cursor={`pointer`}
@@ -553,7 +555,7 @@ const Musictem = ({
                                 width={`22px`}
                                 src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/cart.png`}
                               />
-                            </Wrapper>
+                            </Wrapper> */}
                             <Wrapper width={`60px`}>
                               <Image
                                 alt="icon"

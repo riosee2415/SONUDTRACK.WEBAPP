@@ -323,6 +323,18 @@ const Index = () => {
     },
     [me]
   );
+
+  const allSearchHandler = useCallback(() => {
+    dispatch({
+      type: MUSICTEM_LIST_REQUEST,
+      data: {
+        orderType: selectOrderType,
+      },
+    });
+    searchValue.setValue("");
+    setSearchSmallTag();
+    setCateData();
+  }, [selectOrderType, searchValue, searchSmallTag, cateData]);
   ////// DATAVIEW //////
 
   return (
@@ -360,6 +372,7 @@ const Index = () => {
                   <Select
                     onChange={categoryTypeHandler}
                     placeholder={"Category"}
+                    value={cateData}
                   >
                     {cateAllList &&
                       cateAllList.map((data) => {
@@ -406,6 +419,7 @@ const Index = () => {
                     <Select
                       placeholder={"Tag"}
                       onChange={searchSmallTagChangeHandler}
+                      value={searchSmallTag}
                     >
                       {tagList &&
                         tagList.map((data) => {
@@ -419,7 +433,10 @@ const Index = () => {
                   </CustomSelect>
                 </Wrapper>
               </Wrapper>
-              <Wrapper width={width < 700 ? `100%` : `auto`} al={`flex-start`}>
+              <Wrapper
+                width={width < 700 ? `calc(100% - 130px)` : `auto`}
+                al={`flex-start`}
+              >
                 <Text
                   fontSize={width < 900 ? `16px` : `20px`}
                   fontWeight={`bold`}
@@ -455,6 +472,28 @@ const Index = () => {
                     shadow={`0 3px 10px rgba(0, 0, 0, 0.1)`}
                   />
                 </Wrapper>
+              </Wrapper>
+              <Wrapper
+                width={`auto`}
+                al={`flex-start`}
+                margin={width < 900 ? `0 0 0 10px` : `0 0 0 50px`}
+              >
+                <Text
+                  fontSize={`20px`}
+                  fontWeight={`bold`}
+                  color={Theme.grey_C}
+                  margin={`10px 0 16px`}
+                >
+                  All
+                </Text>
+                <CommonButton
+                  width={`120px`}
+                  height={`54px`}
+                  radius={`50px`}
+                  onClick={allSearchHandler}
+                >
+                  전체 검색
+                </CommonButton>
               </Wrapper>
             </Wrapper>
 
@@ -573,7 +612,7 @@ const Index = () => {
                             <Text
                               onClick={() =>
                                 movelinkHandler(
-                                  `/musictem/artist/${data.ProductId}`
+                                  `/musictem/artist/${data.MusictemId}`
                                 )
                               }
                               isHover
@@ -619,7 +658,7 @@ const Index = () => {
                                     {data.viewDownLoadCnt}
                                   </Text>
                                 </Wrapper>
-                                <Wrapper
+                                {/* <Wrapper
                                   width={`50px`}
                                   onClick={() => movelinkHandler(`/license`)}
                                   cursor={`pointer`}
@@ -629,7 +668,7 @@ const Index = () => {
                                     width={`22px`}
                                     src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/cart.png`}
                                   />
-                                </Wrapper>
+                                </Wrapper> */}
                                 <Wrapper width={`50px`}>
                                   <Image
                                     alt="icon"
@@ -721,7 +760,7 @@ const Index = () => {
                                 {data.viewDownLoadCnt}
                               </Text>
                             </Wrapper>
-                            <Wrapper
+                            {/* <Wrapper
                               width={`50px`}
                               onClick={() => movelinkHandler(`/license`)}
                               cursor={`pointer`}
@@ -731,7 +770,7 @@ const Index = () => {
                                 width={`22px`}
                                 src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/cart.png`}
                               />
-                            </Wrapper>
+                            </Wrapper> */}
                             <Wrapper width={`60px`}>
                               <Image
                                 alt="icon"
@@ -854,7 +893,7 @@ const Index = () => {
                             <Text
                               onClick={() =>
                                 movelinkHandler(
-                                  `/musictem/artist/${data.ProductId}`
+                                  `/musictem/artist/${data.MusictemId}`
                                 )
                               }
                               isHover
@@ -900,7 +939,7 @@ const Index = () => {
                                     {data.viewDownLoadCnt}
                                   </Text>
                                 </Wrapper>
-                                <Wrapper
+                                {/* <Wrapper
                                   width={`50px`}
                                   onClick={() => movelinkHandler(`/license`)}
                                   cursor={`pointer`}
@@ -910,7 +949,7 @@ const Index = () => {
                                     width={`22px`}
                                     src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/cart.png`}
                                   />
-                                </Wrapper>
+                                </Wrapper> */}
                                 <Wrapper width={`50px`}>
                                   <Image
                                     alt="icon"
@@ -1002,7 +1041,7 @@ const Index = () => {
                                 {data.viewDownLoadCnt}
                               </Text>
                             </Wrapper>
-                            <Wrapper
+                            {/* <Wrapper
                               width={`50px`}
                               onClick={() => movelinkHandler(`/license`)}
                               cursor={`pointer`}
@@ -1012,7 +1051,7 @@ const Index = () => {
                                 width={`22px`}
                                 src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/cart.png`}
                               />
-                            </Wrapper>
+                            </Wrapper> */}
                             <Wrapper width={`60px`}>
                               <Image
                                 alt="icon"
@@ -1314,7 +1353,7 @@ const Index = () => {
                                     {data.viewDownLoadCnt}
                                   </Text>
                                 </Wrapper>
-                                <Wrapper
+                                {/* <Wrapper
                                   width={`50px`}
                                   onClick={() => movelinkHandler(`/license`)}
                                   cursor={`pointer`}
@@ -1324,7 +1363,7 @@ const Index = () => {
                                     width={`22px`}
                                     src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/cart.png`}
                                   />
-                                </Wrapper>
+                                </Wrapper> */}
                                 <Wrapper width={`50px`}>
                                   <Image
                                     alt="icon"
@@ -1418,7 +1457,7 @@ const Index = () => {
                                 {data.viewDownLoadCnt}
                               </Text>
                             </Wrapper>
-                            <Wrapper
+                            {/* <Wrapper
                               width={`50px`}
                               onClick={() => movelinkHandler(`/license`)}
                               cursor={`pointer`}
@@ -1428,7 +1467,7 @@ const Index = () => {
                                 width={`22px`}
                                 src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/cart.png`}
                               />
-                            </Wrapper>
+                            </Wrapper> */}
                             <Wrapper width={`60px`}>
                               <Image
                                 alt="icon"
