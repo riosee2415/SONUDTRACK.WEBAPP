@@ -1,5 +1,5 @@
-import React, { useCallback } from "react";
-import { Carousel } from "antd";
+import React, { useCallback, useEffect } from "react";
+import { Carousel, message } from "antd";
 import { Image, Text, Wrapper, CommonButton } from "../commonComponents";
 import styled from "styled-components";
 import Theme from "../Theme";
@@ -51,13 +51,12 @@ const CdWrapper = styled(Wrapper)`
 `;
 
 const AlbumSlider = ({ list }) => {
-  const { st_albumDeleteDone, st_albumDeleteError } = useSelector(
-    (state) => state.album
-  );
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
   const dispatch = useDispatch();
+
+  ////// USEEFFECT //////
 
   ////// HANDLER //////
   const moveLinkHandler = useCallback((link) => {
