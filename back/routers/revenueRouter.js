@@ -389,7 +389,17 @@ router.post("/admin/list", isAdminCheck, async (req, res, next) => {
                 B.profileImage                               AS requestUserProfileImage,
                 C.artistName,
                 C.artistProfileImage,
-                C.artistInfo
+                C.artistInfo,
+                (
+                  SELECT  bankName
+                    FROM  users
+                   WHERE  id = C.UserId
+                )                                           AS artistBankname,
+                (
+                  SELECT  acconuntNum
+                    FROM  users
+                   WHERE  id = C.UserId
+                )                                           AS artistAcconuntNum
           FROM  artistContact		  A
          INNER
           JOIN  users             B
@@ -438,7 +448,17 @@ router.post("/admin/list", isAdminCheck, async (req, res, next) => {
                 B.payWay,
                 B.usePoint,
                 CONCAT(FORMAT(B.usePoint, 0), "원")              AS viewUsePointPrice,
-                CONCAT(FORMAT(A.price, 0), "원")              AS viewTotalPrice
+                CONCAT(FORMAT(A.price, 0), "원")              AS viewTotalPrice,
+                (
+                  SELECT  bankName
+                    FROM  users
+                   WHERE  id = E.UserId
+                )                                           AS artistBankname,
+                (
+                  SELECT  acconuntNum
+                    FROM  users
+                   WHERE  id = E.UserId
+                )                                           AS artistAcconuntNum
         FROM	wishItem		A
        INNER
         JOIN	boughtHistory 	B
