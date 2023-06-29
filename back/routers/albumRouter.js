@@ -204,14 +204,80 @@ router.post("/musictem/admin/list", async (req, res, next) => {
  * DEV DATE : 2023/06/28
  */
 router.post("/musictem/premium/admin/list", async (req, res, next) => {
-  const { songName, TagTypeId, TagId, CategoryId } = req.body;
+  const { albumName, TagTypeId, TagId, CategoryId } = req.body;
 
-  const _songName = songName ? songName : ``;
+  const _albumName = albumName ? albumName : ``;
   const _TagTypeId = TagTypeId ? TagTypeId : false;
   const _TagId = TagId ? TagId : false;
   const _CategoryId = CategoryId ? CategoryId : false;
 
-  const selectQuery = `
+  const albumQuery = `
+  SELECT  ROW_NUMBER()  OVER(ORDER  BY A.createdAt)   AS num,
+          A.id, 
+          A.albumName,
+          A.albumImage,
+          A.albumImageName,
+          A.bitRate,
+          A.sampleRate,
+          A.fileName,
+          A.filePath,
+          A.isPremium,
+          A.isTrackPermit,
+          A.permitAt,
+          A.createdAt,
+          A.updatedAt,
+          DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")    AS viewCreatedAt,
+          DATE_FORMAT(A.createdAt, "%Y.%m.%d")        AS viewFrontCreatedAt,
+          DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
+          A.MusictemId,
+          (
+            SELECT  COUNT(id)
+              FROM  albumLike
+             WHERE  AlbumId = A.id
+          )                                          AS likeCnt
+    FROM  album   A
+   WHERE  A.albumName LIKE "%${_albumName}%"
+     AND  A.isPremium = 1
+          ${
+            _TagTypeId
+              ? `
+          AND 0 < (
+                    SELECT  COUNT(id)
+                      FROM  albumTag
+                     WHERE  AlbumId = A.id
+                       AND  TagTypeId = ${_TagTypeId}
+                   )
+          `
+              : ``
+          }
+          ${
+            _TagId
+              ? `
+          AND 0 < (
+                    SELECT  COUNT(id)
+                      FROM  albumTag
+                     WHERE  AlbumId = A.id
+                       AND  TagId = ${_TagId}
+                   )
+          `
+              : ``
+          }
+          ${
+            _CategoryId
+              ? `
+          AND 0 < (
+                    SELECT  COUNT(id)
+                      FROM  albumCategory
+                     WHERE  AlbumId = A.id
+                       AND  CategoryId = ${_CategoryId}
+                   )
+          `
+              : ``
+          }
+   ORDER  BY num DESC
+  `;
+
+  const trackQuery = `
   SELECT  DISTINCT
           ROW_NUMBER()	OVER(ORDER	BY A.createdAt)  AS num,
    	 	    A.id,
@@ -254,72 +320,100 @@ router.post("/musictem/premium/admin/list", async (req, res, next) => {
             SELECT  COUNT(id)
               FROM  trackLike
              WHERE  TrackId = A.id
-          )                                          AS likeCnt,
-          ${
-            req.user
-              ? `
-            (
-              SELECT	TL.id
-                FROM	trackLike	TL
-               WHERE	TL.UserId = ${req.user.id}
-                 AND	TL.TrackId = A.id 
-            )	AS isLike`
-              : `(
-              SELECT	null
-                FROM	DUAL
-            )	AS isLike`
-          }
+          )                                          AS likeCnt
     FROM  track   A
    WHERE  TRUE = (
    				SELECT	isTrackPermit 
    				  FROM	album
    				 WHERE	A.AlbumId = id 
                  )
-     AND  A.songName LIKE "%${_songName}%"
-          ${
-            _TagTypeId
-              ? `
-          AND 0 < (
-                    SELECT  COUNT(id)
-                      FROM  albumTag
-                     WHERE  A.AlbumId = AlbumId
-                       AND  TagTypeId = ${_TagTypeId}
-                   )
-          `
-              : ``
-          }
-          ${
-            _TagId
-              ? `
-          AND 0 < (
-                    SELECT  COUNT(id)
-                      FROM  albumTag
-                     WHERE  A.AlbumId = AlbumId
-                       AND  TagId = ${_TagId}
-                   )
-          `
-              : ``
-          }
-          ${
-            _CategoryId
-              ? `
-          AND 0 < (
-                    SELECT  COUNT(id)
-                      FROM  albumCategory
-                     WHERE  A.AlbumId = AlbumId
-                       AND  CategoryId = ${_CategoryId}
-                   )
-          `
-              : ``
-          }
-      AND A.isTitle = 1
    ORDER  BY num DESC
   `;
 
-  try {
-    const musictem = await models.sequelize.query(selectQuery);
+  const findCateInfoQuery = `
+  SELECT  ROW_NUMBER()  OVER(ORDER  BY A.sort)      AS num,
+          A.id,
+          A.sort,
+          A.AlbumId,
+          A.CateTypeId,
+          A.CategoryId,
+          A.createdAt,
+          A.updatedAt,
+          DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")  AS viewCreatedAt,
+          DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")  AS viewUpdatedAt,
+          B.category                                AS categoryTypeValue,
+          C.value                                   AS catagoryValue
+    FROM  albumCategory     A
+   INNER
+    JOIN  cateType          B
+      ON  A.CateTypeId = B.id
+   INNER
+    JOIN  category          C
+      ON  A.CategoryId = C.id
+   ORDER  BY num ASC
+  `;
 
-    return res.status(200).json(musictem[0]);
+  const findTagInfoQuery = `
+  SELECT  ROW_NUMBER()  OVER(ORDER  BY A.sort)      AS num,
+          A.id,
+          A.sort,
+          A.AlbumId,
+          A.TagTypeId,
+          A.TagId,
+          A.createdAt,
+          A.updatedAt,
+          DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")  AS viewCreatedAt,
+          DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")  AS viewUpdatedAt,
+          B.value                                   AS tagTypeValue,
+          C.tagValue
+    FROM  albumTag        A
+   INNER
+    JOIN  tagType          B
+      ON  A.TagTypeId = B.id
+   INNER
+    JOIN  tag              C
+      ON  A.TagId = C.id
+   ORDER  BY num ASC
+  `;
+
+  try {
+    const albums = await models.sequelize.query(albumQuery);
+    const track = await models.sequelize.query(trackQuery);
+
+    const categorys = await models.sequelize.query(findCateInfoQuery);
+    const tags = await models.sequelize.query(findTagInfoQuery);
+
+    albums[0].map((ele) => {
+      ele["tracks"] = [];
+
+      track[0].map((innerItem) => {
+        if (parseInt(ele.id) === parseInt(innerItem.AlbumId)) {
+          ele.tracks.push(innerItem);
+        }
+      });
+    });
+
+    albums[0].map((ele) => {
+      ele["categorys"] = [];
+
+      categorys[0].map((innerItem) => {
+        if (parseInt(ele.id) === parseInt(innerItem.AlbumId)) {
+          ele.categorys.push(innerItem);
+        }
+      });
+    });
+
+    albums[0].map((ele) => {
+      ele["tags"] = [];
+
+      tags[0].map((innerItem) => {
+        if (parseInt(ele.id) === parseInt(innerItem.AlbumId)) {
+          ele.tags.push(innerItem);
+        }
+      });
+    });
+
+    return res.status(200).json(albums[0]);
   } catch (error) {
     console.error(error);
     return res.status(401).send("뮤직탬 목록을 조회할 수 없습니다.");
