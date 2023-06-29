@@ -517,7 +517,12 @@ const MypageMenu = ({}) => {
 
         {me && me.type === 2 && (
           <>
-            <Menu>수익 관리</Menu>
+            <Menu
+              isActive={router.pathname === `/mypage/revenue`}
+              onClick={() => movelinkHandler(`/mypage/revenue`)}
+            >
+              수익 관리
+            </Menu>
             <Menu onClick={mypageMenuOpen2Toggle}>
               <Wrapper
                 dr={`row`}
