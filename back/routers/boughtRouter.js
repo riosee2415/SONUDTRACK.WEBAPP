@@ -942,14 +942,19 @@ router.post("/track/list", isLoggedIn, async (req, res, next) => {
               B.price,
               B.usePoint,
               B.payWay,
-              C.fileLength
+              C.fileLength,
+              D.isPremium,
+              D.MusictemId
         FROM  wishItem			   A
        INNER
         JOIN  boughtHistory    B
           ON  A.BoughtHistoryId = B.id
        INNER
-        JOIN  track    C
+        JOIN  track            C
           ON  A.trackId = C.id
+       INNER
+        JOIN  album            D
+          ON  D.id = C.AlbumId
        WHERE  B.UserId = ${req.user.id}
   `;
 
@@ -982,14 +987,19 @@ router.post("/track/list", isLoggedIn, async (req, res, next) => {
               B.price,
               B.usePoint,
               B.payWay,
-              C.fileLength
+              C.fileLength,
+              D.isPremium,
+              D.MusictemId
         FROM  wishItem			   A
        INNER
         JOIN  boughtHistory    B
           ON  A.BoughtHistoryId = B.id
        INNER
-        JOIN  track    C
+        JOIN  track            C
           ON  A.trackId = C.id
+       INNER
+        JOIN  album            D
+          ON  D.id = C.AlbumId
        WHERE  B.UserId = ${req.user.id}
        ORDER  BY num DESC
        LIMIT  ${LIMIT}
