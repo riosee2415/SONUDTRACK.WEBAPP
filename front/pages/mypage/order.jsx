@@ -343,9 +343,7 @@ const Index = () => {
                         color={Theme.basicTheme_C}
                         margin={`0 0 8px`}
                       >
-                        {boughtType === 1
-                          ? data.viewTotalPrice
-                          : data.viewTotalPrice}
+                        {data.viewTotalPrice}
                       </Text>
 
                       <CommonButton

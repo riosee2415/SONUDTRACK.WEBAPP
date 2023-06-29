@@ -37,7 +37,7 @@ const reducer = (state = initailState, action) =>
         draft.st_revenueListLoading = false;
         draft.st_revenueListDone = true;
         draft.st_revenueListError = null;
-        draft.revenueList = action.data.items;
+        draft.revenueList = action.data.contacts;
         draft.lastPage = action.data.lastPage;
         break;
       }

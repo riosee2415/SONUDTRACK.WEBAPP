@@ -21,8 +21,9 @@ import styled from "styled-components";
 import { Checkbox, DatePicker, message, Select } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
-import { BOUGHT_ALL_REQUEST } from "../../reducers/bought";
+import { REVENUE_LIST_REQUEST } from "../../reducers/revenue";
 import moment from "moment";
+import { SALESSLIP_REQUEST } from "../../reducers/bought";
 
 const Box = styled(Wrapper)`
   border-radius: 7px;
@@ -40,10 +41,13 @@ const Box = styled(Wrapper)`
 const Index = () => {
   ////// GLOBAL STATE //////
   const { me } = useSelector((state) => state.user);
-  const { lastPage, boughtHistorys } = useSelector((state) => state.bought);
+  const { lastPage, revenueList } = useSelector((state) => state.revenue);
+  const { salesSlip, st_salesSlipDone, st_salesSlipError } = useSelector(
+    (state) => state.bought
+  );
 
   const [currentPage, setCurrentPage] = useState(1); // 페이지네이션
-  const [boughtType, setBoughtType] = useState(1); // 유형 type:1(아티스템) type:2(뮤직템) type:3(아트윅스)
+  const [revenueType, setRevenueType] = useState(1); // 유형 type:1(아티스템) type:2(뮤직템) type:3(아트윅스)
   const [startDate, setStartDate] = useState(""); // 시작날짜
   const [endDate, setEndDate] = useState(""); // 끝날짜
 
@@ -65,13 +69,26 @@ const Index = () => {
 
   useEffect(() => {
     dispatch({
-      type: BOUGHT_ALL_REQUEST,
+      type: REVENUE_LIST_REQUEST,
       data: {
-        type: boughtType,
+        type: revenueType,
         page: currentPage,
       },
     });
-  }, [currentPage, boughtType]);
+  }, [currentPage, revenueType]);
+
+  useEffect(() => {
+    if (st_salesSlipDone) {
+      const status =
+        "toolbar=no,scrollbars=no,resizable=yes,status=no,menubar=no,width=430, height=720, top=0,left=0, target=_blank";
+      window.open(salesSlip.receipt_url, "", status);
+
+      return;
+    }
+    if (st_salesSlipError) {
+      return message.error(st_salesSlipError);
+    }
+  }, [st_salesSlipDone, st_salesSlipError]);
   ////// TOGGLE //////
 
   ////// HANDLER //////
@@ -86,11 +103,11 @@ const Index = () => {
   // 유형선택
   const boughtTypehandler = useCallback(
     (data) => {
-      setBoughtType(data);
+      setRevenueType(data);
       setStartDate("");
       setEndDate("");
     },
-    [boughtType, startDate, endDate]
+    [revenueType, startDate, endDate]
   );
 
   // 시작날짜
@@ -112,15 +129,24 @@ const Index = () => {
   // 날짜 조회
   const dateSearchHandler = useCallback(() => {
     dispatch({
-      type: BOUGHT_ALL_REQUEST,
+      type: REVENUE_LIST_REQUEST,
       data: {
-        type: boughtType,
+        type: revenueType,
         page: currentPage,
-        startDate: startDate.format("YYYY-MM-DD"),
-        endDate: endDate.format("YYYY-MM-DD"),
+        startDate: startDate ? startDate.format("YYYY-MM-DD") : "",
+        endDate: endDate ? endDate.format("YYYY-MM-DD") : "",
       },
     });
-  }, [boughtType, currentPage, startDate, endDate]);
+  }, [revenueType, currentPage, startDate, endDate]);
+
+  const salesSlipHandler = useCallback((data) => {
+    dispatch({
+      type: SALESSLIP_REQUEST,
+      data: {
+        impUid: data.impUid,
+      },
+    });
+  }, []);
 
   ////// DATAVIEW //////
 
@@ -148,7 +174,7 @@ const Index = () => {
                 }
                 height={`54px`}
                 fontWeight={`bold`}
-                kindOf={boughtType === 1 ? `subTheme2` : `grey3`}
+                kindOf={revenueType === 1 ? `subTheme2` : `grey3`}
                 onClick={() => boughtTypehandler(1)}
               >
                 Artisttem
@@ -160,7 +186,7 @@ const Index = () => {
                 height={`54px`}
                 fontWeight={`bold`}
                 margin={width < 700 ? `0 10px` : `0 20px`}
-                kindOf={boughtType === 2 ? `subTheme2` : `grey3`}
+                kindOf={revenueType === 2 ? `subTheme2` : `grey3`}
                 onClick={() => boughtTypehandler(2)}
               >
                 Musictem
@@ -171,7 +197,7 @@ const Index = () => {
                 }
                 height={`54px`}
                 fontWeight={`bold`}
-                kindOf={boughtType === 3 ? `subTheme2` : `grey3`}
+                kindOf={revenueType === 3 ? `subTheme2` : `grey3`}
                 onClick={() => boughtTypehandler(3)}
               >
                 Artworks
@@ -218,7 +244,7 @@ const Index = () => {
               판매자의 수익금은 구매자의 거래 완료일 기준 7일 이내 정산됩니다.
             </Wrapper>
 
-            {boughtHistorys && boughtHistorys.length === 0 ? (
+            {revenueList && revenueList.length === 0 ? (
               <Wrapper
                 height={`400px`}
                 borderBottom={`1px solid ${Theme.lightGrey_C}`}
@@ -237,8 +263,8 @@ const Index = () => {
                 </Text>
               </Wrapper>
             ) : (
-              boughtHistorys &&
-              boughtHistorys.map((data) => {
+              revenueList &&
+              revenueList.map((data) => {
                 return (
                   <Box key={data.id}>
                     <Wrapper width={`auto`} al={`flex-start`}>
@@ -254,38 +280,22 @@ const Index = () => {
                         </Text>
                         <Text>
                           주문번호 :&nbsp;
-                          {boughtType === 1
-                            ? data.merchantUid
-                            : `ORD${moment(data.createdAt).format(
-                                "YYYYMMDDHHmmss"
-                              )}`}
+                          {data.merchantUid}
                         </Text>
                       </Wrapper>
                       <Text fontSize={`18px`} fontWeight={`600`}>
-                        {boughtType === 1
+                        {revenueType === 1
                           ? data.artistName
-                          : `[${
-                              data.boughtItems && data.boughtItems[0].albumName
-                            }] ${
-                              data.boughtItems && data.boughtItems[0].songName
-                            } ${
-                              data.boughtItems && data.boughtItems.length === 1
-                                ? ""
-                                : `외 ${
-                                    data.boughtItems && data.boughtItems.length
-                                  }개`
-                            } `}
+                          : `[${data.albumName}] ${data.songName} `}
                       </Text>
                       <Text
                         fontWeight={`600`}
                         color={Theme.darkGrey_C}
                         margin={`5px 0 0`}
                       >
-                        {boughtType === 1
+                        {revenueType === 1
                           ? data.artistInfo
-                          : `Album by ${
-                              data.boughtItems && data.boughtItems[0].singerName
-                            }`}
+                          : `Album by ${data.singerName}`}
                       </Text>
 
                       <Text
@@ -303,11 +313,12 @@ const Index = () => {
                       </Text>
                       <Text padding={`0 0 0 14px`} color={Theme.grey_C}>
                         신용카드 결제 (
-                        {boughtType === 1 ? data.viewPayPrice : data.viewPrice})
+                        {revenueType === 1 ? data.viewPayPrice : data.viewPrice}
+                        )
                       </Text>
                       <Text padding={`0 0 0 14px`} color={Theme.grey_C}>
                         적립포인트 사용&nbsp;(
-                        {boughtType === 1
+                        {revenueType === 1
                           ? data.viewUsePointPrice
                           : data.viewUsePoint}
                         )
@@ -323,20 +334,19 @@ const Index = () => {
                         color={Theme.basicTheme_C}
                         margin={`0 0 8px`}
                       >
-                        {boughtType === 1
-                          ? data.viewTotalPrice
-                          : data.viewPrice}
+                        {data.viewTotalPrice}
                       </Text>
 
-                      {/* <CommonButton
+                      <CommonButton
                         padding={`0`}
                         width={`83px`}
                         height={`45px`}
                         kindOf={`grey`}
                         margin={width < 700 ? `10px 0 0` : `54px 0 0`}
+                        onClick={() => salesSlipHandler(data)}
                       >
                         전표 출력
-                      </CommonButton> */}
+                      </CommonButton>
                     </Wrapper>
                   </Box>
                 );

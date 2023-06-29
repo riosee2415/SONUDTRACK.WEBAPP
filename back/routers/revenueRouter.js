@@ -68,7 +68,8 @@ router.post("/list", isLoggedIn, async (req, res, next) => {
                 A.payWay,
                 A.payPrice,
                 A.usePointPrice,
-                CONCAT(FORMAT(A.totalPrice, ","), "원")     AS viewTotalPrice,
+                CONCAT(FORMAT(A.payPrice, ","), "원")        AS viewPayPrice,
+                CONCAT(FORMAT(A.totalPrice, ","), "원")       AS viewTotalPrice,
                 CONCAT(FORMAT(A.usePointPrice, ","), "원")     AS viewUsePointPrice,
                 A.payDate,
                 A.payCardInfo,
@@ -144,7 +145,8 @@ router.post("/list", isLoggedIn, async (req, res, next) => {
                 A.payWay,
                 A.payPrice,
                 A.usePointPrice,
-                CONCAT(FORMAT(A.totalPrice, ","), "원")     AS viewTotalPrice,
+                CONCAT(FORMAT(A.payPrice, ","), "원")          AS viewPayPrice,
+                CONCAT(FORMAT(A.totalPrice, ","), "원")       AS viewTotalPrice,
                 CONCAT(FORMAT(A.usePointPrice, ","), "원")     AS viewUsePointPrice,
                 A.payDate,
                 A.payCardInfo,
@@ -252,16 +254,23 @@ router.post("/list", isLoggedIn, async (req, res, next) => {
                 A.thumbnail,
                 A.albumName,
                 A.songName,
+                A.singerName,
                 A.price,
                 A.trackId,
                 B.name,
                 B.email,
                 B.mobile,
+                B.payCardInfo,
+                B.impUid,
+                B.merchantUid,
                 B.createdAt,
+                CONCAT(FORMAT(B.price, ","), "원")              AS viewPrice,
+                CONCAT(FORMAT((B.price - B.usePoint), 0), "원") AS viewTotalPrice,
+                DATE_FORMAT(B.createdAt, "%Y.%m.%d")        AS viewFrontCreatedAt,
                 DATE_FORMAT(B.createdAt, "%Y.%m.%d")			AS viewCreatedAt,
                 B.payWay,
                 B.usePoint,
-                CONCAT(FORMAT(B.usePoint, 0), "원")              AS viewUsePrice
+                CONCAT(FORMAT(B.usePoint, 0), "원")              AS viewUsePoint
         FROM	wishItem		A
        INNER
         JOIN	boughtHistory 	B
@@ -298,13 +307,17 @@ router.post("/list", isLoggedIn, async (req, res, next) => {
         itemLen % LIMIT > 0 ? itemLen / LIMIT + 1 : itemLen / LIMIT;
 
       return res.status(200).json({
-        items: item[0],
+        contacts: item[0],
         lastPage: parseInt(lastPage),
       });
     }
 
-    // if (parseInt(type) === 3) {
-    // }
+    if (parseInt(_type) === 3) {
+      return res.status(200).json({
+        contacts: [],
+        lastPage: 1,
+      });
+    }
   } catch (error) {
     console.error(error);
     return res.status(401).send("수익 목록을 조회할 수 없습니다.");

@@ -499,7 +499,7 @@ router.post("/all", isLoggedIn, async (req, res, next) => {
               A.mobile,
               A.email,
               A.price,
-              CONCAT(FORMAT((A.price - A.usePoint), 0), "원") AS viewPrice,
+              CONCAT(FORMAT(A.price, ","), "원")              AS viewPrice,
               CONCAT(FORMAT((A.price - A.usePoint), 0), "원") AS viewTotalPrice,
               A.usePoint,
               CONCAT(FORMAT(A.usePoint, ","), "원")       AS viewUsePoint,
