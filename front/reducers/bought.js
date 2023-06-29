@@ -7,6 +7,7 @@ export const initailState = {
   AdminBoughtHistorys: [], // 결제내역 ( 관리자 )
   boughtList: [], // 음원구매내역 ( 마이페이지 )
   adminBoughtList: [], // 관리자 음원구매내역
+  salesSlip: null, // 매출전표 가져ㅑ오기
 
   // 음원구매내역 상세
   boughtDetail: null,
@@ -55,6 +56,10 @@ export const initailState = {
   st_boughtAdminListLoading: false, // 관리자 음원구매내역
   st_boughtAdminListDone: false,
   st_boughtAdminListError: null,
+  //
+  st_salesSlipLoading: false, // 매출전표 불러오기
+  st_salesSlipDone: false,
+  st_salesSlipError: null,
 };
 
 export const ITEM_LIST_REQUEST = "ITEM_LIST_REQUEST";
@@ -100,6 +105,10 @@ export const BOUGHT_DETAIL_FAILURE = "BOUGHT_DETAIL_FAILURE";
 export const BOUGHT_ADMIN_LIST_REQUEST = "BOUGHT_ADMIN_LIST_REQUEST";
 export const BOUGHT_ADMIN_LIST_SUCCESS = "BOUGHT_ADMIN_LIST_SUCCESS";
 export const BOUGHT_ADMIN_LIST_FAILURE = "BOUGHT_ADMIN_LIST_FAILURE";
+
+export const SALESSLIP_REQUEST = "SALESSLIP_REQUEST";
+export const SALESSLIP_SUCCESS = "SALESSLIP_SUCCESS";
+export const SALESSLIP_FAILURE = "SALESSLIP_FAILURE";
 
 const reducer = (state = initailState, action) =>
   produce(state, (draft) => {
@@ -348,6 +357,27 @@ const reducer = (state = initailState, action) =>
       }
 
       //////////////////////////////////////////////
+
+      case SALESSLIP_REQUEST: {
+        draft.st_salesSlipLoading = true;
+        draft.st_salesSlipDone = false;
+        draft.st_salesSlipError = null;
+        break;
+      }
+      case SALESSLIP_SUCCESS: {
+        draft.st_salesSlipLoading = false;
+        draft.st_salesSlipDone = true;
+        draft.st_salesSlipError = null;
+        draft.salesSlip = action.data;
+        break;
+      }
+      case SALESSLIP_FAILURE: {
+        draft.st_salesSlipLoading = false;
+        draft.st_salesSlipDone = false;
+        draft.st_salesSlipError = action.error;
+        break;
+      }
+      ///////////////////////////////////////////////////////
 
       default:
         break;

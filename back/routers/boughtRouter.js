@@ -2,6 +2,7 @@ const express = require("express");
 const isAdminCheck = require("../middlewares/isAdminCheck");
 const isLoggedIn = require("../middlewares/isLoggedIn");
 const models = require("../models");
+const axios = require("axios");
 
 const router = express.Router();
 
@@ -473,6 +474,9 @@ router.post("/all", isLoggedIn, async (req, res, next) => {
               A.mileagePrice,
               A.createdAt,
               A.updatedAt,
+              A.payCardInfo,
+              A.impUid,
+              A.merchantUid,
               DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")    AS viewCreatedAt,
               DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
               A.UserId
@@ -495,13 +499,17 @@ router.post("/all", isLoggedIn, async (req, res, next) => {
               A.mobile,
               A.email,
               A.price,
-              CONCAT(FORMAT(A.price, ","), "원")          AS viewPrice,
+              CONCAT(FORMAT((A.price - A.usePoint), 0), "원") AS viewPrice,
+              CONCAT(FORMAT((A.price - A.usePoint), 0), "원") AS viewTotalPrice,
               A.usePoint,
               CONCAT(FORMAT(A.usePoint, ","), "원")       AS viewUsePoint,
               A.payWay,
               A.mileagePrice,
               A.createdAt,
               A.updatedAt,
+              A.payCardInfo,
+              A.impUid,
+              A.merchantUid,
               DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")    AS viewCreatedAt,
               DATE_FORMAT(A.createdAt, "%Y.%m.%d")        AS viewFrontCreatedAt,
               DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
@@ -1213,8 +1221,18 @@ router.post("/admin/list", isAdminCheck, async (req, res, next) => {
  * DEV DATE : 2023/06/21
  */
 router.post("/create", isLoggedIn, async (req, res, next) => {
-  const { name, mobile, email, price, usePoint, payWay, wishItemIds } =
-    req.body;
+  const {
+    name,
+    mobile,
+    email,
+    price,
+    usePoint,
+    payWay,
+    wishItemIds,
+    impUid,
+    merchantUid,
+    payCardInfo,
+  } = req.body;
 
   if (!Array.isArray(wishItemIds)) {
     return res.status(401).send("잘못된 요청입니다.");
@@ -1287,6 +1305,9 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
       usePoint,
       payWay,
       mileagePrice,
+      payCardInfo,
+      impUid,
+      merchantUid,
       createdAt,
       updatedAt,
       UserId
@@ -1300,6 +1321,9 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
       ${usePoint},
       "${payWay}",
       ${userMileagePoint},
+      "${payCardInfo}",
+      "${impUid}",
+      "${merchantUid}",
       NOW(),
       NOW(),
       ${req.user.id}
@@ -1359,6 +1383,46 @@ router.post("/create", isLoggedIn, async (req, res, next) => {
   } catch (error) {
     console.error(error);
     return res.status(401).send("구매를 진행할 수 없습니다.");
+  }
+});
+
+/**
+ * SUBJECT : 매출전표 불러오기
+ * PARAMETERS : impUid
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 김동현
+ * DEV DATE : 2023/06/29
+ */
+router.post("/salesSlip", isLoggedIn, async (req, res, next) => {
+  const { impUid } = req.body;
+
+  try {
+    // 포인트 결제 데이터
+    const getToken = await axios({
+      url: "https://api.iamport.kr/users/getToken",
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      data: {
+        imp_key: "0340786803718728", // REST API 키
+        imp_secret:
+          "BwyUTfLQaBuTfVY4bBQNoKrgoWbFnhX1V9yw7GjwoyPTJ5Ey2BFtzqsE9yB6HakhYdGhlkJURUwvVyvV", // REST API Secret
+      },
+    });
+    const { access_token } = getToken.data.response;
+
+    let payments = null;
+
+    await axios({
+      method: "GET",
+      url: `https://api.iamport.kr/payments/${impUid}`,
+      headers: { Authorization: access_token },
+    }).then((data) => (payments = data.data.response));
+
+    return res.status(200).json(payments);
+  } catch (e) {
+    console.error(e);
+    return res.status(400).send("매출전표를 불러올 수 없습니다.");
   }
 });
 

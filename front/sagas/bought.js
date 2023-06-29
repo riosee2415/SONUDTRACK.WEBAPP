@@ -44,6 +44,10 @@ import {
   BOUGHT_ADMIN_LIST_REQUEST,
   BOUGHT_ADMIN_LIST_SUCCESS,
   BOUGHT_ADMIN_LIST_FAILURE,
+  //
+  SALESSLIP_REQUEST,
+  SALESSLIP_SUCCESS,
+  SALESSLIP_FAILURE,
 } from "../reducers/bought";
 
 // ******************************************************************************************************************
@@ -343,6 +347,34 @@ function* boughtAdminList(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function salesSlipAPI(data) {
+  return await axios.post(`/api/bought/salesSlip`, data);
+}
+
+function* salesSlip(action) {
+  try {
+    const result = yield call(salesSlipAPI, action.data);
+
+    yield put({
+      type: SALESSLIP_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: SALESSLIP_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 function* watchItemList() {
   yield takeLatest(ITEM_LIST_REQUEST, itemList);
@@ -378,6 +410,9 @@ function* watchBoughtDetail() {
 function* watchBoughtAdminList() {
   yield takeLatest(BOUGHT_ADMIN_LIST_REQUEST, boughtAdminList);
 }
+function* watchSalesSlip() {
+  yield takeLatest(SALESSLIP_REQUEST, salesSlip);
+}
 
 //////////////////////////////////////////////////////////////
 export default function* boughtSaga() {
@@ -393,6 +428,7 @@ export default function* boughtSaga() {
     fork(watchBoughtList),
     fork(watchBoughtDetail),
     fork(watchBoughtAdminList),
+    fork(watchSalesSlip),
 
     //
   ]);

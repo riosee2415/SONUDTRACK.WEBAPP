@@ -36,6 +36,22 @@ module.exports = class BoughtHistory extends Model {
           allowNull: false,
           defaultValue: 0,
         },
+        // 결제 카드 정보
+        payCardInfo: {
+          type: DataTypes.STRING(100),
+          allowNull: true, // 필수
+        },
+
+        // 아임포트 정보
+        impUid: {
+          type: DataTypes.STRING(100),
+          allowNull: true,
+        },
+
+        merchantUid: {
+          type: DataTypes.STRING(100),
+          allowNull: true,
+        },
       },
       {
         modelName: "BoughtHistory",

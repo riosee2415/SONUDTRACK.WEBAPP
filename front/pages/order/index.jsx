@@ -233,6 +233,9 @@ const Intro = () => {
                 payWay: payType,
                 mileagePrice: 0,
                 wishItemIds: tempArr,
+                impUid: rsp.imp_uid,
+                merchantUid: rsp.merchant_uid,
+                payCardInfo: rsp.card_name,
               },
             });
           } else {

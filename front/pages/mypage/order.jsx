@@ -21,7 +21,7 @@ import styled from "styled-components";
 import { Checkbox, DatePicker, message, Select } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
-import { BOUGHT_ALL_REQUEST } from "../../reducers/bought";
+import { BOUGHT_ALL_REQUEST, SALESSLIP_REQUEST } from "../../reducers/bought";
 import moment from "moment";
 
 const Box = styled(Wrapper)`
@@ -40,7 +40,13 @@ const Box = styled(Wrapper)`
 const Index = () => {
   ////// GLOBAL STATE //////
   const { me } = useSelector((state) => state.user);
-  const { lastPage, boughtHistorys } = useSelector((state) => state.bought);
+  const {
+    lastPage,
+    boughtHistorys,
+    salesSlip,
+    st_salesSlipDone,
+    st_salesSlipError,
+  } = useSelector((state) => state.bought);
 
   const [currentPage, setCurrentPage] = useState(1); // 페이지네이션
   const [boughtType, setBoughtType] = useState(1); // 유형 type:1(아티스템) type:2(뮤직템) type:3(아트윅스)
@@ -72,6 +78,19 @@ const Index = () => {
       },
     });
   }, [currentPage, boughtType]);
+
+  useEffect(() => {
+    if (st_salesSlipDone) {
+      const status =
+        "toolbar=no,scrollbars=no,resizable=yes,status=no,menubar=no,width=430, height=720, top=0,left=0, target=_blank";
+      window.open(salesSlip.receipt_url, "", status);
+
+      return;
+    }
+    if (st_salesSlipError) {
+      return message.error(st_salesSlipError);
+    }
+  }, [st_salesSlipDone, st_salesSlipError]);
   ////// TOGGLE //////
 
   ////// HANDLER //////
@@ -116,11 +135,20 @@ const Index = () => {
       data: {
         type: boughtType,
         page: currentPage,
-        startDate: startDate.format("YYYY-MM-DD"),
-        endDate: endDate.format("YYYY-MM-DD"),
+        startDate: startDate ? startDate.format("YYYY-MM-DD") : "",
+        endDate: endDate ? endDate.format("YYYY-MM-DD") : "",
       },
     });
   }, [boughtType, currentPage, startDate, endDate]);
+
+  const salesSlipHandler = useCallback((data) => {
+    dispatch({
+      type: SALESSLIP_REQUEST,
+      data: {
+        impUid: data.impUid,
+      },
+    });
+  }, []);
 
   ////// DATAVIEW //////
 
@@ -244,20 +272,20 @@ const Index = () => {
                         </Text>
                         <Text>
                           주문번호 :&nbsp;
-                          {boughtType === 1
-                            ? data.merchantUid
-                            : `ORD${moment(data.createdAt).format(
-                                "YYYYMMDDHHmmss"
-                              )}`}
+                          {data.merchantUid}
                         </Text>
                       </Wrapper>
                       <Text fontSize={`18px`} fontWeight={`600`}>
                         {boughtType === 1
                           ? data.artistName
                           : `[${
-                              data.boughtItems && data.boughtItems[0].albumName
+                              data.boughtItems &&
+                              data.boughtItems[0] &&
+                              data.boughtItems[0].albumName
                             }] ${
-                              data.boughtItems && data.boughtItems[0].songName
+                              data.boughtItems &&
+                              data.boughtItems[0] &&
+                              data.boughtItems[0].songName
                             } ${
                               data.boughtItems && data.boughtItems.length === 1
                                 ? ""
@@ -274,7 +302,9 @@ const Index = () => {
                         {boughtType === 1
                           ? data.artistInfo
                           : `Album by ${
-                              data.boughtItems && data.boughtItems[0].singerName
+                              data.boughtItems &&
+                              data.boughtItems[0] &&
+                              data.boughtItems[0].singerName
                             }`}
                       </Text>
 
@@ -315,18 +345,19 @@ const Index = () => {
                       >
                         {boughtType === 1
                           ? data.viewTotalPrice
-                          : data.viewPrice}
+                          : data.viewTotalPrice}
                       </Text>
 
-                      {/* <CommonButton
+                      <CommonButton
                         padding={`0`}
                         width={`83px`}
                         height={`45px`}
                         kindOf={`grey`}
                         margin={width < 700 ? `10px 0 0` : `54px 0 0`}
+                        onClick={() => salesSlipHandler(data)}
                       >
                         전표 출력
-                      </CommonButton> */}
+                      </CommonButton>
                     </Wrapper>
                   </Box>
                 );
