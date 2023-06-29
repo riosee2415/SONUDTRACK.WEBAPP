@@ -1,17 +1,8 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import AdminLayout from "../../../components/AdminLayout";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  Button,
-  DatePicker,
-  Form,
-  Input,
-  Popconfirm,
-  Popover,
-  Select,
-  Table,
-} from "antd";
+import { Button, DatePicker, Form, Input, Popover, Select, Table } from "antd";
 import { useRouter, withRouter } from "next/router";
 import wrapper from "../../../store/configureStore";
 import { END } from "redux-saga";
@@ -24,7 +15,6 @@ import {
   OtherMenu,
   GuideUl,
   GuideLi,
-  DelBtn,
 } from "../../../components/commonComponents";
 import {
   ADMINUSERLIST_REQUEST,
@@ -32,34 +22,8 @@ import {
 } from "../../../reducers/user";
 import Theme from "../../../components/Theme";
 import { items } from "../../../components/AdminLayout";
-import {
-  AlertOutlined,
-  CheckOutlined,
-  EyeOutlined,
-  HomeOutlined,
-  RightOutlined,
-} from "@ant-design/icons";
+import { HomeOutlined, RightOutlined } from "@ant-design/icons";
 import { REVENUE_ADMIN_LIST_REQUEST } from "../../../reducers/revenue";
-
-const InfoTitle = styled.div`
-  font-size: 19px;
-  margin: 15px 0px 5px 0px;
-  width: 100%;
-
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-
-  padding-left: 15px;
-  color: ${(props) => props.theme.subTheme5_C};
-`;
-
-const ViewStatusIcon = styled(EyeOutlined)`
-  font-size: 18px;
-  color: ${(props) =>
-    props.active ? props.theme.subTheme5_C : props.theme.lightGrey_C};
-`;
 
 const Index = ({}) => {
   const { st_loadMyInfoDone, me } = useSelector((state) => state.user);
@@ -71,9 +35,6 @@ const Index = ({}) => {
   const [level1, setLevel1] = useState("결제관리");
   const [level2, setLevel2] = useState("");
   const [sameDepth, setSameDepth] = useState([]);
-  const [currentData, setCurrentData] = useState(null);
-
-  const [infoForm] = Form.useForm();
 
   const moveLinkHandler = useCallback((link) => {
     router.push(link);
@@ -117,7 +78,6 @@ const Index = ({}) => {
 
   const { revenueAdminList } = useSelector((state) => state.revenue);
   const { users } = useSelector((state) => state.user);
-  console.log(revenueAdminList);
 
   ////// HOOKS //////
 
@@ -133,16 +93,15 @@ const Index = ({}) => {
 
   //   초기화
   const resetHandler = useCallback(() => {
-    setIsType(1);
     searchForm.resetFields();
 
     dispatch({
       type: REVENUE_ADMIN_LIST_REQUEST,
       data: {
-        type: 1,
+        type: isType,
       },
     });
-  }, []);
+  }, [isType]);
 
   //   검색
   const searchHandler = useCallback(
@@ -189,16 +148,19 @@ const Index = ({}) => {
       width: `10%`,
     },
     {
-      title: "구매방식",
-      //   dataIndex: "viewType",
-      render: (data) => <div>{isType === 1 ? data.viewType : data.payWay}</div>,
-
+      title: "구매품목",
+      render: (data) => {
+        if (isType === 1) {
+          return <div>{data.viewType}</div>;
+        } else {
+          return <div>{data.songName}</div>;
+        }
+      },
       width: `10%`,
     },
     {
       title: "사용포인트",
       dataIndex: "viewUsePointPrice",
-
       width: `10%`,
     },
     {
@@ -210,7 +172,14 @@ const Index = ({}) => {
       title: "총 결제금액",
       dataIndex: "viewTotalPrice",
     },
-
+    {
+      title: "판매자 은행명",
+      dataIndex: "artistBankname",
+    },
+    {
+      title: "판매자 계좌정보",
+      dataIndex: "artistAcconuntNum",
+    },
     {
       title: "결제일",
       dataIndex: "viewCreatedAt",
@@ -338,14 +307,14 @@ const Index = ({}) => {
             >
               musictem
             </Button>
-            <Button
+            {/* <Button
               type={isType === 3 ? `primary` : `default`}
               onClick={() => typeHandler(3)}
               style={{ margin: `0 5px 0 0` }}
               size="small"
             >
               artworks
-            </Button>
+            </Button> */}
           </Wrapper>
         </Wrapper>
         <Wrapper shadow={`3px 3px 6px ${Theme.lightGrey_C}`}>

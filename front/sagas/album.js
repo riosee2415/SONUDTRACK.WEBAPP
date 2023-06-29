@@ -60,6 +60,10 @@ import {
   TOP_MUSICTEM_LIST_REQUEST,
   TOP_MUSICTEM_LIST_SUCCESS,
   TOP_MUSICTEM_LIST_FAILURE,
+  //
+  ALBUM_TRACK_DELETE_REQUEST,
+  ALBUM_TRACK_DELETE_SUCCESS,
+  ALBUM_TRACK_DELETE_FAILURE,
 } from "../reducers/album";
 
 // ******************************************************************************************************************
@@ -459,6 +463,33 @@ function* topMusictemList(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function albumDeleteAPI(data) {
+  return await axios.post(`/api/album/delete`, data);
+}
+
+function* albumDelete(action) {
+  try {
+    const result = yield call(albumDeleteAPI, action.data);
+
+    yield put({
+      type: ALBUM_TRACK_DELETE_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: ALBUM_TRACK_DELETE_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 function* watchAlbumImage() {
   yield takeLatest(ALBUM_IMAGE_REQUEST, albumImage);
@@ -509,6 +540,9 @@ function* watchMusictemAdminList() {
 function* watchTopMusictemList() {
   yield takeLatest(TOP_MUSICTEM_LIST_REQUEST, topMusictemList);
 }
+function* watchAlbumDelete() {
+  yield takeLatest(ALBUM_TRACK_DELETE_REQUEST, albumDelete);
+}
 
 //////////////////////////////////////////////////////////////
 export default function* albumSaga() {
@@ -528,6 +562,7 @@ export default function* albumSaga() {
     fork(watchMusictemPremiumAdminList),
     fork(watchMusictemAdminList),
     fork(watchTopMusictemList),
+    fork(watchAlbumDelete),
 
     //
   ]);

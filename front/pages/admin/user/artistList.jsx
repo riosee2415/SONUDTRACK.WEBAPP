@@ -1,20 +1,16 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import AdminLayout from "../../../components/AdminLayout";
-import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
   LOAD_MY_INFO_REQUEST,
   UPDATE_MODAL_CLOSE_REQUEST,
-  UPDATE_MODAL_OPEN_REQUEST,
   USERLIST_REQUEST,
-  USERLIST_UPDATE_REQUEST,
 } from "../../../reducers/user";
 import {
   Table,
   Button,
   Popover,
   message,
-  Modal,
   Select,
   notification,
   Input,
@@ -30,9 +26,6 @@ import {
   OtherMenu,
   GuideUl,
   GuideLi,
-  SearchForm,
-  SearchFormItem,
-  SettingBtn,
 } from "../../../components/commonComponents";
 import { useRouter, withRouter } from "next/router";
 import wrapper from "../../../store/configureStore";
@@ -51,10 +44,7 @@ import {
   HomeOutlined,
   RightOutlined,
 } from "@ant-design/icons";
-import {
-  CATEGORY_ADMIN_LIST_REQUEST,
-  CATEGORY_LIST_REQUEST,
-} from "../../../reducers/category";
+import { CATEGORY_LIST_REQUEST } from "../../../reducers/category";
 import { TAG_TYPE_LIST_REQUEST } from "../../../reducers/tag";
 import {
   ALBUM_FILE_RESET,
@@ -62,42 +52,12 @@ import {
   ALBUM_TRACK_FILE_REQUEST,
   ALBUM_TRACK_FILE_RESET,
   MUSICTEM_PREMIUM_ADMIN_LIST_REQUEST,
-  MUSICTEM_LIST_REQUEST,
 } from "../../../reducers/album";
 import {
   SELLER_IMAGE_REQUEST,
   SELLER_IMAGE_RESET,
 } from "../../../reducers/seller";
 import getBlobDuration from "get-blob-duration";
-
-const TypeView = styled.span`
-  padding: 2px 5px;
-  background: ${(props) =>
-    props.isArtist ? props.theme.subTheme3_C : props.theme.adminTheme_4};
-  color: #fff;
-  border-radius: 7px;
-  font-size: 13px;
-`;
-
-const TypeButton = styled(Button)``;
-
-const GuideDiv = styled.div`
-  width: 100%;
-  color: ${(props) => (props.isImpo ? props.theme.red_C : "")};
-  margin-left: 3px;
-`;
-
-const PointText = styled.div`
-  color: ${(props) => props.theme.adminTheme_4};
-`;
-
-const LoadNotification = (msg, content) => {
-  notification.open({
-    message: msg,
-    description: content,
-    onClick: () => {},
-  });
-};
 
 const ArtistList = ({}) => {
   // LOAD CURRENT INFO AREA /////////////////////////////////////////////
@@ -148,9 +108,9 @@ const ArtistList = ({}) => {
   } = useSelector((state) => state.album);
   const { sellerImage } = useSelector((state) => state.seller);
 
-  const [sameDepth, setSameDepth] = useState([]);
+  console.log(musictemPremiumAdminList);
 
-  const [updateData, setUpdateData] = useState(null);
+  const [sameDepth, setSameDepth] = useState([]);
 
   const [sData, setSData] = useState("");
 
@@ -210,9 +170,12 @@ const ArtistList = ({}) => {
       });
       setTrackData([]);
       setTitleTrackLength(0);
-      setIsCreate(false);
+      setCreateModal(false);
       albumForm.resetFields();
-      return message.success("앨범 프리미엄이 등록되었습니다.");
+      dispatch({
+        type: MUSICTEM_PREMIUM_ADMIN_LIST_REQUEST,
+      });
+      return message.success("프리미엄 앨범이 등록되었습니다.");
     }
 
     if (st_albumPremiumCreateError) {

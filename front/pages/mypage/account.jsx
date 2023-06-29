@@ -136,6 +136,10 @@ const Account = () => {
                   <Select.Option value="국민은행">국민은행</Select.Option>
                   <Select.Option value="신한은행">신한은행</Select.Option>
                   <Select.Option value="농협은행">농협은행</Select.Option>
+                  <Select.Option value="카카오뱅크">카카오뱅크</Select.Option>
+                  <Select.Option value="토스뱅크">토스뱅크</Select.Option>
+                  <Select.Option value="기업은행">기업은행</Select.Option>
+                  <Select.Option value="우리은행">우리은행</Select.Option>
                 </Select>
               </CustomSelect>
 
