@@ -84,7 +84,7 @@ const Index = () => {
   const { myPointList, myPointPage } = useSelector((state) => state.point);
 
   const [currentPage, setCurrentPage] = useState(1); // 페이지네이션
-  const [pointType, setPointType] = useState(1); // 유형 type:1(적립) type:2(사용)
+  const [pointType, setPointType] = useState(3); // 유형 type:1(적립) type:2(사용) type:3(전체)
   const [startDate, setStartDate] = useState(""); // 시작날짜
   const [endDate, setEndDate] = useState(""); // 끝날짜
 
@@ -157,8 +157,8 @@ const Index = () => {
       data: {
         pointType,
         page: currentPage,
-        startDate: startDate.format("YYYY-MM-DD"),
-        endDate: endDate.format("YYYY-MM-DD"),
+        startDate: startDate ? startDate.format("YYYY-MM-DD") : "",
+        endDate: endDate ? endDate.format("YYYY-MM-DD") : "",
       },
     });
   }, [pointType, currentPage, startDate, endDate]);
@@ -216,6 +216,7 @@ const Index = () => {
               </Wrapper>
               <CustomSelect>
                 <Select onChange={pointTypehandler} value={pointType}>
+                  <Select.Option value={3}>전체</Select.Option>
                   <Select.Option value={1}>적립</Select.Option>
                   <Select.Option value={2}>사용</Select.Option>
                 </Select>
@@ -296,7 +297,7 @@ const Index = () => {
                       fontWeight={`600`}
                       al={width < 700 ? `flex-start` : `center`}
                     >
-                      {pointType === 1
+                      {data.pointType === "적립"
                         ? `+${data.viewPrice}`
                         : `-${data.viewPrice}`}
                     </Wrapper>

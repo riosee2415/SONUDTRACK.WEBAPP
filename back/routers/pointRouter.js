@@ -25,7 +25,7 @@ router.post("/list", isLoggedIn, async (req, res, next) => {
   const _startDate = startDate ? startDate : ``;
   const _endDate = endDate ? endDate : ``;
 
-  const _pointType = parseInt(pointType) || 1;
+  const _pointType = parseInt(pointType) || 3;
 
   const lengthQuery = `
   SELECT    ROW_NUMBER()    OVER(ORDER  BY createdAt)       AS num,
@@ -55,7 +55,7 @@ router.post("/list", isLoggedIn, async (req, res, next) => {
                 ? `AND pointType = "적립"`
                 : _pointType === 2
                 ? `AND pointType = "사용"`
-                : `AND pointType = "적립"`
+                : _pointType === 3 && ``
             }
   `;
 
@@ -89,7 +89,7 @@ router.post("/list", isLoggedIn, async (req, res, next) => {
                 ? `AND pointType = "적립"`
                 : _pointType === 2
                 ? `AND pointType = "사용"`
-                : `AND pointType = "적립"`
+                : _pointType === 3 && ``
             }
    ORDER    BY num DESC
    LIMIT    ${LIMIT}
