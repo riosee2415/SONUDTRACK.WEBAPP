@@ -685,6 +685,7 @@ const Index = () => {
   }, [artistContactFile, fileName, terms, sData]);
 
   ////// DATAVIEW //////
+  console.log(me);
 
   return (
     <>
@@ -718,19 +719,21 @@ const Index = () => {
               >
                 구매
               </CommonButton>
-              <CommonButton
-                width={"250px"}
-                height={`55px`}
-                fontSize={`18px`}
-                kindOf={currentTab === 2 ? `subTheme2` : `grey3`}
-                onClick={() => {
-                  setCurrentTab(2);
-                  setMySelectContact([]);
-                  setMyAllCheck(false);
-                }}
-              >
-                판매
-              </CommonButton>
+              {me && me.type === 2 && (
+                <CommonButton
+                  width={"250px"}
+                  height={`55px`}
+                  fontSize={`18px`}
+                  kindOf={currentTab === 2 ? `subTheme2` : `grey3`}
+                  onClick={() => {
+                    setCurrentTab(2);
+                    setMySelectContact([]);
+                    setMyAllCheck(false);
+                  }}
+                >
+                  판매
+                </CommonButton>
+              )}
             </Wrapper>
 
             <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 16px`}>
