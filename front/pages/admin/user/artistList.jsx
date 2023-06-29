@@ -86,17 +86,11 @@ const ArtistList = ({}) => {
   ////// HOOKS //////
   const dispatch = useDispatch();
 
-  const {
-    users,
-    updateModal,
-    st_userListError,
-    st_userListUpdateDone,
-    st_userListUpdateError,
-  } = useSelector((state) => state.user);
+  const { st_userListError, st_userListUpdateDone, st_userListUpdateError } =
+    useSelector((state) => state.user);
   const { categoryList } = useSelector((state) => state.category);
   const { tagTypeList } = useSelector((state) => state.tag);
   const {
-    albumFile,
     albumTrackFile,
     musictemPremiumAdminList,
     //
@@ -107,8 +101,6 @@ const ArtistList = ({}) => {
     st_albumTrackFileError,
   } = useSelector((state) => state.album);
   const { sellerImage } = useSelector((state) => state.seller);
-
-  console.log(musictemPremiumAdminList);
 
   const [sameDepth, setSameDepth] = useState([]);
 
@@ -128,13 +120,12 @@ const ArtistList = ({}) => {
 
   //   MODAL
   const [createModal, setCreateModal] = useState(false);
-
   const [currentData, setCurrentData] = useState(null);
-
   const [options, setOptions] = useState([]);
   const [tagData, setTagData] = useState(null);
   const [isCreate, setIsCreate] = useState(false);
   const [isTitle, setIsTitle] = useState(false);
+  const [isDataModal, setIsDataModal] = useState(false);
 
   // DATA
   const [trackData, setTrackData] = useState([]);
@@ -283,6 +274,12 @@ const ArtistList = ({}) => {
   ////// TOGGLE //////
 
   ////// HANDLER //////
+
+  // 상세보기
+  const detailHandler = useCallback((data) => {
+    setCurrentData(data);
+    setIsDataModal(true);
+  }, []);
 
   // 프리미엄 앨범 등록하기
   const premiumCreateHandler = useCallback(
@@ -477,22 +474,17 @@ const ArtistList = ({}) => {
     },
     {
       width: "10%",
-      title: "타이틀여부",
-      render: (data) => {
-        return (
-          <div>
-            {data.isTitle ? (
-              <CheckOutlined style={{ color: Theme.naver_C }} />
-            ) : (
-              <CloseOutlined style={{ color: Theme.red_C }} />
-            )}
-          </div>
-        );
-      },
+      title: "bitRate",
+      dataIndex: "bitRate",
     },
     {
-      width: "15%",
-      title: "트랙곡",
+      width: "10%",
+      title: "sampleRate",
+      dataIndex: "sampleRate",
+    },
+    {
+      width: "10%",
+      title: "대표곡",
       render: (data) => (
         <Button
           size="small"
@@ -505,11 +497,14 @@ const ArtistList = ({}) => {
       ),
     },
     {
-      width: "15%",
-      title: "아티스트명",
-      dataIndex: "singerName",
+      width: "10%",
+      title: "상세보기",
+      render: (data) => (
+        <Button size="small" type="primary" onClick={() => detailHandler(data)}>
+          상세보기
+        </Button>
+      ),
     },
-
     {
       width: "15%",
       title: "등록일",
@@ -560,15 +555,13 @@ const ArtistList = ({}) => {
       {/* GUIDE */}
       <Wrapper margin={`10px 0px 0px 10px`}>
         <GuideUl>
+          <GuideLi>프리미엄 앨범을 관리 할 수 있습니다.</GuideLi>
           <GuideLi isImpo={true}>
-            해당 메뉴에서 홈페이지에 가입된 회원의 정보를 확인할 수 있습니다.
+            프리미엄 등록시 사용자가 구매했을 경우를 대비해 수정/삭제는
+            불가하며, 수정/삭제를 원하실 시 개발사에 문의해주시기 바랍니다.
           </GuideLi>
           <GuideLi isImpo={true}>
-            이름 및 이메일로 사용자를 검색할 수 있습니다.
-          </GuideLi>
-          <GuideLi isImpo={true}>
-            변경된 정보는 홈페이지에 즉시 적용되기 때문에, 신중한 처리를 필요로
-            합니다.
+            수정/삭제가 불가하오니 유의해주시기 바랍니다.
           </GuideLi>
         </GuideUl>
       </Wrapper>
@@ -817,6 +810,144 @@ const ArtistList = ({}) => {
             </Wrapper>
           );
         })}
+      </Drawer>
+
+      <Drawer
+        visible={isDataModal}
+        onClose={() => setIsDataModal(false)}
+        title="상세보기"
+        width={`800px`}
+      >
+        <Wrapper
+          dr={`row`}
+          padding={`0 0 20px`}
+          borderBottom={`1px solid ${Theme.grey2_C}`}
+          margin={`0 0 20px`}
+        >
+          <Wrapper dr={`row`} ju={`space-between`}>
+            <Text>앨범이미지</Text>
+            <input
+              type="file"
+              accept=".png , .jpg"
+              hidden
+              ref={imageRef}
+              onChange={imageUploadHandler}
+            />
+          </Wrapper>
+
+          {currentData && <Image src={currentData && currentData.albumImage} />}
+        </Wrapper>
+        <Form
+          size="small"
+          labelCol={{ span: 3 }}
+          onFinish={premiumCreateHandler}
+          form={albumForm}
+        >
+          <Form.Item
+            rules={[
+              {
+                required: true,
+                message: "앨범명을 입력해주세요.",
+              },
+            ]}
+            label="앨범명"
+          >
+            <Input value={currentData && currentData.albumName} disabled />
+          </Form.Item>
+          <Form.Item
+            rules={[
+              {
+                required: true,
+                message: "아티스트명을 입력해주세요.",
+              },
+            ]}
+            label="아티스트명"
+          >
+            <Input
+              value={currentData && currentData.tracks[0].singerName}
+              disabled
+            />
+          </Form.Item>
+          <Form.Item
+            rules={[
+              {
+                required: true,
+                message: "bitRate를 입력해주세요.",
+              },
+            ]}
+            label="bitRate"
+          >
+            <Input value={currentData && currentData.bitRate} disabled />
+          </Form.Item>
+          <Form.Item
+            rules={[
+              {
+                required: true,
+                message: "sampleRate를 입력해주세요.",
+              },
+            ]}
+            label="sampleRate"
+          >
+            <Input value={currentData && currentData.sampleRate} disabled />
+          </Form.Item>
+          <Form.Item
+            rules={[
+              {
+                required: true,
+                message: "카테고리를 선택해주세요.",
+              },
+            ]}
+            label="category"
+          >
+            {currentData &&
+              currentData.categorys.map((data) => {
+                return <Text>{data.catagoryValue}</Text>;
+              })}
+          </Form.Item>
+          <Form.Item
+            rules={[
+              {
+                required: true,
+                message: "태그를 선택해주세요.",
+              },
+            ]}
+            label="tags"
+          >
+            {currentData &&
+              currentData.tags.map((data) => {
+                return <Text>{data.tagValue}</Text>;
+              })}
+          </Form.Item>
+          <Form.Item label="track">
+            {currentData &&
+              currentData.tracks.map((data, idx) => {
+                return (
+                  <Wrapper
+                    dr={`row`}
+                    ju={`space-between`}
+                    margin={`0 0 5px`}
+                    key={idx}
+                  >
+                    <Wrapper dr={`row`} width={`auto`}>
+                      {data.isTitle === 1 && (
+                        <Text margin={`0 5px 0 0`} color={Theme.basicTheme_C}>
+                          Title
+                        </Text>
+                      )}
+                      <Button
+                        size="small"
+                        type="primary"
+                        download={true}
+                        href={data.filePath}
+                      >
+                        {data.fileName}
+                      </Button>
+                    </Wrapper>
+                  </Wrapper>
+                );
+              })}
+          </Form.Item>
+        </Form>
       </Drawer>
     </AdminLayout>
   );
