@@ -310,6 +310,27 @@ const Index = () => {
     }
   }, [st_artistContactSendDone, st_artistContactSendError]);
 
+  useEffect(() => {
+    if (artistContactMyList.length === 0) {
+      setMyAllCheck(false);
+    }
+
+    if (artistContactMyList.length !== 0) {
+      if (artistContactMyList.length === mySelectContact.length) {
+        setMyAllCheck(true);
+      }
+    }
+
+    if (artistContactList.length === 0) {
+      setAllCheck(false);
+    }
+    if (artistContactList.length !== 0) {
+      if (artistContactList.length === selectContact.length) {
+        setAllCheck(true);
+      }
+    }
+  }, [artistContactMyList, artistContactList, mySelectContact, selectContact]);
+
   ////// TOGGLE //////
   // 내역 모달
   const contactToggle = useCallback(
@@ -468,12 +489,6 @@ const Index = () => {
   // 삭제하기 내역 전체 선택
   const selectContactAllHandler = useCallback(() => {
     if (currentTab === 1) {
-      if (!myAllCehck) {
-        setMyAllCheck(true);
-      } else {
-        setMyAllCheck(false);
-      }
-
       if (artistContactMyList) {
         let tempArr = [];
         artistContactMyList.map((data) => {
@@ -487,12 +502,6 @@ const Index = () => {
     }
 
     if (currentTab === 2) {
-      if (!allCehck) {
-        setAllCheck(true);
-      } else {
-        setAllCheck(false);
-      }
-
       if (artistContactList) {
         let tempArr = [];
         artistContactList.map((data) => {
@@ -726,7 +735,14 @@ const Index = () => {
 
             <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 16px`}>
               <Checkbox
-                checked={currentTab === 1 ? myAllCehck : allCehck}
+                checked={
+                  currentTab === 1
+                    ? (artistContactMyList && artistContactMyList.length) ===
+                        (mySelectContact && mySelectContact.length) &&
+                      myAllCehck
+                    : (artistContactList && artistContactList.length) ===
+                        (selectContact && selectContact.length) && allCehck
+                }
                 onClick={selectContactAllHandler}
               >
                 전체 선택
@@ -738,14 +754,10 @@ const Index = () => {
               >
                 |
               </SpanText>
-              <Popconfirm
-                title="삭제하시겠습니까?"
-                okText="삭제"
-                cancelText="취소"
-                onConfirm={deleteContactHandler}
-              >
-                <Text isHover>삭제</Text>
-              </Popconfirm>
+
+              <Text isHover onClick={deleteContactHandler}>
+                삭제
+              </Text>
             </Wrapper>
 
             {/* 구매 */}
@@ -982,7 +994,8 @@ const Index = () => {
                                   >
                                     답변마감일 :&nbsp;
                                     <SpanText color={Theme.basicTheme_C}>
-                                      {data.dateCnt}일&nbsp;
+                                      {data.dateCnt > 0 ? data.dateCnt : 0}
+                                      일&nbsp;
                                     </SpanText>
                                     안에 답변을 보내주세요.
                                   </Text>
