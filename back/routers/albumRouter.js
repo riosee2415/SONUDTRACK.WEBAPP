@@ -101,6 +101,11 @@ router.post("/musictem/admin/list", async (req, res, next) => {
           DATE_FORMAT(A.createdAt, "%Y.%m.%d")        AS viewFrontCreatedAt,
           DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
           (
+              SELECT  MusictemId
+                FROM  album
+               WHERE  id = A.AlbumId
+          )                                           AS MusictemId,
+          (
            SELECT	albumImage 
              FROM	album
             WHERE	A.AlbumId = id 
@@ -225,6 +230,11 @@ router.post("/musictem/premium/admin/list", async (req, res, next) => {
           DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")    AS viewCreatedAt,
           DATE_FORMAT(A.createdAt, "%Y.%m.%d")        AS viewFrontCreatedAt,
           DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
+          (
+              SELECT  MusictemId
+                FROM  album
+               WHERE  id = A.AlbumId
+          )                                           AS MusictemId,
           (
            SELECT	albumImage 
              FROM	album
@@ -361,6 +371,11 @@ router.post("/musictem/list", async (req, res, next) => {
           DATE_FORMAT(A.createdAt, "%Y.%m.%d")        AS viewFrontCreatedAt,
           DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
           (
+              SELECT  MusictemId
+                FROM  album
+               WHERE  id = A.AlbumId
+          )                                           AS MusictemId,
+          (
            SELECT	albumImage 
              FROM	album
             WHERE	A.AlbumId = id 
@@ -453,6 +468,11 @@ router.post("/musictem/list", async (req, res, next) => {
           DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")    AS viewCreatedAt,
           DATE_FORMAT(A.createdAt, "%Y.%m.%d")        AS viewFrontCreatedAt,
           DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
+          (
+              SELECT  MusictemId
+                FROM  album
+               WHERE  id = A.AlbumId
+          )                                           AS MusictemId,
           (
            SELECT	albumImage 
              FROM	album
@@ -595,6 +615,11 @@ router.post("/musictem/topSell/list", async (req, res, next) => {
           DATE_FORMAT(A.createdAt, "%Y.%m.%d")        AS viewFrontCreatedAt,
           DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
           (
+              SELECT  MusictemId
+                FROM  album
+               WHERE  id = A.AlbumId
+          )                                           AS MusictemId,
+          (
            SELECT	albumImage 
              FROM	album
             WHERE	A.AlbumId = id 
@@ -677,6 +702,11 @@ router.post("/musictem/topSell/limit/list", async (req, res, next) => {
           DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")    AS viewCreatedAt,
           DATE_FORMAT(A.createdAt, "%Y.%m.%d")        AS viewFrontCreatedAt,
           DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
+          (
+              SELECT  MusictemId
+                FROM  album
+               WHERE  id = A.AlbumId
+          )                                           AS MusictemId,
           (
            SELECT	albumImage 
              FROM	album
@@ -768,6 +798,11 @@ router.post("/musictem/new/list", async (req, res, next) => {
           DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")    AS viewCreatedAt,
           DATE_FORMAT(A.createdAt, "%Y.%m.%d")        AS viewFrontCreatedAt,
           DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
+          (
+              SELECT  MusictemId
+                FROM  album
+               WHERE  id = A.AlbumId
+          )                                           AS MusictemId,
           (
            SELECT	albumImage 
              FROM	album
