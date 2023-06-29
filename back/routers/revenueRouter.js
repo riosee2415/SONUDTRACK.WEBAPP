@@ -453,7 +453,7 @@ router.post("/admin/list", isAdminCheck, async (req, res, next) => {
         JOIN	musictem 		E
           ON	D.MusictemId = E.id
        WHERE	1 = 1
-                ${_UserId ? `E.UserId = ${_UserId}` : ``}
+                ${_UserId ? `AND E.UserId = ${_UserId}` : ``}
           AND   E.artistName LIKE "%${_artistName}%"
                 ${
                   _startDate !== `` && _endDate !== ``
