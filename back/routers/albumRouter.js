@@ -793,6 +793,7 @@ router.post("/musictem/topSell/limit/list", async (req, res, next) => {
           A.AlbumId,
           A.createdAt,
           A.updatedAt,
+          B.isPremium,
           DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")    AS viewCreatedAt,
           DATE_FORMAT(A.createdAt, "%Y.%m.%d")        AS viewFrontCreatedAt,
           DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
@@ -831,6 +832,9 @@ router.post("/musictem/topSell/limit/list", async (req, res, next) => {
             )	AS isLike`
            }
      FROM  track   A
+    INNER
+     JOIN  album            B
+       ON  B.id = A.AlbumId
     WHERE  TRUE = (
    				SELECT	isTrackPermit 
    				  FROM	album

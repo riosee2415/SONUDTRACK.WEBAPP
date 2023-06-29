@@ -314,7 +314,7 @@ function* musictemList(action) {
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
 async function newMusictemListAPI(data) {
-  return await axios.post(`/api/album/new/list`, data);
+  return await axios.post(`/api/album/musictem/new/list`, data);
 }
 
 function* newMusictemList(action) {

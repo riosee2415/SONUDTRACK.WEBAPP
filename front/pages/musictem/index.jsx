@@ -335,7 +335,35 @@ const Index = () => {
     setSearchSmallTag();
     setCateData();
   }, [selectOrderType, searchValue, searchSmallTag, cateData]);
+
+  const trackHandler = useCallback((data) => {
+    if (data.isPremium === 1) {
+      sessionStorage.setItem(
+        "ALBUM",
+        JSON.stringify({
+          albumData: [],
+          trackData: [data],
+          length: parseInt(data.fileLength),
+        })
+      );
+
+      router.push(`/license/premium`);
+    } else {
+      sessionStorage.setItem(
+        "ALBUM",
+        JSON.stringify({
+          albumData: [],
+          trackData: [data],
+          length: parseInt(data.fileLength),
+        })
+      );
+
+      router.push(`/license`);
+    }
+  }, []);
   ////// DATAVIEW //////
+
+  console.log(newMusictemList);
 
   return (
     <>
@@ -939,9 +967,9 @@ const Index = () => {
                                     {data.viewDownLoadCnt}
                                   </Text>
                                 </Wrapper>
-                                {/* <Wrapper
+                                <Wrapper
                                   width={`50px`}
-                                  onClick={() => movelinkHandler(`/license`)}
+                                  onClick={() => trackHandler(data)}
                                   cursor={`pointer`}
                                 >
                                   <Image
@@ -949,7 +977,7 @@ const Index = () => {
                                     width={`22px`}
                                     src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/cart.png`}
                                   />
-                                </Wrapper> */}
+                                </Wrapper>
                                 <Wrapper width={`50px`}>
                                   <Image
                                     alt="icon"
@@ -1041,9 +1069,9 @@ const Index = () => {
                                 {data.viewDownLoadCnt}
                               </Text>
                             </Wrapper>
-                            {/* <Wrapper
+                            <Wrapper
                               width={`50px`}
-                              onClick={() => movelinkHandler(`/license`)}
+                              onClick={() => trackHandler(data)}
                               cursor={`pointer`}
                             >
                               <Image
@@ -1051,7 +1079,7 @@ const Index = () => {
                                 width={`22px`}
                                 src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/cart.png`}
                               />
-                            </Wrapper> */}
+                            </Wrapper>
                             <Wrapper width={`60px`}>
                               <Image
                                 alt="icon"
