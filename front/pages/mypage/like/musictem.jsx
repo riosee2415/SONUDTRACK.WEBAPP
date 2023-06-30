@@ -177,6 +177,34 @@ const Musictem = ({
     router.push(link);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
+
+  const trackHandler = useCallback((data) => {
+    if (data.isPremium === 1) {
+      sessionStorage.setItem(
+        "ALBUM",
+        JSON.stringify({
+          albumData: [],
+          trackData: [data],
+          length: parseInt(data.fileLength),
+        })
+      );
+
+      router.push(`/license/premium`);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      sessionStorage.setItem(
+        "ALBUM",
+        JSON.stringify({
+          albumData: [],
+          trackData: [data],
+          length: parseInt(data.fileLength),
+        })
+      );
+
+      router.push(`/license`);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, []);
   ////// DATAVIEW //////
 
   return (
@@ -403,6 +431,9 @@ const Musictem = ({
                               margin={width < 700 ? `0` : `0 0 8px`}
                               width={width < 1600 ? `200px` : `280px`}
                               isEllipsis
+                              onClick={() =>
+                                movelinkHandler(`/album/${data.AlbumId}`)
+                              }
                             >
                               {data.songName}
                             </Text>
@@ -439,7 +470,7 @@ const Musictem = ({
                                 ju={`center`}
                                 margin={`10px 0 0`}
                               >
-                                <Wrapper width={`50px`} cursor={`pointer`}>
+                                {/* <Wrapper width={`50px`} cursor={`pointer`}>
                                   <Image
                                     alt="icon"
                                     width={`22px`}
@@ -448,10 +479,10 @@ const Musictem = ({
                                   <Text fontSize={`12px`} color={Theme.grey_C}>
                                     {data.viewDownLoadCnt}
                                   </Text>
-                                </Wrapper>
-                                {/* <Wrapper
+                                </Wrapper> */}
+                                <Wrapper
                                   width={`50px`}
-                                  onClick={() => movelinkHandler(`/license`)}
+                                  onClick={() => trackHandler(data)}
                                   cursor={`pointer`}
                                 >
                                   <Image
@@ -459,7 +490,7 @@ const Musictem = ({
                                     width={`22px`}
                                     src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/cart.png`}
                                   />
-                                </Wrapper> */}
+                                </Wrapper>
                                 <Wrapper width={`50px`}>
                                   <Image
                                     alt="icon"
@@ -541,7 +572,7 @@ const Musictem = ({
                             al={`flex-start`}
                             ju={`center`}
                           >
-                            <Wrapper width={`60px`} cursor={`pointer`}>
+                            {/* <Wrapper width={`60px`} cursor={`pointer`}>
                               <Image
                                 alt="icon"
                                 width={`22px`}
@@ -550,10 +581,10 @@ const Musictem = ({
                               <Text fontSize={`12px`} color={Theme.grey_C}>
                                 {data.viewDownLoadCnt}
                               </Text>
-                            </Wrapper>
-                            {/* <Wrapper
+                            </Wrapper> */}
+                            <Wrapper
                               width={`50px`}
-                              onClick={() => movelinkHandler(`/license`)}
+                              onClick={() => trackHandler(data)}
                               cursor={`pointer`}
                             >
                               <Image
@@ -561,7 +592,7 @@ const Musictem = ({
                                 width={`22px`}
                                 src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/cart.png`}
                               />
-                            </Wrapper> */}
+                            </Wrapper>
                             <Wrapper width={`60px`}>
                               <Image
                                 alt="icon"
