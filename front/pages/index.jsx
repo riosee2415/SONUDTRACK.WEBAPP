@@ -193,6 +193,36 @@ const Home = ({}) => {
     },
     [me]
   );
+
+  const trackHandler = useCallback((data) => {
+    if (data.isPremium === 1) {
+      sessionStorage.setItem(
+        "ALBUM",
+        JSON.stringify({
+          albumData: [],
+          trackData: [data],
+          length: parseInt(data.fileLength),
+        })
+      );
+
+      router.push(`/license/premium`);
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      sessionStorage.setItem(
+        "ALBUM",
+        JSON.stringify({
+          albumData: [],
+          trackData: [data],
+          length: parseInt(data.fileLength),
+        })
+      );
+
+      router.push(`/license`);
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, []);
   ////// DATAVIEW //////
 
   return (
@@ -396,6 +426,10 @@ const Home = ({}) => {
                               color={Theme.darkGrey_C}
                               margin={width < 700 ? `0` : `0 0 8px`}
                               width={width < 1600 ? `200px` : `280px`}
+                              isHover
+                              onClick={() =>
+                                movelinkHandler(`/album/${data.AlbumId}`)
+                              }
                               isEllipsis
                             >
                               {data.songName}
@@ -451,7 +485,7 @@ const Home = ({}) => {
                                 </Wrapper>
                                 <Wrapper
                                   width={`50px`}
-                                  onClick={() => movelinkHandler(`/license`)}
+                                  onClick={() => trackHandler(data)}
                                   cursor={`pointer`}
                                 >
                                   <Image
@@ -553,7 +587,7 @@ const Home = ({}) => {
                             </Wrapper>
                             <Wrapper
                               width={`50px`}
-                              onClick={() => movelinkHandler(`/license`)}
+                              onClick={() => trackHandler(data)}
                               cursor={`pointer`}
                             >
                               <Image
