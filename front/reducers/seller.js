@@ -9,6 +9,7 @@ export const initailState = {
   artistemList: [], // 아티스템 리스트
   artistemDetail: [], // 아티스템 디테일
   artistemTopSell: [], // 아티스템 판매량 많은 순
+  myFilmo: [], // 마이페이지 메인 필모그래피 리스트
   //   아티스템 상세 조회
   artistemData: null,
   findCountryInfoData: [],
@@ -72,6 +73,10 @@ export const initailState = {
   st_artistemVacationUpdateLoading: false,
   st_artistemVacationUpdateDone: false,
   st_artistemVacationUpdateError: null,
+  // 마이페이지 메인 필모그래피 리스트
+  st_myFilemoLoading: false,
+  st_myFilemoDone: false,
+  st_myFilemoError: null,
 };
 
 export const SELLER_LIST_REQUEST = "SELLER_LIST_REQUEST";
@@ -132,6 +137,10 @@ export const ARTISTEM_VACATION_UPDATE_SUCCESS =
   "ARTISTEM_VACATION_UPDATE_SUCCESS";
 export const ARTISTEM_VACATION_UPDATE_FAILURE =
   "ARTISTEM_VACATION_UPDATE_FAILURE";
+
+export const MY_FILMO_REQUEST = "MY_FILMO_REQUEST";
+export const MY_FILMO_SUCCESS = "MY_FILMO_SUCCESS";
+export const MY_FILMO_FAILURE = "MY_FILMO_FAILURE";
 
 export const SELLER_IMAGE_RESET = "SELLER_IMAGE_RESET";
 export const ARTISTEM_FILE_RESET = "ARTISTEM_FILE_RESET";
@@ -428,6 +437,27 @@ const reducer = (state = initailState, action) =>
         draft.st_artistemVacationUpdateLoading = false;
         draft.st_artistemVacationUpdateDone = false;
         draft.st_artistemVacationUpdateError = action.error;
+        break;
+      }
+      ///////////////////////////////////////////////////////
+      case MY_FILMO_REQUEST: {
+        draft.st_MyFilmoLoading = true;
+        draft.st_MyFilmoDone = false;
+        draft.st_MyFilmoError = null;
+        break;
+      }
+      case MY_FILMO_SUCCESS: {
+        draft.st_MyFilmoLoading = false;
+        draft.st_MyFilmoDone = true;
+        draft.st_MyFilmoError = null;
+        draft.myFilmo = action.data;
+
+        break;
+      }
+      case MY_FILMO_FAILURE: {
+        draft.st_MyFilmoLoading = false;
+        draft.st_MyFilmoDone = false;
+        draft.st_MyFilmoError = action.error;
         break;
       }
       ///////////////////////////////////////////////////////

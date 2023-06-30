@@ -10,6 +10,7 @@ export const initailState = {
   newMusictemList: [], // new 뮤직템 리스트
   trackAdminList: [], // 관리자 트랙 리스트
   topMusictemList: [], // top5 뮤직템 리스트
+  myMusictemList: [], // 뮤직탬 판매량 많은순 리스트
 
   //   뮤직템디테일
   detailData: null,
@@ -83,6 +84,10 @@ export const initailState = {
   st_albumDeleteLoading: false, // 앨범 삭제
   st_albumDeleteDone: false,
   st_albumDeleteError: null,
+  //
+  st_myMusictemTopSellListLoading: false, // 나의 뮤직템 판매량 많은순 리스트
+  st_myMusictemTopSellListDone: false,
+  st_myMusictemTopSellListError: null,
 };
 
 export const ALBUM_IMAGE_REQUEST = "ALBUM_IMAGE_REQUEST";
@@ -151,6 +156,13 @@ export const TOP_MUSICTEM_LIST_FAILURE = "TOP_MUSICTEM_LIST_FAILURE";
 export const ALBUM_TRACK_DELETE_REQUEST = "ALBUM_TRACK_DELETE_REQUEST";
 export const ALBUM_TRACK_DELETE_SUCCESS = "ALBUM_TRACK_DELETE_SUCCESS";
 export const ALBUM_TRACK_DELETE_FAILURE = "ALBUM_TRACK_DELETE_FAILURE";
+
+export const MY_MUSICTEM_TOP_SELL_LIST_REQUEST =
+  "MY_MUSICTEM_TOP_SELL_LIST_REQUEST";
+export const MY_MUSICTEM_TOP_SELL_LIST_SUCCESS =
+  "MY_MUSICTEM_TOP_SELL_LIST_SUCCESS";
+export const MY_MUSICTEM_TOP_SELL_LIST_FAILURE =
+  "MY_MUSICTEM_TOP_SELL_LIST_FAILURE";
 
 export const ALBUM_IMAGE_RESET = "ALBUM_IMAGE_RESET";
 export const ALBUM_FILE_RESET = "ALBUM_FILE_RESET";
@@ -501,6 +513,29 @@ const reducer = (state = initailState, action) =>
         draft.st_albumDeleteLoading = false;
         draft.st_albumDeleteDone = false;
         draft.st_albumDeleteError = action.error;
+        break;
+      }
+
+      //////////////////////////////////////////////
+
+      case MY_MUSICTEM_TOP_SELL_LIST_REQUEST: {
+        draft.st_myMusictemTopSellListLoading = true;
+        draft.st_myMusictemTopSellListDone = false;
+        draft.st_myMusictemTopSellListError = null;
+        break;
+      }
+      case MY_MUSICTEM_TOP_SELL_LIST_SUCCESS: {
+        draft.st_myMusictemTopSellListLoading = false;
+        draft.st_myMusictemTopSellListDone = true;
+        draft.st_myMusictemTopSellListError = null;
+        draft.myMusictemList = action.data;
+
+        break;
+      }
+      case MY_MUSICTEM_TOP_SELL_LIST_FAILURE: {
+        draft.st_myMusictemTopSellListLoading = false;
+        draft.st_myMusictemTopSellListDone = false;
+        draft.st_myMusictemTopSellListError = action.error;
         break;
       }
 

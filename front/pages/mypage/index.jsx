@@ -22,8 +22,8 @@ import { DownloadOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { Empty, message } from "antd";
-import { USER_BUY_LIST_REQUEST } from "../../reducers/buy";
 import { useState } from "react";
+import { MY_FILMO_REQUEST } from "../../reducers/seller";
 
 const Box = styled(Wrapper)`
   width: calc(100% / 6 - 37px);
@@ -109,6 +109,7 @@ const Index = () => {
   ////// GLOBAL STATE //////
   const { me } = useSelector((state) => state.user);
   const { userBuyList } = useSelector((state) => state.buy);
+  const { myFilmo } = useSelector((state) => state.seller);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -125,15 +126,6 @@ const Index = () => {
 
       return message.error(`로그인이 필요한 페이지입니다.`);
     }
-  }, [me]);
-
-  useEffect(() => {
-    dispatch({
-      type: USER_BUY_LIST_REQUEST,
-      data: {
-        UserId: me.id,
-      },
-    });
   }, [me]);
 
   ////// TOGGLE //////
@@ -348,14 +340,14 @@ const Index = () => {
               >
                 판매자 유형
               </Wrapper>
-              <Wrapper dr={`row`} ju={`space-between`}>
+              <Wrapper dr={`row`} ju={`space-between`} margin={`0 0 100px`}>
                 <CommonButton
                   width={`49%`}
                   fontSize={width < 900 ? `16px` : `22px`}
                   radius={`7px`}
                   height={width < 900 ? `50px` : `80px`}
                   kindOf={currnetTab === 0 ? `` : `subTheme`}
-                  onClick={() => setCurrentTab(0)}
+                  onClick={() => router.push(`/mypage/artisttem`)}
                 >
                   My Artisttem
                 </CommonButton>
@@ -365,13 +357,13 @@ const Index = () => {
                   radius={`7px`}
                   height={width < 900 ? `50px` : `80px`}
                   kindOf={currnetTab === 1 ? `` : `subTheme`}
-                  onClick={() => setCurrentTab(1)}
+                  onClick={() => router.push(`/mypage/musictem`)}
                 >
                   My Musictem
                 </CommonButton>
               </Wrapper>
 
-              {currnetTab === 0 && (
+              {/* {currnetTab === 0 && (
                 <Wrapper dr={`row`} al={`flex-start`} ju={`flex-start`}>
                   <Wrapper
                     al={`flex-start`}
@@ -381,7 +373,7 @@ const Index = () => {
                   >
                     Artisttem 앨범 내역
                   </Wrapper>
-                  {userBuyList && userBuyList.length === 0 ? (
+                  {myFilmo && myFilmo.length === 0 ? (
                     <Wrapper
                       height={`400px`}
                       borderBottom={`1px solid ${Theme.lightGrey_C}`}
@@ -400,8 +392,9 @@ const Index = () => {
                       </Text>
                     </Wrapper>
                   ) : (
-                    userBuyList &&
-                    userBuyList.map((data) => {
+                    myFilmo &&
+                    myFilmo.map((data) => {
+                      console.log(data);
                       return (
                         <Box key={data.num}>
                           <CdWrapper>
@@ -636,7 +629,7 @@ const Index = () => {
                     })
                   )}
                 </Wrapper>
-              )}
+              )} */}
             </RsWrapper>
           )}
         </WholeWrapper>
@@ -658,6 +651,10 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: LOAD_MY_INFO_REQUEST,
+    });
+
+    context.store.dispatch({
+      type: MY_FILMO_REQUEST,
     });
 
     // 구현부 종료

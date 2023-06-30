@@ -23,7 +23,10 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
-import { MUSICTEM_DETAIL_REQUEST } from "../../../reducers/album";
+import {
+  MUSICTEM_DETAIL_REQUEST,
+  MY_MUSICTEM_TOP_SELL_LIST_REQUEST,
+} from "../../../reducers/album";
 
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
@@ -68,7 +71,9 @@ const CdWrapper = styled(Wrapper)`
 const Index = () => {
   ////// GLOBAL STATE //////
   const { productTrackList } = useSelector((state) => state.product);
-  const { detailData, albums } = useSelector((state) => state.album);
+  const { detailData, albums, myMusictemList } = useSelector(
+    (state) => state.album
+  );
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
@@ -76,12 +81,16 @@ const Index = () => {
 
   const [isModal, setIsModal] = useState(false);
 
-  const [playing, setPlaying] = useState(false);
+  const [playing1, setPlaying1] = useState(null);
+  const [playing2, setPlaying2] = useState(null);
+  const [playing3, setPlaying3] = useState(null);
   const [down, setDown] = useState(false);
 
   const [newAudioTime, setNewAudioTime] = useState([]);
 
   const [orderSort, setOrderSort] = useState(1);
+  const [currentData, setCurrentData] = useState(null);
+
   ////// REDUX //////
   ////// USEEFFECT //////
 
@@ -93,11 +102,15 @@ const Index = () => {
           MusictemId: router.query.id,
         },
       });
+
+      dispatch({
+        type: MY_MUSICTEM_TOP_SELL_LIST_REQUEST,
+        data: {
+          MusictemId: router.query.id,
+        },
+      });
     }
   }, [router.query]);
-
-  console.log(detailData);
-  console.log(albums);
 
   useEffect(() => {
     if (productTrackList) {
@@ -121,26 +134,82 @@ const Index = () => {
   }, [productTrackList]);
 
   ////// TOGGLE //////
+
   const modalToggle = useCallback(() => {
     setIsModal((prev) => !prev);
   }, [isModal]);
 
-  const playingToggle = useCallback(
-    (data) => {
-      if (playing && playing === data) {
-        setPlaying(null);
+  // 재생 버튼 1
+  const playing1Toggle = useCallback(
+    (id) => {
+      if (playing1 && playing1 === id) {
+        setPlaying1(null);
       } else {
-        setPlaying(data);
+        setPlaying1(id);
       }
     },
-    [playing]
+    [playing1]
+  );
+  // 재생 버튼 2
+  const playing2Toggle = useCallback(
+    (id) => {
+      if (playing2 && playing2 === id) {
+        setPlaying2(null);
+      } else {
+        setPlaying2(id);
+      }
+    },
+    [playing2]
+  );
+  // 재생 버튼 3
+  const playing3Toggle = useCallback(
+    (id) => {
+      if (playing3 && playing3 === id) {
+        setPlaying3(null);
+      } else {
+        setPlaying3(id);
+      }
+    },
+    [playing3]
   );
 
-  const downToggle = useCallback(() => {
-    setDown((prev) => !prev);
-  }, [down]);
+  const downToggle = useCallback(
+    (data) => {
+      setDown((prev) => !prev);
+
+      setCurrentData(data);
+    },
+    [down]
+  );
 
   ////// HANDLER //////
+
+  const trackHandler = useCallback((data) => {
+    if (data.isPremium === 1) {
+      sessionStorage.setItem(
+        "ALBUM",
+        JSON.stringify({
+          albumData: [],
+          trackData: [data],
+          length: parseInt(data.fileLength),
+        })
+      );
+
+      router.push(`/license/premium`);
+    } else {
+      sessionStorage.setItem(
+        "ALBUM",
+        JSON.stringify({
+          albumData: [],
+          trackData: [data],
+          length: parseInt(data.fileLength),
+        })
+      );
+
+      router.push(`/license`);
+    }
+  }, []);
+
   const movelinkHandler = useCallback((link) => {
     router.push(link);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -321,8 +390,12 @@ const Index = () => {
               borderTop={`1px solid ${Theme.lightGrey_C}`}
               margin={`0 0 100px`}
             >
-              {/* {productTrackList &&
-                productTrackList.map((data, idx) => {
+              {myMusictemList.length === 0 ? (
+                <Wrapper margin={`50px 0`}>
+                  <Empty description={"판매가 된 음원이 존재하지 않습니다."} />
+                </Wrapper>
+              ) : (
+                myMusictemList.map((data, idx) => {
                   return (
                     <Wrapper
                       key={idx}
@@ -338,27 +411,26 @@ const Index = () => {
                       }
                     >
                       <audio
-                        id={`audioTeg_${idx}`}
-                        src={data.filepath}
+                        id={`audioTeg_recent_${idx}`}
+                        src={data.filePath}
                         hidden
                       />
                       <Wrapper width={`auto`} dr={`row`} ju={`flex-start`}>
                         <Image
                           alt="thumbnail"
-                          src={data.thumbnail}
+                          src={data.albumImage}
                           width={width < 700 ? `80px` : `100px`}
                           height={width < 700 ? `80px` : `100px`}
                           radius={`7px`}
                           shadow={`3px 3px 15px rgba(0, 0, 0, 0.15)`}
-                          onClick={() => movelinkHandler(`/album/1`)}
                         />
-                        {playing && playing === data.id ? (
+                        {playing1 === data.id ? (
                           <Image
                             alt="pause icon"
                             src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/pause_purple.png`}
                             width={width < 700 ? `20px` : `24px`}
                             margin={width < 700 ? `0 15px` : `0 30px`}
-                            onClick={() => playingToggle(data.id)}
+                            onClick={() => playing1Toggle(data.id)}
                             cursor={`pointer`}
                           />
                         ) : (
@@ -367,7 +439,7 @@ const Index = () => {
                             src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/play_purple.png`}
                             width={width < 700 ? `20px` : `24px`}
                             margin={width < 700 ? `0 15px` : `0 30px`}
-                            onClick={() => playingToggle(data.id)}
+                            onClick={() => playing1Toggle(data.id)}
                             cursor={`pointer`}
                           />
                         )}
@@ -380,19 +452,19 @@ const Index = () => {
                             width={width < 1600 ? `200px` : `280px`}
                             isEllipsis
                           >
-                            {data.title}
+                            {data.songName}
                           </Text>
                           <Text
                             onClick={() =>
                               movelinkHandler(
-                                `/musictem/artist/${data.ProductId}`
+                                `/musictem/artist/${data.MusictemId}`
                               )
                             }
                             isHover
                             fontSize={width < 700 ? `14px` : `16px`}
                             color={Theme.subTheme4_C}
                           >
-                            {data.author}
+                            {data.singerName}
                           </Text>
                           {width < 1520 ? (
                             <Text
@@ -401,11 +473,11 @@ const Index = () => {
                               color={Theme.grey2_C}
                               isEllipsis
                             >
-                              {data.genList.map(
-                                (value, idx) =>
-                                  value.value +
-                                  (data.genList.length === idx + 1 ? "" : ",")
-                              )}
+                              {/* {data.genList.map(
+                              (value, idx) =>
+                                value.value +
+                                (data.genList.length === idx + 1 ? "" : ",")
+                            )} */}
                             </Text>
                           ) : null}
 
@@ -433,7 +505,7 @@ const Index = () => {
                               </Wrapper>
                               <Wrapper
                                 width={`50px`}
-                                onClick={() => movelinkHandler(`/license`)}
+                                onClick={() => trackHandler(data)}
                                 cursor={`pointer`}
                               >
                                 <Image
@@ -446,7 +518,13 @@ const Index = () => {
                                 <Image
                                   alt="icon"
                                   width={`22px`}
-                                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
+                                  onClick={() => likeHandler(data)}
+                                  cursor={`pointer`}
+                                  src={
+                                    data.isLike
+                                      ? `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`
+                                      : `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`
+                                  }
                                 />
                                 <Text fontSize={`12px`} color={Theme.grey_C}>
                                   {data.likeCnt}
@@ -463,11 +541,11 @@ const Index = () => {
                           color={Theme.grey2_C}
                         >
                           <Text width={`160px`} isEllipsis>
-                            {data.genList.map(
-                              (value, idx) =>
-                                value.value +
-                                (data.genList.length === idx + 1 ? "" : ",")
-                            )}
+                            {/* {data.genList.map(
+                            (value, idx) =>
+                              value.value +
+                              (data.genList.length === idx + 1 ? "" : ",")
+                          )} */}
                           </Text>
                         </Wrapper>
                       )}
@@ -484,7 +562,20 @@ const Index = () => {
                           color={Theme.darkGrey_C}
                           margin={`0 20px 0 0`}
                         >
-                          {newAudioTime[idx]}
+                          {Math.floor(data.fileLength / 60)}:
+                          {Math.ceil(
+                            data.fileLength -
+                              Math.floor(data.fileLength / 60) * 60
+                          ).length === 1
+                            ? "0" +
+                              Math.ceil(
+                                data.fileLength -
+                                  Math.floor(data.fileLength / 60) * 60
+                              )
+                            : Math.ceil(
+                                data.fileLength -
+                                  Math.floor(data.fileLength / 60) * 60
+                              )}
                         </Text>
                         <Wrapper width={width < 1360 ? `180px` : `236px`}>
                           <ReactWaves
@@ -499,8 +590,8 @@ const Index = () => {
                             }}
                             volume={1}
                             zoom={2}
-                            playing={playing === data.id}
-                            audioFile={data.filepath}
+                            playing={playing1 === data.id}
+                            audioFile={data.filePath}
                           />
                         </Wrapper>
                       </Wrapper>
@@ -529,7 +620,7 @@ const Index = () => {
                           </Wrapper>
                           <Wrapper
                             width={`50px`}
-                            onClick={() => movelinkHandler(`/license`)}
+                            onClick={() => trackHandler(data)}
                             cursor={`pointer`}
                           >
                             <Image
@@ -542,7 +633,13 @@ const Index = () => {
                             <Image
                               alt="icon"
                               width={`22px`}
-                              src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`}
+                              onClick={() => likeHandler(data)}
+                              cursor={`pointer`}
+                              src={
+                                data.isLike
+                                  ? `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart_a.png`
+                                  : `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`
+                              }
                             />
                             <Text fontSize={`12px`} color={Theme.grey_C}>
                               {data.likeCnt}
@@ -552,10 +649,8 @@ const Index = () => {
                       )}
                     </Wrapper>
                   );
-                })} */}
-              <Wrapper margin={`50px 0`}>
-                <Empty description={"판매가 된 음원이 존재하지 않습니다."} />
-              </Wrapper>
+                })
+              )}
             </Wrapper>
 
             {/* <Wrapper margin={`60px 0`}>
@@ -564,7 +659,7 @@ const Index = () => {
               </CommonButton>
             </Wrapper> */}
 
-            <Wrapper
+            {/* <Wrapper
               al={`flex-start`}
               fontSize={width < 900 ? `25px` : `32px`}
               fontWeight={`bold`}
@@ -733,7 +828,7 @@ const Index = () => {
               <CommonButton kindOf={`grey`} width={`150px`} height={`48px`}>
                 더보기 +
               </CommonButton>
-            </Wrapper>
+            </Wrapper> */}
           </RsWrapper>
 
           <Modal onCancel={modalToggle} visible={isModal} footer={null}>
@@ -799,6 +894,7 @@ const Index = () => {
                 fontSize={`18px`}
                 fontWeight={`bold`}
                 margin={`30px 0 0`}
+                onClick={() => trackHandler(currentData)}
               >
                 다운로드
               </CommonButton>

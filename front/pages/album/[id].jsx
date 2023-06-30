@@ -540,9 +540,6 @@ const Index = () => {
                                     width={`22px`}
                                     src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
                                   />
-                                  <Text fontSize={`12px`} color={Theme.grey_C}>
-                                    1351
-                                  </Text>
                                 </Wrapper>
                                 <Wrapper
                                   width={`50px`}
@@ -565,9 +562,6 @@ const Index = () => {
                                         : `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`
                                     }
                                   />
-                                  <Text fontSize={`12px`} color={Theme.grey_C}>
-                                    123
-                                  </Text>
                                 </Wrapper>
                               </Wrapper>
                             ) : null}
@@ -643,9 +637,6 @@ const Index = () => {
                                 width={`22px`}
                                 src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
                               />
-                              <Text fontSize={`12px`} color={Theme.grey_C}>
-                                1234
-                              </Text>
                             </Wrapper>
                             <Wrapper
                               width={`50px`}
@@ -668,9 +659,6 @@ const Index = () => {
                                     : `https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/heart.png`
                                 }
                               />
-                              <Text fontSize={`12px`} color={Theme.grey_C}>
-                                124
-                              </Text>
                             </Wrapper>
                           </Wrapper>
                         )}

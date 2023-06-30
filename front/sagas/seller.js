@@ -56,6 +56,10 @@ import {
   ARTISTEM_VACATION_UPDATE_REQUEST,
   ARTISTEM_VACATION_UPDATE_SUCCESS,
   ARTISTEM_VACATION_UPDATE_FAILURE,
+  //
+  MY_FILMO_REQUEST,
+  MY_FILMO_SUCCESS,
+  MY_FILMO_FAILURE,
 } from "../reducers/seller";
 
 // SAGA AREA ********************************************************************************************************
@@ -380,6 +384,29 @@ function* artistemVacationUpdate(action) {
   }
 }
 
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function myFilmoAPI(data) {
+  return await axios.post(`/api/seller/vacation/update`, data);
+}
+
+function* myFilmo(action) {
+  try {
+    const result = yield call(myFilmoAPI, action.data);
+
+    yield put({
+      type: MY_FILMO_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: MY_FILMO_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 // ******************************************************************************************************************
@@ -431,6 +458,9 @@ function* watchArtistemTopSellList() {
 function* watchArtistemVacationUpdate() {
   yield takeLatest(ARTISTEM_VACATION_UPDATE_REQUEST, artistemVacationUpdate);
 }
+function* watchMyFilmo() {
+  yield takeLatest(MY_FILMO_REQUEST, myFilmo);
+}
 
 //////////////////////////////////////////////////////////////
 export default function* sellerSaga() {
@@ -452,6 +482,7 @@ export default function* sellerSaga() {
     //
     fork(watchArtistemTopSellList),
     fork(watchArtistemVacationUpdate),
+    fork(watchMyFilmo),
 
     //
   ]);
