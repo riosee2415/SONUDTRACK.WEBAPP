@@ -506,7 +506,13 @@ const Musictem = ({
                             color={Theme.darkGrey_C}
                             margin={`0 20px 0 0`}
                           >
-                            {data.fileLength}
+                            {Math.floor(data.fileLength / 60)}:
+                            {String(
+                              Math.ceil(
+                                data.fileLength -
+                                  Math.floor(data.fileLength / 60) * 60
+                              )
+                            ).padStart(2, "0")}
                           </Text>
                           <Wrapper width={width < 1360 ? `180px` : `236px`}>
                             <ReactWaves

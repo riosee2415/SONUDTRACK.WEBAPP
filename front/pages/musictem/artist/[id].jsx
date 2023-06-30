@@ -563,19 +563,12 @@ const Index = () => {
                           margin={`0 20px 0 0`}
                         >
                           {Math.floor(data.fileLength / 60)}:
-                          {Math.ceil(
-                            data.fileLength -
-                              Math.floor(data.fileLength / 60) * 60
-                          ).length === 1
-                            ? "0" +
-                              Math.ceil(
-                                data.fileLength -
-                                  Math.floor(data.fileLength / 60) * 60
-                              )
-                            : Math.ceil(
-                                data.fileLength -
-                                  Math.floor(data.fileLength / 60) * 60
-                              )}
+                          {String(
+                            Math.ceil(
+                              data.fileLength -
+                                Math.floor(data.fileLength / 60) * 60
+                            )
+                          ).padStart(2, "0")}
                         </Text>
                         <Wrapper width={width < 1360 ? `180px` : `236px`}>
                           <ReactWaves
