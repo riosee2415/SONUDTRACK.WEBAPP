@@ -826,7 +826,7 @@ router.post("/musictem/topSell/list", async (req, res, next) => {
  * DEVELOPMENT : 신태섭
  * DEV DATE : 2023/06/30
  */
-router.post("/my/musictem/topSell/list", isLoggedIn, async (req, res, next) => {
+router.post("/my/musictem/topSell/list", async (req, res, next) => {
   const { MusictemId } = req.body;
 
   const selectQuery = `
