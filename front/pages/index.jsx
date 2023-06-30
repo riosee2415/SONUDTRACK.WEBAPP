@@ -449,7 +449,7 @@ const Home = ({}) => {
                                     {data.viewDownLoadCnt}
                                   </Text>
                                 </Wrapper>
-                                {/* <Wrapper
+                                <Wrapper
                                   width={`50px`}
                                   onClick={() => movelinkHandler(`/license`)}
                                   cursor={`pointer`}
@@ -459,7 +459,7 @@ const Home = ({}) => {
                                     width={`22px`}
                                     src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/cart.png`}
                                   />
-                                </Wrapper> */}
+                                </Wrapper>
                                 <Wrapper width={`50px`}>
                                   <Image
                                     alt="icon"
@@ -551,7 +551,7 @@ const Home = ({}) => {
                                 {data.viewDownLoadCnt}
                               </Text>
                             </Wrapper>
-                            {/* <Wrapper
+                            <Wrapper
                               width={`50px`}
                               onClick={() => movelinkHandler(`/license`)}
                               cursor={`pointer`}
@@ -561,7 +561,7 @@ const Home = ({}) => {
                                 width={`22px`}
                                 src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/cart.png`}
                               />
-                            </Wrapper> */}
+                            </Wrapper>
                             <Wrapper width={`60px`}>
                               <Image
                                 alt="icon"
