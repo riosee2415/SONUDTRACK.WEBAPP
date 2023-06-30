@@ -78,7 +78,7 @@ export const items = {
     {
       name: "겔러리관리",
       link: "/admin/boards/gallery",
-      useYn: true,
+      useYn: false,
     },
   ],
   회원관리: [
@@ -90,7 +90,7 @@ export const items = {
     {
       name: "관리자관리[최고관리자전용]",
       link: "/admin/user/userRight",
-      useYn: true,
+      useYn: false,
     },
     {
       name: "탈퇴회원관리",
@@ -100,7 +100,7 @@ export const items = {
     {
       name: "회원별 음원구매 현황",
       link: "/admin/user/buyStatus",
-      useYn: true,
+      useYn: false,
     },
   ],
   고객지원관리: [
@@ -215,22 +215,21 @@ const AdminLayout = ({ children }) => {
     <Wrapper className="whole__admin__wrapper">
       {/* ADMIN HEADER */}
       <AdminHeader
-        height={`200px`}
+        height={`50px`}
         bgColor={Theme.adminTheme_1}
         color={Theme.white_C}
         dr={`row`}
         ju={`space-around`}
       >
+        <Image
+          position={`absolute`}
+          top={`10px`}
+          left={`10px`}
+          width={`100px`}
+          src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/4LEAFSOFTWARE/assets/images/LOGO/logo2.png`}
+        />
         <Wrapper width={`400px`} height={`100%`} position={`relative`}>
-          <Image
-            position={`absolute`}
-            top={`10px`}
-            left={`10px`}
-            width={`100px`}
-            src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/4LEAFSOFTWARE/assets/images/LOGO/logo2.png`}
-          />
-
-          <Image
+          {/* <Image
             width={`170px`}
             src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/4LEAFSOFTWARE/assets/images/LOGO/logo4.png`}
           />
@@ -243,10 +242,10 @@ const AdminLayout = ({ children }) => {
             >
               ㅇㅇㅇ 최고관리자님, 환영합니다.
             </Text>
-          </Wrapper>
+          </Wrapper> */}
         </Wrapper>
         <Wrapper width={`calc(100% - 400px)`} height={`100%`}>
-          <Wrapper
+          {/* <Wrapper
             width={`70%`}
             height={`80%`}
             bgColor={Theme.adminTheme_2}
@@ -297,7 +296,7 @@ const AdminLayout = ({ children }) => {
               <Text>오늘 어쩌구 저쩌구 저쩌구 저쩌구</Text>
               <Text>1건</Text>
             </Wrapper>
-          </Wrapper>
+          </Wrapper> */}
         </Wrapper>
       </AdminHeader>
 

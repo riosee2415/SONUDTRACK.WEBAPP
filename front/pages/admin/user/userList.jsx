@@ -170,12 +170,11 @@ const UserList = ({}) => {
     dispatch({
       type: USERLIST_REQUEST,
       data: {
-        searchType: searchType,
         searchData: sData,
         searchLevel: currentTab,
       },
     });
-  }, [currentTab, sData, searchType]);
+  }, [currentTab, sData]);
 
   ////// TOGGLE //////
   const updateModalOpen = useCallback(
@@ -300,8 +299,8 @@ const UserList = ({}) => {
       width: "10%",
       title: "유형",
       render: (data) => (
-        <TypeView isArtist={data.isArtist === "아티스트" ? 1 : 0}>
-          {data.isArtist}
+        <TypeView isArtist={data.type === 1 ? 1 : 0}>
+          {data.type === 1 ? "일반회원" : "판매자회원"}
         </TypeView>
       ),
     },
@@ -445,19 +444,6 @@ const UserList = ({}) => {
             {data.name}
           </TypeButton>
         ))}
-      </Wrapper>
-
-      <Wrapper
-        padding="0px 20px"
-        dr="row"
-        ju="flex-start"
-        margin="0px 0px 5px 0px"
-      >
-        <Text>아티스트 조회 : </Text>
-        <Switch
-          size="small"
-          onChange={() => searchTypeChangeHandler(searchType === 1 ? 2 : 1)}
-        />
       </Wrapper>
 
       <Wrapper padding={`0px 20px`}>
