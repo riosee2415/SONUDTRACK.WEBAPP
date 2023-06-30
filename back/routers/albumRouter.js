@@ -820,13 +820,15 @@ router.post("/musictem/topSell/list", async (req, res, next) => {
 });
 /**
  * SUBJECT : 나의 뮤직탬 판매량 많은 순 리스트
- * PARAMETERS : -
+ * PARAMETERS : MusictemId
  * ORDER BY : -
  * STATEMENT : -
  * DEVELOPMENT : 신태섭
  * DEV DATE : 2023/06/30
  */
 router.post("/my/musictem/topSell/list", isLoggedIn, async (req, res, next) => {
+  const { MusictemId } = req.body;
+
   const selectQuery = `
   SELECT  DISTINCT
           ROW_NUMBER()	OVER(ORDER	BY A.createdAt)  AS num,
@@ -907,7 +909,7 @@ router.post("/my/musictem/topSell/list", isLoggedIn, async (req, res, next) => {
                             SELECT  id
                               FROM  album
                              WHERE  A.AlbumId = id
-                               AND  MusictemId = ${req.user.musictemId}
+                               AND  MusictemId = ${MusictemId}
                           )
     ORDER  BY (
                  IFNULL((
