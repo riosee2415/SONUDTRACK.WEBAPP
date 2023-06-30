@@ -34,6 +34,7 @@ import {
 import moment from "moment";
 import { MUSICTEM_LIST_REQUEST } from "../reducers/album";
 import { TRACK_CREATE_REQUEST } from "../reducers/like";
+import { saveAs } from "file-saver";
 
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
@@ -95,6 +96,8 @@ const Home = ({}) => {
 
   const [newAudioTime, setNewAudioTime] = useState([]);
 
+  const [track, setTrack] = useState(null);
+
   ////// HOOKS //////
   const width = useWidth();
   const router = useRouter();
@@ -154,9 +157,17 @@ const Home = ({}) => {
     [playing1]
   );
 
-  const downToggle = useCallback(() => {
-    setDown((prev) => !prev);
-  }, [down]);
+  const downToggle = useCallback(
+    (data) => {
+      setDown((prev) => !prev);
+      if (data) {
+        setTrack(data);
+      } else {
+        setTrack(null);
+      }
+    },
+    [down, track]
+  );
 
   const typeHandler = useCallback(
     (data) => {
@@ -223,7 +234,21 @@ const Home = ({}) => {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, []);
+
+  // 파일 다운로드
+  const fileDownloadHandler = useCallback(async (filepath, filename) => {
+    let blob = await fetch(filepath).then((r) => r.blob());
+
+    const file = new Blob([blob]);
+
+    const originName = `${filename}`;
+
+    saveAs(file, originName);
+  }, []);
+
   ////// DATAVIEW //////
+
+  console.log(musictemList);
 
   return (
     <>
@@ -469,20 +494,48 @@ const Home = ({}) => {
                                 ju={`center`}
                                 margin={`10px 0 0`}
                               >
-                                <Wrapper
-                                  width={`50px`}
-                                  onClick={downToggle}
-                                  cursor={`pointer`}
-                                >
-                                  <Image
-                                    alt="icon"
-                                    width={`22px`}
-                                    src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
-                                  />
-                                  <Text fontSize={`12px`} color={Theme.grey_C}>
-                                    {data.viewDownLoadCnt}
-                                  </Text>
-                                </Wrapper>
+                                {data.isPurchase ? (
+                                  <Wrapper
+                                    width={`50px`}
+                                    onClick={() =>
+                                      fileDownloadHandler(
+                                        data.filePath,
+                                        data.songName
+                                      )
+                                    }
+                                    cursor={`pointer`}
+                                  >
+                                    <Image
+                                      alt="icon"
+                                      width={`22px`}
+                                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
+                                    />
+                                    <Text
+                                      fontSize={`12px`}
+                                      color={Theme.grey_C}
+                                    >
+                                      {data.viewDownLoadCnt}
+                                    </Text>
+                                  </Wrapper>
+                                ) : (
+                                  <Wrapper
+                                    width={`50px`}
+                                    onClick={() => downToggle(data)}
+                                    cursor={`pointer`}
+                                  >
+                                    <Image
+                                      alt="icon"
+                                      width={`22px`}
+                                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
+                                    />
+                                    <Text
+                                      fontSize={`12px`}
+                                      color={Theme.grey_C}
+                                    >
+                                      {data.viewDownLoadCnt}
+                                    </Text>
+                                  </Wrapper>
+                                )}
                                 <Wrapper
                                   width={`50px`}
                                   onClick={() => trackHandler(data)}
@@ -571,20 +624,42 @@ const Home = ({}) => {
                             al={`flex-start`}
                             ju={`center`}
                           >
-                            <Wrapper
-                              width={`60px`}
-                              onClick={downToggle}
-                              cursor={`pointer`}
-                            >
-                              <Image
-                                alt="icon"
-                                width={`22px`}
-                                src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
-                              />
-                              <Text fontSize={`12px`} color={Theme.grey_C}>
-                                {data.viewDownLoadCnt}
-                              </Text>
-                            </Wrapper>
+                            {data.isPurchase ? (
+                              <Wrapper
+                                width={`60px`}
+                                onClick={() =>
+                                  fileDownloadHandler(
+                                    data.filePath,
+                                    data.songName
+                                  )
+                                }
+                                cursor={`pointer`}
+                              >
+                                <Image
+                                  alt="icon"
+                                  width={`22px`}
+                                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
+                                />
+                                <Text fontSize={`12px`} color={Theme.grey_C}>
+                                  {data.viewDownLoadCnt}
+                                </Text>
+                              </Wrapper>
+                            ) : (
+                              <Wrapper
+                                width={`60px`}
+                                onClick={() => downToggle(data)}
+                                cursor={`pointer`}
+                              >
+                                <Image
+                                  alt="icon"
+                                  width={`22px`}
+                                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
+                                />
+                                <Text fontSize={`12px`} color={Theme.grey_C}>
+                                  {data.viewDownLoadCnt}
+                                </Text>
+                              </Wrapper>
+                            )}
                             <Wrapper
                               width={`50px`}
                               onClick={() => trackHandler(data)}
@@ -634,7 +709,7 @@ const Home = ({}) => {
               </Text>
 
               <Text fontSize={width < 900 ? `14px` : `16px`}>
-                1회 다운로드 되며, 결제 내역에서 확인할 수 있습니다.
+                결제 후에 다운받을 수 있습니다.
               </Text>
               <Text fontSize={width < 900 ? `14px` : `16px`}>
                 파일 유실 시 메일로 문의 바랍니다.
@@ -646,8 +721,9 @@ const Home = ({}) => {
                 fontSize={`18px`}
                 fontWeight={`bold`}
                 margin={`30px 0 0`}
+                onClick={() => trackHandler(track)}
               >
-                다운로드
+                구매하기
               </CommonButton>
             </Wrapper>
           </Modal>

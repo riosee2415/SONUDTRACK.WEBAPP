@@ -38,6 +38,7 @@ import {
 import { CATE_ALL_LIST_REQUEST } from "../../reducers/category";
 import { TAG_LIST_REQUEST } from "../../reducers/tag";
 import { TRACK_CREATE_REQUEST } from "../../reducers/like";
+import { saveAs } from "file-saver";
 
 const ReactWaves = dynamic(() => import("@dschoon/react-waves"), {
   ssr: false,
@@ -112,6 +113,8 @@ const Index = () => {
   const [cateData, setCateData] = useState(null); // 카테고리 아이디
 
   const [searchSmallTag, setSearchSmallTag] = useState(null);
+
+  const [track, setTrack] = useState(null);
 
   const searchValue = useInput("");
   // {allAudioTime[idx]}
@@ -240,9 +243,17 @@ const Index = () => {
     [playing3]
   );
 
-  const downToggle = useCallback(() => {
-    setDown((prev) => !prev);
-  }, [down]);
+  const downToggle = useCallback(
+    (data) => {
+      setDown((prev) => !prev);
+      if (data) {
+        setTrack(data);
+      } else {
+        setTrack(null);
+      }
+    },
+    [down, track]
+  );
 
   const contactToggle = useCallback(() => {
     setContact((prev) => !prev);
@@ -363,6 +374,18 @@ const Index = () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, []);
+
+  // 파일 다운로드
+  const fileDownloadHandler = useCallback(async (filepath, filename) => {
+    let blob = await fetch(filepath).then((r) => r.blob());
+
+    const file = new Blob([blob]);
+
+    const originName = `${filename}`;
+
+    saveAs(file, originName);
+  }, []);
+
   ////// DATAVIEW //////
 
   return (
@@ -676,20 +699,48 @@ const Index = () => {
                                 ju={`center`}
                                 margin={`10px 0 0`}
                               >
-                                <Wrapper
-                                  width={`50px`}
-                                  onClick={downToggle}
-                                  cursor={`pointer`}
-                                >
-                                  <Image
-                                    alt="icon"
-                                    width={`22px`}
-                                    src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
-                                  />
-                                  <Text fontSize={`12px`} color={Theme.grey_C}>
-                                    {data.viewDownLoadCnt}
-                                  </Text>
-                                </Wrapper>
+                                {data.isPurchase ? (
+                                  <Wrapper
+                                    width={`50px`}
+                                    onClick={() =>
+                                      fileDownloadHandler(
+                                        data.filePath,
+                                        data.songName
+                                      )
+                                    }
+                                    cursor={`pointer`}
+                                  >
+                                    <Image
+                                      alt="icon"
+                                      width={`22px`}
+                                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
+                                    />
+                                    <Text
+                                      fontSize={`12px`}
+                                      color={Theme.grey_C}
+                                    >
+                                      {data.viewDownLoadCnt}
+                                    </Text>
+                                  </Wrapper>
+                                ) : (
+                                  <Wrapper
+                                    width={`50px`}
+                                    onClick={() => downToggle(data)}
+                                    cursor={`pointer`}
+                                  >
+                                    <Image
+                                      alt="icon"
+                                      width={`22px`}
+                                      src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
+                                    />
+                                    <Text
+                                      fontSize={`12px`}
+                                      color={Theme.grey_C}
+                                    >
+                                      {data.viewDownLoadCnt}
+                                    </Text>
+                                  </Wrapper>
+                                )}
                                 <Wrapper
                                   width={`50px`}
                                   onClick={() => trackHandler(data)}
@@ -784,20 +835,42 @@ const Index = () => {
                             al={`flex-start`}
                             ju={`center`}
                           >
-                            <Wrapper
-                              width={`60px`}
-                              onClick={downToggle}
-                              cursor={`pointer`}
-                            >
-                              <Image
-                                alt="icon"
-                                width={`22px`}
-                                src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
-                              />
-                              <Text fontSize={`12px`} color={Theme.grey_C}>
-                                {data.viewDownLoadCnt}
-                              </Text>
-                            </Wrapper>
+                            {data.isPurchase ? (
+                              <Wrapper
+                                width={`60px`}
+                                onClick={() =>
+                                  fileDownloadHandler(
+                                    data.filePath,
+                                    data.songName
+                                  )
+                                }
+                                cursor={`pointer`}
+                              >
+                                <Image
+                                  alt="icon"
+                                  width={`22px`}
+                                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
+                                />
+                                <Text fontSize={`12px`} color={Theme.grey_C}>
+                                  {data.viewDownLoadCnt}
+                                </Text>
+                              </Wrapper>
+                            ) : (
+                              <Wrapper
+                                width={`60px`}
+                                onClick={() => downToggle(data)}
+                                cursor={`pointer`}
+                              >
+                                <Image
+                                  alt="icon"
+                                  width={`22px`}
+                                  src={`https://4leaf-s3.s3.ap-northeast-2.amazonaws.com/soundtrack/assets/images/icon/download.png`}
+                                />
+                                <Text fontSize={`12px`} color={Theme.grey_C}>
+                                  {data.viewDownLoadCnt}
+                                </Text>
+                              </Wrapper>
+                            )}
                             <Wrapper
                               width={`50px`}
                               onClick={() => trackHandler(data)}
@@ -1564,7 +1637,7 @@ const Index = () => {
             </Wrapper>
           </RsWrapper>
 
-          <Modal onCancel={downToggle} visible={down} footer={null}>
+          <Modal onCancel={() => downToggle(null)} visible={down} footer={null}>
             <Wrapper padding={width < 900 ? `30px 0` : `30px 25px`}>
               <Text
                 fontWeight={`bold`}
@@ -1576,7 +1649,7 @@ const Index = () => {
               </Text>
 
               <Text fontSize={width < 900 ? `14px` : `16px`}>
-                1회 다운로드 되며, 결제 내역에서 확인할 수 있습니다.
+                결제 후에 다운받을 수 있습니다.
               </Text>
               <Text fontSize={width < 900 ? `14px` : `16px`}>
                 파일 유실 시 메일로 문의 바랍니다.
@@ -1588,8 +1661,9 @@ const Index = () => {
                 fontSize={`18px`}
                 fontWeight={`bold`}
                 margin={`30px 0 0`}
+                onClick={() => trackHandler(track)}
               >
-                다운로드
+                구매하기
               </CommonButton>
             </Wrapper>
           </Modal>

@@ -605,7 +605,7 @@ const Index = () => {
 
     IMP.request_pay(
       {
-        pg: `danal_tpay.9810030929`,
+        pg: `danal_tpay.A010012615`,
         pay_method: "card",
         merchant_uid: orderPK,
         name: "컨택결제",

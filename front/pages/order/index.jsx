@@ -155,6 +155,7 @@ const Intro = () => {
 
     let tempArr = [];
     orderData &&
+      orderData.items &&
       orderData.items.map((data) => {
         tempArr.push(data.id);
       });
@@ -205,7 +206,7 @@ const Intro = () => {
             payType === "phone"
               ? "danal"
               : payType === "card"
-              ? "danal_tpay.9810030929"
+              ? "danal_tpay.A010012615"
               : "paypal",
           pay_method: payType,
           merchant_uid: orderPK,
