@@ -1229,6 +1229,46 @@ router.post("/artistem/detail", async (req, res, next) => {
 });
 
 /**
+ * SUBJECT : 나의 필모그래피 리스트
+ * PARAMETERS : -
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/06/30
+ */
+router.post("/my/filmography", isLoggedIn, async (req, res, next) => {
+  const findFilmInfoQuery = `
+  SELECT  ROW_NUMBER()  OVER(ORDER  BY sort)      AS num,
+          id,
+          part,
+          comment,
+          singerName,
+          songName,
+          filename,
+          filePath,
+          imagePathName,
+          imagePath,
+          sort,
+          createdAt,
+          updatedAt,
+          DATE_FORMAT(createdAt, "%Y년 %m월 %d일")  AS viewCreatedAt,
+          DATE_FORMAT(updatedAt, "%Y년 %m월 %d일")  AS viewUpdatedAt
+    FROM  artistFilmography
+   WHERE  ArtistemId = ${req.user.artistemId}
+   ORDER  BY num ASC
+  `;
+
+  try {
+    const films = await models.sequelize.query(findFilmInfoQuery);
+
+    return res.status(200).json(films[0]);
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("나의 필모그래피를 조회할 수 없습니다.");
+  }
+});
+
+/**
  * SUBJECT : 뮤직탬 정보입력 라우터
  * PARAMETERS : artistName,
                 profileImage,
