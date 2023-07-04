@@ -395,8 +395,6 @@ const ArtistList = ({}) => {
       const formData = new FormData();
 
       [].forEach.call(e.target.files, (file) => {
-        setTrackname(file.name);
-
         formData.append("file", file);
       });
 
