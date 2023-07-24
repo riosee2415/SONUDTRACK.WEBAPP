@@ -1,77 +1,222 @@
 const express = require("express");
-const fs = require("fs");
-const multer = require("multer");
-const path = require("path");
-const { Faq, sequelize } = require("../models");
-const { Op } = require("sequelize");
-const models = require("../models");
 const isAdminCheck = require("../middlewares/isAdminCheck");
-const AWS = require("aws-sdk");
-const multerS3 = require("multer-s3");
+const models = require("../models");
 
 const router = express.Router();
 
-try {
-  fs.accessSync("uploads");
-} catch (error) {
-  console.log(
-    "uploads 폴더가 존재하지 않습니다. 새로 uploads 폴더를 생성합니다."
-  );
-  fs.mkdirSync("uploads");
-}
-
-AWS.config.update({
-  accessKeyId: process.env.S3_ACCESS_KEY_Id,
-  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
-  region: "ap-northeast-2",
-});
-
-const upload = multer({
-  storage: multerS3({
-    s3: new AWS.S3(),
-    bucket: process.env.S3_BUCKET_NAME,
-    key(req, file, cb) {
-      cb(
-        null,
-        `${
-          process.env.S3_STORAGE_FOLDER_NAME
-        }/original/${Date.now()}_${path.basename(file.originalname)}`
-      );
-    },
-  }),
-  limits: { fileSize: 60 * 1024 * 1024 }, // 5MB
-});
-
-// const upload = multer({
-//   storage: multer.diskStorage({
-//     destination(req, file, done) {
-//       done(null, "uploads");
-//     },
-//     filename(req, file, done) {
-//       const ext = path.extname(file.originalname); // 확장자 추출 (.png)
-//       const basename = path.basename(file.originalname, ext);
-
-//       done(null, basename + "_" + new Date().getTime() + ext);
-//     },
-//   }),
-//   limits: { fileSize: 10 * 1024 * 2024 }, // 20MB
-// });
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////// TYPE ////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
 /**
- * SUBJECT : FAQ 목록
- * PARAMETERS : question, page
+ * SUBJECT : 자주묻는질문 유형 목록
+ * PARAMETERS : -
  * ORDER BY : -
  * STATEMENT : -
- * DEVELOPMENT : 장혜정
- * DEV DATE : 2023/05/23
+ * DEVELOPMENT : 김동현
+ * DEV DATE : 2023/07/24
+ */
+router.post("/type/list", async (req, res, next) => {
+  const selectQ = `
+    SELECT	ROW_NUMBER() OVER(ORDER BY A.value)		  AS num,
+            A.id,
+            A.value,
+            B.username, 
+            DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일") 		AS viewCreatedAt,
+            DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일") 		AS viewUpdatedAt,
+            A.createdAt,
+            A.updatedAt 
+      FROM  faqType		A 
+     INNER
+      JOIN	users		B
+        ON	A.updator = B.id
+     WHERE  A.isDelete = 0
+     ORDER  BY num DESC
+    `;
+
+  try {
+    const result = await models.sequelize.query(selectQ);
+
+    return res.status(200).json(result[0]);
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(400)
+      .send("자주묻는질문 유형 데이터를 조회할 수 없습니다.");
+  }
+});
+
+/**
+ * SUBJECT : 자주묻는질문 유형 생성
+ * PARAMETERS : value
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 김동현
+ * DEV DATE : 2023/07/24
+ */
+router.post("/type/create", isAdminCheck, async (req, res, next) => {
+  const { value } = req.body;
+
+  const insertQuery = `
+    INSERT INTO faqType
+    (
+      value,
+      updator,
+      createdAt,
+      updatedAt
+    )
+    VALUES
+    (
+      "${value}",
+      ${req.user.id},
+      NOW(),
+      NOW()
+    )
+  `;
+
+  const historyInsertQuery = `
+  INSERT INTO faqhistory
+  (
+    value,
+    content,
+    updator,
+    createdAt,
+    updatedAt
+  )
+  VALUES 
+  (
+    "유형 데이터 생성",
+    "${value}",
+    ${req.user.id},
+    NOW(),
+    NOW()
+  )
+  `;
+
+  try {
+    await models.sequelize.query(insertQuery);
+    await models.sequelize.query(historyInsertQuery);
+
+    return res.status(201).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("자주묻는질문 유형을 생성할 수 없습니다.");
+  }
+});
+
+/**
+ * SUBJECT : 자주묻는질문 유형 삭제
+ * PARAMETERS : id, value
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 김동현
+ * DEV DATE : 2023/07/24
+ */
+router.post("/type/update", isAdminCheck, async (req, res, next) => {
+  const { id, value } = req.body;
+
+  const updateQuery = `
+    UPDATE  faqType
+       SET  value = "${value}",
+            updatedAt = NOW(),
+            updator = ${req.user.id}
+     WHERE  id = ${id}
+  `;
+
+  const historyInsertQuery = `
+  INSERT INTO faqhistory
+  (
+    value,
+    content,
+    updator,
+    createdAt,
+    updatedAt
+  )
+  VALUES 
+  (
+    "유형 데이터 수정",
+    "${value}",
+    ${req.user.id},
+    now(),
+    now()
+  )
+  `;
+
+  try {
+    await models.sequelize.query(updateQuery);
+    await models.sequelize.query(historyInsertQuery);
+
+    return res.status(200).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("자주묻는질문 유형을 수정할 수 없습니다.");
+  }
+});
+
+/**
+ * SUBJECT : 자주묻는질문 유형 삭제
+ * PARAMETERS : id, value
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 김동현
+ * DEV DATE : 2023/07/24
+ */
+router.post("/type/delete", isAdminCheck, async (req, res, next) => {
+  const { id, value } = req.body;
+
+  const deleteQuery = `
+    UPDATE  faqType
+       SET  isDelete = 1,
+            updatedAt = NOW(),
+            deletedAt = NOW(),
+            updator = ${req.user.id}
+     WHERE  id = ${id}
+  `;
+
+  const historyInsertQuery = `
+  INSERT INTO faqhistory
+  (
+    value,
+    content,
+    updator,
+    createdAt,
+    updatedAt
+  )
+  VALUES 
+  (
+    "유형 데이터 삭제",
+    "${value}",
+    ${req.user.id},
+    now(),
+    now()
+  )
+  `;
+
+  try {
+    await models.sequelize.query(deleteQuery);
+    await models.sequelize.query(historyInsertQuery);
+
+    return res.status(200).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("자주묻는질문 유형을 삭제할 수 없습니다.");
+  }
+});
+
+//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////// FAQ ////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+/**
+ * SUBJECT : 자주묻는질문 목록
+ * PARAMETERS : page, FaqTypeId
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 김동현
+ * DEV DATE : 2023/07/24
  */
 router.post("/list", async (req, res, next) => {
-  const { question, page } = req.body;
-
-  const _question = question ? question : "";
+  const { page, FaqTypeId } = req.body;
 
   const LIMIT = 10;
 
@@ -80,43 +225,59 @@ router.post("/list", async (req, res, next) => {
   const __page = _page - 1;
   const OFFSET = __page * 10;
 
+  const _FaqTypeId = FaqTypeId ? FaqTypeId : false;
+
   const lengthQuery = `
-  SELECT    ROW_NUMBER() OVER(ORDER BY A.createdAt)	    AS num,
-            A.id,
-            A.question,
-            A.answer,
-            A.createdAt,
-            A.updatedAt,
-            DATE_FORMAT(A.createdAt, "%Y.%m.%d")		AS viewCreatedAt,
-            DATE_FORMAT(A.updatedAt, "%Y.%m.%d")    AS viewUpdatedAt,
-            B.username								              AS updator
-    FROM    faq	        A
-   INNER  
-    JOIN    users	      B
-      ON    A.updator = B.id 
-   WHERE    A.isDelete = 0
-     AND    A.question LIKE "%${_question}%"
+SELECT	ROW_NUMBER()	OVER(ORDER	BY A.createdAt)		      AS num,
+        A.id,
+        A.question,
+        A.answer,
+        A.createdAt,
+        A.updatedAt,
+        DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")          AS viewCreatedAt,
+        DATE_FORMAT(A.createdAt, "%Y.%m.%d")          	  AS viewFrontCreatedAt,
+        DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")          AS viewUpdatedAt,
+        A.FaqTypeId,
+        B.value,
+        C.username 										                    AS updator
+  FROM	faq		A
+ INNER
+  JOIN	faqType	B
+    ON	A.FaqTypeId = B.id
+  LEFT
+ OUTER
+  JOIN	users	C
+    ON	A.updator = C.id
+ WHERE	A.isDelete = 0
+        ${_FaqTypeId ? `AND A.FaqTypeId = ${_FaqTypeId}` : ``}
   `;
 
   const selectQuery = `
-  SELECT    ROW_NUMBER() OVER(ORDER BY A.createdAt)	    AS num,
-            A.id,
-            A.question,
-            A.answer,
-            A.createdAt,
-            A.updatedAt,
-            DATE_FORMAT(A.createdAt, "%Y.%m.%d")		AS viewCreatedAt,
-            DATE_FORMAT(A.updatedAt, "%Y.%m.%d")        AS viewUpdatedAt,
-            B.username								    AS updator
-    FROM    faq	        A
-   INNER  
-    JOIN    users	    B 
-      ON    A.updator = B.id 
-   WHERE    A.isDelete = 0
-     AND    A.question LIKE "%${_question}%"
-   ORDER    BY num DESC 
-   LIMIT    ${LIMIT}
-  OFFSET    ${OFFSET}
+SELECT	ROW_NUMBER()	OVER(ORDER	BY A.createdAt)		      AS num,
+        A.id,
+        A.question,
+        A.answer,
+        A.createdAt,
+        A.updatedAt,
+        DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")          AS viewCreatedAt,
+        DATE_FORMAT(A.createdAt, "%Y.%m.%d")          	  AS viewFrontCreatedAt,
+        DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")          AS viewUpdatedAt,
+        A.FaqTypeId,
+        B.value,
+        C.username 										                    AS updator
+  FROM	faq		A
+ INNER
+  JOIN	faqType	B
+    ON	A.FaqTypeId = B.id
+  LEFT
+ OUTER
+  JOIN	users	C
+    ON	A.updator = C.id
+ WHERE	A.isDelete = 0
+        ${_FaqTypeId ? `AND A.FaqTypeId = ${_FaqTypeId}` : ``}
+ ORDER  BY num DESC
+ LIMIT  ${LIMIT}
+OFFSET  ${OFFSET}
   `;
 
   try {
@@ -133,166 +294,179 @@ router.post("/list", async (req, res, next) => {
     });
   } catch (error) {
     console.error(error);
-    return res.status(400).send("FAQ 데이터를 불러올 수 없습니다.");
+    return res.status(401).send("자주묻는질문 목록을 불러올 수 없습니다.");
   }
 });
 
 /**
- * SUBJECT : faq 리스트[관리자]
- * PARAMETERS : question
+ * SUBJECT : 자주묻는질문 목록 (관리자)
+ * PARAMETERS : FaqTypeId
  * ORDER BY : -
  * STATEMENT : -
- * DEVELOPMENT : 장혜정
- * DEV DATE : 2023/05/23
+ * DEVELOPMENT : 김동현
+ * DEV DATE : 2023/07/24
  */
-router.post("/admin/list", isAdminCheck, async (req, res, nex) => {
-  const { question } = req.body;
+router.post("/admin/list", isAdminCheck, async (req, res, next) => {
+  const { FaqTypeId } = req.body;
 
-  const _question = question ? question : "";
+  const _FaqTypeId = FaqTypeId ? FaqTypeId : false;
 
   const selectQuery = `
-  SELECT    ROW_NUMBER() OVER(ORDER BY A.createdAt)		AS num, 
-            A.id,
-            A.question,
-            A.answer,
-            A.createdAt,
-            A.updatedAt,
-            DATE_FORMAT(A.createdAt, "%Y.%m.%d")		AS viewCreatedAt,
-            DATE_FORMAT(A.updatedAt, "%Y.%m.%d")        AS viewUpdatedAt,
-            B.username								    AS updator				
-    FROM	faq		    A
-   INNER
-    JOIN	users		B
-      ON	A.updator = B.id
-   WHERE	A.isDelete = 0
-     AND	A.question LIKE "%${_question}%"
-   ORDER	BY num DESC
-
+SELECT	ROW_NUMBER()	OVER(ORDER	BY A.createdAt)		      AS num,
+        A.id,
+        A.question,
+        A.answer,
+        A.createdAt,
+        A.updatedAt,
+        DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일")          AS viewCreatedAt,
+        DATE_FORMAT(A.createdAt, "%Y.%m.%d")          	  AS viewFrontCreatedAt,
+        DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")          AS viewUpdatedAt,
+        A.FaqTypeId,
+        B.value,
+        C.username 										                    AS updator
+  FROM	faq		A
+ INNER
+  JOIN	faqType	B
+    ON	A.FaqTypeId = B.id
+  LEFT
+ OUTER
+  JOIN	users	C
+    ON	A.updator = C.id
+ WHERE	A.isDelete = 0
+        ${_FaqTypeId ? `AND A.FaqTypeId = ${_FaqTypeId}` : ``}
+ ORDER  BY num DESC
   `;
+
   try {
     const faq = await models.sequelize.query(selectQuery);
 
     return res.status(200).json(faq[0]);
   } catch (error) {
     console.error(error);
-    return res.status(400).send("FAQ를 조회할 수 없습니다.");
+    return res.status(401).send("자주묻는질문 목록을 불러올 수 없습니다.");
   }
 });
 
 /**
- * SUBJECT : faq 등록하기
- * PARAMETERS : -
+ * SUBJECT : 자주묻는질문 생성
+ * PARAMETERS : FaqTypeId
  * ORDER BY : -
  * STATEMENT : -
- * DEVELOPMENT : 장혜정
- * DEV DATE : 2023/05/23
+ * DEVELOPMENT : 김동현
+ * DEV DATE : 2023/07/24
  */
 router.post("/create", isAdminCheck, async (req, res, next) => {
-  const createQuery1 = `
-  INSERT INTO faq 
+  const { FaqTypeId } = req.body;
+
+  const insertQuery = `
+  INSERT  INTO  faq
   (
     question,
     answer,
-    createdAt, 
+    FaqTypeId,
+    createdAt,
     updatedAt,
-    updator 
+    updator
   )
   VALUES
   (
     "임시 FAQ",
     "임시 FAQ 답변입니다. 내용을 입력해주세요.",
-    now(),
-    now(),
-    ${req.user.id}
-  )
-`;
-
-  const historyInsertQuery = `
-  INSERT INTO faqhistory 
-  (
-    value,
-    content,
-    createdAt, 
-    updatedAt,
-    updator
-  ) 
-  VALUES 
-  (
-    "FAQ 데이터 생성",
-    "임시 FAQ",
-    now(),
-    now(),
+    ${FaqTypeId},
+    NOW(),
+    NOW(),
     ${req.user.id}
   )
   `;
 
+  const historyInsertQuery = `
+  INSERT INTO faqhistory
+  (
+    value,
+    content,
+    updator,
+    createdAt,
+    updatedAt
+  )
+  VALUES 
+  (
+    "FAQ 데이터 생성",
+    "임시 FAQ",
+    ${req.user.id},
+    now(),
+    now()
+  )
+  `;
+
   try {
-    await models.sequelize.query(createQuery1);
+    await models.sequelize.query(insertQuery);
     await models.sequelize.query(historyInsertQuery);
 
     return res.status(201).json({ result: true });
   } catch (error) {
     console.error(error);
-    return res.status(401).send("FAQ를 등록할 수 없습니다.");
+    return res.status(401).send("자주묻는질문을 생성할 수 없습니다.");
   }
 });
+
 /**
- * SUBJECT : faq 수정하기
- * PARAMETERS : id, question, answer
+ * SUBJECT : 자주묻는질문 수정
+ * PARAMETERS : id, question, answer, FaqTypeId
  * ORDER BY : -
  * STATEMENT : -
- * DEVELOPMENT : 장혜정
- * DEV DATE : 2023/05/23
+ * DEVELOPMENT : 김동현
+ * DEV DATE : 2023/07/24
  */
 router.post("/update", isAdminCheck, async (req, res, next) => {
-  const { id, question, answer } = req.body;
+  const { id, question, answer, FaqTypeId } = req.body;
 
   const updateQuery = `
-  UPDATE  faq 
+  UPDATE  faq
      SET  question = "${question}",
           answer = "${answer}",
-          updatedAt = now(),
-          updator =${req.user.id}
+          FaqTypeId = ${FaqTypeId},
+          updatedAt = NOW(),
+          updator = ${req.user.id}
    WHERE  id = ${id}
   `;
 
-  const insertQuery2 = `
-  INSERT INTO faqhistory 
+  const historyInsertQuery = `
+  INSERT INTO faqhistory
   (
-    value, 
-    content, 
-    updator, 
-    createdAt, 
+    value,
+    content,
+    updator,
+    createdAt,
     updatedAt
   )
-  VALUES
+  VALUES 
   (
-  	"${question}",
-  	"FAQ 데이터 수정",
-  	${req.user.id},
-  	now(),
-  	now()
+    "FAQ 데이터 수정",
+    "${question}",
+    ${req.user.id},
+    now(),
+    now()
   )
   `;
 
   try {
     await models.sequelize.query(updateQuery);
-    await models.sequelize.query(insertQuery2);
+    await models.sequelize.query(historyInsertQuery);
 
     return res.status(200).json({ result: true });
   } catch (error) {
     console.error(error);
-    return res.status(401).send("FAQ를 수정할 수 없습니다.");
+    return res.status(401).send("자주묻는질문을 수정할 수 없습니다.");
   }
 });
 
 /**
- * SUBJECT : FAQ 삭제하기
- * PARAMETERS : id, quetion
+ * SUBJECT : 자주묻는질문 삭제
+ * PARAMETERS : id, question
  * ORDER BY : -
  * STATEMENT : -
- * DEVELOPMENT : 장혜정
- * DEV DATE : 2023/05/23
+ * DEVELOPMENT : 김동현
+ * DEV DATE : 2023/07/24
  */
 router.post("/delete", isAdminCheck, async (req, res, next) => {
   const { id, question } = req.body;
@@ -306,18 +480,18 @@ router.post("/delete", isAdminCheck, async (req, res, next) => {
   `;
 
   const historyInsertQuery = `
-  INSERT INTO faqhistory 
+  INSERT INTO faqhistory
   (
-    value, 
-    content, 
+    value,
+    content,
     updator,
-    createdAt, 
+    createdAt,
     updatedAt
-    ) 
+  )
   VALUES 
   (
+    "FAQ 데이터 삭제",
     "${question}",
-    "데이터 삭제",
     ${req.user.id},
     now(),
     now()
@@ -331,10 +505,18 @@ router.post("/delete", isAdminCheck, async (req, res, next) => {
     return res.status(200).json({ result: true });
   } catch (error) {
     console.error(error);
-    return res.status(401).send("FAQ를 삭제할 수 없습니다.");
+    return res.status(401).send("자주묻는질문을 삭제할 수 없습니다.");
   }
 });
 
+/**
+ * SUBJECT : 자주묻는질문 이력 리스트
+ * PARAMETERS : datePick
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 김동현
+ * DEV DATE : 2023/07/24
+ */
 router.post("/history/list", isAdminCheck, async (req, res, next) => {
   const { datePick } = req.body;
 
@@ -346,9 +528,9 @@ router.post("/history/list", isAdminCheck, async (req, res, next) => {
             A.content,
             B.username,
             DATE_FORMAT(A.createdAt, "%Y년 %m월 %d일 %H:%i:%s")	AS  createdAt
-      FROM 	faqHistory		A
+      FROM 	faqhistory		A
      INNER
-      JOIN	users 			B
+      JOIN	users 			  B
         ON	A.updator = B.id
      WHERE  1=1
       ${

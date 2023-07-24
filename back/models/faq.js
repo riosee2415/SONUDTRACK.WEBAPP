@@ -36,5 +36,7 @@ module.exports = class Faq extends Model {
       }
     );
   }
-  static associate(db) {}
+  static associate(db) {
+    db.Faq.belongsTo(db.FaqType);
+  }
 };

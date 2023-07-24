@@ -1,13 +1,25 @@
 import { all, call, delay, fork, put, takeLatest } from "redux-saga/effects";
 import axios from "axios";
 import {
+  FAQTYPE_LIST_REQUEST,
+  FAQTYPE_LIST_SUCCESS,
+  FAQTYPE_LIST_FAILURE,
+  //
+  FAQTYPE_DELETE_REQUEST,
+  FAQTYPE_DELETE_SUCCESS,
+  FAQTYPE_DELETE_FAILURE,
+  //
+  FAQTYPE_ADD_REQUEST,
+  FAQTYPE_ADD_SUCCESS,
+  FAQTYPE_ADD_FAILURE,
+  //
   FAQ_LIST_REQUEST,
   FAQ_LIST_SUCCESS,
   FAQ_LIST_FAILURE,
   //
-  ADMIN_FAQ_LIST_REQUEST,
-  ADMIN_FAQ_LIST_SUCCESS,
-  ADMIN_FAQ_LIST_FAILURE,
+  FAQ_ADMIN_LIST_REQUEST,
+  FAQ_ADMIN_LIST_SUCCESS,
+  FAQ_ADMIN_LIST_FAILURE,
   //
   FAQ_CREATE_REQUEST,
   FAQ_CREATE_SUCCESS,
@@ -25,6 +37,90 @@ import {
   FAQ_HISTORY_LIST_SUCCESS,
   FAQ_HISTORY_LIST_FAILURE,
 } from "../reducers/faq";
+
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function faqTypeListAPI(data) {
+  return await axios.post("/api/faq/type/list", data);
+}
+
+function* faqTypeList(action) {
+  try {
+    const result = yield call(faqTypeListAPI, action.data);
+
+    yield put({
+      type: FAQTYPE_LIST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: FAQTYPE_LIST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function faqTypeDeleteAPI(data) {
+  return await axios.post("/api/faq/type/delete", data);
+}
+
+function* faqTypeDelete(action) {
+  try {
+    const result = yield call(faqTypeDeleteAPI, action.data);
+
+    yield put({
+      type: FAQTYPE_DELETE_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: FAQTYPE_DELETE_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function faqTypeAddAPI(data) {
+  return await axios.post("/api/faq/type/create", data);
+}
+
+function* faqTypeAdd(action) {
+  try {
+    const result = yield call(faqTypeAddAPI, action.data);
+
+    yield put({
+      type: FAQTYPE_ADD_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: FAQTYPE_ADD_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
 
 // ******************************************************************************************************************
 // SAGA AREA ********************************************************************************************************
@@ -56,22 +152,22 @@ function* faqList(action) {
 // ******************************************************************************************************************
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
-async function adminFaqListAPI(data) {
+async function faqAdminListAPI(data) {
   return await axios.post(`/api/faq/admin/list`, data);
 }
 
-function* adminFaqList(action) {
+function* faqAdminList(action) {
   try {
-    const result = yield call(adminFaqListAPI, action.data);
+    const result = yield call(faqAdminListAPI, action.data);
 
     yield put({
-      type: ADMIN_FAQ_LIST_SUCCESS,
+      type: FAQ_ADMIN_LIST_SUCCESS,
       data: result.data,
     });
   } catch (err) {
     console.error(err);
     yield put({
-      type: ADMIN_FAQ_LIST_FAILURE,
+      type: FAQ_ADMIN_LIST_FAILURE,
       error: err.response.data,
     });
   }
@@ -189,11 +285,20 @@ function* faqHistoryList(action) {
 // ******************************************************************************************************************
 
 //////////////////////////////////////////////////////////////
+function* watchFaqTypeList() {
+  yield takeLatest(FAQTYPE_LIST_REQUEST, faqTypeList);
+}
+function* watchFaqTypeDelete() {
+  yield takeLatest(FAQTYPE_DELETE_REQUEST, faqTypeDelete);
+}
+function* watchFaqTypeAdd() {
+  yield takeLatest(FAQTYPE_ADD_REQUEST, faqTypeAdd);
+}
 function* watchFaqList() {
   yield takeLatest(FAQ_LIST_REQUEST, faqList);
 }
-function* watchAdminFaqList() {
-  yield takeLatest(ADMIN_FAQ_LIST_REQUEST, adminFaqList);
+function* watchFaqAdminList() {
+  yield takeLatest(FAQ_ADMIN_LIST_REQUEST, faqAdminList);
 }
 function* watchFaqCreate() {
   yield takeLatest(FAQ_CREATE_REQUEST, faqCreate);
@@ -211,13 +316,15 @@ function* watchFaqHistoryList() {
 //////////////////////////////////////////////////////////////
 export default function* faqSaga() {
   yield all([
+    fork(watchFaqTypeList),
+    fork(watchFaqTypeDelete),
+    fork(watchFaqTypeAdd),
     fork(watchFaqList),
-    fork(watchAdminFaqList),
+    fork(watchFaqAdminList),
     fork(watchFaqCreate),
     fork(watchFaqUpdate),
     fork(watchFaqDelete),
     fork(watchFaqHistoryList),
-
     //
   ]);
 }

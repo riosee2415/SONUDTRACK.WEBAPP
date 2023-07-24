@@ -2,7 +2,17 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import AdminLayout from "../../../components/AdminLayout";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Form, Input, message, Popconfirm, Popover, Table } from "antd";
+import {
+  Popover,
+  Button,
+  Table,
+  Modal,
+  Form,
+  Input,
+  Popconfirm,
+  message,
+  Select,
+} from "antd";
 import { useRouter, withRouter } from "next/router";
 import wrapper from "../../../store/configureStore";
 import { END } from "redux-saga";
@@ -16,26 +26,41 @@ import {
   GuideUl,
   GuideLi,
   DelBtn,
-  SearchForm,
-  SearchFormItem,
 } from "../../../components/commonComponents";
 import { LOAD_MY_INFO_REQUEST } from "../../../reducers/user";
 import Theme from "../../../components/Theme";
 import { items } from "../../../components/AdminLayout";
 import {
-  AlertOutlined,
-  CheckOutlined,
-  EyeOutlined,
   HomeOutlined,
   RightOutlined,
-  UnorderedListOutlined,
+  EyeOutlined,
+  AlertOutlined,
+  CheckOutlined,
 } from "@ant-design/icons";
 import {
-  ADMIN_FAQ_LIST_REQUEST,
+  FAQTYPE_DELETE_REQUEST,
+  FAQTYPE_LIST_REQUEST,
+  FAQTYPE_ADD_REQUEST,
+  FAQ_ADMIN_LIST_REQUEST,
   FAQ_CREATE_REQUEST,
-  FAQ_DELETE_REQUEST,
   FAQ_UPDATE_REQUEST,
+  FAQ_DELETE_REQUEST,
 } from "../../../reducers/faq";
+
+const Faqbtn = styled(Button)`
+  margin: 0px 5px 5px 0px;
+`;
+
+const ViewStatusIcon = styled(EyeOutlined)`
+  font-size: 18px;
+  color: ${(props) =>
+    props.active ? props.theme.subTheme5_C : props.theme.lightGrey_C};
+`;
+
+const TypeTable = styled(Table)`
+  width: 100%;
+  margin: 5px !important;
+`;
 
 const InfoTitle = styled.div`
   font-size: 19px;
@@ -48,19 +73,20 @@ const InfoTitle = styled.div`
   align-items: center;
 
   padding-left: 15px;
-  color: ${(props) => props.theme.basicTheme_C};
-`;
-
-const ViewStatusIcon = styled(EyeOutlined)`
-  font-size: 18px;
-  color: ${(props) =>
-    props.active ? props.theme.basicTheme_C : props.theme.lightGrey_C};
+  color: ${(props) => props.theme.subTheme5_C};
 `;
 
 const Faq = ({}) => {
   const { st_loadMyInfoDone, me } = useSelector((state) => state.user);
   const {
-    adminFaqList,
+    typeList,
+    faqAdminList,
+
+    st_faqTypeAddDone,
+    st_faqTypeAddError,
+
+    st_faqTypeDeleteDone,
+    st_faqTypeDeleteError,
 
     st_faqCreateDone,
     st_faqCreateError,
@@ -78,10 +104,8 @@ const Faq = ({}) => {
   // 상위메뉴 변수
   const [level1, setLevel1] = useState("고객지원관리");
   const [level2, setLevel2] = useState("");
-  const [sameDepth, setSameDepth] = useState([]);
   const [currentData, setCurrentData] = useState(null);
-
-  const [infoForm] = Form.useForm();
+  const [sameDepth, setSameDepth] = useState([]);
 
   const moveLinkHandler = useCallback((link) => {
     router.push(link);
@@ -106,9 +130,14 @@ const Faq = ({}) => {
 
   ////// HOOKS //////
 
-  const [searchForm] = Form.useForm();
+  const [typeForm] = Form.useForm();
+  const [infoForm] = Form.useForm();
+  const [createForm] = Form.useForm();
 
-  const [searchTitle, setSearchTitle] = useState("");
+  const [typeModal, setTypeModal] = useState(false); // 유형 모달
+  const [cModal, setCModal] = useState(false); // 생성 모달
+
+  const [tab, setTab] = useState(false); // 유형 아이디
 
   ////// USEEFFECT //////
 
@@ -139,91 +168,124 @@ const Faq = ({}) => {
 
   useEffect(() => {
     dispatch({
-      type: ADMIN_FAQ_LIST_REQUEST,
+      type: FAQ_ADMIN_LIST_REQUEST,
       data: {
-        question: searchTitle,
+        FaqTypeId: tab,
       },
     });
-  }, [searchTitle]);
+  }, [tab]);
 
-  // ********************** 자주묻는질문 생성 후처리 *************************
+  // *************** FAQ TYPE 생성 후처리 ***************
+  useEffect(() => {
+    if (st_faqTypeAddDone) {
+      dispatch({
+        type: FAQTYPE_LIST_REQUEST,
+      });
 
+      typeForm.resetFields();
+
+      return message.success("자주묻는질문 유형데이터가 추가되었습니다.");
+    }
+    if (st_faqTypeAddError) {
+      return message.error(st_faqTypeAddError);
+    }
+  }, [st_faqTypeAddDone, st_faqTypeAddError]);
+
+  // *************** FAQ TYPE 삭제 후처리 ***************
+  useEffect(() => {
+    if (st_faqTypeDeleteDone) {
+      dispatch({
+        type: FAQTYPE_LIST_REQUEST,
+      });
+
+      return message.success("자주묻는질문 유형데이터가 삭제되었습니다.");
+    }
+    if (st_faqTypeDeleteError) {
+      return message.error(st_faqTypeDeleteError);
+    }
+  }, [st_faqTypeDeleteDone, st_faqTypeDeleteError]);
+
+  // *************** FAQ 생성 후처리 ***************
   useEffect(() => {
     if (st_faqCreateDone) {
       dispatch({
-        type: ADMIN_FAQ_LIST_REQUEST,
+        type: FAQ_ADMIN_LIST_REQUEST,
         data: {
-          question: searchTitle,
+          FaqTypeId: tab,
         },
       });
 
-      return message.success("자주묻는질문이 생성되었습니다.");
-    }
+      createForm.resetFields();
+      createToggleHandler();
 
+      return message.success("자주묻는질이 생성되었습니다.");
+    }
     if (st_faqCreateError) {
       return message.error(st_faqCreateError);
     }
   }, [st_faqCreateDone, st_faqCreateError]);
 
-  // ********************** 자주묻는질문 수정 후처리 *************************
-
+  // *************** FAQ 수정 후처리 ***************
   useEffect(() => {
     if (st_faqUpdateDone) {
       dispatch({
-        type: ADMIN_FAQ_LIST_REQUEST,
+        type: FAQ_ADMIN_LIST_REQUEST,
         data: {
-          question: searchTitle,
+          FaqTypeId: tab,
         },
       });
 
-      return message.success("자주묻는질문이 수정되었습니다.");
+      return message.success("자주묻는질이 수정되었습니다.");
     }
-
     if (st_faqUpdateError) {
       return message.error(st_faqUpdateError);
     }
   }, [st_faqUpdateDone, st_faqUpdateError]);
 
-  // ********************** 자주묻는질문 삭제 후처리 *************************
-
+  // *************** FAQ 삭제 후처리 ***************
   useEffect(() => {
     if (st_faqDeleteDone) {
-      message.success("자주묻는질문이 삭제되었습니다.");
-      setCurrentData(null);
       dispatch({
-        type: ADMIN_FAQ_LIST_REQUEST,
+        type: FAQ_ADMIN_LIST_REQUEST,
         data: {
-          question: searchTitle,
+          FaqTypeId: tab,
         },
       });
-    }
-  }, [st_faqDeleteDone]);
 
-  useEffect(() => {
+      setCurrentData(null);
+
+      return message.success("자주묻는질이 삭제되었습니다.");
+    }
     if (st_faqDeleteError) {
       return message.error(st_faqDeleteError);
     }
-  }, [st_faqDeleteError]);
+  }, [st_faqDeleteDone, st_faqDeleteError]);
+
+  ////// TOGGLE //////
+
+  const typeModalToggleHandler = useCallback(() => {
+    setTypeModal((prev) => !prev);
+  }, [typeModal]);
+
+  const createToggleHandler = useCallback(() => {
+    setCModal((prev) => !prev);
+  }, [cModal]);
 
   ////// HANDLER //////
 
-  const searchHandler = useCallback(
-    (data) => {
-      setSearchTitle(data.title);
+  const tabClickHandler = useCallback(
+    (v) => {
+      setTab(v);
     },
-    [searchTitle]
+    [tab]
   );
-
-  const allSearchHandler = useCallback(() => {
-    searchForm.resetFields();
-    setSearchTitle("");
-  }, [searchTitle]);
 
   const beforeSetDataHandler = useCallback(
     (record) => {
       setCurrentData(record);
 
       infoForm.setFieldsValue({
+        type: record.FaqTypeId,
         question: record.question,
         answer: record.answer,
         createdAt: record.viewCreatedAt,
@@ -234,34 +296,50 @@ const Faq = ({}) => {
     [currentData, infoForm]
   );
 
-  const createHandler = useCallback(() => {
+  const typeListAddHandler = useCallback((data) => {
+    dispatch({
+      type: FAQTYPE_ADD_REQUEST,
+      data: {
+        value: data.type,
+      },
+    });
+  }, []);
+
+  const typeDeleteClickHandler = useCallback((data) => {
+    dispatch({
+      type: FAQTYPE_DELETE_REQUEST,
+      data: {
+        value: data.value,
+        id: data.id,
+      },
+    });
+  }, []);
+
+  const createHandler = useCallback((data) => {
     dispatch({
       type: FAQ_CREATE_REQUEST,
+      data: {
+        FaqTypeId: data.type,
+      },
     });
   }, []);
 
   const updateHandler = useCallback(
     (data) => {
-      if (
-        data.question === currentData.question &&
-        data.answer === currentData.answer
-      ) {
-        return message.info("변경할 데이터가 없습니다.");
-      }
-
       dispatch({
         type: FAQ_UPDATE_REQUEST,
         data: {
           id: currentData.id,
           question: data.question,
           answer: data.answer,
+          FaqTypeId: data.type,
         },
       });
     },
     [currentData]
   );
 
-  const deleteHnadler = useCallback((data) => {
+  const deleteHandler = useCallback((data) => {
     dispatch({
       type: FAQ_DELETE_REQUEST,
       data: {
@@ -281,10 +359,13 @@ const Faq = ({}) => {
       dataIndex: "num",
     },
     {
+      title: "유형명",
+      dataIndex: "value",
+    },
+    {
       title: "질문",
       dataIndex: "question",
     },
-
     {
       title: "생성일",
       dataIndex: "viewCreatedAt",
@@ -301,15 +382,48 @@ const Faq = ({}) => {
         </>
       ),
     },
-
     {
       title: "삭제",
       render: (data) => (
         <Popconfirm
-          title="정말 삭제하시겠습니까?"
-          onConfirm={() => deleteHnadler(data)}
+          placement="topRight"
+          title={"정말 삭제하시겠습니까?"}
           okText="삭제"
           cancelText="취소"
+          onConfirm={() => deleteHandler(data)}
+        >
+          <DelBtn />
+        </Popconfirm>
+      ),
+    },
+  ];
+
+  const modalcol = [
+    {
+      title: "번호",
+      dataIndex: "num",
+    },
+    {
+      title: "유형명",
+      dataIndex: "value",
+    },
+    {
+      title: "생성일",
+      dataIndex: "viewCreatedAt",
+    },
+    {
+      title: "업데이터",
+      dataIndex: "username",
+    },
+    {
+      title: "삭제",
+      render: (data) => (
+        <Popconfirm
+          placement="topRight"
+          title={"정말 삭제하시겠습니까?"}
+          okText="삭제"
+          cancelText="취소"
+          onConfirm={() => typeDeleteClickHandler(data)}
         >
           <DelBtn />
         </Popconfirm>
@@ -328,7 +442,7 @@ const Faq = ({}) => {
         al={`center`}
         padding={`0px 15px`}
         color={Theme.grey_C}
-        // shadow={`2px 2px 6px  ${Theme.adminTheme_2}`}
+        shadow={`2px 2px 6px  ${Theme.adminTheme_2}`}
       >
         <HomeText
           margin={`3px 20px 0px 20px`}
@@ -350,67 +464,66 @@ const Faq = ({}) => {
       {/* GUIDE */}
       <Wrapper margin={`10px 0px 0px 0px`}>
         <GuideUl>
+          <GuideLi>자주묻는 질문의 유형과 데이터를 관리할 수 있습니다.</GuideLi>
           <GuideLi isImpo={true}>
-            자주묻는질문을 추가 / 수정 / 삭제 등 관리를 할 수 있습니다.
-          </GuideLi>
-          <GuideLi isImpo={true}>
-            삭제처리 된 자주묻는질문은 복구가 불가능합니다.
+            해당 페이지의 데이터는 화면에 즉시 적용되오니, 신중한 처리가
+            필요합니다.
           </GuideLi>
         </GuideUl>
       </Wrapper>
 
-      <Wrapper padding="0px 20px">
-        {/* SEARCH FORM */}
-        <SearchForm
-          layout="inline"
-          style={{ width: "100%" }}
-          form={searchForm}
-          onFinish={searchHandler}
-        >
-          <SearchFormItem name="title" style={{ margin: `0px 0px 0px 5px` }}>
-            <Input
-              size="small"
-              style={{ width: "200px" }}
-              placeholder="질문으로 검색해주세요."
-            />
-          </SearchFormItem>
-
-          <SearchFormItem>
-            <Button size="small" type="primary" htmlType="submit">
-              검색
-            </Button>
-          </SearchFormItem>
-
-          <SearchFormItem>
-            <Button
-              icon={<UnorderedListOutlined />}
-              size="small"
-              type="primary"
-              onClick={allSearchHandler}
-            >
-              전체조회
-            </Button>
-          </SearchFormItem>
-        </SearchForm>
-      </Wrapper>
+      {/* CONTENT */}
 
       <Wrapper dr="row" padding="0px 20px" al="flex-start" ju={`space-between`}>
         <Wrapper
-          width={`calc(50% - 10px)`}
+          width="50%"
           padding="0px 10px"
           shadow={`3px 3px 6px ${Theme.lightGrey_C}`}
         >
-          <Wrapper al="flex-end" margin={`0px 0px 5px 0px`}>
-            <Button size="small" type="primary" onClick={createHandler}>
+          <Wrapper dr={`row`} ju={`flex-end`} margin={`0px 0px 5px 0px`}>
+            <Button size="small" type="primary" onClick={createToggleHandler}>
               자주묻는질문 생성
             </Button>
+
+            <Button
+              size="small"
+              type="primary"
+              style={{ marginLeft: `5px` }}
+              onClick={() => typeModalToggleHandler()}
+            >
+              유형관리
+            </Button>
           </Wrapper>
+
+          <Wrapper dr={`row`} ju={`flex-start`} margin={`0px 0px 10px 0px`}>
+            <Faqbtn
+              size="small"
+              onClick={() => tabClickHandler(false)}
+              type={tab === false ? "primary" : "default"}
+            >
+              전체
+            </Faqbtn>
+
+            {typeList &&
+              typeList.map((data) => {
+                return (
+                  <Faqbtn
+                    size="small"
+                    onClick={() => tabClickHandler(data.id)}
+                    type={tab === data.id ? "primary" : "default"}
+                  >
+                    {data.value}
+                  </Faqbtn>
+                );
+              })}
+          </Wrapper>
+
           <Table
-            style={{ width: "100%" }}
+            size="small"
             rowKey="num"
             columns={col}
-            dataSource={adminFaqList}
-            size="small"
+            style={{ width: "100%" }}
+            dataSource={faqAdminList}
             onRow={(record, index) => {
               return {
                 onClick: (e) => beforeSetDataHandler(record),
@@ -420,8 +533,8 @@ const Faq = ({}) => {
         </Wrapper>
 
         <Wrapper
-          width={`calc(50% - 10px)`}
-          padding="5px"
+          width="50%"
+          padding="0px 10px"
           shadow={`3px 3px 6px ${Theme.lightGrey_C}`}
         >
           {currentData ? (
@@ -441,6 +554,25 @@ const Faq = ({}) => {
                 onFinish={updateHandler}
               >
                 <Form.Item
+                  label="유형"
+                  name="type"
+                  rules={[
+                    { required: true, message: "유형은 선택은 필수입니다." },
+                  ]}
+                >
+                  <Select size="small">
+                    {typeList &&
+                      typeList.map((data) => {
+                        return (
+                          <Select.Option key={data.id} value={data.id}>
+                            {data.value}
+                          </Select.Option>
+                        );
+                      })}
+                  </Select>
+                </Form.Item>
+
+                <Form.Item
                   label="질문"
                   name="question"
                   rules={[
@@ -454,13 +586,10 @@ const Faq = ({}) => {
                   label="답변"
                   name="answer"
                   rules={[
-                    {
-                      required: true,
-                      message: "답변은 필수 입력사항 입니다.",
-                    },
+                    { required: true, message: "답변은 필수 입력사항 입니다." },
                   ]}
                 >
-                  <Input.TextArea rows={10} size="small" />
+                  <Input.TextArea rows={10} />
                 </Form.Item>
 
                 <Form.Item label="작성일" name="createdAt">
@@ -515,6 +644,91 @@ const Faq = ({}) => {
           )}
         </Wrapper>
       </Wrapper>
+
+      {/* CREATE FORM */}
+
+      <Modal
+        width={`680px`}
+        footer={null}
+        title={`유형관리`}
+        visible={typeModal}
+        onCancel={() => typeModalToggleHandler()}
+      >
+        <GuideUl>
+          <GuideLi>자주묻는질문의 유형을 추가 / 삭제 할 수 있습니다.</GuideLi>
+        </GuideUl>
+
+        <Form
+          form={typeForm}
+          wrapperCol={{ span: 21 }}
+          labelCol={{ span: 3 }}
+          onFinish={typeListAddHandler}
+        >
+          <Form.Item
+            label="유형"
+            name="type"
+            rules={[{ required: true, message: "유형은 필수입니다." }]}
+          >
+            <Wrapper dr={`row`} ju={`flex-start`}>
+              <Input style={{ width: "90%" }} size="small" allowClear />
+
+              <Button size="small" type="primary" htmlType="submit">
+                등록
+              </Button>
+            </Wrapper>
+          </Form.Item>
+        </Form>
+
+        <TypeTable
+          size="small"
+          rowKey="id"
+          columns={modalcol}
+          style={{ width: "100%", margin: "0px" }}
+          dataSource={typeList}
+        />
+      </Modal>
+
+      <Modal
+        footer={null}
+        visible={cModal}
+        width={`500px`}
+        title={"자주묻는질문 생성"}
+        onCancel={createToggleHandler}
+      >
+        <GuideUl>
+          <GuideLi>자주묻는질문을 추가 할 수 있습니다.</GuideLi>
+        </GuideUl>
+
+        <Form
+          form={createForm}
+          wrapperCol={{ span: 21 }}
+          labelCol={{ span: 3 }}
+          onFinish={createHandler}
+        >
+          <Form.Item
+            label="유형"
+            name="type"
+            rules={[{ required: true, message: "유형은 선택은 필수입니다." }]}
+          >
+            <Select size="small">
+              {typeList &&
+                typeList.map((data) => {
+                  return (
+                    <Select.Option key={data.id} value={data.id}>
+                      {data.value}
+                    </Select.Option>
+                  );
+                })}
+            </Select>
+          </Form.Item>
+
+          <Wrapper dr={`row`} ju={`flex-end`}>
+            <Button size="small" type="primary" htmlType="submit">
+              생성
+            </Button>
+          </Wrapper>
+        </Form>
+      </Modal>
     </AdminLayout>
   );
 };
@@ -535,10 +749,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
     });
 
     context.store.dispatch({
-      type: ADMIN_FAQ_LIST_REQUEST,
-      data: {
-        question: "",
-      },
+      type: FAQTYPE_LIST_REQUEST,
     });
 
     // 구현부 종료
