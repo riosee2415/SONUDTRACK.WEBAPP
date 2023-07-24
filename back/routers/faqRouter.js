@@ -216,7 +216,7 @@ router.post("/type/delete", isAdminCheck, async (req, res, next) => {
  * DEV DATE : 2023/07/24
  */
 router.post("/list", async (req, res, next) => {
-  const { page, FaqTypeId } = req.body;
+  const { question = "", page, FaqTypeId } = req.body;
 
   const LIMIT = 10;
 
@@ -249,6 +249,7 @@ SELECT	ROW_NUMBER()	OVER(ORDER	BY A.createdAt)		      AS num,
   JOIN	users	C
     ON	A.updator = C.id
  WHERE	A.isDelete = 0
+   AND A.question LIKE "%${question}%"
         ${_FaqTypeId ? `AND A.FaqTypeId = ${_FaqTypeId}` : ``}
   `;
 
@@ -274,6 +275,7 @@ SELECT	ROW_NUMBER()	OVER(ORDER	BY A.createdAt)		      AS num,
   JOIN	users	C
     ON	A.updator = C.id
  WHERE	A.isDelete = 0
+   AND  A.question LIKE "%${question}%"
         ${_FaqTypeId ? `AND A.FaqTypeId = ${_FaqTypeId}` : ``}
  ORDER  BY num DESC
  LIMIT  ${LIMIT}

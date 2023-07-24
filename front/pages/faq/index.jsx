@@ -7,6 +7,7 @@ import axios from "axios";
 import { END } from "redux-saga";
 import useWidth from "../../hooks/useWidth";
 import {
+  CommonButton,
   CustomPage,
   Image,
   RsWrapper,
@@ -20,7 +21,7 @@ import { DownOutlined, SearchOutlined, UpOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import useInput from "../../hooks/useInput";
-import { FAQ_LIST_REQUEST } from "../../reducers/faq";
+import { FAQTYPE_LIST_REQUEST, FAQ_LIST_REQUEST } from "../../reducers/faq";
 
 const List = styled(Wrapper)`
   flex-direction: row;
@@ -39,7 +40,7 @@ const List = styled(Wrapper)`
 
 const Index = () => {
   ////// GLOBAL STATE //////
-  const { faqList, faqPage } = useSelector((state) => state.faq);
+  const { typeList, faqList, faqPage } = useSelector((state) => state.faq);
 
   ////// HOOKS //////
   const width = useWidth();
@@ -50,6 +51,8 @@ const Index = () => {
   const [visible, setvisible] = useState(false);
   const [visibleId, setVisibleId] = useState(null);
 
+  const [typeId, setTypeId] = useState("");
+
   const [currentPage, setCurrentPage] = useState(1); // 페이지네이션
 
   ////// USEEFFECT //////
@@ -57,11 +60,12 @@ const Index = () => {
     dispatch({
       type: FAQ_LIST_REQUEST,
       data: {
-        title: search.value,
+        question: search.value,
+        FaqTypeId: typeId,
         page: currentPage,
       },
     });
-  }, [search.value, currentPage]);
+  }, [search.value, typeId, currentPage]);
 
   ////// TOGGLE //////
   const faqToggle = useCallback(
@@ -82,6 +86,18 @@ const Index = () => {
   );
 
   ////// HANDLER //////
+
+  const typeHandler = useCallback(
+    (data) => {
+      if (data) {
+        setTypeId(data.id);
+      } else {
+        setTypeId("");
+      }
+    },
+    [typeId]
+  );
+
   // 페이지네이션
   const otherPageCall = useCallback(
     (changePage) => {
@@ -165,6 +181,29 @@ const Index = () => {
                   {...search}
                 />
               </Wrapper>
+            </Wrapper>
+
+            <Wrapper dr={`row`} ju={`flex-start`} margin={`0 0 20px`}>
+              <CommonButton
+                margin={`0 10px 0 0`}
+                onClick={() => typeHandler("")}
+                kindOf={typeId === "" ? "" : `subTheme`}
+              >
+                전체
+              </CommonButton>
+              {typeList &&
+                typeList.map((data) => {
+                  return (
+                    <CommonButton
+                      key={data.id}
+                      margin={`0 10px 0 0`}
+                      kindOf={typeId === data.id ? "" : `subTheme`}
+                      onClick={() => typeHandler(data)}
+                    >
+                      {data.value}
+                    </CommonButton>
+                  );
+                })}
             </Wrapper>
 
             <Wrapper borderTop={`1px solid ${Theme.lightGrey_C}`}>
@@ -283,6 +322,10 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     context.store.dispatch({
       type: FAQ_LIST_REQUEST,
+    });
+
+    context.store.dispatch({
+      type: FAQTYPE_LIST_REQUEST,
     });
 
     // 구현부 종료
