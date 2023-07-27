@@ -287,6 +287,11 @@ const Join = () => {
                   회원가입
                 </CommonButton>
               </Wrapper>
+              <Wrapper margin={`30px 0 0`}>
+                <CommonButton height={`50px`} fontSize={`18px`}>
+                  New Wave Sound에 제작문의
+                </CommonButton>
+              </Wrapper>
             </Wrapper>
           </Wrapper>
         </WholeWrapper>
