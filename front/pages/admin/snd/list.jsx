@@ -106,7 +106,6 @@ const List = ({}) => {
     st_albumAdminDeleteError,
   } = useSelector((state) => state.album);
 
-  console.log(musictemAdminList);
   ////// HOOKS //////
   const dispatch = useDispatch();
 
@@ -269,6 +268,9 @@ const List = ({}) => {
           <GuideLi>모든 뮤직템을 확인할 수 있습니다.</GuideLi>
           <GuideLi isImpo={true}>
             삭제 후 복구가 어려우니 신중하게 처리해주세요.
+          </GuideLi>
+          <GuideLi isImpo={true}>
+            앨범이 같은 경우 전부 삭제되니 신중하게 처리해주세요.
           </GuideLi>
         </GuideUl>
       </Wrapper>
