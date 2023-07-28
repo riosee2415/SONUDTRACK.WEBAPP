@@ -1871,6 +1871,49 @@ router.post("/delete", isLoggedIn, async (req, res, next) => {
 });
 
 /**
+ * SUBJECT : 앨범 삭제 (트랙 신청 안된 앨범만 삭제 가능)
+ * PARAMETERS : AlbumId,
+ * ORDER BY : -
+ * STATEMENT : -
+ * DEVELOPMENT : 신태섭
+ * DEV DATE : 2023/06/28
+ */
+router.post("/admin/delete", isAdminCheck, async (req, res, next) => {
+  const { AlbumId } = req.body;
+
+  const findQuery = `
+  SELECT  B.UserId,
+          A.isTrackPermit
+    FROM  album       A
+   INNER
+    JOIN  musictem    B
+      ON  A.MusictemId = B.id
+   WHERE  A.id = ${AlbumId}
+  `;
+
+  const deleteQuery = `
+  DELETE
+    FROM  album
+   WHERE  id = ${AlbumId}
+  `;
+
+  try {
+    const findResult = await models.sequelize.query(findQuery);
+
+    if (findResult[0].length === 0) {
+      return res.status(401).send("존재하지 않는 앨범입니다.");
+    }
+
+    await models.sequelize.query(deleteQuery);
+
+    return res.status(200).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("앨범을 삭제할 수 없습니다.");
+  }
+});
+
+/**
  * SUBJECT : 관리자 프리미엄 앨범 등록
  * PARAMETERS : albumName,
                 albumImage,
