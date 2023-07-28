@@ -85,6 +85,10 @@ export const initailState = {
   st_albumDeleteDone: false,
   st_albumDeleteError: null,
   //
+  st_albumAdminDeleteLoading: false, // 앨범 삭제
+  st_albumAdminDeleteDone: false,
+  st_albumAdminDeleteError: null,
+  //
   st_myMusictemTopSellListLoading: false, // 나의 뮤직템 판매량 많은순 리스트
   st_myMusictemTopSellListDone: false,
   st_myMusictemTopSellListError: null,
@@ -156,6 +160,10 @@ export const TOP_MUSICTEM_LIST_FAILURE = "TOP_MUSICTEM_LIST_FAILURE";
 export const ALBUM_TRACK_DELETE_REQUEST = "ALBUM_TRACK_DELETE_REQUEST";
 export const ALBUM_TRACK_DELETE_SUCCESS = "ALBUM_TRACK_DELETE_SUCCESS";
 export const ALBUM_TRACK_DELETE_FAILURE = "ALBUM_TRACK_DELETE_FAILURE";
+
+export const ALBUM_ADMIN_DELETE_REQUEST = "ALBUM_ADMIN_DELETE_REQUEST";
+export const ALBUM_ADMIN_DELETE_SUCCESS = "ALBUM_ADMIN_DELETE_SUCCESS";
+export const ALBUM_ADMIN_DELETE_FAILURE = "ALBUM_ADMIN_DELETE_FAILURE";
 
 export const MY_MUSICTEM_TOP_SELL_LIST_REQUEST =
   "MY_MUSICTEM_TOP_SELL_LIST_REQUEST";
@@ -513,6 +521,28 @@ const reducer = (state = initailState, action) =>
         draft.st_albumDeleteLoading = false;
         draft.st_albumDeleteDone = false;
         draft.st_albumDeleteError = action.error;
+        break;
+      }
+
+      //////////////////////////////////////////////
+
+      case ALBUM_ADMIN_DELETE_REQUEST: {
+        draft.st_albumAdminDeleteLoading = true;
+        draft.st_albumAdminDeleteDone = false;
+        draft.st_albumAdminDeleteError = null;
+        break;
+      }
+      case ALBUM_ADMIN_DELETE_SUCCESS: {
+        draft.st_albumAdminDeleteLoading = false;
+        draft.st_albumAdminDeleteDone = true;
+        draft.st_albumAdminDeleteError = null;
+
+        break;
+      }
+      case ALBUM_ADMIN_DELETE_FAILURE: {
+        draft.st_albumAdminDeleteLoading = false;
+        draft.st_albumAdminDeleteDone = false;
+        draft.st_albumAdminDeleteError = action.error;
         break;
       }
 

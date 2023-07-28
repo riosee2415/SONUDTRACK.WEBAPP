@@ -68,6 +68,10 @@ import {
   MY_MUSICTEM_TOP_SELL_LIST_REQUEST,
   MY_MUSICTEM_TOP_SELL_LIST_SUCCESS,
   MY_MUSICTEM_TOP_SELL_LIST_FAILURE,
+  //
+  ALBUM_ADMIN_DELETE_REQUEST,
+  ALBUM_ADMIN_DELETE_SUCCESS,
+  ALBUM_ADMIN_DELETE_FAILURE,
 } from "../reducers/album";
 
 // ******************************************************************************************************************
@@ -497,6 +501,33 @@ function* albumDelete(action) {
 // ******************************************************************************************************************
 // SAGA AREA ********************************************************************************************************
 // ******************************************************************************************************************
+async function albumAdminDeleteAPI(data) {
+  return await axios.post(`/api/album/admin/delete`, data);
+}
+
+function* albumAdminDelete(action) {
+  try {
+    const result = yield call(albumAdminDeleteAPI, action.data);
+
+    yield put({
+      type: ALBUM_ADMIN_DELETE_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: ALBUM_ADMIN_DELETE_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
+// ******************************************************************************************************************
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
 async function myMusictemTopSellListAPI(data) {
   return await axios.post(`/api/album/my/musictem/topSell/list`, data);
 }
@@ -574,6 +605,9 @@ function* watchTopMusictemList() {
 function* watchAlbumDelete() {
   yield takeLatest(ALBUM_TRACK_DELETE_REQUEST, albumDelete);
 }
+function* watchAlbumAdminDelete() {
+  yield takeLatest(ALBUM_ADMIN_DELETE_REQUEST, albumAdminDelete);
+}
 function* watchMyMusictemTopSellList() {
   yield takeLatest(MY_MUSICTEM_TOP_SELL_LIST_REQUEST, myMusictemTopSellList);
 }
@@ -598,6 +632,7 @@ export default function* albumSaga() {
     fork(watchTopMusictemList),
     fork(watchAlbumDelete),
     fork(watchMyMusictemTopSellList),
+    fork(watchAlbumAdminDelete),
 
     //
   ]);

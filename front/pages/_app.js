@@ -100,6 +100,17 @@ const Fourleaf = ({ Component, pageProps: { session, ...pageProps } }) => {
   `,
             }}
           />
+
+          {/* 마우스 우클릭 */}
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+            document.addEventListener("contextmenu", function(event){
+              event.preventDefault();
+              }, false);
+                    `,
+            }}
+          />
         </Head>
         <Component />
       </ThemeProvider>

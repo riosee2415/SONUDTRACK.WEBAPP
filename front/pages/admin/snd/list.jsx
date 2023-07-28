@@ -33,6 +33,7 @@ import {
   SearchForm,
   SearchFormItem,
   SettingBtn,
+  DelBtn,
 } from "../../../components/commonComponents";
 import { useRouter, withRouter } from "next/router";
 import wrapper from "../../../store/configureStore";
@@ -51,54 +52,11 @@ import {
   HomeOutlined,
   RightOutlined,
 } from "@ant-design/icons";
+
 import {
-  CATEGORY_ADMIN_LIST_REQUEST,
-  CATEGORY_LIST_REQUEST,
-} from "../../../reducers/category";
-import { TAG_TYPE_LIST_REQUEST } from "../../../reducers/tag";
-import {
-  ALBUM_FILE_RESET,
-  ALBUM_PREMIUM_CREATE_REQUEST,
-  ALBUM_TRACK_FILE_REQUEST,
-  ALBUM_TRACK_FILE_RESET,
-  MUSICTEM_PREMIUM_ADMIN_LIST_REQUEST,
-  MUSICTEM_LIST_REQUEST,
+  ALBUM_ADMIN_DELETE_REQUEST,
   MUSICTEM_ADMIN_LIST_REQUEST,
 } from "../../../reducers/album";
-import {
-  SELLER_IMAGE_REQUEST,
-  SELLER_IMAGE_RESET,
-} from "../../../reducers/seller";
-import getBlobDuration from "get-blob-duration";
-
-const TypeView = styled.span`
-  padding: 2px 5px;
-  background: ${(props) =>
-    props.isArtist ? props.theme.subTheme3_C : props.theme.adminTheme_4};
-  color: #fff;
-  border-radius: 7px;
-  font-size: 13px;
-`;
-
-const TypeButton = styled(Button)``;
-
-const GuideDiv = styled.div`
-  width: 100%;
-  color: ${(props) => (props.isImpo ? props.theme.red_C : "")};
-  margin-left: 3px;
-`;
-
-const PointText = styled.div`
-  color: ${(props) => props.theme.adminTheme_4};
-`;
-
-const LoadNotification = (msg, content) => {
-  notification.open({
-    message: msg,
-    description: content,
-    onClick: () => {},
-  });
-};
 
 const List = ({}) => {
   // LOAD CURRENT INFO AREA /////////////////////////////////////////////
@@ -142,7 +100,13 @@ const List = ({}) => {
   );
   /////////////////////////////////////////////////////////////////////////
 
-  const { musictemAdminList } = useSelector((state) => state.album);
+  const {
+    musictemAdminList,
+    st_albumAdminDeleteDone,
+    st_albumAdminDeleteError,
+  } = useSelector((state) => state.album);
+
+  console.log(musictemAdminList);
   ////// HOOKS //////
   const dispatch = useDispatch();
 
@@ -150,6 +114,18 @@ const List = ({}) => {
   const [sForm] = Form.useForm();
 
   ////// USEEFFECT //////
+  useEffect(() => {
+    if (st_albumAdminDeleteDone) {
+      dispatch({
+        type: MUSICTEM_ADMIN_LIST_REQUEST,
+      });
+      return message.success("삭제되었습니다.");
+    }
+
+    if (st_albumAdminDeleteError) {
+      return message.error(st_albumAdminDeleteError);
+    }
+  }, [st_albumAdminDeleteDone, st_albumAdminDeleteError]);
 
   ////// TOGGLE //////
 
@@ -160,6 +136,15 @@ const List = ({}) => {
       type: MUSICTEM_ADMIN_LIST_REQUEST,
       data: {
         songName: data.sData,
+      },
+    });
+  }, []);
+
+  const deleteHandler = useCallback((data) => {
+    dispatch({
+      type: ALBUM_ADMIN_DELETE_REQUEST,
+      data: {
+        AlbumId: data.AlbumId,
       },
     });
   }, []);
@@ -175,9 +160,8 @@ const List = ({}) => {
     },
 
     {
-      width: "10%",
       title: "앨범이미지",
-      render: (data) => <Image src={data.albumImage} />,
+      render: (data) => <Image width={`80px`} src={data.albumImage} />,
     },
     {
       width: "10%",
@@ -185,8 +169,8 @@ const List = ({}) => {
       dataIndex: "albumName",
     },
     {
-      width: "10%",
       title: "타이틀여부",
+      width: "9%",
       render: (data) => {
         return (
           <div>
@@ -219,7 +203,7 @@ const List = ({}) => {
       dataIndex: "fileLength",
     },
     {
-      width: "10%",
+      width: "8%",
       title: "좋아요수",
       dataIndex: "likeCnt",
     },
@@ -233,6 +217,20 @@ const List = ({}) => {
       width: "15%",
       title: "등록일",
       dataIndex: "viewCreatedAt",
+    },
+    {
+      width: "8%",
+      title: "삭제",
+      render: (data) => (
+        <Popconfirm
+          title="정말 삭제하시겠습니까?"
+          onConfirm={() => deleteHandler(data)}
+          okText="삭제"
+          cancelText="취소"
+        >
+          <DelBtn />
+        </Popconfirm>
+      ),
     },
   ];
 
@@ -270,7 +268,7 @@ const List = ({}) => {
         <GuideUl>
           <GuideLi>모든 뮤직템을 확인할 수 있습니다.</GuideLi>
           <GuideLi isImpo={true}>
-            뮤직템을 확인만 가능할 뿐 다른기능은 포함되어있지 않습니다.
+            삭제 후 복구가 어려우니 신중하게 처리해주세요.
           </GuideLi>
         </GuideUl>
       </Wrapper>
