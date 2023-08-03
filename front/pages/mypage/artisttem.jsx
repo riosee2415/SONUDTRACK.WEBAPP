@@ -41,10 +41,9 @@ import { TAG_TYPE_LIST_REQUEST } from "../../reducers/tag";
 
 const Box = styled(Wrapper)`
   width: calc(100% / 6 - 37px);
+  height: 150px;
   margin: 0 44px 40px 0;
   border-radius: 7px;
-  position: relative;
-  overflow: hidden;
 
   &:nth-child(6n) {
     margin: 0 0 40px;
@@ -478,10 +477,6 @@ const Index = () => {
   }, []);
 
   const filmoCreateHandler = useCallback(() => {
-    if (!roleName.value || roleName.value.trim() === "") {
-      return message.error("역활을 입력해주세요.");
-    }
-
     if (!comment.value || comment.value.trim() === "") {
       return message.error("Comment를 입력해주세요.");
     }
@@ -498,21 +493,17 @@ const Index = () => {
       return message.error("음원을 등록해주세요.");
     }
 
-    if (!filmoCover) {
-      return message.error("이미지를 등록해주세요.");
-    }
-
     let arr = filmoArr ? filmoArr.map((data) => data) : [];
 
     arr.push({
-      part: roleName.value,
+      part: "-",
       comment: comment.value,
       singerName: singer.value,
       songName: songTitle.value,
       filename: filmoFileName.value,
       filePath: filmoMusic,
-      imagePathName: filmoImgName.value,
-      imagePath: filmoCover,
+      imagePathName: "-",
+      imagePath: "-",
       sort: arr.length + 1,
     });
 
@@ -612,16 +603,16 @@ const Index = () => {
       return message.error("아티스트명을 입력해주세요.");
     }
 
+    if (!artistemProfileImage) {
+      return message.error("프로필이미지를 등록해주세요.");
+    }
+
     if (!artistInfo.value || artistInfo.value.trim() === "") {
       return message.error("아티스트 소개를 입력해주세요.");
     }
 
     if (useArtCoun.length === 0) {
       return message.error("사용 가능한 언어/국가를 등록해주세요.");
-    }
-
-    if (!reqMusic) {
-      return message.error("대표음원을 등록해주세요.");
     }
 
     if (!ques1.value || ques1.value.trim() === "") {
@@ -660,7 +651,7 @@ const Index = () => {
       return message.error("필모그래피를 등록해주세요.");
     }
 
-    if (tagArr.length === 0) {
+    if (cateArr.length === 0 || tagArr.length === 0) {
       return message.error("검색관리를 등록해주세요.");
     }
 
@@ -673,8 +664,8 @@ const Index = () => {
         artistName: artistName.value,
         artistInfo: artistInfo.value,
         artistProfileImage: artistemProfileImage,
-        repMusicFile: reqMusic,
-        repMusicFilename: repSongName.value,
+        repMusicFile: "-",
+        repMusicFilename: "-",
         question1: ques1.value,
         question2: ques2.value,
         question3: ques3.value,
@@ -996,7 +987,7 @@ const Index = () => {
                     );
                   })}
               </Wrapper>
-              <Text
+              {/* <Text
                 fontSize={`16px`}
                 color={Theme.grey_C}
                 fontWeight={`500`}
@@ -1039,7 +1030,7 @@ const Index = () => {
                 >
                   파일등록
                 </CommonButton>
-              </Wrapper>
+              </Wrapper> */}
 
               <Text fontSize={`24px`} fontWeight={`600`} margin={`60px 0 30px`}>
                 상세 프로필 수정
@@ -1220,16 +1211,10 @@ const Index = () => {
                   filmoArr.map((data, idx) => {
                     return (
                       <Box key={idx}>
-                        <SquareBox>
-                          <Image alt="thumbnail" src={data.imagePath} />
-                        </SquareBox>
                         <Wrapper
                           height={`100%`}
                           bgColor={`rgba(0, 0, 0, 0.6)`}
                           color={Theme.white_C}
-                          position={`absolute`}
-                          top={`0`}
-                          left={`0`}
                         >
                           <Text fontSize={`20px`} fontWeight={`bold`}>
                             {data.singerName}
@@ -1408,7 +1393,7 @@ const Index = () => {
               </Text>
 
               <Wrapper al={`flex-start`}>
-                <Text
+                {/* <Text
                   fontSize={`16px`}
                   fontWeight={`600`}
                   color={Theme.basicTheme_C}
@@ -1424,7 +1409,7 @@ const Index = () => {
                   border={`1px solid ${Theme.lightGrey_C}`}
                   margin={`0 0 30px`}
                   {...roleName}
-                />
+                /> */}
                 <Text
                   fontSize={`16px`}
                   fontWeight={`600`}
@@ -1530,7 +1515,7 @@ const Index = () => {
                 )}
 
                 {/* 음원파일 등록했을때 나옴 */}
-                <Text
+                {/* <Text
                   fontSize={`16px`}
                   fontWeight={`600`}
                   color={Theme.basicTheme_C}
@@ -1581,7 +1566,7 @@ const Index = () => {
                     </Text>
                     <CloseOutlined onClick={filmoImgDeleteHandler} />
                   </Wrapper>
-                )}
+                )} */}
               </Wrapper>
               <CommonButton
                 width={`180px`}

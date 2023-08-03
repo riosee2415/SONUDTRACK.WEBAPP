@@ -345,7 +345,7 @@ const Index = () => {
                     fontWeight={`600`}
                     margin={`0 10px 0 0`}
                   >
-                    Musictem 앨범 등록
+                    Musictem 업로드 신청
                   </Text>
                   <Text fontSize={`16px`} color={Theme.grey_C}>
                     새로운 음원을 등록해주세요!
