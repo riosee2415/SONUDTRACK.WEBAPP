@@ -102,7 +102,7 @@ const Fourleaf = ({ Component, pageProps: { session, ...pageProps } }) => {
           />
 
           {/* 마우스 우클릭 */}
-          <script
+          {/* <script
             dangerouslySetInnerHTML={{
               __html: `
             document.addEventListener("contextmenu", function(event){
@@ -110,7 +110,7 @@ const Fourleaf = ({ Component, pageProps: { session, ...pageProps } }) => {
               }, false);
                     `,
             }}
-          />
+          /> */}
         </Head>
         <Component />
       </ThemeProvider>

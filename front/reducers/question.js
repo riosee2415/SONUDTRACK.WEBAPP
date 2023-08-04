@@ -35,6 +35,10 @@ export const initailState = {
   st_questionTypeUpdateLoading: false, // 문의 유형 정보 수정하기
   st_questionTypeUpdateDone: false,
   st_questionTypeUpdateError: null,
+  //
+  st_inquiryLoading: false, // 제작문의하기
+  st_inquiryDone: false,
+  st_inquiryError: null,
 };
 
 export const QUESTION_GET_REQUEST = "QUESTION_GET_REQUEST";
@@ -65,6 +69,10 @@ export const QUESTION_TYPE_UPDATE_FAILURE = "QUESTION_TYPE_UPDATE_FAILURE";
 export const QUESTION_TYPE_CREATE_REQUEST = "QUESTION_TYPE_CREATE_REQUEST";
 export const QUESTION_TYPE_CREATE_SUCCESS = "QUESTION_TYPE_CREATE_SUCCESS";
 export const QUESTION_TYPE_CREATE_FAILURE = "QUESTION_TYPE_CREATE_FAILURE";
+
+export const INQUIRY_REQUEST = "INQUIRY_REQUEST";
+export const INQUIRY_SUCCESS = "INQUIRY_SUCCESS";
+export const INQUIRY_FAILURE = "INQUIRY_FAILURE";
 
 export const CREATE_TYPE_MODAL_OPEN_REQUEST = "CREATE_TYPE_MODAL_OPEN_REQUEST";
 export const CREATE_TYPE_MODAL_CLOSE_REQUEST =
@@ -206,6 +214,26 @@ const reducer = (state = initailState, action) =>
         break;
       }
       ///////////////////////////////////////////////////////
+
+      case INQUIRY_REQUEST: {
+        draft.st_inquiryLoading = true;
+        draft.st_inquiryDone = false;
+        draft.st_inquiryError = null;
+        break;
+      }
+      case INQUIRY_SUCCESS: {
+        draft.st_inquiryLoading = false;
+        draft.st_inquiryDone = true;
+        draft.st_inquiryError = null;
+        break;
+      }
+      case INQUIRY_FAILURE: {
+        draft.st_inquiryLoading = false;
+        draft.st_inquiryDone = false;
+        draft.st_inquiryError = action.error;
+        break;
+      }
+
       ///////////////////////////////////////////////////////
       ///////////////////////////////////////////////////////
       case CREATE_TYPE_MODAL_OPEN_REQUEST:

@@ -28,6 +28,10 @@ import {
   QUESTION_TYPE_UPDATE_REQUEST,
   QUESTION_TYPE_UPDATE_SUCCESS,
   QUESTION_TYPE_UPDATE_FAILURE,
+  //
+  INQUIRY_REQUEST,
+  INQUIRY_SUCCESS,
+  INQUIRY_FAILURE,
 } from "../reducers/question";
 
 // SAGA AREA ********************************************************************************************************
@@ -223,6 +227,33 @@ function* questionTypeUpdate(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+async function inquiryAPI(data) {
+  return await axios.post(`/api/question/inquiry`, data);
+}
+
+function* inquiry(action) {
+  try {
+    const result = yield call(inquiryAPI, action.data);
+
+    yield put({
+      type: INQUIRY_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: INQUIRY_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 
 function* watchQuestionGet() {
@@ -255,6 +286,10 @@ function* watchQuestionTypeUpdate() {
   yield takeLatest(QUESTION_TYPE_UPDATE_REQUEST, questionTypeUpdate);
 }
 
+function* watchInquiry() {
+  yield takeLatest(INQUIRY_REQUEST, inquiry);
+}
+
 //////////////////////////////////////////////////////////////
 export default function* questionSaga() {
   yield all([
@@ -268,6 +303,8 @@ export default function* questionSaga() {
     fork(watchQuestionTypeCreate),
     fork(watchQuestionTypeDelete),
     fork(watchQuestionTypeUpdate),
+
+    fork(watchInquiry),
     //
   ]);
 }

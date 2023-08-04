@@ -3,6 +3,7 @@ const isAdminCheck = require("../middlewares/isAdminCheck");
 const isLoggedIn = require("../middlewares/isLoggedIn");
 const { Question, QuestionType, User } = require("../models");
 const models = require("../models");
+const sendSecretMail = require("../utils/mailSender");
 
 const router = express.Router();
 /**
@@ -183,6 +184,33 @@ router.post("/history/list", isAdminCheck, async (req, res, next) => {
   } catch (error) {
     console.error(error);
     return res.status(400).send("데이터를 불러올 수 없습니다.");
+  }
+});
+
+router.post("/inquiry", async (req, res, next) => {
+  const { userId, mobile, content } = req.body;
+
+  try {
+    await sendSecretMail(
+      "nws0901@nwsound1.com",
+      `제작문의 요청이 들어왔습니다.`,
+      `
+          <div>
+            <h3>음원</h3>
+            <hr />
+            <p>요청자 ID : ${userId}</p>
+            <br />
+            <p>핸드폰 : ${mobile}</p>
+            <br />
+            <p>요청 내용 : ${content}</p>
+          </div>
+          `
+    );
+
+    return res.status(200).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("메일발송에 실패했습니다.");
   }
 });
 

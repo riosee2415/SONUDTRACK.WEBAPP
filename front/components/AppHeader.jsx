@@ -1,4 +1,4 @@
-import { Drawer, Modal } from "antd";
+import { Drawer, Modal, message } from "antd";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,9 +12,13 @@ import {
   Text,
   ATag,
   TextInput,
+  CommonButton,
+  TextArea,
 } from "./commonComponents";
 import MypageMenu from "./MypageMenu";
 import Theme from "./Theme";
+import useInput from "../hooks/useInput";
+import { INQUIRY_REQUEST } from "../reducers/question";
 
 const AppHeader = () => {
   ////////////// - USE STATE- ///////////////
@@ -22,13 +26,46 @@ const AppHeader = () => {
   const router = useRouter();
   const dispatch = useDispatch();
 
+  const userId = useInput("");
+  const mobile = useInput("");
+  const content = useInput("");
+
   const { logos } = useSelector((state) => state.logo);
   const { me } = useSelector((state) => state.user);
+  const { st_inquiryDone, st_inquiryError } = useSelector(
+    (state) => state.question
+  );
 
   const [menuOpen, setMenuOpen] = useState(false);
 
   const [modalOpen1, setModalOpen1] = useState(false);
   const [modalOpen2, setModalOpen2] = useState(false);
+
+  const [iModal, setIModal] = useState(false);
+
+  ///////////// - USE EFFECT- ////////////
+
+  useEffect(() => {
+    dispatch({
+      type: LOGO_GET_REQUEST,
+    });
+  }, []);
+
+  useEffect(() => {
+    if (st_inquiryDone) {
+      userId.setValue("");
+      mobile.setValue("");
+      content.setValue("");
+
+      inquiryModal();
+
+      return message.success("제작문의가 요청되었습니다.");
+    }
+
+    if (st_inquiryError) {
+      return message.error(st_inquiryError);
+    }
+  }, [st_inquiryDone, st_inquiryError]);
 
   ///////////// - EVENT HANDLER- ////////////
   const menuOpenToggle = useCallback(() => {
@@ -43,16 +80,37 @@ const AppHeader = () => {
     setModalOpen2((prev) => !prev);
   }, [modalOpen2]);
 
-  useEffect(() => {
-    dispatch({
-      type: LOGO_GET_REQUEST,
-    });
-  }, []);
+  const inquiryModal = useCallback(() => {
+    setIModal((prev) => !prev);
+  }, [iModal]);
 
   const movelinkHandler = useCallback((link) => {
     router.push(link);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
+
+  const inquiryHandler = useCallback(() => {
+    if (!userId.value) {
+      return message.error("아이디를 입력해주세요.");
+    }
+
+    if (!mobile.value) {
+      return message.error("핸드폰번호를 입력해주세요.");
+    }
+
+    if (!content.value) {
+      return message.error("요청 내용을 입력해주세요.");
+    }
+
+    dispatch({
+      type: INQUIRY_REQUEST,
+      data: {
+        userId: userId.value,
+        mobile: mobile.value,
+        content: content.value,
+      },
+    });
+  }, [userId, mobile, content]);
   ////////////// - USE EFFECT- //////////////
 
   return (
@@ -102,6 +160,15 @@ const AppHeader = () => {
                   src={me && me.profileImage}
                 />
               </Wrapper>
+
+              <CommonButton
+                height={`48px`}
+                margin={`0 10px`}
+                fontWeight={`500`}
+                onClick={inquiryModal}
+              >
+                New Wave Sound에 제작문의
+              </CommonButton>
             </Wrapper>
           ) : (
             <Wrapper width={`auto`} dr={`row`}>
@@ -129,6 +196,15 @@ const AppHeader = () => {
                   width={`20px`}
                 />
               </Wrapper>
+
+              <CommonButton
+                height={`48px`}
+                margin={`0 10px`}
+                fontWeight={`500`}
+                onClick={inquiryModal}
+              >
+                New Wave Sound에 제작문의
+              </CommonButton>
             </Wrapper>
           )}
         </RsWrapper>
@@ -176,6 +252,15 @@ const AppHeader = () => {
                   src={me && me.profileImage}
                 />
               </Wrapper>
+
+              <CommonButton
+                height={`48px`}
+                margin={`0 10px`}
+                fontWeight={`500`}
+                onClick={inquiryModal}
+              >
+                New Wave Sound에 제작문의
+              </CommonButton>
             </Wrapper>
           ) : (
             <Wrapper
@@ -207,6 +292,15 @@ const AppHeader = () => {
                   width={`20px`}
                 />
               </Wrapper>
+
+              <CommonButton
+                height={`48px`}
+                margin={`0 10px`}
+                fontWeight={`500`}
+                onClick={inquiryModal}
+              >
+                New Wave Sound에 제작문의
+              </CommonButton>
             </Wrapper>
           )}
         </RsWrapper>
@@ -531,6 +625,110 @@ const AppHeader = () => {
               <Text fontSize={`18px`}>이젠 편리하게 Track,</Text>
               <Text fontSize={`18px`}>Top-line을 구매해서</Text>
               <Text fontSize={`18px`}>사용하세요.</Text>
+            </Wrapper>
+          </Wrapper>
+        </Wrapper>
+      </Modal>
+
+      <Modal
+        width={width < 700 ? `100%` : `680px`}
+        onCancel={inquiryModal}
+        visible={iModal}
+        footer={null}
+      >
+        <Wrapper padding={width < 900 ? `30px 0` : `30px 25px`}>
+          <Text
+            fontWeight={`bold`}
+            fontSize={width < 900 ? `22px` : `28px`}
+            color={Theme.basicTheme_C}
+            margin={`0 0 16px`}
+          >
+            New Wave Sound에 제작 문의하기
+          </Text>
+          <Wrapper
+            bgColor={Theme.lightGrey2_C}
+            padding={`30px 20px`}
+            al={`flex-start`}
+          >
+            <Text
+              fontSize={width < 900 ? `16px` : `20px`}
+              fontWeight={`bold`}
+              margin={`0 0 12px`}
+            >
+              맞춤 제작을 원하시나요?
+            </Text>
+
+            <Text
+              fontSize={width < 900 ? `16px` : `20px`}
+              fontWeight={`bold`}
+              margin={`30px 0 12px`}
+            >
+              메일로 요청하시면 따로 연락 드리겠습니다.
+            </Text>
+
+            <Text
+              fontSize={width < 900 ? `16px` : `20px`}
+              fontWeight={`bold`}
+              margin={`30px 0 12px`}
+            >
+              요청 메일 형식
+            </Text>
+            <Text
+              fontSize={width < 900 ? `14px` : `16px`}
+              color={Theme.darkGrey_C}
+            >
+              요청자 ID
+            </Text>
+            <TextInput
+              margin={`12px 0`}
+              width={`100%`}
+              height={`50px`}
+              border={`1px solid ${Theme.lightGrey_C}`}
+              type="text"
+              placeholder="아이디를 입력해주세요."
+              {...userId}
+            />
+            <Text
+              fontSize={width < 900 ? `14px` : `16px`}
+              color={Theme.darkGrey_C}
+            >
+              핸드폰번호 :
+            </Text>
+            <TextInput
+              margin={`12px 0`}
+              width={`100%`}
+              height={`50px`}
+              border={`1px solid ${Theme.lightGrey_C}`}
+              type="text"
+              placeholder="핸드폰번호를 입력해주세요."
+              {...mobile}
+            />
+            <Text
+              fontSize={width < 900 ? `14px` : `16px`}
+              color={Theme.darkGrey_C}
+            >
+              요청 내용 :
+            </Text>
+            <TextArea
+              margin={`12px 0`}
+              width={`100%`}
+              border={`1px solid ${Theme.lightGrey_C}`}
+              type="text"
+              placeholder="내용을 입력해주세요."
+              {...content}
+            />
+
+            <Wrapper>
+              <CommonButton
+                width={`180px`}
+                height={`48px`}
+                margin={`30px 0 0`}
+                fontSize={width < 900 ? `16px` : `18px`}
+                fontWeight={`500`}
+                onClick={inquiryHandler}
+              >
+                메일로 요청하기
+              </CommonButton>
             </Wrapper>
           </Wrapper>
         </Wrapper>
