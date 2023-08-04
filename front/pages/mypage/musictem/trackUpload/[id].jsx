@@ -387,19 +387,17 @@ const Index = () => {
                   bgColor={Theme.lightGrey2_C}
                   margin={`10px 0 30px`}
                 >
-                  <Text>
-                    모든 track은 곡제목과 함께 MP3, WAV 파일 모두 등록해주세요.
-                  </Text>
-                  <Text>
-                    예) 봄이 와(타이틀곡).mp3, 봄이 와(타이틀곡).wav, 벚꽃.mp3,
-                    벚꽃.wav
-                  </Text>
+                  <Text>모든 track은 곡제목으로 wave 파일로 등록해주세요.</Text>
+                  <Text>예) 봄이 와(타이틀곡).wav, 벚꽃.wav</Text>
                   <Text
                     fontWeight={`600`}
                     color={Theme.basicTheme_C}
                     margin={`15px 0 0`}
                   >
                     Tip!
+                  </Text>
+                  <Text fontWeight={`500`}>
+                    제출은 앨범으로만 가능하며, 모두 같은 형식이어야 합니다.
                   </Text>
                   <Text fontWeight={`500`}>
                     한 앨범의 곡은 앨범 테마에 맞게 같은 분위기로 등록하시면
@@ -409,10 +407,7 @@ const Index = () => {
                     한 앨범에 등록 가능한 Track 수는 최소 1곡에서 최대 10곡
                     입니다.
                   </Text>
-                  <Text fontWeight={`500`}>
-                    앨범의 Track 중 대표곡 1곡을 지정하여 Title로 등록이
-                    가능합니다.
-                  </Text>
+                  <Text fontWeight={`500`}>앨범명은 title곡이 됩니다.</Text>
                 </Wrapper>
 
                 <Text>
