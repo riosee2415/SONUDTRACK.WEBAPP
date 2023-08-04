@@ -315,17 +315,23 @@ const Home = ({}) => {
                     </CommonButton>
                     <Comment>내 음악을 완성할 Artist 찾기</Comment>
                   </CommentWrapper>
-                  <CommonButton
-                    width={width < 900 ? `150px` : `220px`}
-                    height={`54px`}
-                    kindOf={`white`}
-                    fontSize={`18px`}
-                    fontWeight={`500`}
-                    margin={width < 900 ? `0 5px` : `0 0 0 15px`}
-                    onClick={() => movelinkHandler(`/musictem`)}
-                  >
-                    Musictem
-                  </CommonButton>
+
+                  <CommentWrapper width={`auto`} position={`relative`}>
+                    <CommonButton
+                      width={width < 900 ? `150px` : `220px`}
+                      height={`54px`}
+                      kindOf={`white`}
+                      fontSize={`18px`}
+                      fontWeight={`500`}
+                      margin={width < 900 ? `0 5px` : `0 0 0 15px`}
+                      onClick={() => movelinkHandler(`/musictem`)}
+                    >
+                      Musictem
+                    </CommonButton>
+                    <Comment>
+                      내 음악을 판매하거나 다른 Artist의 음악 구매하기
+                    </Comment>
+                  </CommentWrapper>
                 </Wrapper>
               </Wrapper>
             </Wrapper>
