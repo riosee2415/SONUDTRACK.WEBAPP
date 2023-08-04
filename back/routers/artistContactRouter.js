@@ -120,6 +120,8 @@ router.post("/list", isAdminCheck, async (req, res, next) => {
           A.updatedAt,
           DATE_FORMAT(A.updatedAt, "%Y년 %m월 %d일")    AS viewUpdatedAt,
           B.username                                   AS requestUsername,
+          B.email                                      AS requestEmail,
+          B.mobile                                     AS requestMobile,
           B.userId                                     AS requestUserLoginId,
           B.profileImage                               AS requestUserProfileImage,
           C.artistName,

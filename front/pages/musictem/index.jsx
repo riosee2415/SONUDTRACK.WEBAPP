@@ -410,7 +410,7 @@ const Index = () => {
             </Wrapper>
 
             <Wrapper dr={`row`} ju={`flex-start`}>
-              <Wrapper width={`auto`} al={`flex-start`}>
+              {/* <Wrapper width={`auto`} al={`flex-start`}>
                 <Text
                   fontSize={width < 900 ? `16px` : `20px`}
                   fontWeight={`bold`}
@@ -438,7 +438,7 @@ const Index = () => {
                       })}
                   </Select>
                 </CustomSelect>
-              </Wrapper>
+              </Wrapper> */}
               <Wrapper
                 width={`auto`}
                 al={`flex-start`}

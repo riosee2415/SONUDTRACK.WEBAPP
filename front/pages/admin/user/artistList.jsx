@@ -636,7 +636,7 @@ const ArtistList = ({}) => {
               onChange={imageUploadHandler}
             />
             <Button size="small" type="primary" onClick={imageRefClickHandler}>
-              등록하기
+              앨범이미지 등록하기
             </Button>
           </Wrapper>
 

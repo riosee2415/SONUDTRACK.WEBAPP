@@ -110,6 +110,7 @@ const ArtistContact = () => {
     </PopWrapper>
   );
 
+  console.log(artistContactAdminList);
   /////////////////////////////////////////////////////////////////////////
 
   ////// HOOKS //////
@@ -188,12 +189,10 @@ const ArtistContact = () => {
         setCurrentData(data);
         infoForm.setFieldsValue({
           type: data.viewType,
-          sendNickname: data.sendNickname,
-          sendName: data.sendUsername,
-          sendMobile: data.sendMobile,
-          sendEmail: data.sendEmail,
-          receptionNickname: data.receptionNickname,
-          receptionName: data.receptionUsername,
+          sendName: data.requestUsername,
+          sendMobile: data.requestMobile,
+          sendEmail: data.requestEmail,
+          receptionName: data.artistName,
           receptionMobile: data.receptionMobile,
           receptionEmail: data.receptionEmail,
           sendMessage: data.sendMessage,
@@ -222,13 +221,13 @@ const ArtistContact = () => {
     },
     {
       width: `20%`,
-      title: "발신자이름",
-      dataIndex: "sendUsername",
+      title: "구매자이름",
+      dataIndex: "requestUsername",
     },
     {
       width: `20%`,
-      title: "수신자이름",
-      dataIndex: "receptionUsername",
+      title: "아티스트이름",
+      dataIndex: "artistName",
     },
     {
       width: `14%`,
@@ -288,7 +287,7 @@ const ArtistContact = () => {
       <Wrapper margin={`10px 0px 0px 0px`}>
         <GuideUl>
           <GuideLi>구매요청된 데이터를 확인할 수 있습니다.</GuideLi>
-          <GuideLi>발신자 이름과 수신자이름으로 검색할 수 있습니다.</GuideLi>
+          <GuideLi>구매자 이름과 아티스트이름으로 검색할 수 있습니다.</GuideLi>
         </GuideUl>
       </Wrapper>
 
@@ -313,7 +312,7 @@ const ArtistContact = () => {
                 <Input
                   size="small"
                   style={{ width: "220px" }}
-                  placeholder={`발신자이름을 입력해주세요.`}
+                  placeholder={`구매자이름을 입력해주세요.`}
                 />
               </SearchFormItem>
               <SearchFormItem
@@ -323,7 +322,7 @@ const ArtistContact = () => {
                 <Input
                   size="small"
                   style={{ width: "220px" }}
-                  placeholder={`수신자이름을 입력해주세요.`}
+                  placeholder={`아티스트이름을 입력해주세요.`}
                 />
               </SearchFormItem>
 
@@ -414,9 +413,9 @@ const ArtistContact = () => {
                   />
                 </Form.Item>
 
-                {/* 발신자 정보 */}
+                {/* 구매자 정보 */}
 
-                <Form.Item label="발신자 닉네임" name="sendNickname">
+                <Form.Item label="구매자 이름" name="sendName">
                   <Input
                     size="small"
                     readOnly
@@ -424,7 +423,7 @@ const ArtistContact = () => {
                   />
                 </Form.Item>
 
-                <Form.Item label="발신자 이름" name="sendName">
+                <Form.Item label="구매자 연락처" name="sendMobile">
                   <Input
                     size="small"
                     readOnly
@@ -432,7 +431,7 @@ const ArtistContact = () => {
                   />
                 </Form.Item>
 
-                <Form.Item label="발신자 연락처" name="sendMobile">
+                <Form.Item label="구매자 이메일" name="sendEmail">
                   <Input
                     size="small"
                     readOnly
@@ -440,41 +439,9 @@ const ArtistContact = () => {
                   />
                 </Form.Item>
 
-                <Form.Item label="발신자 이메일" name="sendEmail">
-                  <Input
-                    size="small"
-                    readOnly
-                    style={{ background: "#ebebeb" }}
-                  />
-                </Form.Item>
+                {/* 아티스트 정보 */}
 
-                {/* 수신자 정보 */}
-
-                <Form.Item label="수신자 닉네임" name="receptionNickname">
-                  <Input
-                    size="small"
-                    readOnly
-                    style={{ background: "#ebebeb" }}
-                  />
-                </Form.Item>
-
-                <Form.Item label="수신자 이름" name="receptionName">
-                  <Input
-                    size="small"
-                    readOnly
-                    style={{ background: "#ebebeb" }}
-                  />
-                </Form.Item>
-
-                <Form.Item label="수신자 연락처" name="receptionMobile">
-                  <Input
-                    size="small"
-                    readOnly
-                    style={{ background: "#ebebeb" }}
-                  />
-                </Form.Item>
-
-                <Form.Item label="수신자 이메일" name="receptionEmail">
+                <Form.Item label="아티스트 이름" name="receptionName">
                   <Input
                     size="small"
                     readOnly
